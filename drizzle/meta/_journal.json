@@ -1,0 +1,13 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1702597831628,
+      "tag": "0000_spooky_nick_fury",
+      "breakpoints": true
+    }
+  ]
+}
