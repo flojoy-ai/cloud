@@ -6,6 +6,7 @@
   "scripts": {
     "build": "next build",
     "db:generate": "dotenv -c -- drizzle-kit generate:pg",
+    "db:migrate": "dotenv -c -- tsx src/server/db/migrate.ts",
     "db:push": "dotenv -c -- drizzle-kit push:pg",
     "db:studio": "dotenv -c -- drizzle-kit studio",
     "dev": "next dev",
@@ -27,6 +28,7 @@
     "react-dom": "18.2.0",
     "server-only": "^0.0.1",
     "superjson": "^2.2.1",
+    "tsx": "^4.6.2",
     "zod": "^3.22.4"
   },
   "devDependencies": {
