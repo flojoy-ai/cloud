@@ -5,21 +5,6 @@ import { cookies, headers } from "next/headers";
 import type { NextRequest } from "next/server";
 
 export const GET = async (request: NextRequest) => {
-  console.log("auth0 callback");
-  const authRequest = auth.handleRequest(request.method, {
-    headers,
-    cookies,
-  });
-  const session = await authRequest.validate();
-  if (session) {
-    return new Response(null, {
-      status: 302,
-      headers: {
-        Location: "/",
-      },
-    });
-  }
-
   const storedState = cookies().get("auth0_oauth_state")?.value;
   const url = new URL(request.url);
   const state = url.searchParams.get("state");
@@ -62,7 +47,6 @@ export const GET = async (request: NextRequest) => {
       },
     });
   } catch (e) {
-    console.error(e);
     if (e instanceof OAuthRequestError) {
       // invalid code
       return new Response(null, {
