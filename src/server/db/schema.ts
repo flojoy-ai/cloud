@@ -99,7 +99,7 @@ export const workspaces_users = pgTable(
 export const projects = pgTable(
   "projects",
   {
-    ...baseModal("proj"),
+    ...baseModal("project"),
     name: varchar("name", { length: 256 }).notNull(),
     updatedAt: timestamp("updated_at"),
     workspaceID: text("workspace_id")
@@ -150,7 +150,7 @@ const storageProviderEnum = pgEnum("storage_provider", ["s3", "postgres"]);
 export const measurements = pgTable(
   "measurements",
   {
-    ...baseModal("meas"),
+    ...baseModal("measurement"),
     name: varchar("name", { length: 256 }),
     deviceID: text("device_id")
       .notNull()
