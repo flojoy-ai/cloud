@@ -2,30 +2,31 @@ type IconProps = React.HTMLAttributes<SVGElement>;
 
 export const Icons = {
   logo: (props: IconProps) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" {...props}>
-      <rect width="256" height="256" fill="none" />
-      <line
-        x1="208"
-        y1="128"
-        x2="128"
-        y2="208"
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="16"
-      />
-      <line
-        x1="192"
-        y1="40"
-        x2="40"
-        y2="192"
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="16"
-      />
+    <svg
+      {...props}
+      viewBox="0 0 140 140"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g clipPath="url(#clip0_92_7)">
+        <path
+          d="M31.8259 134.84V49.0532L70.1252 68.4189L94.3812 55.1668L11.3999 14.2795L13.2269 121.884L31.8259 134.84Z"
+          fill="#917BFF"
+        />
+        <path
+          d="M31.826 49.053V134.84L126.784 76.6931L128 55.2945L52.4951 101.786V59.3781L31.826 49.053Z"
+          fill="#7B61FF"
+        />
+        <path
+          d="M52.4951 77.8399L94.3812 55.1666L11.4 14.2793L28.6034 6L128 55.2945L52.4951 101.786V77.8399Z"
+          fill="#B8AAFF"
+        />
+      </g>
+      <defs>
+        <clipPath id="clip0_92_7">
+          <rect width="140" height="140" fill="white" />
+        </clipPath>
+      </defs>
     </svg>
   ),
   twitter: (props: IconProps) => (
