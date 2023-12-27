@@ -12,7 +12,8 @@
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@paralleldrive/cuid2": "^2.2.2",
