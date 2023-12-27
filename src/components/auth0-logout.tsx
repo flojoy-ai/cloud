@@ -2,14 +2,19 @@
 
 import { useRouter } from "next/navigation";
 
-const Form = ({
+const Auth0Logout = ({
   children,
   action,
+  clientID,
+  appDomain,
 }: {
   children: React.ReactNode;
   action: string;
+  clientID: string;
+  appDomain: string;
 }) => {
   const router = useRouter();
+
   return (
     <form
       action={action}
@@ -23,10 +28,12 @@ const Form = ({
           redirect: "manual",
         });
 
+        const returnTo = window.location.origin;
+
         if (response.status === 0) {
-          // redirected
-          // when using `redirect: "manual"`, response status 0 is returned
-          return router.refresh();
+          router.push(
+            `${appDomain}/v2/logout?client_id=${clientID}&returnTo=${returnTo}`,
+          );
         }
       }}
     >
@@ -35,4 +42,4 @@ const Form = ({
   );
 };
 
-export default Form;
+export default Auth0Logout;
