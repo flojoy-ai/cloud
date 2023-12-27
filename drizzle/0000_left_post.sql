@@ -1,4 +1,10 @@
 DO $$ BEGIN
+ CREATE TYPE "auth_provider" AS ENUM('auth0');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
  CREATE TYPE "plan_type" AS ENUM('hobby', 'pro', 'enterprise');
 EXCEPTION
  WHEN duplicate_object THEN null;
@@ -70,6 +76,7 @@ CREATE TABLE IF NOT EXISTS "cloud_user_session" (
 	"id" text PRIMARY KEY NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"user_id" text NOT NULL,
+	"auth_provider" "auth_provider" NOT NULL,
 	"active_expires" bigint NOT NULL,
 	"idle_expires" bigint NOT NULL
 );

@@ -1,5 +1,5 @@
 {
-  "id": "c1cedadd-08ae-416a-aeea-fcf3edd4f127",
+  "id": "be48664e-e443-4c78-9a17-4f80633560df",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -402,6 +402,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "auth_provider": {
+          "name": "auth_provider",
+          "type": "auth_provider",
+          "primaryKey": false,
+          "notNull": true
+        },
         "active_expires": {
           "name": "active_expires",
           "type": "bigint",
@@ -569,6 +575,12 @@
     }
   },
   "enums": {
+    "auth_provider": {
+      "name": "auth_provider",
+      "values": {
+        "auth0": "auth0"
+      }
+    },
     "plan_type": {
       "name": "plan_type",
       "values": {

@@ -38,7 +38,9 @@ export const GET = async (request: NextRequest) => {
 
     const session = await auth.createSession({
       userId: user.userId,
-      attributes: {},
+      attributes: {
+        auth_provider: "auth0",
+      },
     });
 
     const authRequest = auth.handleRequest(request.method, {

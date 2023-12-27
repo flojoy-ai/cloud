@@ -21,6 +21,11 @@ export const auth = lucia({
   getUserAttributes: (_) => {
     return {};
   },
+  getSessionAttributes: (session) => {
+    return {
+      authProvider: session.auth_provider,
+    };
+  },
 });
 
 export const auth0Auth = auth0(auth, {

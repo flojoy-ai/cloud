@@ -40,11 +40,14 @@ export const user = pgTable(
   (_) => ({}),
 );
 
+export const authProviderEnum = pgEnum("auth_provider", ["auth0"]);
+
 export const user_session = pgTable("user_session", {
   ...baseModal("user_session"),
   userID: text("user_id")
     .notNull()
     .references(() => user.id),
+  authProvider: authProviderEnum("auth_provider").notNull(),
   activeExpires: bigint("active_expires", { mode: "number" }).notNull(),
   idleExpires: bigint("idle_expires", { mode: "number" }).notNull(),
 });
