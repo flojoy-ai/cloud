@@ -4,10 +4,10 @@ import { postgres as postgresAdapter } from "@lucia-auth/adapter-postgresql";
 import { client } from "~/server/db";
 import { auth0 } from "@lucia-auth/oauth/providers";
 import { env } from "~/env";
-import "lucia/polyfill/node";
+// import "lucia/polyfill/node"; // not needed for nodejs 20 or above
 
 export const auth = lucia({
-  env: process.env.NODE_ENV === "development" ? "DEV" : "PROD",
+  env: env.NODE_ENV === "development" ? "DEV" : "PROD",
   middleware: nextjs_future(),
   sessionCookie: {
     expires: false,
@@ -18,10 +18,8 @@ export const auth = lucia({
     session: "cloud_user_session",
   }),
 
-  getUserAttributes: (data) => {
-    return {
-      id: data.id,
-    };
+  getUserAttributes: (_) => {
+    return {};
   },
 });
 
