@@ -2,7 +2,7 @@ import { lucia } from "lucia";
 import { nextjs_future } from "lucia/middleware";
 import { postgres as postgresAdapter } from "@lucia-auth/adapter-postgresql";
 import { client } from "~/server/db";
-import { auth0, github } from "@lucia-auth/oauth/providers";
+import { auth0 } from "@lucia-auth/oauth/providers";
 import { env } from "~/env";
 // import "lucia/polyfill/node"; // not needed for nodejs 20 or above
 
@@ -30,14 +30,6 @@ export const auth0Auth = auth0(auth, {
     env.AUTH0_REDIRECT_URI ??
     "https://" + env.VERCEL_BRANCH_URL + "/login/auth0/callback",
   appDomain: env.AUTH0_APP_DOMAIN,
-});
-
-export const githubAuth = github(auth, {
-  clientId: env.GITHUB_CLIENT_ID,
-  clientSecret: env.GITHUB_CLIENT_SECRET,
-  redirectUri:
-    env.GITHUB_REDIRECT_URI ??
-    "https://" + env.VERCEL_BRANCH_URL + "/login/github/callback",
 });
 
 export type Auth = typeof auth;
