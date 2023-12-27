@@ -26,7 +26,9 @@ export const auth = lucia({
 export const auth0Auth = auth0(auth, {
   clientId: env.AUTH0_CLIENT_ID,
   clientSecret: env.AUTH0_CLIENT_SECRET,
-  redirectUri: env.AUTH0_REDIRECT_URI,
+  redirectUri:
+    env.AUTH0_REDIRECT_URI ??
+    "https://" + env.VERCEL_URL + "/login/auth0/callback",
   appDomain: env.AUTH0_APP_DOMAIN,
 });
 

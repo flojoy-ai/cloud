@@ -13,8 +13,9 @@ export const env = createEnv({
       .default("development"),
     AUTH0_CLIENT_ID: z.string(),
     AUTH0_CLIENT_SECRET: z.string(),
-    AUTH0_REDIRECT_URI: z.string(),
-    AUTH0_APP_DOMAIN: z.string(),
+    AUTH0_REDIRECT_URI: z.string().url().optional(),
+    AUTH0_APP_DOMAIN: z.string().url(),
+    VERCEL_URL: z.string().url().optional(),
   },
 
   /**
@@ -37,6 +38,7 @@ export const env = createEnv({
     AUTH0_CLIENT_SECRET: process.env.AUTH0_CLIENT_SECRET,
     AUTH0_REDIRECT_URI: process.env.AUTH0_REDIRECT_URI,
     AUTH0_APP_DOMAIN: process.env.AUTH0_APP_DOMAIN,
+    VERCEL_URL: process.env.VERCEL_URL,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**
