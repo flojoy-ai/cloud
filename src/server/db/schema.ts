@@ -1,31 +1,168 @@
-// Example model schema from the Drizzle docs
-// https://orm.drizzle.team/docs/sql-schema-declaration
-
 import {
   index,
+  text,
   pgTableCreator,
-  serial,
   timestamp,
   varchar,
+  pgEnum,
+  boolean,
+  integer,
+  jsonb,
 } from "drizzle-orm/pg-core";
+import { createId } from "@paralleldrive/cuid2";
 
-/**
- * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
- * database instance for multiple projects.
- *
- * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
- */
 export const pgTable = pgTableCreator((name) => `cloud_${name}`);
 
-export const posts = pgTable(
-  "post",
+// The base modal to setup the ID with a prefix and a createdAt timestamp.
+const baseModal = (prefix: string) => ({
+  id: text("id")
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => prefix + "_" + createId()),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// We will use Auth0 for the public cloud, but we can extend
+// this enum to support other auth providers in the future.
+const authProviderEnum = pgEnum("auth_provider", ["auth0"]);
+
+// After a user signs up with the auth provider, we will create a user
+// object in our database as well. This user object will also record the
+// unique ID from the auth provider such that we can easily look up user
+// information from the auth provider.
+// When the 'signupCompleted' field is false, we will redirect the user
+// to a signup wizard (which we can use to collect more info)
+// to complete the signup process.
+export const users = pgTable(
+  "users",
   {
-    id: serial("id").primaryKey(),
-    name: varchar("name", { length: 256 }),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    ...baseModal("user"),
+    authProvider: authProviderEnum("auth_provider").notNull(),
+    authProviderUserID: text("auth_provider_user_id").notNull(),
+    updatedAt: timestamp("updated_at"),
+    signupCompleted: boolean("signup_completed").default(false),
+  },
+  (user) => ({
+    authProviderUserIDIndex: index("auth_provider_user_id_idx").on(
+      user.authProvider,
+      user.authProviderUserID,
+    ),
+  }),
+);
+
+// Upon creating a Flojoy Cloud account, the user will be prompted to
+// create a workspace. (This can be a part of the singup wizard like mentioned
+// in the comment above).
+const planTypeEnum = pgEnum("plan_type", ["hobby", "pro", "enterprise"]);
+
+export const workspaces = pgTable(
+  "workspaces",
+  {
+    ...baseModal("workspace"),
+    name: varchar("name", { length: 256 }).notNull(),
+    planType: planTypeEnum("plan_type").notNull(),
+    totalSeats: integer("total_seats").notNull().default(1),
     updatedAt: timestamp("updated_at"),
   },
-  (example) => ({
-    nameIndex: index("name_idx").on(example.name),
+  (workspace) => ({
+    nameIndex: index("name_idx").on(workspace.name),
+  }),
+);
+
+// The workspaces_users table is a join table between the workspaces and users
+// It is used to keep track of which user belongs to which workspace.
+const workspaceRoleEnum = pgEnum("workspace_role", [
+  "owner",
+  "admin",
+  "member",
+]);
+
+export const workspaces_users = pgTable(
+  "workspaces_users",
+  {
+    ...baseModal("workspace_user"),
+    workspaceID: text("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    userID: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    workspaceRole: workspaceRoleEnum("workspace_role").notNull(),
+  },
+  (workspace_user) => ({
+    workspaceIDIndex: index("workspace_id_idx").on(workspace_user.workspaceID),
+    userIDIndex: index("user_id_idx").on(workspace_user.userID),
+  }),
+);
+
+// This table should be self-explanatory.
+export const projects = pgTable(
+  "projects",
+  {
+    ...baseModal("proj"),
+    name: varchar("name", { length: 256 }).notNull(),
+    updatedAt: timestamp("updated_at"),
+    workspaceID: text("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+  },
+  (project) => ({
+    nameIndex: index("name_idx").on(project.name),
+  }),
+);
+
+// Each project can have multiple tests (not "software test").
+export const tests = pgTable(
+  "tests",
+  {
+    ...baseModal("test"),
+    name: varchar("name", { length: 256 }).notNull(),
+    updatedAt: timestamp("updated_at"),
+    projectID: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+  },
+  (test) => ({
+    nameIndex: index("name_idx").on(test.name),
+  }),
+);
+
+// Each project can have a bunch of hardware devices registered to it.
+export const devices = pgTable(
+  "devices",
+  {
+    ...baseModal("device"),
+    name: varchar("name", { length: 256 }).notNull(),
+    updatedAt: timestamp("updated_at"),
+    projectID: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+  },
+  (device) => ({
+    nameIndex: index("name_idx").on(device.name),
+  }),
+);
+
+// A measurement from a device that is associated with a test.
+// The is_deleted field is used to soft-delete a measurement.
+const storageProviderEnum = pgEnum("storage_provider", ["s3", "postgres"]);
+
+export const measurements = pgTable(
+  "measurements",
+  {
+    ...baseModal("meas"),
+    name: varchar("name", { length: 256 }),
+    deviceID: text("device_id")
+      .notNull()
+      .references(() => devices.id, { onDelete: "cascade" }),
+    testID: text("test_id")
+      .notNull()
+      .references(() => tests.id, { onDelete: "cascade" }),
+    isDeleted: boolean("is_deleted").default(false),
+    storageProvider: storageProviderEnum("storage_provider").notNull(),
+    storageLocation: jsonb("storage_location").notNull(),
+  },
+  (measurement) => ({
+    nameIndex: index("name_idx").on(measurement.name),
   }),
 );
