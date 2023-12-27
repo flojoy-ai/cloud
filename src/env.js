@@ -16,6 +16,10 @@ export const env = createEnv({
     AUTH0_REDIRECT_URI: z.string().url().optional(),
     AUTH0_APP_DOMAIN: z.string().url(),
     VERCEL_BRANCH_URL: z.string().optional(),
+
+    GITHUB_CLIENT_ID: z.string(),
+    GITHUB_CLIENT_SECRET: z.string(),
+    GITHUB_REDIRECT_URI: z.string().url().optional(),
   },
 
   /**
@@ -39,7 +43,10 @@ export const env = createEnv({
     AUTH0_REDIRECT_URI: process.env.AUTH0_REDIRECT_URI,
     AUTH0_APP_DOMAIN: process.env.AUTH0_APP_DOMAIN,
     VERCEL_BRANCH_URL: process.env.VERCEL_BRANCH_URL,
-    // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
+
+    GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
+    GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
+    GITHUB_REDIRECT_URI: process.env.GITHUB_REDIRECT_URI,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

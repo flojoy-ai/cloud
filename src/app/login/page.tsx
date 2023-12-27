@@ -15,9 +15,15 @@ export default async function LogIn() {
             {/* </p> */}
           </div>
 
-          <Button asChild>
-            <Link href="/login/auth0">Continue</Link>
-          </Button>
+          <div className="flex flex-col space-y-2">
+            <Button asChild>
+              <Link href="/login/github">Continue with GitHub</Link>
+            </Button>
+
+            <Button asChild>
+              <Link href="/login/auth0">Continue with Auth0</Link>
+            </Button>
+          </div>
 
           <p className="text-muted-foreground px-8 text-center text-sm">
             By clicking continue, you agree to our{" "}
