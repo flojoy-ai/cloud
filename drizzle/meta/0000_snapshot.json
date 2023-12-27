@@ -1,11 +1,11 @@
 {
-  "id": "4cbb38eb-0303-424a-bd6a-454bf2b63875",
+  "id": "c1cedadd-08ae-416a-aeea-fcf3edd4f127",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
   "tables": {
-    "cloud_devices": {
-      "name": "cloud_devices",
+    "cloud_device": {
+      "name": "cloud_device",
       "schema": "",
       "columns": {
         "id": {
@@ -50,10 +50,10 @@
         }
       },
       "foreignKeys": {
-        "cloud_devices_project_id_cloud_projects_id_fk": {
-          "name": "cloud_devices_project_id_cloud_projects_id_fk",
-          "tableFrom": "cloud_devices",
-          "tableTo": "cloud_projects",
+        "cloud_device_project_id_cloud_project_id_fk": {
+          "name": "cloud_device_project_id_cloud_project_id_fk",
+          "tableFrom": "cloud_device",
+          "tableTo": "cloud_project",
           "columnsFrom": [
             "project_id"
           ],
@@ -67,8 +67,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "cloud_measurements": {
-      "name": "cloud_measurements",
+    "cloud_measurement": {
+      "name": "cloud_measurement",
       "schema": "",
       "columns": {
         "id": {
@@ -138,10 +138,10 @@
         }
       },
       "foreignKeys": {
-        "cloud_measurements_device_id_cloud_devices_id_fk": {
-          "name": "cloud_measurements_device_id_cloud_devices_id_fk",
-          "tableFrom": "cloud_measurements",
-          "tableTo": "cloud_devices",
+        "cloud_measurement_device_id_cloud_device_id_fk": {
+          "name": "cloud_measurement_device_id_cloud_device_id_fk",
+          "tableFrom": "cloud_measurement",
+          "tableTo": "cloud_device",
           "columnsFrom": [
             "device_id"
           ],
@@ -151,10 +151,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "cloud_measurements_test_id_cloud_tests_id_fk": {
-          "name": "cloud_measurements_test_id_cloud_tests_id_fk",
-          "tableFrom": "cloud_measurements",
-          "tableTo": "cloud_tests",
+        "cloud_measurement_test_id_cloud_test_id_fk": {
+          "name": "cloud_measurement_test_id_cloud_test_id_fk",
+          "tableFrom": "cloud_measurement",
+          "tableTo": "cloud_test",
           "columnsFrom": [
             "test_id"
           ],
@@ -168,8 +168,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "cloud_projects": {
-      "name": "cloud_projects",
+    "cloud_project": {
+      "name": "cloud_project",
       "schema": "",
       "columns": {
         "id": {
@@ -214,10 +214,10 @@
         }
       },
       "foreignKeys": {
-        "cloud_projects_workspace_id_cloud_workspaces_id_fk": {
-          "name": "cloud_projects_workspace_id_cloud_workspaces_id_fk",
-          "tableFrom": "cloud_projects",
-          "tableTo": "cloud_workspaces",
+        "cloud_project_workspace_id_cloud_workspace_id_fk": {
+          "name": "cloud_project_workspace_id_cloud_workspace_id_fk",
+          "tableFrom": "cloud_project",
+          "tableTo": "cloud_workspace",
           "columnsFrom": [
             "workspace_id"
           ],
@@ -231,8 +231,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "cloud_tests": {
-      "name": "cloud_tests",
+    "cloud_test": {
+      "name": "cloud_test",
       "schema": "",
       "columns": {
         "id": {
@@ -277,10 +277,10 @@
         }
       },
       "foreignKeys": {
-        "cloud_tests_project_id_cloud_projects_id_fk": {
-          "name": "cloud_tests_project_id_cloud_projects_id_fk",
-          "tableFrom": "cloud_tests",
-          "tableTo": "cloud_projects",
+        "cloud_test_project_id_cloud_project_id_fk": {
+          "name": "cloud_test_project_id_cloud_project_id_fk",
+          "tableFrom": "cloud_test",
+          "tableTo": "cloud_project",
           "columnsFrom": [
             "project_id"
           ],
@@ -294,8 +294,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "cloud_users": {
-      "name": "cloud_users",
+    "cloud_user": {
+      "name": "cloud_user",
       "schema": "",
       "columns": {
         "id": {
@@ -311,18 +311,6 @@
           "notNull": true,
           "default": "now()"
         },
-        "auth_provider": {
-          "name": "auth_provider",
-          "type": "auth_provider",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "auth_provider_user_id": {
-          "name": "auth_provider_user_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
@@ -337,22 +325,117 @@
           "default": false
         }
       },
-      "indexes": {
-        "auth_provider_user_id_index": {
-          "name": "auth_provider_user_id_index",
-          "columns": [
-            "auth_provider",
-            "auth_provider_user_id"
-          ],
-          "isUnique": false
-        }
-      },
+      "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "cloud_workspaces": {
-      "name": "cloud_workspaces",
+    "cloud_user_key": {
+      "name": "cloud_user_key",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hashed_password": {
+          "name": "hashed_password",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "cloud_user_key_user_id_cloud_user_id_fk": {
+          "name": "cloud_user_key_user_id_cloud_user_id_fk",
+          "tableFrom": "cloud_user_key",
+          "tableTo": "cloud_user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "cloud_user_session": {
+      "name": "cloud_user_session",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "active_expires": {
+          "name": "active_expires",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "idle_expires": {
+          "name": "idle_expires",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "cloud_user_session_user_id_cloud_user_id_fk": {
+          "name": "cloud_user_session_user_id_cloud_user_id_fk",
+          "tableFrom": "cloud_user_session",
+          "tableTo": "cloud_user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "cloud_workspace": {
+      "name": "cloud_workspace",
       "schema": "",
       "columns": {
         "id": {
@@ -407,8 +490,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "cloud_workspaces_users": {
-      "name": "cloud_workspaces_users",
+    "cloud_workspace_user": {
+      "name": "cloud_workspace_user",
       "schema": "",
       "columns": {
         "id": {
@@ -454,10 +537,10 @@
         }
       },
       "foreignKeys": {
-        "cloud_workspaces_users_workspace_id_cloud_workspaces_id_fk": {
-          "name": "cloud_workspaces_users_workspace_id_cloud_workspaces_id_fk",
-          "tableFrom": "cloud_workspaces_users",
-          "tableTo": "cloud_workspaces",
+        "cloud_workspace_user_workspace_id_cloud_workspace_id_fk": {
+          "name": "cloud_workspace_user_workspace_id_cloud_workspace_id_fk",
+          "tableFrom": "cloud_workspace_user",
+          "tableTo": "cloud_workspace",
           "columnsFrom": [
             "workspace_id"
           ],
@@ -467,10 +550,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "cloud_workspaces_users_user_id_cloud_users_id_fk": {
-          "name": "cloud_workspaces_users_user_id_cloud_users_id_fk",
-          "tableFrom": "cloud_workspaces_users",
-          "tableTo": "cloud_users",
+        "cloud_workspace_user_user_id_cloud_user_id_fk": {
+          "name": "cloud_workspace_user_user_id_cloud_user_id_fk",
+          "tableFrom": "cloud_workspace_user",
+          "tableTo": "cloud_user",
           "columnsFrom": [
             "user_id"
           ],
@@ -486,12 +569,6 @@
     }
   },
   "enums": {
-    "auth_provider": {
-      "name": "auth_provider",
-      "values": {
-        "auth0": "auth0"
-      }
-    },
     "plan_type": {
       "name": "plan_type",
       "values": {

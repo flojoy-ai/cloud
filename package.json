@@ -16,6 +16,8 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@lucia-auth/adapter-postgresql": "^2.0.2",
+    "@lucia-auth/oauth": "^3.5.0",
     "@paralleldrive/cuid2": "^2.2.2",
     "@radix-ui/react-alert-dialog": "^1.0.5",
     "@radix-ui/react-avatar": "^1.0.4",
@@ -44,6 +46,7 @@
     "clsx": "^2.0.0",
     "cmdk": "^0.2.0",
     "drizzle-orm": "^0.29.2",
+    "lucia": "^2.7.6",
     "lucide-react": "^0.302.0",
     "next": "^14.0.4",
     "next-themes": "^0.2.1",
