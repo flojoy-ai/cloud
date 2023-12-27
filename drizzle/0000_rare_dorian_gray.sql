@@ -1,3 +1,27 @@
+DO $$ BEGIN
+ CREATE TYPE "auth_provider" AS ENUM('auth0');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ CREATE TYPE "plan_type" AS ENUM('hobby', 'pro', 'enterprise');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ CREATE TYPE "storage_provider" AS ENUM('s3', 'postgres');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ CREATE TYPE "workspace_role" AS ENUM('owner', 'admin', 'member');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_devices" (
 	"id" text PRIMARY KEY NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
@@ -60,14 +84,13 @@ CREATE TABLE IF NOT EXISTS "cloud_workspaces_users" (
 	"workspace_role" "workspace_role" NOT NULL
 );
 --> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "name_idx" ON "cloud_devices" ("name");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "name_idx" ON "cloud_measurements" ("name");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "name_idx" ON "cloud_projects" ("name");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "name_idx" ON "cloud_tests" ("name");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "auth_provider_user_id_idx" ON "cloud_users" ("auth_provider","auth_provider_user_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "name_idx" ON "cloud_workspaces" ("name");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "workspace_id_idx" ON "cloud_workspaces_users" ("workspace_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "user_id_idx" ON "cloud_workspaces_users" ("user_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "device_name_idx" ON "cloud_devices" ("name");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "measurement_name_idx" ON "cloud_measurements" ("name");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "project_name_index" ON "cloud_projects" ("name");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "test_name_idx" ON "cloud_tests" ("name");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "auth_provider_user_id_index" ON "cloud_users" ("auth_provider","auth_provider_user_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "workspace_name_index" ON "cloud_workspaces" ("name");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "workspace_id_user_id_index" ON "cloud_workspaces_users" ("workspace_id","user_id");--> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "cloud_devices" ADD CONSTRAINT "cloud_devices_project_id_cloud_projects_id_fk" FOREIGN KEY ("project_id") REFERENCES "cloud_projects"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION

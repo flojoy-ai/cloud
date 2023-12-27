@@ -1,8 +1,8 @@
 {
+  "id": "4cbb38eb-0303-424a-bd6a-454bf2b63875",
+  "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
-  "id": "9c0d8153-5df8-4cbb-9dd6-2e7b83d6fd59",
-  "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "cloud_devices": {
       "name": "cloud_devices",
@@ -41,8 +41,8 @@
         }
       },
       "indexes": {
-        "name_idx": {
-          "name": "name_idx",
+        "device_name_idx": {
+          "name": "device_name_idx",
           "columns": [
             "name"
           ],
@@ -129,8 +129,8 @@
         }
       },
       "indexes": {
-        "name_idx": {
-          "name": "name_idx",
+        "measurement_name_idx": {
+          "name": "measurement_name_idx",
           "columns": [
             "name"
           ],
@@ -205,8 +205,8 @@
         }
       },
       "indexes": {
-        "name_idx": {
-          "name": "name_idx",
+        "project_name_index": {
+          "name": "project_name_index",
           "columns": [
             "name"
           ],
@@ -268,8 +268,8 @@
         }
       },
       "indexes": {
-        "name_idx": {
-          "name": "name_idx",
+        "test_name_idx": {
+          "name": "test_name_idx",
           "columns": [
             "name"
           ],
@@ -338,8 +338,8 @@
         }
       },
       "indexes": {
-        "auth_provider_user_id_idx": {
-          "name": "auth_provider_user_id_idx",
+        "auth_provider_user_id_index": {
+          "name": "auth_provider_user_id_index",
           "columns": [
             "auth_provider",
             "auth_provider_user_id"
@@ -395,8 +395,8 @@
         }
       },
       "indexes": {
-        "name_idx": {
-          "name": "name_idx",
+        "workspace_name_index": {
+          "name": "workspace_name_index",
           "columns": [
             "name"
           ],
@@ -444,16 +444,10 @@
         }
       },
       "indexes": {
-        "workspace_id_idx": {
-          "name": "workspace_id_idx",
+        "workspace_id_user_id_index": {
+          "name": "workspace_id_user_id_index",
           "columns": [
-            "workspace_id"
-          ],
-          "isUnique": false
-        },
-        "user_id_idx": {
-          "name": "user_id_idx",
-          "columns": [
+            "workspace_id",
             "user_id"
           ],
           "isUnique": false
@@ -491,11 +485,41 @@
       "uniqueConstraints": {}
     }
   },
-  "enums": {},
+  "enums": {
+    "auth_provider": {
+      "name": "auth_provider",
+      "values": {
+        "auth0": "auth0"
+      }
+    },
+    "plan_type": {
+      "name": "plan_type",
+      "values": {
+        "hobby": "hobby",
+        "pro": "pro",
+        "enterprise": "enterprise"
+      }
+    },
+    "storage_provider": {
+      "name": "storage_provider",
+      "values": {
+        "s3": "s3",
+        "postgres": "postgres"
+      }
+    },
+    "workspace_role": {
+      "name": "workspace_role",
+      "values": {
+        "owner": "owner",
+        "admin": "admin",
+        "member": "member"
+      }
+    }
+  },
   "schemas": {},
   "_meta": {
+    "columns": {},
     "schemas": {},
-    "tables": {},
-    "columns": {}
+    "tables": {}
   }
 }

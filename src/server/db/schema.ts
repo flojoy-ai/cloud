@@ -24,7 +24,7 @@ const baseModal = (prefix: string) => ({
 
 // We will use Auth0 for the public cloud, but we can extend
 // this enum to support other auth providers in the future.
-const authProviderEnum = pgEnum("auth_provider", ["auth0"]);
+export const authProviderEnum = pgEnum("auth_provider", ["auth0"]);
 
 // After a user signs up with the auth provider, we will create a user
 // object in our database as well. This user object will also record the
@@ -43,7 +43,7 @@ export const users = pgTable(
     signupCompleted: boolean("signup_completed").default(false),
   },
   (user) => ({
-    authProviderUserIDIndex: index("auth_provider_user_id_idx").on(
+    authProviderUserIDIndex: index("auth_provider_user_id_index").on(
       user.authProvider,
       user.authProviderUserID,
     ),
@@ -53,7 +53,7 @@ export const users = pgTable(
 // Upon creating a Flojoy Cloud account, the user will be prompted to
 // create a workspace. (This can be a part of the singup wizard like mentioned
 // in the comment above).
-const planTypeEnum = pgEnum("plan_type", ["hobby", "pro", "enterprise"]);
+export const planTypeEnum = pgEnum("plan_type", ["hobby", "pro", "enterprise"]);
 
 export const workspaces = pgTable(
   "workspaces",
@@ -65,13 +65,13 @@ export const workspaces = pgTable(
     updatedAt: timestamp("updated_at"),
   },
   (workspace) => ({
-    nameIndex: index("name_idx").on(workspace.name),
+    workspaceNameIndex: index("workspace_name_index").on(workspace.name),
   }),
 );
 
 // The workspaces_users table is a join table between the workspaces and users
 // It is used to keep track of which user belongs to which workspace.
-const workspaceRoleEnum = pgEnum("workspace_role", [
+export const workspaceRoleEnum = pgEnum("workspace_role", [
   "owner",
   "admin",
   "member",
@@ -90,8 +90,10 @@ export const workspaces_users = pgTable(
     workspaceRole: workspaceRoleEnum("workspace_role").notNull(),
   },
   (workspace_user) => ({
-    workspaceIDIndex: index("workspace_id_idx").on(workspace_user.workspaceID),
-    userIDIndex: index("user_id_idx").on(workspace_user.userID),
+    workspaceIDUserIDIndex: index("workspace_id_user_id_index").on(
+      workspace_user.workspaceID,
+      workspace_user.userID,
+    ),
   }),
 );
 
@@ -107,7 +109,7 @@ export const projects = pgTable(
       .references(() => workspaces.id, { onDelete: "cascade" }),
   },
   (project) => ({
-    nameIndex: index("name_idx").on(project.name),
+    projectNameIndex: index("project_name_index").on(project.name),
   }),
 );
 
@@ -123,7 +125,7 @@ export const tests = pgTable(
       .references(() => projects.id, { onDelete: "cascade" }),
   },
   (test) => ({
-    nameIndex: index("name_idx").on(test.name),
+    testNameIndex: index("test_name_idx").on(test.name),
   }),
 );
 
@@ -139,13 +141,16 @@ export const devices = pgTable(
       .references(() => projects.id, { onDelete: "cascade" }),
   },
   (device) => ({
-    nameIndex: index("name_idx").on(device.name),
+    deviceNameIndex: index("device_name_idx").on(device.name),
   }),
 );
 
 // A measurement from a device that is associated with a test.
 // The is_deleted field is used to soft-delete a measurement.
-const storageProviderEnum = pgEnum("storage_provider", ["s3", "postgres"]);
+export const storageProviderEnum = pgEnum("storage_provider", [
+  "s3",
+  "postgres",
+]);
 
 export const measurements = pgTable(
   "measurements",
@@ -164,6 +169,6 @@ export const measurements = pgTable(
     storageLocation: jsonb("storage_location").notNull(),
   },
   (measurement) => ({
-    nameIndex: index("name_idx").on(measurement.name),
+    measurementNameIndex: index("measurement_name_idx").on(measurement.name),
   }),
 );
