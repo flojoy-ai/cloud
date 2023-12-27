@@ -3,6 +3,7 @@ import * as context from "next/headers";
 
 import { env } from "~/env";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 export const GET = async (_: NextRequest) => {
   const [url, state] = await auth0Auth.getAuthorizationUrl();
@@ -14,7 +15,7 @@ export const GET = async (_: NextRequest) => {
     maxAge: 60 * 60,
   });
 
-  return new Response(null, {
+  return new NextResponse(null, {
     status: 302,
     headers: {
       Location: url.toString(),

@@ -4,6 +4,7 @@ import { cookies, headers } from "next/headers";
 import { createId } from "@paralleldrive/cuid2";
 
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 export const GET = async (request: NextRequest) => {
   const storedState = cookies().get("auth0_oauth_state")?.value;
@@ -13,7 +14,7 @@ export const GET = async (request: NextRequest) => {
 
   // Validate state
   if (!storedState || !state || storedState !== state || !code) {
-    return new Response(null, {
+    return new NextResponse(null, {
       status: 400,
     });
   }
@@ -46,7 +47,7 @@ export const GET = async (request: NextRequest) => {
     });
     authRequest.setSession(session);
 
-    return new Response(null, {
+    return new NextResponse(null, {
       status: 302,
       headers: {
         Location: "/", // redirect to profile page
@@ -57,12 +58,12 @@ export const GET = async (request: NextRequest) => {
 
     if (e instanceof OAuthRequestError) {
       // invalid code
-      return new Response(null, {
+      return new NextResponse(null, {
         status: 400,
       });
     }
 
-    return new Response(null, {
+    return new NextResponse(null, {
       status: 500,
     });
   }
