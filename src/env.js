@@ -15,7 +15,7 @@ export const env = createEnv({
     AUTH0_CLIENT_SECRET: z.string(),
     AUTH0_REDIRECT_URI: z.string().url().optional(),
     AUTH0_APP_DOMAIN: z.string().url(),
-    VERCEL_URL: z.string().url().optional(),
+    VERCEL_URL: z.string().optional(),
   },
 
   /**
