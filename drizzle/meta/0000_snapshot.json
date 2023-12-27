@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "pg",
-  "id": "2d42c02f-f481-4f00-a293-49a89e817051",
+  "id": "9c0d8153-5df8-4cbb-9dd6-2e7b83d6fd59",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "cloud_devices": {
@@ -101,6 +101,12 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "tags": {
+          "name": "tags",
+          "type": "varchar(64)[]",
+          "primaryKey": false,
+          "notNull": false
         },
         "is_deleted": {
           "name": "is_deleted",

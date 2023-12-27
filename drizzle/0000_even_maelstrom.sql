@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS "cloud_measurements" (
 	"name" varchar(256),
 	"device_id" text NOT NULL,
 	"test_id" text NOT NULL,
+	"tags" varchar(64)[],
 	"is_deleted" boolean DEFAULT false,
 	"storage_provider" "storage_provider" NOT NULL,
 	"storage_location" jsonb NOT NULL

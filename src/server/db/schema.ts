@@ -158,6 +158,7 @@ export const measurements = pgTable(
     testID: text("test_id")
       .notNull()
       .references(() => tests.id, { onDelete: "cascade" }),
+    tags: varchar("tags", { length: 64 }).array(),
     isDeleted: boolean("is_deleted").default(false),
     storageProvider: storageProviderEnum("storage_provider").notNull(),
     storageLocation: jsonb("storage_location").notNull(),
