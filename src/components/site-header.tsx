@@ -5,7 +5,7 @@ import { cn } from "~/lib/utils";
 import { Icons } from "~/components/icons";
 import { MainNav } from "~/components/main-nav";
 import { ModeToggle } from "~/components/mode-toggle";
-import { buttonVariants } from "~/components/ui/button";
+import { Button, buttonVariants } from "~/components/ui/button";
 
 export function SiteHeader() {
   return (
@@ -14,6 +14,18 @@ export function SiteHeader() {
         <MainNav />
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <nav className="flex items-center">
+            <Button size="sm" variant="outline" asChild>
+              <Link href={siteConfig.links.login}>Log In</Link>
+            </Button>
+
+            <div className="px-1" />
+
+            <Button size="sm" asChild>
+              <Link href={siteConfig.links.signup}>Sign Up</Link>
+            </Button>
+
+            <div className="px-1" />
+
             <Link
               href={siteConfig.links.discord}
               target="_blank"

@@ -1,8 +1,8 @@
 export default async function Login() {
   return (
-    <>
-      <h1>Sign in</h1>
-      <a href="/login/auth0">Sign in with Auth0</a>
-    </>
+    <div>
+      <div>Log In</div>
+      <a href="/login/auth0">Auth0</a>
+    </div>
   );
 }

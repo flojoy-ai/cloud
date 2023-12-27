@@ -3,6 +3,8 @@ export const siteConfig = {
   url: "https://flojoy-cloud.vercel.app",
   description: "Flojoy Cloud",
   links: {
+    login: "/login",
+    signup: "/signup",
     discord: "https://discord.gg/7HEBr7yG8c",
     home: "https://flojoy.ai",
   },
