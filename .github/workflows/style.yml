@@ -1,3 +1,5 @@
+name: Code Style Check
+
 on:
   - push
   - pull_request
