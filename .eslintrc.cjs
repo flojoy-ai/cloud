@@ -31,6 +31,11 @@ const config = {
         checksVoidReturn: { attributes: false },
       },
     ],
+    // This rule for shadcn: https://github.com/shadcn-ui/ui/issues/167
+    "@typescript-eslint/no-empty-interface": [
+      "error",
+      { allowSingleExtends: true },
+    ],
   },
 };
 
