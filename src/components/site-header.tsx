@@ -6,25 +6,43 @@ import { Icons } from "~/components/icons";
 import { MainNav } from "~/components/main-nav";
 import { ModeToggle } from "~/components/mode-toggle";
 import { Button, buttonVariants } from "~/components/ui/button";
+import { auth } from "~/auth/lucia";
+import * as context from "next/headers";
+import Form from "./form";
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const authRequest = auth.handleRequest("GET", context);
+  const session = await authRequest.validate();
+
   return (
     <header className="border-border/40 bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur">
       <div className="container flex h-14 max-w-screen-2xl items-center">
         <MainNav />
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <nav className="flex items-center">
-            <Button size="sm" variant="outline" asChild>
-              <Link href={siteConfig.links.login}>Log In</Link>
-            </Button>
+            {!session ? (
+              <>
+                <Button size="sm" variant="outline" asChild>
+                  <Link href={siteConfig.links.login}>Log In</Link>
+                </Button>
 
-            <div className="px-1" />
+                <div className="px-1" />
 
-            <Button size="sm" asChild>
-              <Link href={siteConfig.links.signup}>Sign Up</Link>
-            </Button>
+                <Button size="sm" asChild>
+                  <Link href={siteConfig.links.signup}>Sign Up</Link>
+                </Button>
 
-            <div className="px-1" />
+                <div className="px-1" />
+              </>
+            ) : (
+              <>
+                <Form action="/api/logout">
+                  <Button size="sm" variant="secondary" type="submit">
+                    Sign Out
+                  </Button>
+                </Form>
+              </>
+            )}
 
             <Link
               href={siteConfig.links.discord}
