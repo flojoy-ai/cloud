@@ -15,7 +15,6 @@ export default async function SignUp() {
             {/* </p> */}
           </div>
 
-          {/* TODO: Update this to continue with Google */}
           <Button asChild>
             <Link href="/login/auth0">Continue</Link>
           </Button>
