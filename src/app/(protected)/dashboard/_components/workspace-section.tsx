@@ -17,7 +17,7 @@ export default async function WorkspaceSection({ workspace, projects }: Props) {
       <Label className="text-muted-foreground">{workspace.id}</Label>
 
       <div className="py-2"></div>
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {projects.map((project) => (
           <ProjectCard key={project.id} project={project} />
         ))}
