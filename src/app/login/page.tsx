@@ -1,4 +1,5 @@
 import Link from "next/link";
+import TermsAndPrivacy from "~/components/terms-and-privacy";
 import { Button } from "~/components/ui/button";
 
 export default async function LogIn() {
@@ -19,23 +20,7 @@ export default async function LogIn() {
             <Link href="/login/auth0">Continue</Link>
           </Button>
 
-          <p className="px-8 text-center text-sm text-muted-foreground">
-            By clicking continue, you agree to our{" "}
-            <Link
-              href="/terms"
-              className="underline underline-offset-4 hover:text-primary"
-            >
-              Terms of Service
-            </Link>{" "}
-            and{" "}
-            <Link
-              href="/privacy"
-              className="underline underline-offset-4 hover:text-primary"
-            >
-              Privacy Policy
-            </Link>
-            .
-          </p>
+          <TermsAndPrivacy />
         </div>
       </div>
     </div>
