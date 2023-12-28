@@ -29,7 +29,9 @@ export const GET = async (request: NextRequest) => {
 
       const user = await createUser({
         userId: "user_" + createId(),
-        attributes: {},
+        attributes: {
+          signup_completed: false,
+        },
       });
       return user;
     };

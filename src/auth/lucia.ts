@@ -18,8 +18,10 @@ export const auth = lucia({
     session: "cloud_user_session",
   }),
 
-  getUserAttributes: (_) => {
-    return {};
+  getUserAttributes: (user) => {
+    return {
+      setupCompleted: user.setup_completed,
+    };
   },
   getSessionAttributes: (session) => {
     return {
