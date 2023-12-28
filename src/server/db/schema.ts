@@ -99,10 +99,15 @@ export const workspace_user = pgTable(
     workspaceRole: workspaceRoleEnum("workspace_role").notNull(),
   },
   (workspace_user) => ({
-    workspaceIDUserIDIndex: index("workspace_id_user_id_index").on(
-      workspace_user.workspaceID,
+    workspaceUserWorkspaceIDUserIDIndex: index(
+      "workspace_user_workspace_id_user_id_index",
+    ).on(workspace_user.workspaceID, workspace_user.userID),
+    workspaceUserUserIDIndex: index("workspace_user_user_id_index").on(
       workspace_user.userID,
     ),
+    workspaceUserWorkspaceIDIndex: index(
+      "workspace_user_workspace_id_index",
+    ).on(workspace_user.workspaceID),
   }),
 );
 
