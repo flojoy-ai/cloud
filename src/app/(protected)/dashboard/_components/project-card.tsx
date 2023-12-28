@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   Card,
   CardDescription,
@@ -13,17 +14,19 @@ type Props = {
 
 export default async function ProjectCard({ project }: Props) {
   return (
-    <Card className="transition-all duration-300 hover:bg-secondary/80">
-      <CardHeader>
-        <CardTitle>{project.name}</CardTitle>
-        <CardDescription>{project.id}</CardDescription>
-      </CardHeader>
-      <CardFooter>
-        <div>
-          <div>Last updated:</div>
-          <div>{project.updatedAt?.toLocaleTimeString() ?? "Never"}</div>
-        </div>
-      </CardFooter>
-    </Card>
+    <Link href={`/project/${project.id}"`}>
+      <Card className="transition-all duration-300 hover:bg-secondary/80">
+        <CardHeader>
+          <CardTitle>{project.name}</CardTitle>
+          <CardDescription>{project.id}</CardDescription>
+        </CardHeader>
+        <CardFooter>
+          <div>
+            <div>Last updated:</div>
+            <div>{project.updatedAt?.toLocaleTimeString() ?? "Never"}</div>
+          </div>
+        </CardFooter>
+      </Card>
+    </Link>
   );
 }
