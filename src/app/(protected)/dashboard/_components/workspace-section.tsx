@@ -4,6 +4,9 @@ import { type SelectWorkspace } from "~/types/workspace";
 
 import ProjectCard from "./project-card";
 import { Badge } from "~/components/ui/badge";
+import Link from "next/link";
+import { Button } from "~/components/ui/button";
+import { Settings } from "lucide-react";
 
 type Props = {
   workspace: SelectWorkspace;
@@ -17,6 +20,13 @@ export default async function WorkspaceSection({ workspace, projects }: Props) {
         <Label className="text-2xl">{workspace.name}</Label>
         <Badge>{workspace.planType}</Badge>
         <Label className="text-muted-foreground">{workspace.id}</Label>
+        <div className="grow"></div>
+        <Button asChild size="sm" variant="secondary">
+          <Link href={`/workspace/${workspace.id}`} className="gap-2">
+            <Settings size="16" />
+            Configure Workspace
+          </Link>
+        </Button>
       </div>
 
       <div className="py-2"></div>
