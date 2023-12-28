@@ -31,6 +31,18 @@ export function MainNav() {
         >
           Dashboard
         </Link>
+
+        <Link
+          href="/explorer"
+          className={cn(
+            "transition-colors hover:text-foreground/80",
+            pathname?.startsWith("/explorer")
+              ? "text-foreground"
+              : "text-foreground/60",
+          )}
+        >
+          Explorer
+        </Link>
       </nav>
     </div>
   );

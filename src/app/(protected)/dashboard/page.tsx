@@ -10,13 +10,16 @@ import NewWorkspace from "./_components/new-workspace";
 import { auth } from "~/auth/lucia";
 import * as context from "next/headers";
 import NewProject from "./_components/new-project";
+import { redirect } from "next/navigation";
 
 import { type SelectWorkspace } from "~/types/workspace";
+
 export default async function Dashboard() {
   const authRequest = auth.handleRequest("GET", context);
   const session = await authRequest.validate();
+
   if (!session) {
-    return <div>BRUH</div>;
+    redirect("/login");
   }
 
   const workspaceIDs = (
