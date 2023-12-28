@@ -25,7 +25,7 @@ END $$;
 CREATE TABLE IF NOT EXISTS "cloud_device" (
 	"id" text PRIMARY KEY NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"name" varchar(256) NOT NULL,
+	"name" varchar(255) NOT NULL,
 	"updated_at" timestamp,
 	"project_id" text NOT NULL
 );
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS "cloud_device" (
 CREATE TABLE IF NOT EXISTS "cloud_measurement" (
 	"id" text PRIMARY KEY NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"name" varchar(256),
+	"name" varchar(255),
 	"device_id" text NOT NULL,
 	"test_id" text NOT NULL,
 	"tags" varchar(64)[],
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS "cloud_measurement" (
 CREATE TABLE IF NOT EXISTS "cloud_project" (
 	"id" text PRIMARY KEY NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"name" varchar(256) NOT NULL,
+	"name" varchar(255) NOT NULL,
 	"updated_at" timestamp,
 	"workspace_id" text NOT NULL
 );
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS "cloud_project" (
 CREATE TABLE IF NOT EXISTS "cloud_test" (
 	"id" text PRIMARY KEY NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"name" varchar(256) NOT NULL,
+	"name" varchar(255) NOT NULL,
 	"updated_at" timestamp,
 	"project_id" text NOT NULL
 );
@@ -67,14 +67,12 @@ CREATE TABLE IF NOT EXISTS "cloud_user" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_user_key" (
 	"id" text PRIMARY KEY NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
 	"user_id" text NOT NULL,
 	"hashed_password" varchar(255)
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_user_session" (
 	"id" text PRIMARY KEY NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
 	"user_id" text NOT NULL,
 	"auth_provider" "auth_provider" NOT NULL,
 	"active_expires" bigint NOT NULL,
@@ -84,7 +82,7 @@ CREATE TABLE IF NOT EXISTS "cloud_user_session" (
 CREATE TABLE IF NOT EXISTS "cloud_workspace" (
 	"id" text PRIMARY KEY NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"name" varchar(256) NOT NULL,
+	"name" varchar(255) NOT NULL,
 	"plan_type" "plan_type" NOT NULL,
 	"total_seats" integer DEFAULT 1 NOT NULL,
 	"updated_at" timestamp

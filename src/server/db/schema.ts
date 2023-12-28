@@ -15,6 +15,7 @@ import { createId } from "@paralleldrive/cuid2";
 export const pgTable = pgTableCreator((name) => `cloud_${name}`);
 
 // The base modal to setup the ID with a prefix and a createdAt timestamp.
+// All public facing tables should have these two fields.
 const baseModal = (prefix: string) => ({
   id: text("id")
     .notNull()
@@ -30,20 +31,18 @@ const baseModal = (prefix: string) => ({
 // When the 'signupCompleted' field is false, we will redirect the user
 // to a signup wizard (which we can use to collect more info)
 // to complete the signup process.
-export const user = pgTable(
-  "user",
-  {
-    ...baseModal("user"),
-    updatedAt: timestamp("updated_at"),
-    signupCompleted: boolean("signup_completed").default(false),
-  },
-  (_) => ({}),
-);
+export const user = pgTable("user", {
+  ...baseModal("user"),
+  updatedAt: timestamp("updated_at"),
+  signupCompleted: boolean("signup_completed").default(false),
+});
 
+// The user_session and user_key tables are internal to Lucia
+// Therefore, they do not have the baseModal fields (ID prefix).
 export const authProviderEnum = pgEnum("auth_provider", ["auth0"]);
 
 export const user_session = pgTable("user_session", {
-  ...baseModal("user_session"),
+  id: text("id").notNull().primaryKey(),
   userID: text("user_id")
     .notNull()
     .references(() => user.id),
@@ -53,7 +52,7 @@ export const user_session = pgTable("user_session", {
 });
 
 export const user_key = pgTable("user_key", {
-  ...baseModal("user_key"),
+  id: text("id").notNull().primaryKey(),
   userID: text("user_id")
     .notNull()
     .references(() => user.id),
@@ -69,7 +68,7 @@ export const workspace = pgTable(
   "workspace",
   {
     ...baseModal("workspace"),
-    name: varchar("name", { length: 256 }).notNull(),
+    name: varchar("name", { length: 255 }).notNull(),
     planType: planTypeEnum("plan_type").notNull(),
     totalSeats: integer("total_seats").notNull().default(1),
     updatedAt: timestamp("updated_at"),
@@ -112,7 +111,7 @@ export const project = pgTable(
   "project",
   {
     ...baseModal("project"),
-    name: varchar("name", { length: 256 }).notNull(),
+    name: varchar("name", { length: 255 }).notNull(),
     updatedAt: timestamp("updated_at"),
     workspaceID: text("workspace_id")
       .notNull()
@@ -128,7 +127,7 @@ export const test = pgTable(
   "test",
   {
     ...baseModal("test"),
-    name: varchar("name", { length: 256 }).notNull(),
+    name: varchar("name", { length: 255 }).notNull(),
     updatedAt: timestamp("updated_at"),
     projectID: text("project_id")
       .notNull()
@@ -144,7 +143,7 @@ export const device = pgTable(
   "device",
   {
     ...baseModal("device"),
-    name: varchar("name", { length: 256 }).notNull(),
+    name: varchar("name", { length: 255 }).notNull(),
     updatedAt: timestamp("updated_at"),
     projectID: text("project_id")
       .notNull()
@@ -166,7 +165,7 @@ export const measurement = pgTable(
   "measurement",
   {
     ...baseModal("measurement"),
-    name: varchar("name", { length: 256 }),
+    name: varchar("name", { length: 255 }),
     deviceID: text("device_id")
       .notNull()
       .references(() => device.id, { onDelete: "cascade" }),
