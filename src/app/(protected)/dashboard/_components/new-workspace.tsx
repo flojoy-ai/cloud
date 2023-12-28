@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -23,7 +24,7 @@ export default function NewWorkspace() {
 
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
-  const createPost = api.workspace.createWorkspace.useMutation({
+  const createWorkspace = api.workspace.createWorkspace.useMutation({
     onSuccess: () => {
       router.refresh();
       setName("");
@@ -63,7 +64,18 @@ export default function NewWorkspace() {
           <Button
             type="button"
             variant="default"
-            onClick={() => createPost.mutate({ name })}
+            onClick={() =>
+              toast.promise(
+                createWorkspace.mutateAsync({
+                  name,
+                }),
+                {
+                  loading: "Creating your project...",
+                  success: "Your project is ready.",
+                  error: "Something went wrong :(",
+                },
+              )
+            }
           >
             Create
           </Button>

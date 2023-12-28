@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
@@ -104,7 +105,17 @@ export default function NewProjectButton({ workspaces }: Props) {
               type="button"
               variant="default"
               onClick={() =>
-                createProject.mutate({ name, workspaceID: selectedWorkspace })
+                toast.promise(
+                  createProject.mutateAsync({
+                    name,
+                    workspaceID: selectedWorkspace,
+                  }),
+                  {
+                    loading: "Creating your project...",
+                    success: "Your project is ready.",
+                    error: "Something went wrong :(",
+                  },
+                )
               }
             >
               Create

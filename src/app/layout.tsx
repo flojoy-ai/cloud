@@ -3,6 +3,8 @@ import "~/styles/globals.css";
 import { Inter } from "next/font/google";
 import { cookies } from "next/headers";
 
+import { Toaster } from "~/components/ui/sonner";
+
 import { TRPCReactProvider } from "~/trpc/react";
 import { SiteHeader } from "~/components/site-header";
 import { ThemeProvider } from "~/components/theme-provider";
@@ -36,9 +38,10 @@ export default function RootLayout({
           >
             <SiteHeader />
             <main>{children}</main>
+            <Toaster />
+            <TailwindIndicator />
           </ThemeProvider>
         </TRPCReactProvider>
-        <TailwindIndicator />
       </body>
     </html>
   );
