@@ -15,6 +15,9 @@ export default async function Project({
 }: {
   params: { projectId: string };
 }) {
+  // TODO: need to check if this user has access
+  // to the workspace this project belongs to
+
   const authRequest = auth.handleRequest("GET", context);
   const session = await authRequest.validate();
 
