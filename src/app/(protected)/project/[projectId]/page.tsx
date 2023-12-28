@@ -53,8 +53,7 @@ export default async function Project({
       <PageHeader>
         <PageHeaderHeading className="">{project.name}</PageHeaderHeading>
         <PageHeaderDescription>
-          Select a project in your workspaces to get started! <br />
-          You can also create a new workspace or a new project here.
+          View all the tests, devices and settings for this project.
         </PageHeaderDescription>
       </PageHeader>
       <Tabs defaultValue="tests">
