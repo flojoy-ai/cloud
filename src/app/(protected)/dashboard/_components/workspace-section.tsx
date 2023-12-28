@@ -3,6 +3,7 @@ import { type SelectProject } from "~/types/project";
 import { type SelectWorkspace } from "~/types/workspace";
 
 import ProjectCard from "./project-card";
+import { Badge } from "~/components/ui/badge";
 
 type Props = {
   workspace: SelectWorkspace;
@@ -12,9 +13,11 @@ type Props = {
 export default async function WorkspaceSection({ workspace, projects }: Props) {
   return (
     <div>
-      <Label className="text-2xl">{workspace.name}</Label>
-      <span className="px-1"> </span>
-      <Label className="text-muted-foreground">{workspace.id}</Label>
+      <div className="flex items-center gap-2">
+        <Label className="text-2xl">{workspace.name}</Label>
+        <Badge>{workspace.planType}</Badge>
+        <Label className="text-muted-foreground">{workspace.id}</Label>
+      </div>
 
       <div className="py-2"></div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
