@@ -8,7 +8,11 @@ import { auth } from "~/auth/lucia";
 import * as context from "next/headers";
 import { redirect } from "next/navigation";
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { db } from "~/server/db";
+import TestsView from "./_components/tests-view";
+import DevicesView from "./_components/devices-view";
+import SettingsView from "./_components/settings-view";
 
 export default async function Project({
   params,
@@ -53,6 +57,22 @@ export default async function Project({
           You can also create a new workspace or a new project here.
         </PageHeaderDescription>
       </PageHeader>
+      <Tabs defaultValue="tests">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="tests">Tests</TabsTrigger>
+          <TabsTrigger value="devices">Devices</TabsTrigger>
+          <TabsTrigger value="settings">Settings</TabsTrigger>
+        </TabsList>
+        <TabsContent value="tests">
+          <TestsView project={project} />
+        </TabsContent>
+        <TabsContent value="devices">
+          <DevicesView project={project} />
+        </TabsContent>
+        <TabsContent value="settings">
+          <SettingsView project={project} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
