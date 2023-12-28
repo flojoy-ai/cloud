@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@epic-web/remember':
+    specifier: ^1.0.2
+    version: 1.0.2
   '@lucia-auth/adapter-postgresql':
     specifier: ^2.0.2
     version: 2.0.2(lucia@2.7.6)(pg@8.11.3)(postgres@3.4.3)
@@ -1714,6 +1717,10 @@ packages:
     dependencies:
       superjson: 2.2.1
     dev: true
+
+  /@epic-web/remember@1.0.2:
+    resolution: {integrity: sha512-K7DcGoRPqVkjVhPEMQzqw7W/c3hq/3LuiI74he6SkXwR6A49aUmXpxmdb6o+NldY4FFtG42U7nL8PrqNGRxXuQ==}
+    dev: false
 
   /@esbuild-kit/core-utils@3.3.2:
     resolution: {integrity: sha512-sPRAnw9CdSsRmEtnsl2WXWdyquogVpB3yZ3dgwJfe8zrOzTsV7cJvmwrKVa+0ma5BoiGJ+BoqkMvawbayKUsqQ==}
