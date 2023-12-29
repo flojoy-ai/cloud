@@ -54,6 +54,9 @@ const ExplorerView = () => {
               {!selectedWorkspace && (
                 <div>You must select a workspace first</div>
               )}
+              {selectedWorkspace && projects?.length === 0 && (
+                <div>There is no project in this workspace</div>
+              )}
             </CardFooter>
           </Card>
 
@@ -66,6 +69,9 @@ const ExplorerView = () => {
             </CardContent>
             <CardFooter>
               {!selectedProject && <div>You must select a project first</div>}
+              {selectedProject && tests?.length === 0 && (
+                <div>There is no test in this workspace</div>
+              )}
             </CardFooter>
           </Card>
         </div>

@@ -48,7 +48,6 @@ export default async function WorkspaceSection({ workspace }: Props) {
           </div>
         )}
       </div>
-      <div className="py-2"></div>
     </div>
   );
 }
