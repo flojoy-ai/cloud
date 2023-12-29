@@ -40,7 +40,7 @@ const CreateSample = () => {
         testId: test.id,
         measurementType: "boolean",
         storageProvider: "local",
-        data: { passed: true },
+        data: { passed: Math.random() < 0.9 },
       });
     }
 
