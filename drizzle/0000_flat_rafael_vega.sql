@@ -5,13 +5,19 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
+ CREATE TYPE "measurement_type" AS ENUM('boolean', 'ordered_pair');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
  CREATE TYPE "plan_type" AS ENUM('hobby', 'pro', 'enterprise');
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- CREATE TYPE "storage_provider" AS ENUM('s3', 'postgres');
+ CREATE TYPE "storage_provider" AS ENUM('s3', 'local');
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -36,10 +42,13 @@ CREATE TABLE IF NOT EXISTS "cloud_measurement" (
 	"name" varchar(255),
 	"device_id" text NOT NULL,
 	"test_id" text NOT NULL,
+	"measurement_type" "measurement_type" NOT NULL,
 	"tags" varchar(64)[],
-	"is_deleted" boolean DEFAULT false,
 	"storage_provider" "storage_provider" NOT NULL,
-	"storage_location" jsonb NOT NULL
+	"data" jsonb,
+	"s3_bucket" text,
+	"s3_key" text,
+	"is_deleted" boolean DEFAULT false
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_project" (
@@ -98,6 +107,8 @@ CREATE TABLE IF NOT EXISTS "cloud_workspace_user" (
 --> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "device_name_idx" ON "cloud_device" ("name");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "measurement_name_idx" ON "cloud_measurement" ("name");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "measurement_device_id_idx" ON "cloud_measurement" ("device_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "measurement_test_id_idx" ON "cloud_measurement" ("test_id");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "project_name_index" ON "cloud_project" ("name");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "test_name_idx" ON "cloud_test" ("name");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "workspace_name_index" ON "cloud_workspace" ("name");--> statement-breakpoint

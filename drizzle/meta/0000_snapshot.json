@@ -1,5 +1,5 @@
 {
-  "id": "9c8d8a5e-ac55-4fe3-ba77-34f4e9af0fc4",
+  "id": "ca538804-e29d-46ab-bc27-d75e235b13d0",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -102,9 +102,39 @@
           "primaryKey": false,
           "notNull": true
         },
+        "measurement_type": {
+          "name": "measurement_type",
+          "type": "measurement_type",
+          "primaryKey": false,
+          "notNull": true
+        },
         "tags": {
           "name": "tags",
           "type": "varchar(64)[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "storage_provider": {
+          "name": "storage_provider",
+          "type": "storage_provider",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data": {
+          "name": "data",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "s3_bucket": {
+          "name": "s3_bucket",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "s3_key": {
+          "name": "s3_key",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
@@ -114,18 +144,6 @@
           "primaryKey": false,
           "notNull": false,
           "default": false
-        },
-        "storage_provider": {
-          "name": "storage_provider",
-          "type": "storage_provider",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "storage_location": {
-          "name": "storage_location",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
         }
       },
       "indexes": {
@@ -133,6 +151,20 @@
           "name": "measurement_name_idx",
           "columns": [
             "name"
+          ],
+          "isUnique": false
+        },
+        "measurement_device_id_idx": {
+          "name": "measurement_device_id_idx",
+          "columns": [
+            "device_id"
+          ],
+          "isUnique": false
+        },
+        "measurement_test_id_idx": {
+          "name": "measurement_test_id_idx",
+          "columns": [
+            "test_id"
           ],
           "isUnique": false
         }
@@ -581,6 +613,13 @@
         "auth0": "auth0"
       }
     },
+    "measurement_type": {
+      "name": "measurement_type",
+      "values": {
+        "boolean": "boolean",
+        "ordered_pair": "ordered_pair"
+      }
+    },
     "plan_type": {
       "name": "plan_type",
       "values": {
@@ -593,7 +632,7 @@
       "name": "storage_provider",
       "values": {
         "s3": "s3",
-        "postgres": "postgres"
+        "local": "local"
       }
     },
     "workspace_role": {

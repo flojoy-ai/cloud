@@ -161,9 +161,10 @@ export const device = pgTable(
 
 // A measurement from a device that is associated with a test.
 // The is_deleted field is used to soft-delete a measurement.
-export const storageProviderEnum = pgEnum("storage_provider", [
-  "s3",
-  "postgres",
+export const storageProviderEnum = pgEnum("storage_provider", ["s3", "local"]);
+export const measurementTypeEnum = pgEnum("measurement_type", [
+  "boolean",
+  "ordered_pair",
 ]);
 
 export const measurement = pgTable(
@@ -177,10 +178,13 @@ export const measurement = pgTable(
     testId: text("test_id")
       .notNull()
       .references(() => test.id, { onDelete: "cascade" }),
+    measurementType: measurementTypeEnum("measurement_type").notNull(),
     tags: varchar("tags", { length: 64 }).array(),
-    isDeleted: boolean("is_deleted").default(false),
     storageProvider: storageProviderEnum("storage_provider").notNull(),
-    storageLocation: jsonb("storage_location").notNull(),
+    data: jsonb("data"),
+    s3Bucket: text("s3_bucket"),
+    s3Key: text("s3_key"),
+    isDeleted: boolean("is_deleted").default(false),
   },
   (measurement) => ({
     measurementNameIndex: index("measurement_name_idx").on(measurement.name),
