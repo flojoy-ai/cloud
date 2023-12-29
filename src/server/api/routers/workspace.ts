@@ -1,13 +1,12 @@
-import { z } from "zod";
-
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
 import { workspace, workspace_user } from "~/server/db/schema";
+import { insertWorkspaceSchema } from "~/types/workspace";
 
 export const workspaceRouter = createTRPCRouter({
   // TODO: make sure no duplicated names
   createWorkspace: protectedProcedure
-    .input(z.object({ name: z.string() }))
+    .input(insertWorkspaceSchema)
     .mutation(async ({ ctx, input }) => {
       const [workspaceCreateResult] = await ctx.db
         .insert(workspace)

@@ -3,11 +3,12 @@ import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { device, project } from "~/server/db/schema";
+import { insertDeviceSchema } from "~/types/device";
 
 export const deviceRouter = createTRPCRouter({
   // TODO: make sure no duplicated names
   createDevice: protectedProcedure
-    .input(z.object({ name: z.string(), projectId: z.string() }))
+    .input(insertDeviceSchema)
     .mutation(async ({ ctx, input }) => {
       const [deviceCreateResult] = await ctx.db
         .insert(device)
