@@ -29,7 +29,7 @@ const CreateSample = () => {
       projectId: project.id,
     });
 
-    for (let i = 1; i <= 3; i++) {
+    for (let i = 1; i <= 20; i++) {
       const device = await deviceCreate.mutateAsync({
         name: `Circuit Board #${i}`,
         projectId: project.id,
