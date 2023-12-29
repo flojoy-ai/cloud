@@ -13,6 +13,7 @@ import { db } from "~/server/db";
 import TestsView from "./_components/tests-view";
 import DevicesView from "./_components/devices-view";
 import SettingsView from "./_components/settings-view";
+import UploadView from "./_components/upload-view";
 
 export default async function Project({
   params,
@@ -57,9 +58,10 @@ export default async function Project({
         </PageHeaderDescription>
       </PageHeader>
       <Tabs defaultValue="tests">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="tests">Tests</TabsTrigger>
           <TabsTrigger value="devices">Devices</TabsTrigger>
+          <TabsTrigger value="upload">Upload</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
         <TabsContent value="tests">
@@ -67,6 +69,9 @@ export default async function Project({
         </TabsContent>
         <TabsContent value="devices">
           <DevicesView project={project} />
+        </TabsContent>
+        <TabsContent value="upload">
+          <UploadView project={project} />
         </TabsContent>
         <TabsContent value="settings">
           <SettingsView project={project} />
