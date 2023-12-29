@@ -46,6 +46,17 @@ export default async function Dashboard() {
 
       <div className="py-2"></div>
 
+      {workspaces.length === 0 && (
+        <>
+          <div className="py-2"></div>
+          <div className="text-center">
+            Welcome to Flojoy Cloud! <br />
+            To get started, you need to create a workspace. <br />
+            Don't know what to do yet? <br /> Press the 'Create a Sample
+            Workspace + Project' button to pupolate your account with a demo.
+          </div>
+        </>
+      )}
       <AllWorkspaces workspaces={workspaces} />
 
       <div className="py-4"></div>
