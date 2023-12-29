@@ -55,6 +55,15 @@ export function MainNav() {
         >
           Pricing
         </Link>
+
+        <Link
+          href="https://www.flojoy.ai/contact-sales"
+          className={cn(
+            "text-foreground/60 transition-colors hover:text-foreground/80",
+          )}
+        >
+          Contact Sales
+        </Link>
       </nav>
     </div>
   );
