@@ -23,7 +23,7 @@ export const projectRouter = createTRPCRouter({
     }),
   getAllProjects: protectedProcedure
     .input(z.object({ workspaceId: z.string() }))
-    .query(async ({ ctx, input }) => {
+    .query(async ({ input }) => {
       return await db.query.project.findMany({
         where: (project, { eq }) => eq(project.workspaceId, input.workspaceId),
       });

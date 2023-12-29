@@ -23,7 +23,7 @@ export const testRouter = createTRPCRouter({
     }),
   getAllTests: protectedProcedure
     .input(z.object({ projectId: z.string() }))
-    .query(async ({ ctx, input }) => {
+    .query(async ({ input }) => {
       return await db.query.test.findMany({
         where: (test, { eq }) => eq(test.projectId, input.projectId),
       });

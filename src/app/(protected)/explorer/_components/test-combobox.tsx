@@ -28,7 +28,13 @@ type Props = {
 
 export function TestCombobox({ tests }: Props) {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("");
+
+  const { selectedTest, setSelectedTest } = useExplorerStore(
+    useShallow((state) => ({
+      selectedTest: state.selectedTest,
+      setSelectedTest: state.setSelectedTest,
+    })),
+  );
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -39,8 +45,8 @@ export function TestCombobox({ tests }: Props) {
           aria-expanded={open}
           className="w-[200px] justify-between"
         >
-          {value
-            ? tests.find((test) => test.id === value)?.name
+          {selectedTest
+            ? tests.find((test) => test.id === selectedTest.id)?.name
             : "Select test..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -55,14 +61,18 @@ export function TestCombobox({ tests }: Props) {
                 key={test.id}
                 value={test.id}
                 onSelect={(currentValue) => {
-                  setValue(currentValue === value ? "" : currentValue);
+                  setSelectedTest(
+                    currentValue === selectedTest?.id
+                      ? undefined
+                      : tests.find((test) => test.id === currentValue),
+                  );
                   setOpen(false);
                 }}
               >
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    value === test.id ? "opacity-100" : "opacity-0",
+                    selectedTest?.id === test.id ? "opacity-100" : "opacity-0",
                   )}
                 />
                 {test.name}
