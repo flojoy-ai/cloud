@@ -1,8 +1,9 @@
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
-import { project } from "~/server/db/schema";
+import { project, workspace } from "~/server/db/schema";
 
 export const projectRouter = createTRPCRouter({
   // TODO: make sure no duplicated names
@@ -20,6 +21,11 @@ export const projectRouter = createTRPCRouter({
       if (!projectCreateResult) {
         throw new Error("Failed to create project");
       }
+
+      void ctx.db
+        .update(workspace)
+        .set({ updatedAt: new Date() })
+        .where(eq(workspace.id, input.workspaceId));
     }),
   getAllProjectsByWorkspaceId: protectedProcedure
     .input(z.object({ workspaceId: z.string() }))

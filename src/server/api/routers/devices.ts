@@ -1,8 +1,9 @@
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
-import { device } from "~/server/db/schema";
+import { device, project } from "~/server/db/schema";
 
 export const deviceRouter = createTRPCRouter({
   // TODO: make sure no duplicated names
@@ -20,6 +21,11 @@ export const deviceRouter = createTRPCRouter({
       if (!deviceCreateResult) {
         throw new Error("Failed to create device");
       }
+
+      void ctx.db
+        .update(project)
+        .set({ updatedAt: new Date() })
+        .where(eq(project.id, input.projectId));
     }),
   getAllDevicesByProjectId: protectedProcedure
     .input(z.object({ projectId: z.string() }))
