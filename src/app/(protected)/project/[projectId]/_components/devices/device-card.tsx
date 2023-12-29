@@ -23,7 +23,7 @@ const DeviceCard = ({ device }: Props) => {
         </CardHeader>
         <CardFooter>
           <div>
-            <div>Last updated:</div>
+            Last updated:{" "}
             {device.updatedAt ? getPrettyTime(device.updatedAt) : "Never"}
           </div>
         </CardFooter>

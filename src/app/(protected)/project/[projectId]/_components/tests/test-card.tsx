@@ -24,7 +24,7 @@ const TestCard = ({ test }: Props) => {
         </CardHeader>
         <CardFooter>
           <div>
-            <div>Last updated:</div>
+            Last updated:{" "}
             {test.updatedAt ? getPrettyTime(test.updatedAt) : "Never"}
           </div>
         </CardFooter>

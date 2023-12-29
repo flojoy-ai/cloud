@@ -23,10 +23,8 @@ export default async function ProjectCard({ project }: Props) {
         </CardHeader>
         <CardFooter>
           <div>
-            <div>Last updated:</div>
-            <div>
-              {project.updatedAt ? getPrettyTime(project.updatedAt) : "Never"}
-            </div>
+            Last updated:{" "}
+            {project.updatedAt ? getPrettyTime(project.updatedAt) : "Never"}
           </div>
         </CardFooter>
       </Card>
