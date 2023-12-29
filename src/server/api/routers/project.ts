@@ -26,6 +26,7 @@ export const projectRouter = createTRPCRouter({
         .update(workspace)
         .set({ updatedAt: new Date() })
         .where(eq(workspace.id, input.workspaceId));
+      return projectCreateResult;
     }),
   getAllProjectsByWorkspaceId: protectedProcedure
     .input(z.object({ workspaceId: z.string() }))

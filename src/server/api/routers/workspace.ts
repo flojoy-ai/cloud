@@ -25,7 +25,9 @@ export const workspaceRouter = createTRPCRouter({
         workspaceId: workspaceCreateResult.id,
         workspaceRole: "owner",
       });
+      return workspaceCreateResult;
     }),
+
   getAllWorkspaces: protectedProcedure.query(async ({ ctx }) => {
     const workspaceIds = (
       await db.query.workspace_user.findMany({
