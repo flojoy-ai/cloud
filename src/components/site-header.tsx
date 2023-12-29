@@ -40,7 +40,7 @@ export async function SiteHeader() {
                 {session.authProvider === "auth0" && (
                   <Auth0Logout
                     action="/api/logout"
-                    clientID={env.AUTH0_CLIENT_ID}
+                    clientId={env.AUTH0_CLIENT_ID}
                     appDomain={env.AUTH0_APP_DOMAIN}
                   >
                     <Button size="sm" variant="secondary" type="submit">
