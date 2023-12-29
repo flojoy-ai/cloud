@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
+import { getPrettyTime } from "~/lib/time";
 
 type Props = {
   test: SelectTest;
@@ -24,7 +25,7 @@ const TestCard = ({ test }: Props) => {
         <CardFooter>
           <div>
             <div>Last updated:</div>
-            <div>{test.updatedAt?.toLocaleTimeString() ?? "Never"}</div>
+            {test.updatedAt ? getPrettyTime(test.updatedAt) : "Never"}
           </div>
         </CardFooter>
       </Card>

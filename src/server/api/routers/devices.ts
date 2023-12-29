@@ -22,7 +22,7 @@ export const deviceRouter = createTRPCRouter({
         throw new Error("Failed to create device");
       }
 
-      void ctx.db
+      await ctx.db
         .update(project)
         .set({ updatedAt: new Date() })
         .where(eq(project.id, input.projectId));

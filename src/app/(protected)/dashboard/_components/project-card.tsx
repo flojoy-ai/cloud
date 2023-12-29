@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
+import { getPrettyTime } from "~/lib/time";
 import { type SelectProject } from "~/types/project";
 
 type Props = {
@@ -23,7 +24,9 @@ export default async function ProjectCard({ project }: Props) {
         <CardFooter>
           <div>
             <div>Last updated:</div>
-            <div>{project.updatedAt?.toLocaleTimeString() ?? "Never"}</div>
+            <div>
+              {project.updatedAt ? getPrettyTime(project.updatedAt) : "Never"}
+            </div>
           </div>
         </CardFooter>
       </Card>

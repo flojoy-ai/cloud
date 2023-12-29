@@ -22,7 +22,7 @@ export const testRouter = createTRPCRouter({
         throw new Error("Failed to create test");
       }
 
-      void ctx.db
+      await ctx.db
         .update(project)
         .set({ updatedAt: new Date() })
         .where(eq(project.id, input.projectId));

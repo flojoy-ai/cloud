@@ -22,7 +22,7 @@ export const projectRouter = createTRPCRouter({
         throw new Error("Failed to create project");
       }
 
-      void ctx.db
+      await ctx.db
         .update(workspace)
         .set({ updatedAt: new Date() })
         .where(eq(workspace.id, input.workspaceId));
