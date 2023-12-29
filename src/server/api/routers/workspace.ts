@@ -38,6 +38,10 @@ export const workspaceRouter = createTRPCRouter({
       })
     ).flatMap((workspace) => workspace.workspaceId);
 
+    if (workspaceIds.length === 0) {
+      return [];
+    }
+
     return await db.query.workspace.findMany({
       where: (workspace, { inArray }) => inArray(workspace.id, workspaceIds),
     });
