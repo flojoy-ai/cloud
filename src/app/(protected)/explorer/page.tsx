@@ -16,6 +16,8 @@ export default async function Explorer() {
       </PageHeader>
 
       <ExplorerView />
+
+      <div className="py-4"></div>
     </div>
   );
 }

@@ -23,6 +23,8 @@ export default async function SignUp() {
           <TermsAndPrivacy />
         </div>
       </div>
+
+      <div className="py-4"></div>
     </div>
   );
 }

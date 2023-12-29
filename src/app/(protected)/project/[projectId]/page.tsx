@@ -45,6 +45,8 @@ export default async function Project({
             it?
           </PageHeaderDescription>
         </PageHeader>
+
+        <div className="py-4"></div>
       </div>
     );
   }
@@ -77,6 +79,8 @@ export default async function Project({
           <SettingsView project={project} />
         </TabsContent>
       </Tabs>
+
+      <div className="py-4"></div>
     </div>
   );
 }

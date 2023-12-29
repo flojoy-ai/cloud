@@ -38,6 +38,8 @@ export default async function Home() {
       <div className="py-4"></div>
 
       <BouncyCardsFeatures />
+
+      <div className="py-4"></div>
     </div>
   );
 }

@@ -20,6 +20,8 @@ export default async function Workspace({
       </PageHeader>
 
       <DeleteWorkspace workspaceId={params.workspaceId} />
+
+      <div className="py-4"></div>
     </div>
   );
 }

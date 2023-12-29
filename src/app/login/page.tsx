@@ -23,6 +23,8 @@ export default async function LogIn() {
           <TermsAndPrivacy />
         </div>
       </div>
+
+      <div className="py-4"></div>
     </div>
   );
 }

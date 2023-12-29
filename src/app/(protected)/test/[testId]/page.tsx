@@ -35,6 +35,8 @@ export default async function Test({ params }: { params: { testId: string } }) {
             Could you double check if the test exists and you have access to it?
           </PageHeaderDescription>
         </PageHeader>
+
+        <div className="py-4"></div>
       </div>
     );
   }
@@ -45,6 +47,8 @@ export default async function Test({ params }: { params: { testId: string } }) {
         <PageHeaderHeading className="">{test.name}</PageHeaderHeading>
         <PageHeaderDescription>Your test.</PageHeaderDescription>
       </PageHeader>
+
+      <div className="py-4"></div>
     </div>
   );
 }

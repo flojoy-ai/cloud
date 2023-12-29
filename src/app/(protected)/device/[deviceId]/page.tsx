@@ -40,6 +40,8 @@ export default async function Device({
             it?
           </PageHeaderDescription>
         </PageHeader>
+
+        <div className="py-4"></div>
       </div>
     );
   }
@@ -50,6 +52,8 @@ export default async function Device({
         <PageHeaderHeading className="">{device.name}</PageHeaderHeading>
         <PageHeaderDescription>Your hardware device.</PageHeaderDescription>
       </PageHeader>
+
+      <div className="py-4"></div>
     </div>
   );
 }
