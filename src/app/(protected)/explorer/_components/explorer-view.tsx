@@ -23,7 +23,7 @@ const ExplorerView = () => {
   );
 
   const { data: workspaces } = api.workspace.getAllWorkspaces.useQuery();
-  const { data: projects } = api.project.getAllProjects.useQuery({
+  const { data: projects } = api.project.getAllProjectsByWorkspaceId.useQuery({
     workspaceId: selectedWorkspace?.id ?? "",
   });
   const { data: tests } = api.test.getAllTests.useQuery({

@@ -1,14 +1,14 @@
-import { db } from "~/server/db";
 import { type SelectProject } from "~/types/project";
 import TestCard from "./test-card";
+import { api } from "~/trpc/server";
 
 type Props = {
   project: SelectProject;
 };
 
 const AllTests = async ({ project }: Props) => {
-  const tests = await db.query.test.findMany({
-    where: (test, { eq }) => eq(test.projectId, project.id),
+  const tests = await api.test.getAllTestsByProjectId.query({
+    projectId: project.id,
   });
 
   return (

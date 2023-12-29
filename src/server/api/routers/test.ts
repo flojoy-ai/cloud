@@ -21,7 +21,7 @@ export const testRouter = createTRPCRouter({
         throw new Error("Failed to create test");
       }
     }),
-  getAllTests: protectedProcedure
+  getAllTestsByProjectId: protectedProcedure
     .input(z.object({ projectId: z.string() }))
     .query(async ({ input }) => {
       return await db.query.test.findMany({

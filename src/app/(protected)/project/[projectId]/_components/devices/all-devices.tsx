@@ -1,14 +1,14 @@
-import { db } from "~/server/db";
 import { type SelectProject } from "~/types/project";
 import DeviceCard from "./device-card";
+import { api } from "~/trpc/server";
 
 type Props = {
   project: SelectProject;
 };
 
 const AllDevices = async ({ project }: Props) => {
-  const devices = await db.query.device.findMany({
-    where: (device, { eq }) => eq(device.projectId, project.id),
+  const devices = await api.device.getAllDevicesByProjectId.query({
+    projectId: project.id,
   });
 
   return (

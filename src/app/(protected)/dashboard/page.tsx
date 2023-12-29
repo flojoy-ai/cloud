@@ -4,15 +4,13 @@ import {
   PageHeaderHeading,
 } from "~/components/page-header";
 import AllWorkspaces from "./_components/all-workspaces";
-import { db } from "~/server/db";
 import NewWorkspace from "./_components/new-workspace";
 
 import { auth } from "~/auth/lucia";
 import * as context from "next/headers";
 import NewProject from "./_components/new-project";
 import { redirect } from "next/navigation";
-
-import { type SelectWorkspace } from "~/types/workspace";
+import { api } from "~/trpc/server";
 
 export default async function Dashboard() {
   const authRequest = auth.handleRequest("GET", context);
@@ -22,23 +20,7 @@ export default async function Dashboard() {
     redirect("/login");
   }
 
-  const workspaceIds = (
-    await db.query.workspace_user.findMany({
-      where: (workspace_user, { eq }) =>
-        eq(workspace_user.userId, session.user.userId),
-      columns: {
-        workspaceId: true,
-      },
-    })
-  ).flatMap((workspace) => workspace.workspaceId);
-
-  let workspaces = [] as SelectWorkspace[];
-
-  if (workspaceIds.length > 0) {
-    workspaces = await db.query.workspace.findMany({
-      where: (workspace, { inArray }) => inArray(workspace.id, workspaceIds),
-    });
-  }
+  const workspaces = await api.workspace.getAllWorkspaces.query();
 
   return (
     <div className="container max-w-screen-2xl">

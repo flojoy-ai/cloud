@@ -21,7 +21,7 @@ export const projectRouter = createTRPCRouter({
         throw new Error("Failed to create project");
       }
     }),
-  getAllProjects: protectedProcedure
+  getAllProjectsByWorkspaceId: protectedProcedure
     .input(z.object({ workspaceId: z.string() }))
     .query(async ({ input }) => {
       return await db.query.project.findMany({
