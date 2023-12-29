@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { db } from "~/server/db";
 import { project } from "~/server/db/schema";
 
 export const projectRouter = createTRPCRouter({
@@ -19,5 +20,12 @@ export const projectRouter = createTRPCRouter({
       if (!projectCreateResult) {
         throw new Error("Failed to create project");
       }
+    }),
+  getAllProjects: protectedProcedure
+    .input(z.object({ workspaceId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return await db.query.project.findMany({
+        where: (project, { eq }) => eq(project.workspaceId, input.workspaceId),
+      });
     }),
 });
