@@ -2,7 +2,6 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { db } from "~/server/db";
 import { project, workspace } from "~/server/db/schema";
 
 export const projectRouter = createTRPCRouter({
@@ -29,8 +28,8 @@ export const projectRouter = createTRPCRouter({
     }),
   getAllProjectsByWorkspaceId: protectedProcedure
     .input(z.object({ workspaceId: z.string() }))
-    .query(async ({ input }) => {
-      return await db.query.project.findMany({
+    .query(async ({ input, ctx }) => {
+      return await ctx.db.query.project.findMany({
         where: (project, { eq }) => eq(project.workspaceId, input.workspaceId),
       });
     }),
