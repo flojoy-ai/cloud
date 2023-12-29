@@ -3,7 +3,6 @@ import {
   text,
   pgTableCreator,
   timestamp,
-  varchar,
   pgEnum,
   boolean,
   bigint,
@@ -56,7 +55,7 @@ export const user_key = pgTable("user_key", {
   userId: text("user_id")
     .notNull()
     .references(() => user.id),
-  hashedPassword: varchar("hashed_password", { length: 255 }),
+  hashedPassword: text("hashed_password"),
 });
 
 // Upon creating a Flojoy Cloud account, the user will be prompted to
@@ -68,7 +67,7 @@ export const workspace = pgTable(
   "workspace",
   {
     ...baseModal("workspace"),
-    name: varchar("name", { length: 255 }).notNull(),
+    name: text("name").notNull(),
     planType: planTypeEnum("plan_type").notNull(),
     totalSeats: integer("total_seats").notNull().default(1),
     updatedAt: timestamp("updated_at"),
@@ -116,7 +115,7 @@ export const project = pgTable(
   "project",
   {
     ...baseModal("project"),
-    name: varchar("name", { length: 255 }).notNull(),
+    name: text("name").notNull(),
     updatedAt: timestamp("updated_at"),
     workspaceId: text("workspace_id")
       .notNull()
@@ -132,7 +131,7 @@ export const test = pgTable(
   "test",
   {
     ...baseModal("test"),
-    name: varchar("name", { length: 255 }).notNull(),
+    name: text("name").notNull(),
     updatedAt: timestamp("updated_at"),
     projectId: text("project_id")
       .notNull()
@@ -148,7 +147,7 @@ export const device = pgTable(
   "device",
   {
     ...baseModal("device"),
-    name: varchar("name", { length: 255 }).notNull(),
+    name: text("name").notNull(),
     updatedAt: timestamp("updated_at"),
     projectId: text("project_id")
       .notNull()
@@ -171,7 +170,7 @@ export const measurement = pgTable(
   "measurement",
   {
     ...baseModal("measurement"),
-    name: varchar("name", { length: 255 }),
+    name: text("name").default("Untitled Measurement"),
     deviceId: text("device_id")
       .notNull()
       .references(() => device.id, { onDelete: "cascade" }),
@@ -179,7 +178,7 @@ export const measurement = pgTable(
       .notNull()
       .references(() => test.id, { onDelete: "cascade" }),
     measurementType: measurementTypeEnum("measurement_type").notNull(),
-    tags: varchar("tags", { length: 64 }).array(),
+    tags: text("tags").array(),
     storageProvider: storageProviderEnum("storage_provider").notNull(),
     data: jsonb("data"),
     s3Bucket: text("s3_bucket"),

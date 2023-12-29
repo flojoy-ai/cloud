@@ -1,5 +1,5 @@
 {
-  "id": "ca538804-e29d-46ab-bc27-d75e235b13d0",
+  "id": "ecb27061-8068-4498-8034-a9b698b18a39",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -23,7 +23,7 @@
         },
         "name": {
           "name": "name",
-          "type": "varchar(255)",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -86,9 +86,10 @@
         },
         "name": {
           "name": "name",
-          "type": "varchar(255)",
+          "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "'Untitled Measurement'"
         },
         "device_id": {
           "name": "device_id",
@@ -110,7 +111,7 @@
         },
         "tags": {
           "name": "tags",
-          "type": "varchar(64)[]",
+          "type": "text[]",
           "primaryKey": false,
           "notNull": false
         },
@@ -219,7 +220,7 @@
         },
         "name": {
           "name": "name",
-          "type": "varchar(255)",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -282,7 +283,7 @@
         },
         "name": {
           "name": "name",
-          "type": "varchar(255)",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -380,7 +381,7 @@
         },
         "hashed_password": {
           "name": "hashed_password",
-          "type": "varchar(255)",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         }
@@ -477,7 +478,7 @@
         },
         "name": {
           "name": "name",
-          "type": "varchar(255)",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
