@@ -108,7 +108,7 @@ export default function NewProjectButton({ workspaces }: Props) {
                 toast.promise(
                   createProject.mutateAsync({
                     name,
-                    workspaceID: selectedWorkspace,
+                    workspaceId: selectedWorkspace,
                   }),
                   {
                     loading: "Creating your project...",

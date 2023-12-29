@@ -12,7 +12,7 @@ export const testRouter = createTRPCRouter({
         .insert(test)
         .values({
           name: input.name,
-          projectID: input.projectId,
+          projectId: input.projectId,
         })
         .returning();
 

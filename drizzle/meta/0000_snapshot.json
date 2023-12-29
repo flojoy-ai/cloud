@@ -1,5 +1,5 @@
 {
-  "id": "6d53e320-e79e-4b55-b417-4ed4f6eae9e4",
+  "id": "9c8d8a5e-ac55-4fe3-ba77-34f4e9af0fc4",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -519,11 +519,25 @@
         }
       },
       "indexes": {
-        "workspace_id_user_id_index": {
-          "name": "workspace_id_user_id_index",
+        "workspace_user_workspace_id_user_id_index": {
+          "name": "workspace_user_workspace_id_user_id_index",
           "columns": [
             "workspace_id",
             "user_id"
+          ],
+          "isUnique": false
+        },
+        "workspace_user_user_id_index": {
+          "name": "workspace_user_user_id_index",
+          "columns": [
+            "user_id"
+          ],
+          "isUnique": false
+        },
+        "workspace_user_workspace_id_index": {
+          "name": "workspace_user_workspace_id_index",
+          "columns": [
+            "workspace_id"
           ],
           "isUnique": false
         }

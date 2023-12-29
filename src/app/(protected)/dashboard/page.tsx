@@ -22,21 +22,21 @@ export default async function Dashboard() {
     redirect("/login");
   }
 
-  const workspaceIDs = (
+  const workspaceIds = (
     await db.query.workspace_user.findMany({
       where: (workspace_user, { eq }) =>
-        eq(workspace_user.userID, session.user.userId),
+        eq(workspace_user.userId, session.user.userId),
       columns: {
-        workspaceID: true,
+        workspaceId: true,
       },
     })
-  ).flatMap((workspace) => workspace.workspaceID);
+  ).flatMap((workspace) => workspace.workspaceId);
 
   let workspaces = [] as SelectWorkspace[];
 
-  if (workspaceIDs.length > 0) {
+  if (workspaceIds.length > 0) {
     workspaces = await db.query.workspace.findMany({
-      where: (workspace, { inArray }) => inArray(workspace.id, workspaceIDs),
+      where: (workspace, { inArray }) => inArray(workspace.id, workspaceIds),
     });
   }
 

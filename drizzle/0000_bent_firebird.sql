@@ -101,7 +101,9 @@ CREATE INDEX IF NOT EXISTS "measurement_name_idx" ON "cloud_measurement" ("name"
 CREATE INDEX IF NOT EXISTS "project_name_index" ON "cloud_project" ("name");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "test_name_idx" ON "cloud_test" ("name");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "workspace_name_index" ON "cloud_workspace" ("name");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "workspace_id_user_id_index" ON "cloud_workspace_user" ("workspace_id","user_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "workspace_user_workspace_id_user_id_index" ON "cloud_workspace_user" ("workspace_id","user_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "workspace_user_user_id_index" ON "cloud_workspace_user" ("user_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "workspace_user_workspace_id_index" ON "cloud_workspace_user" ("workspace_id");--> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "cloud_device" ADD CONSTRAINT "cloud_device_project_id_cloud_project_id_fk" FOREIGN KEY ("project_id") REFERENCES "cloud_project"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION

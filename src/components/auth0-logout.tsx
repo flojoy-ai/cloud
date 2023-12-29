@@ -5,12 +5,12 @@ import { useRouter } from "next/navigation";
 const Auth0Logout = ({
   children,
   action,
-  clientID,
+  clientId,
   appDomain,
 }: {
   children: React.ReactNode;
   action: string;
-  clientID: string;
+  clientId: string;
   appDomain: string;
 }) => {
   const router = useRouter();
@@ -32,7 +32,7 @@ const Auth0Logout = ({
 
         if (response.status === 0) {
           router.push(
-            `${appDomain}/v2/logout?client_id=${clientID}&returnTo=${returnTo}`,
+            `${appDomain}/v2/logout?client_id=${clientId}&returnTo=${returnTo}`,
           );
         }
       }}

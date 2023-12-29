@@ -21,8 +21,8 @@ export const workspaceRouter = createTRPCRouter({
       }
 
       await ctx.db.insert(workspace_user).values({
-        userID: ctx.session.user.userId,
-        workspaceID: workspaceCreateResult.id,
+        userId: ctx.session.user.userId,
+        workspaceId: workspaceCreateResult.id,
         workspaceRole: "owner",
       });
     }),

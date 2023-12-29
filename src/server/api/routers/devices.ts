@@ -12,7 +12,7 @@ export const deviceRouter = createTRPCRouter({
         .insert(device)
         .values({
           name: input.name,
-          projectID: input.projectId,
+          projectId: input.projectId,
         })
         .returning();
 

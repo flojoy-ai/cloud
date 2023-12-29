@@ -14,7 +14,7 @@ export default async function AllWorkspaces({ workspaces }: Props) {
     projects = await db.query.project.findMany({
       where: (project, { inArray }) =>
         inArray(
-          project.workspaceID,
+          project.workspaceId,
           workspaces.flatMap((w) => w.id),
         ),
     });
@@ -31,7 +31,7 @@ export default async function AllWorkspaces({ workspaces }: Props) {
               workspace={workspace}
               projects={projects
                 .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-                .filter((project) => project.workspaceID === workspace.id)}
+                .filter((project) => project.workspaceId === workspace.id)}
             />
           );
         })}

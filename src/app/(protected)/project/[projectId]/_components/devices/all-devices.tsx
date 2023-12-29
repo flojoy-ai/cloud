@@ -8,7 +8,7 @@ type Props = {
 
 const AllDevices = async ({ project }: Props) => {
   const devices = await db.query.device.findMany({
-    where: (device, { eq }) => eq(device.projectID, project.id),
+    where: (device, { eq }) => eq(device.projectId, project.id),
   });
 
   return (

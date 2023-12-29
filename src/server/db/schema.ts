@@ -43,7 +43,7 @@ export const authProviderEnum = pgEnum("auth_provider", ["auth0"]);
 
 export const user_session = pgTable("user_session", {
   id: text("id").notNull().primaryKey(),
-  userID: text("user_id")
+  userId: text("user_id")
     .notNull()
     .references(() => user.id),
   authProvider: authProviderEnum("auth_provider").notNull(),
@@ -53,7 +53,7 @@ export const user_session = pgTable("user_session", {
 
 export const user_key = pgTable("user_key", {
   id: text("id").notNull().primaryKey(),
-  userID: text("user_id")
+  userId: text("user_id")
     .notNull()
     .references(() => user.id),
   hashedPassword: varchar("hashed_password", { length: 255 }),
@@ -90,24 +90,24 @@ export const workspace_user = pgTable(
   "workspace_user",
   {
     ...baseModal("workspace_user"),
-    workspaceID: text("workspace_id")
+    workspaceId: text("workspace_id")
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
-    userID: text("user_id")
+    userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     workspaceRole: workspaceRoleEnum("workspace_role").notNull(),
   },
   (workspace_user) => ({
-    workspaceUserWorkspaceIDUserIDIndex: index(
+    workspaceUserWorkspaceIdUserIdIndex: index(
       "workspace_user_workspace_id_user_id_index",
-    ).on(workspace_user.workspaceID, workspace_user.userID),
-    workspaceUserUserIDIndex: index("workspace_user_user_id_index").on(
-      workspace_user.userID,
+    ).on(workspace_user.workspaceId, workspace_user.userId),
+    workspaceUserUserIdIndex: index("workspace_user_user_id_index").on(
+      workspace_user.userId,
     ),
-    workspaceUserWorkspaceIDIndex: index(
+    workspaceUserWorkspaceIdIndex: index(
       "workspace_user_workspace_id_index",
-    ).on(workspace_user.workspaceID),
+    ).on(workspace_user.workspaceId),
   }),
 );
 
@@ -118,7 +118,7 @@ export const project = pgTable(
     ...baseModal("project"),
     name: varchar("name", { length: 255 }).notNull(),
     updatedAt: timestamp("updated_at"),
-    workspaceID: text("workspace_id")
+    workspaceId: text("workspace_id")
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
   },
@@ -134,7 +134,7 @@ export const test = pgTable(
     ...baseModal("test"),
     name: varchar("name", { length: 255 }).notNull(),
     updatedAt: timestamp("updated_at"),
-    projectID: text("project_id")
+    projectId: text("project_id")
       .notNull()
       .references(() => project.id, { onDelete: "cascade" }),
   },
@@ -150,7 +150,7 @@ export const device = pgTable(
     ...baseModal("device"),
     name: varchar("name", { length: 255 }).notNull(),
     updatedAt: timestamp("updated_at"),
-    projectID: text("project_id")
+    projectId: text("project_id")
       .notNull()
       .references(() => project.id, { onDelete: "cascade" }),
   },
@@ -171,10 +171,10 @@ export const measurement = pgTable(
   {
     ...baseModal("measurement"),
     name: varchar("name", { length: 255 }),
-    deviceID: text("device_id")
+    deviceId: text("device_id")
       .notNull()
       .references(() => device.id, { onDelete: "cascade" }),
-    testID: text("test_id")
+    testId: text("test_id")
       .notNull()
       .references(() => test.id, { onDelete: "cascade" }),
     tags: varchar("tags", { length: 64 }).array(),
