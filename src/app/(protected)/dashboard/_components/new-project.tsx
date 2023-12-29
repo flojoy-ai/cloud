@@ -58,6 +58,7 @@ export default function NewProjectButton({ workspaces }: Props) {
           <DropdownMenuSeparator />
           {workspaces.map((workspace) => (
             <DropdownMenuItem
+              key={workspace.id}
               onSelect={() => {
                 setSelectedWorkspace(workspace.id);
                 setIsDialogOpen(true);
