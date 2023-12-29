@@ -181,6 +181,7 @@ export const measurement = pgTable(
     measurementType: measurementTypeEnum("measurement_type").notNull(),
     tags: text("tags").array(),
     storageProvider: storageProviderEnum("storage_provider").notNull(),
+    // TODO: this needs a bit more thought, would be nice to make it more structured
     data: jsonb("data"),
     s3Bucket: text("s3_bucket"),
     s3Key: text("s3_key"),

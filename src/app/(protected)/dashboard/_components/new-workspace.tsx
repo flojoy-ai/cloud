@@ -68,6 +68,7 @@ export default function NewWorkspace() {
               toast.promise(
                 createWorkspace.mutateAsync({
                   name,
+                  planType: "hobby", // TODO: Do not hardcode plan type
                 }),
                 {
                   loading: "Creating your project...",
