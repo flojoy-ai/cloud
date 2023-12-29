@@ -184,5 +184,11 @@ export const measurement = pgTable(
   },
   (measurement) => ({
     measurementNameIndex: index("measurement_name_idx").on(measurement.name),
+    measurementDeviceIdIndex: index("measurement_device_id_idx").on(
+      measurement.deviceId,
+    ),
+    measurementTestIdIndex: index("measurement_test_id_idx").on(
+      measurement.testId,
+    ),
   }),
 );
