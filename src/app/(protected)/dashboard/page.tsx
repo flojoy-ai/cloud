@@ -11,6 +11,7 @@ import * as context from "next/headers";
 import NewProject from "./_components/new-project";
 import { redirect } from "next/navigation";
 import { api } from "~/trpc/server";
+import { Button } from "~/components/ui/button";
 
 export default async function Dashboard() {
   const authRequest = auth.handleRequest("GET", context);
@@ -36,6 +37,10 @@ export default async function Dashboard() {
         <div className="flex gap-2">
           <NewProject workspaces={workspaces} />
           <NewWorkspace />
+          {/* TODO: Implement sample workspace + project */}
+          <Button size="sm" variant="outline">
+            Create a Sample Workspace + Project
+          </Button>
         </div>
       </div>
 
