@@ -1,3 +1,5 @@
+import { eq } from "drizzle-orm";
+import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
 import { workspace, workspace_user } from "~/server/db/schema";
@@ -28,6 +30,11 @@ export const workspaceRouter = createTRPCRouter({
       return workspaceCreateResult;
     }),
 
+  deleteWorkspaceById: protectedProcedure
+    .input(z.object({ workspaceId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.delete(workspace).where(eq(workspace.id, input.workspaceId));
+    }),
   getAllWorkspaces: protectedProcedure.query(async ({ ctx }) => {
     const workspaceIds = (
       await db.query.workspace_user.findMany({
