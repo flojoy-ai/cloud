@@ -58,6 +58,7 @@ export function MainNav() {
 
         <Link
           href="https://www.flojoy.ai/contact-sales"
+          target="_blank"
           className={cn(
             "text-foreground/60 transition-colors hover:text-foreground/80",
           )}
