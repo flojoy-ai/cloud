@@ -21,7 +21,7 @@ export default async function WorkspaceSection({ workspace }: Props) {
     <div>
       <div className="flex items-center gap-2">
         <Label className="text-2xl">{workspace.name}</Label>
-        <Badge>{workspace.planType}</Badge>
+        <Badge>{workspace.planType} plan</Badge>
         <Label className="text-muted-foreground">{workspace.id}</Label>
         <div className="grow"></div>
         <Button asChild size="sm" variant="secondary">
