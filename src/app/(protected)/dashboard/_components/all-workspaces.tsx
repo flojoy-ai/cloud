@@ -13,12 +13,12 @@ export default async function AllWorkspaces({ workspaces }: Props) {
         .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
         .map((workspace, idx) => {
           return (
-            <>
+            <div key={workspace.id}>
               {idx !== 0 && <Separator />}
               <div className="py-2" />
-              <WorkspaceSection key={workspace.id} workspace={workspace} />
+              <WorkspaceSection workspace={workspace} />
               <div className="py-2" />
-            </>
+            </div>
           );
         })}
     </div>
