@@ -20,7 +20,7 @@ export default async function Home() {
       </PageHeader>
 
       <div className="flex flex-col items-center">
-        <Button asChild>
+        <Button asChild size="lg">
           <Link href="/signup">Try it free</Link>
         </Button>
       </div>
