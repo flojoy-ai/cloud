@@ -1,5 +1,5 @@
 {
-  "id": "ecb27061-8068-4498-8034-a9b698b18a39",
+  "id": "58a2a0d9-2b59-4974-99a4-364ad9ed02ec",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -618,7 +618,8 @@
       "name": "measurement_type",
       "values": {
         "boolean": "boolean",
-        "ordered_pair": "ordered_pair"
+        "dataframe": "dataframe",
+        "image": "image"
       }
     },
     "plan_type": {

@@ -5,7 +5,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- CREATE TYPE "measurement_type" AS ENUM('boolean', 'ordered_pair');
+ CREATE TYPE "measurement_type" AS ENUM('boolean', 'dataframe', 'image');
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

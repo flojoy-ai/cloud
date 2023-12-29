@@ -163,7 +163,8 @@ export const device = pgTable(
 export const storageProviderEnum = pgEnum("storage_provider", ["s3", "local"]);
 export const measurementTypeEnum = pgEnum("measurement_type", [
   "boolean",
-  "ordered_pair",
+  "dataframe",
+  "image",
 ]);
 
 export const measurement = pgTable(
