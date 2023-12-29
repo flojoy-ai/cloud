@@ -41,6 +41,11 @@ const ExplorerView = () => {
             <CardContent>
               <WorkspaceCombobox workspaces={workspaces ?? []} />
             </CardContent>
+            <CardFooter>
+              {workspaces?.length === 0 && (
+                <div>There is no workspace in your account</div>
+              )}
+            </CardFooter>
           </Card>
 
           <Card>
@@ -55,7 +60,7 @@ const ExplorerView = () => {
                 <div>You must select a workspace first</div>
               )}
               {selectedWorkspace && projects?.length === 0 && (
-                <div>There is no project in this workspace</div>
+                <div>There is no project in the selected workspace</div>
               )}
             </CardFooter>
           </Card>
@@ -70,7 +75,7 @@ const ExplorerView = () => {
             <CardFooter>
               {!selectedProject && <div>You must select a project first</div>}
               {selectedProject && tests?.length === 0 && (
-                <div>There is no test in this workspace</div>
+                <div>There is no test in the selected project</div>
               )}
             </CardFooter>
           </Card>
