@@ -25,6 +25,7 @@ const DeleteWorkspace = ({ workspaceId }: Props) => {
   const deleteWorkspace = api.workspace.deleteWorkspaceById.useMutation({
     onSuccess: () => {
       router.push("/dashboard");
+      router.refresh();
     },
   });
 

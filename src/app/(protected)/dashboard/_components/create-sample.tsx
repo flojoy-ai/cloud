@@ -1,10 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import { api } from "~/trpc/react";
 
 const CreateSample = () => {
+  const router = useRouter();
   const workspaceCreate = api.workspace.createWorkspace.useMutation();
   const projectCreate = api.project.createProject.useMutation();
   const deviceCreate = api.device.createDevice.useMutation();
@@ -32,6 +34,7 @@ const CreateSample = () => {
       name: "Pass/Fail Test",
       projectId: createProjectResult.id,
     });
+    router.refresh();
   };
 
   return (
