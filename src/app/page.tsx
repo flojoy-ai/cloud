@@ -7,7 +7,13 @@ import {
 } from "~/components/page-header";
 import { Button } from "~/components/ui/button";
 
+import { auth } from "~/auth/lucia";
+import * as context from "next/headers";
+
 export default async function Home() {
+  const authRequest = auth.handleRequest("GET", context);
+  const session = await authRequest.validate();
+
   return (
     <div className="container max-w-screen-2xl">
       <PageHeader>
@@ -21,7 +27,11 @@ export default async function Home() {
 
       <div className="flex flex-col items-center">
         <Button asChild size="lg">
-          <Link href="/signup">Try it free</Link>
+          {session ? (
+            <Link href="/dashboard">Go to dashboard</Link>
+          ) : (
+            <Link href="/signup">Try it free</Link>
+          )}
         </Button>
       </div>
 
