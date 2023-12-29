@@ -11,29 +11,39 @@ const CreateSample = () => {
   const projectCreate = api.project.createProject.useMutation();
   const deviceCreate = api.device.createDevice.useMutation();
   const testCreate = api.test.createTest.useMutation();
+  const measurementCreate = api.measurement.createMeasurement.useMutation();
 
   const createSample = async () => {
-    const createWorkspaceResult = await workspaceCreate.mutateAsync({
+    const workspace = await workspaceCreate.mutateAsync({
       name: "Sample Workspace",
       planType: "hobby",
     });
 
-    const createProjectResult = await projectCreate.mutateAsync({
+    const project = await projectCreate.mutateAsync({
       name: "My Circuit Testing Project",
-      workspaceId: createWorkspaceResult.id,
+      workspaceId: workspace.id,
+    });
+
+    const test = await testCreate.mutateAsync({
+      name: "Pass/Fail Test",
+      projectId: project.id,
     });
 
     for (let i = 1; i <= 3; i++) {
-      await deviceCreate.mutateAsync({
+      const device = await deviceCreate.mutateAsync({
         name: `Circuit Board #${i}`,
-        projectId: createProjectResult.id,
+        projectId: project.id,
+      });
+      await measurementCreate.mutateAsync({
+        name: "Did Power On",
+        deviceId: device.id,
+        testId: test.id,
+        measurementType: "boolean",
+        storageProvider: "local",
+        data: { passed: true },
       });
     }
 
-    await testCreate.mutateAsync({
-      name: "Pass/Fail Test",
-      projectId: createProjectResult.id,
-    });
     router.refresh();
   };
 

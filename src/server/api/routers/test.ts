@@ -26,6 +26,7 @@ export const testRouter = createTRPCRouter({
         .update(project)
         .set({ updatedAt: new Date() })
         .where(eq(project.id, input.projectId));
+      return testCreateResult;
     }),
   getAllTestsByProjectId: protectedProcedure
     .input(z.object({ projectId: z.string() }))

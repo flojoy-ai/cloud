@@ -26,6 +26,8 @@ export const deviceRouter = createTRPCRouter({
         .update(project)
         .set({ updatedAt: new Date() })
         .where(eq(project.id, input.projectId));
+
+      return deviceCreateResult;
     }),
   getAllDevicesByProjectId: protectedProcedure
     .input(z.object({ projectId: z.string() }))
