@@ -31,6 +31,6 @@ export const measurementRouter = createTRPCRouter({
       await ctx.db
         .update(device)
         .set({ updatedAt: new Date() })
-        .where(eq(test.id, input.testId));
+        .where(eq(device.id, input.testId));
     }),
 });
