@@ -33,18 +33,6 @@ export function MainNav() {
         </Link>
 
         {/* <Link */}
-        {/*   href="/explorer" */}
-        {/*   className={cn( */}
-        {/*     "transition-colors hover:text-foreground/80", */}
-        {/*     pathname?.startsWith("/explorer") */}
-        {/*       ? "text-foreground" */}
-        {/*       : "text-foreground/60", */}
-        {/*   )} */}
-        {/* > */}
-        {/*   Explorer */}
-        {/* </Link> */}
-
-        {/* <Link */}
         {/*   href="/pricing" */}
         {/*   className={cn( */}
         {/*     "transition-colors hover:text-foreground/80", */}
