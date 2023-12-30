@@ -17,7 +17,7 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.481.0",
+    "@aws-sdk/client-s3": "^3.484.0",
     "@epic-web/remember": "^1.0.2",
     "@hookform/resolvers": "^3.3.3",
     "@lucia-auth/adapter-postgresql": "^2.0.2",
@@ -50,7 +50,7 @@
     "@trpc/react-query": "^10.45.0",
     "@trpc/server": "^10.45.0",
     "class-variance-authority": "^0.7.0",
-    "clsx": "^2.0.0",
+    "clsx": "^2.1.0",
     "cmdk": "^0.2.0",
     "drizzle-orm": "^0.29.2",
     "drizzle-zod": "^0.5.1",
@@ -81,7 +81,7 @@
     "@next/eslint-plugin-next": "^14.0.4",
     "@types/eslint": "^8.56.0",
     "@types/lodash": "^4.14.202",
-    "@types/node": "^20.10.5",
+    "@types/node": "^20.10.6",
     "@types/react": "^18.2.46",
     "@types/react-dom": "^18.2.18",
     "@types/react-plotly.js": "^2.6.3",
