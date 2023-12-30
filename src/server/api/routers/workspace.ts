@@ -54,4 +54,16 @@ export const workspaceRouter = createTRPCRouter({
       where: (workspace, { inArray }) => inArray(workspace.id, workspaceIds),
     });
   }),
+  getWorkspaceById: protectedProcedure
+    .input(z.object({ workspaceId: z.string() }))
+    .query(async ({ input }) => {
+      const result = await db.query.workspace.findFirst({
+        where: (workspace, { eq }) => eq(workspace.id, input.workspaceId),
+      });
+
+      if (!result) {
+        throw new Error("Workspace not found");
+      }
+      return result;
+    }),
 });
