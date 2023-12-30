@@ -56,6 +56,7 @@ const CreateTest = ({ project }: Props) => {
     resolver: zodResolver(insertTestSchema),
     defaultValues: {
       projectId: project.id,
+      measurementType: "dataframe",
     },
   });
 
