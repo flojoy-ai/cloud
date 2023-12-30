@@ -43,11 +43,13 @@ export function TestCombobox({ tests }: Props) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          className="justify-between text-left"
         >
-          {selectedTest
-            ? tests.find((test) => test.id === selectedTest.id)?.name
-            : "Select test..."}
+          <div className="block w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
+            {selectedTest
+              ? tests.find((test) => test.id === selectedTest.id)?.name
+              : "Select test..."}
+          </div>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>

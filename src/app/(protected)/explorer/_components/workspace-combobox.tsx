@@ -43,13 +43,15 @@ export function WorkspaceCombobox({ workspaces }: Props) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          className="justify-between text-left"
         >
-          {selectedWorkspace
-            ? workspaces.find(
-                (workspace) => workspace.id === selectedWorkspace.id,
-              )?.name
-            : "Select workspace..."}
+          <div className="block w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
+            {selectedWorkspace
+              ? workspaces.find(
+                  (workspace) => workspace.id === selectedWorkspace.id,
+                )?.name
+              : "Select workspace..."}
+          </div>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>

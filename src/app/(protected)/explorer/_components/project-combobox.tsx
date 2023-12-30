@@ -43,12 +43,14 @@ export function ProjectCombobox({ projects }: Props) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          className="justify-between text-left"
         >
-          {selectedProject
-            ? projects.find((project) => project.id === selectedProject.id)
-                ?.name
-            : "Select project..."}
+          <div className="block w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
+            {selectedProject
+              ? projects.find((project) => project.id === selectedProject.id)
+                  ?.name
+              : "Select project..."}
+          </div>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
