@@ -7,7 +7,6 @@ import { device, project } from "~/server/db/schema";
 import { insertDeviceSchema } from "~/types/device";
 
 export const deviceRouter = createTRPCRouter({
-  // TODO: make sure no duplicated names
   createDevice: protectedProcedure
     .input(insertDeviceSchema)
     .mutation(async ({ ctx, input }) => {

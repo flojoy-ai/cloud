@@ -6,7 +6,6 @@ import { project, test } from "~/server/db/schema";
 import { insertTestSchema } from "~/types/test";
 
 export const testRouter = createTRPCRouter({
-  // TODO: make sure no duplicated names
   createTest: protectedProcedure
     .input(insertTestSchema)
     .mutation(async ({ ctx, input }) => {

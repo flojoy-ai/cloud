@@ -3,7 +3,6 @@ import Link from "next/link";
 const TermsAndPrivacy = () => {
   return (
     <p className="px-8 text-center text-sm text-muted-foreground">
-      {/* TODO: replace with self-hosted terms and privacy policy */}
       By clicking continue, you agree to our{" "}
       <Link
         href="https://app.termly.io/document/terms-of-service/e7776ca7-3e93-4f6e-a492-3e3cbeba2b79"

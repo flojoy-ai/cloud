@@ -6,7 +6,6 @@ import { workspace, workspace_user } from "~/server/db/schema";
 import { insertWorkspaceSchema } from "~/types/workspace";
 
 export const workspaceRouter = createTRPCRouter({
-  // TODO: make sure no duplicated names
   createWorkspace: protectedProcedure
     .input(insertWorkspaceSchema)
     .mutation(async ({ ctx, input }) => {
