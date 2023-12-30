@@ -64,12 +64,12 @@ const ExplorerView = ({ project }: Props) => {
             ) ?? []
           }
           y={
-            measurements?.flatMap((measurement) =>
-              // TODO: Bad type casting, need to find a better way
-              (measurement.data as { passed: boolean }).passed
-                ? "Passed"
-                : "Failed",
-            ) ?? []
+            measurements?.flatMap((measurement) => {
+              if (measurement.data.type === "boolean") {
+                return measurement.data.data.passed ? "passed" : "failed";
+              }
+              return "";
+            }) ?? []
           }
         />
       )}

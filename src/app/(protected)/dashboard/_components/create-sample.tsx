@@ -46,7 +46,7 @@ const CreateSample = () => {
         deviceId: device.id,
         testId: test.id,
         measurementType: "boolean",
-        data: { passed: Math.random() < 0.8 },
+        data: { type: "boolean", data: { passed: Math.random() < 0.8 } },
       })),
     );
 

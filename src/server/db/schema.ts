@@ -11,7 +11,8 @@ import {
   unique,
 } from "drizzle-orm/pg-core";
 import { createId } from "@paralleldrive/cuid2";
-import { measurementConfig } from "~/config/measurement";
+import { type MeasurementData } from "~/types/data";
+import { allMeasurementTypes } from "~/config/measurement";
 
 export const pgTable = pgTableCreator((name) => `cloud_${name}`);
 
@@ -136,7 +137,7 @@ export const project = pgTable(
 
 export const measurementTypeEnum = pgEnum(
   "measurement_type",
-  measurementConfig.supportedTypes,
+  allMeasurementTypes,
 );
 
 // Each project can have multiple tests (not "software test").
@@ -192,9 +193,7 @@ export const measurement = pgTable(
     measurementType: measurementTypeEnum("measurement_type").notNull(),
     storageProvider: storageProviderEnum("storage_provider").notNull(),
     // TODO: this needs a bit more thought, would be nice to make it more structured
-    data: jsonb("data"),
-    s3Bucket: text("s3_bucket"),
-    s3Key: text("s3_key"),
+    data: jsonb("data").$type<MeasurementData>().notNull(),
     isDeleted: boolean("is_deleted").default(false),
   },
   (measurement) => ({
