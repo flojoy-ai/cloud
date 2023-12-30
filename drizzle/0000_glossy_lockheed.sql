@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS "cloud_test" (
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"name" text NOT NULL,
 	"updated_at" timestamp,
+	"measurement_type" "measurement_type" NOT NULL,
 	"project_id" text NOT NULL
 );
 --> statement-breakpoint

@@ -1,5 +1,5 @@
 {
-  "id": "58a2a0d9-2b59-4974-99a4-364ad9ed02ec",
+  "id": "55cbc7c3-c0ab-42ae-9a81-249358807230",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -292,6 +292,12 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false
+        },
+        "measurement_type": {
+          "name": "measurement_type",
+          "type": "measurement_type",
+          "primaryKey": false,
+          "notNull": true
         },
         "project_id": {
           "name": "project_id",
