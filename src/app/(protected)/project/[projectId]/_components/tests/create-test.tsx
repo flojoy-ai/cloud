@@ -1,4 +1,5 @@
 "use client";
+
 import { type SelectProject } from "~/types/project";
 
 import { toast } from "sonner";
@@ -25,6 +26,7 @@ type Props = {
 };
 
 const CreateTest = ({ project }: Props) => {
+  // TODO: remake this component into a proper form
   const router = useRouter();
   const [name, setName] = useState<string>("");
 
@@ -73,6 +75,7 @@ const CreateTest = ({ project }: Props) => {
                 createTest.mutateAsync({
                   name,
                   projectId: project.id,
+                  measurementType: "boolean",
                 }),
                 {
                   loading: "Creating your test...",

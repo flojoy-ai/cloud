@@ -15,6 +15,7 @@ export const testRouter = createTRPCRouter({
         .values({
           name: input.name,
           projectId: input.projectId,
+          measurementType: input.measurementType,
         })
         .returning();
 
