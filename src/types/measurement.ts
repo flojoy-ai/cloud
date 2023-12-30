@@ -1,5 +1,6 @@
 import { measurement } from "~/server/db/schema";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { z } from "zod";
 
 export type SelectMeasurement = typeof measurement.$inferSelect;
 
@@ -14,4 +15,6 @@ export const publicInsertMeasurementSchema = insertMeasurementSchema.pick({
   testId: true,
 });
 
-export const selectMeasurementSchema = createSelectSchema(measurement);
+export const selectMeasurementSchema = createSelectSchema(measurement, {
+  data: z.unknown(),
+});

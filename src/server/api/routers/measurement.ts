@@ -7,6 +7,7 @@ import { measurement, device, test } from "~/server/db/schema";
 import {
   insertMeasurementSchema,
   publicInsertMeasurementSchema,
+  selectMeasurementSchema,
 } from "~/types/measurement";
 
 export const measurementRouter = createTRPCRouter({
@@ -78,6 +79,7 @@ export const measurementRouter = createTRPCRouter({
 
   getAllMeasurementsByTestId: protectedProcedure
     .input(z.object({ testId: z.string() }))
+    .output(z.array(selectMeasurementSchema))
     .query(async ({ ctx, input }) => {
       return await ctx.db.query.measurement.findMany({
         where: (measurement, { eq }) => eq(measurement.testId, input.testId),
