@@ -1,5 +1,5 @@
 {
-  "id": "bd6f4a1c-b0f1-4532-97cd-72772c693087",
+  "id": "0f18fae7-2ea7-40c1-b7a9-842bc682e2ed",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -278,6 +278,90 @@
           "columns": [
             "workspace_id",
             "name"
+          ]
+        }
+      }
+    },
+    "cloud_secret": {
+      "name": "cloud_secret",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "project_id": {
+          "name": "project_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "cloud_secret_user_id_cloud_user_id_fk": {
+          "name": "cloud_secret_user_id_cloud_user_id_fk",
+          "tableFrom": "cloud_secret",
+          "tableTo": "cloud_user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "cloud_secret_project_id_cloud_project_id_fk": {
+          "name": "cloud_secret_project_id_cloud_project_id_fk",
+          "tableFrom": "cloud_secret",
+          "tableTo": "cloud_project",
+          "columnsFrom": [
+            "project_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "cloud_secret_user_id_name_project_id_unique": {
+          "name": "cloud_secret_user_id_name_project_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "user_id",
+            "name",
+            "project_id"
           ]
         }
       }

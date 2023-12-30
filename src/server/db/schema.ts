@@ -204,3 +204,21 @@ export const measurement = pgTable(
     ),
   }),
 );
+
+export const secret = pgTable(
+  "secret",
+  {
+    ...baseModal("secret"),
+    name: text("name").notNull(),
+    value: text("value").notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => project.id, { onDelete: "cascade" }),
+  },
+  (secret) => ({
+    unq: unique().on(secret.userId, secret.name, secret.projectId),
+  }),
+);
