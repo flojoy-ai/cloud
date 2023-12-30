@@ -25,7 +25,8 @@ export default async function Home() {
           your test & measurement data
         </PageHeaderHeading>
         <PageHeaderDescription>
-          Powerful visualizations, easy to use, and free forever.
+          Powerful data visualizations. Easy to use. APIs for Python, LabVIEW,
+          and MATLAB.
         </PageHeaderDescription>
       </PageHeader>
 
