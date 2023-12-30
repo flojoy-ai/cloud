@@ -186,7 +186,7 @@ export const measurement = pgTable(
       .notNull()
       .references(() => test.id, { onDelete: "cascade" }),
     measurementType: measurementTypeEnum("measurement_type").notNull(),
-    tags: text("tags").array(),
+    tags: text("tags").array().default([]),
     storageProvider: storageProviderEnum("storage_provider").notNull(),
     // TODO: this needs a bit more thought, would be nice to make it more structured
     data: jsonb("data"),

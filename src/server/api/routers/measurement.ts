@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import _ from "lodash";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
@@ -35,6 +36,42 @@ export const measurementRouter = createTRPCRouter({
         .set({ updatedAt: new Date() })
         .where(eq(device.id, input.testId));
     }),
+
+  createMeasurements: protectedProcedure
+    .input(z.array(insertMeasurementSchema))
+    .mutation(async ({ ctx, input }) => {
+      const measurementsCreateResult = await ctx.db
+        .insert(measurement)
+        .values([...input])
+        .returning();
+
+      if (!measurementsCreateResult) {
+        throw new Error("Failed to create measurements");
+      }
+
+      await Promise.all(
+        _.uniq(input.flatMap((measurement) => measurement.testId)).map(
+          async (projectId) => {
+            await ctx.db
+              .update(test)
+              .set({ updatedAt: new Date() })
+              .where(eq(test.projectId, projectId));
+          },
+        ),
+      );
+
+      await Promise.all(
+        _.uniq(input.flatMap((measurement) => measurement.deviceId)).map(
+          async (projectId) => {
+            await ctx.db
+              .update(device)
+              .set({ updatedAt: new Date() })
+              .where(eq(device.projectId, projectId));
+          },
+        ),
+      );
+    }),
+
   getAllMeasurementsByTestId: protectedProcedure
     .input(z.object({ testId: z.string() }))
     .query(async ({ ctx, input }) => {

@@ -1,5 +1,6 @@
 "use client";
 
+import _ from "lodash";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -11,9 +12,9 @@ const CreateSample = () => {
   const [isCreating, setIsCreating] = useState<boolean>(false);
   const workspaceCreate = api.workspace.createWorkspace.useMutation();
   const projectCreate = api.project.createProject.useMutation();
-  const deviceCreate = api.device.createDevice.useMutation();
+  const devicesCreate = api.device.createDevices.useMutation();
   const testCreate = api.test.createTest.useMutation();
-  const measurementCreate = api.measurement.createMeasurement.useMutation();
+  const measurementsCreate = api.measurement.createMeasurements.useMutation();
 
   const createSample = async () => {
     setIsCreating(true);
@@ -33,20 +34,23 @@ const CreateSample = () => {
       measurementType: "boolean",
     });
 
-    for (let i = 1; i <= 10; i++) {
-      const device = await deviceCreate.mutateAsync({
-        name: `Circuit Board #${i}`,
+    const devices = await devicesCreate.mutateAsync(
+      _.times(10, (i) => ({
+        name: `Circuit Board #${i + 1}`,
         projectId: project.id,
-      });
-      await measurementCreate.mutateAsync({
+      })),
+    );
+
+    await measurementsCreate.mutateAsync(
+      devices.map((device) => ({
         name: "Did Power On",
         deviceId: device.id,
         testId: test.id,
         measurementType: "boolean",
         storageProvider: "local",
-        data: { passed: Math.random() < 0.9 },
-      });
-    }
+        data: { passed: Math.random() < 0.8 },
+      })),
+    );
 
     router.refresh();
     setIsCreating(false);
