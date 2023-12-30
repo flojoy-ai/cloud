@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { measurement, device, test } from "~/server/db/schema";
@@ -16,6 +17,7 @@ export const measurementRouter = createTRPCRouter({
           deviceId: input.deviceId,
           measurementType: input.measurementType,
           storageProvider: "local", // TODO: make this configurable
+          data: input.data,
         })
         .returning();
 
@@ -32,5 +34,12 @@ export const measurementRouter = createTRPCRouter({
         .update(device)
         .set({ updatedAt: new Date() })
         .where(eq(device.id, input.testId));
+    }),
+  getAllMeasurementsByTestId: protectedProcedure
+    .input(z.object({ testId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.db.query.measurement.findMany({
+        where: (measurement, { eq }) => eq(measurement.testId, input.testId),
+      });
     }),
 });
