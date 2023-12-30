@@ -3,11 +3,12 @@ import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { project, test } from "~/server/db/schema";
-import { insertTestSchema } from "~/types/test";
+import { insertTestSchema, selectTestSchema } from "~/types/test";
 
 export const testRouter = createTRPCRouter({
   createTest: protectedProcedure
     .input(insertTestSchema)
+    .output(selectTestSchema)
     .mutation(async ({ ctx, input }) => {
       const [testCreateResult] = await ctx.db
         .insert(test)
@@ -30,6 +31,7 @@ export const testRouter = createTRPCRouter({
     }),
   getAllTestsByProjectId: protectedProcedure
     .input(z.object({ projectId: z.string() }))
+    .output(z.array(selectTestSchema))
     .query(async ({ input, ctx }) => {
       return await ctx.db.query.test.findMany({
         where: (test, { eq }) => eq(test.projectId, input.projectId),
