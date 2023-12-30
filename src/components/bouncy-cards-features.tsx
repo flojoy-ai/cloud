@@ -8,7 +8,7 @@ export const BouncyCardsFeatures = () => {
     <section className="mx-auto max-w-7xl px-4 py-12 ">
       <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end md:px-8">
         <h2 className="max-w-lg text-4xl font-bold text-muted-foreground md:text-5xl">
-          Analyze faster with our
+          Test more devices faster with our <br />
           <span className="text-primary"> all in one solution</span>
         </h2>
         <motion.button
@@ -21,40 +21,40 @@ export const BouncyCardsFeatures = () => {
       </div>
       <div className="mb-4 grid grid-cols-12 gap-4">
         <BounceCard className="col-span-12 md:col-span-4">
-          <CardTitle>Register your tests and hardwares</CardTitle>
+          <CardTitle>Flexible data source connectors</CardTitle>
           <div className="absolute bottom-0 left-4 right-4 top-32 translate-y-8 rounded-t-2xl bg-gradient-to-br from-violet-400 to-indigo-400 p-4 transition-transform duration-200 group-hover:translate-y-4 group-hover:rotate-[2deg]">
             <span className="block text-center font-semibold text-indigo-50">
-              FEATURE DEMO HERE
+              Flojoy Cloud connects to Python, MATLAB, LabVIEW, Rasberry Pi, and
+              Flojoy Studio.
             </span>
           </div>
         </BounceCard>
         <BounceCard className="col-span-12 md:col-span-8">
-          <CardTitle>
-            Stream data in via our Python client or REST API
-          </CardTitle>
+          <CardTitle>Powerful data visualization</CardTitle>
           <div className="absolute bottom-0 left-4 right-4 top-32 translate-y-8 rounded-t-2xl bg-gradient-to-br from-amber-400 to-orange-400 p-4 transition-transform duration-200 group-hover:translate-y-4 group-hover:rotate-[2deg]">
             <span className="block text-center font-semibold text-orange-50">
-              FEATURE DEMO HERE
+              Search, filter, and visualize measurement data. Define control
+              limits and share findings as interactive reports.
             </span>
           </div>
         </BounceCard>
       </div>
       <div className="grid grid-cols-12 gap-4">
         <BounceCard className="col-span-12 md:col-span-8">
-          <CardTitle>
-            Create powerful visualizations and discover insights
-          </CardTitle>
+          <CardTitle>Ludicrous scalability</CardTitle>
           <div className="absolute bottom-0 left-4 right-4 top-32 translate-y-8 rounded-t-2xl bg-gradient-to-br from-green-400 to-emerald-400 p-4 transition-transform duration-200 group-hover:translate-y-4 group-hover:rotate-[2deg]">
             <span className="block text-center font-semibold text-emerald-50">
-              FEATURE DEMO HERE
+              Scale to millions of hardware devices with billions of
+              measurements.
             </span>
           </div>
         </BounceCard>
         <BounceCard className="col-span-12 md:col-span-4">
-          <CardTitle>Generate beautiful reports</CardTitle>
+          <CardTitle>Our cloud or yours</CardTitle>
           <div className="absolute bottom-0 left-4 right-4 top-32 translate-y-8 rounded-t-2xl bg-gradient-to-br from-pink-400 to-red-400 p-4 transition-transform duration-200 group-hover:translate-y-4 group-hover:rotate-[2deg]">
             <span className="block text-center font-semibold text-red-50">
-              FEATURE DEMO HERE
+              Use our cloud or deploy on your own AWS, Azure, or on-premises
+              VPC.
             </span>
           </div>
         </BounceCard>

@@ -22,7 +22,7 @@ export default async function Home() {
           <span className="bg-gradient-to-r from-violet-500 to-indigo-500 bg-clip-text text-transparent dark:from-violet-500 dark:to-indigo-500">
             supercharge{" "}
           </span>
-          your test data
+          your test & measurement data
         </PageHeaderHeading>
         <PageHeaderDescription>
           Powerful visualizations, easy to use, and free forever.
