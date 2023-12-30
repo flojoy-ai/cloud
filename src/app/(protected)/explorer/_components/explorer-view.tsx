@@ -13,12 +13,14 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
+import ScatterPlot from "~/components/visualization/scatter-plot";
 
 const ExplorerView = () => {
-  const { selectedWorkspace, selectedProject } = useExplorerStore(
+  const { selectedWorkspace, selectedProject, selectedTest } = useExplorerStore(
     useShallow((state) => ({
       selectedWorkspace: state.selectedWorkspace,
       selectedProject: state.selectedProject,
+      selectedTest: state.selectedTest,
     })),
   );
 
@@ -29,6 +31,14 @@ const ExplorerView = () => {
   const { data: tests } = api.test.getAllTestsByProjectId.useQuery({
     projectId: selectedProject?.id ?? "",
   });
+
+  const { data: measurements } =
+    api.measurement.getAllMeasurementsByTestId.useQuery({
+      testId: selectedTest?.id ?? "",
+    });
+
+  const everythingSelected =
+    selectedWorkspace && selectedTest && selectedProject;
 
   return (
     <div>
@@ -81,6 +91,25 @@ const ExplorerView = () => {
           </Card>
         </div>
       </Card>
+
+      {everythingSelected && (
+        <ScatterPlot
+          title={selectedTest?.name ?? "Untitled Test"}
+          x={
+            measurements?.flatMap(
+              (measurement) => measurement.deviceId ?? "Untitled Device",
+            ) ?? []
+          }
+          y={
+            measurements?.flatMap((measurement) =>
+              // TODO: Bad type casting, need to find a better way
+              (measurement.data as { passed: boolean }).passed
+                ? "Passed"
+                : "Failed",
+            ) ?? []
+          }
+        />
+      )}
     </div>
   );
 };
