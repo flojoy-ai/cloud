@@ -18,7 +18,11 @@ export default async function Home() {
     <div className="container max-w-screen-2xl">
       <PageHeader>
         <PageHeaderHeading className="">
-          The easiest way to manage your test data
+          The easiest way to{" "}
+          <span className="bg-gradient-to-r from-violet-500 to-indigo-500 bg-clip-text text-transparent dark:from-violet-500 dark:to-indigo-500">
+            supercharge{" "}
+          </span>
+          your test data
         </PageHeaderHeading>
         <PageHeaderDescription>
           Powerful visualizations, easy to use, and free forever.
