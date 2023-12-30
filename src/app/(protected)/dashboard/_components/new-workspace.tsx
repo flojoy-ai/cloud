@@ -71,8 +71,8 @@ export default function NewWorkspace() {
                   planType: "hobby", // TODO: Do not hardcode plan type
                 }),
                 {
-                  loading: "Creating your project...",
-                  success: "Your project is ready.",
+                  loading: "Creating your workspace...",
+                  success: "Your workspace is ready.",
                   error: "Something went wrong :(",
                 },
               )
