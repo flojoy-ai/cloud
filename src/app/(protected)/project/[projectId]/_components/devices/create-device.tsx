@@ -7,6 +7,20 @@ import { useState } from "react";
 import { Button } from "~/components/ui/button";
 
 import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "~/components/ui/form";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { insertDeviceSchema } from "~/types/device";
+
+import {
   Dialog,
   DialogClose,
   DialogContent,
@@ -19,6 +33,7 @@ import {
 
 import { Input } from "~/components/ui/input";
 import { api } from "~/trpc/react";
+import { type z } from "zod";
 
 type Props = {
   project: SelectProject;
@@ -26,23 +41,41 @@ type Props = {
 
 const CreateDevice = ({ project }: Props) => {
   const router = useRouter();
-  const [name, setName] = useState<string>("");
 
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
   const createDevice = api.device.createDevice.useMutation({
     onSuccess: () => {
       router.refresh();
-      setName("");
       setIsDialogOpen(false);
     },
   });
+
+  const form = useForm<z.infer<typeof insertDeviceSchema>>({
+    resolver: zodResolver(insertDeviceSchema),
+    defaultValues: {
+      projectId: project.id,
+    },
+  });
+
+  function onSubmit(values: z.infer<typeof insertDeviceSchema>) {
+    toast.promise(
+      createDevice.mutateAsync({
+        ...values,
+      }),
+      {
+        loading: "Creating your device...",
+        success: "Your device is ready.",
+        error: "Something went wrong :(",
+      },
+    );
+  }
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={(open) => setIsDialogOpen(open)}>
       <DialogTrigger asChild>
         <Button variant="default" size="sm">
-          New Device
+          Register Device
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
@@ -52,41 +85,38 @@ const CreateDevice = ({ project }: Props) => {
             Which hardware device of yours do you want to register?
           </DialogDescription>
         </DialogHeader>
-        <div className="flex items-center space-x-2">
-          <div className="grid flex-1 gap-2">
-            <Input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="What is the name of your hardware device?"
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Circuit Board #1"
+                      {...field}
+                      data-1p-ignore
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    What is the name of your device?
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-        </div>
-        <DialogFooter className="">
-          <DialogClose asChild>
-            <Button type="button" variant="secondary">
-              Close
-            </Button>
-          </DialogClose>
-          <Button
-            type="button"
-            variant="default"
-            onClick={() =>
-              toast.promise(
-                createDevice.mutateAsync({
-                  name,
-                  projectId: project.id,
-                }),
-                {
-                  loading: "Creating your device...",
-                  success: "Your device is ready.",
-                  error: "Something went wrong :(",
-                },
-              )
-            }
-          >
-            Create
-          </Button>
-        </DialogFooter>
+            <DialogFooter className="">
+              <DialogClose asChild>
+                <Button type="button" variant="secondary">
+                  Close
+                </Button>
+              </DialogClose>
+              <Button type="submit">Register</Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

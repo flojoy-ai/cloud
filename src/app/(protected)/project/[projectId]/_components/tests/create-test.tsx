@@ -77,7 +77,7 @@ const CreateTest = ({ project }: Props) => {
     <Dialog open={isDialogOpen} onOpenChange={(open) => setIsDialogOpen(open)}>
       <DialogTrigger asChild>
         <Button variant="default" size="sm">
-          New Test
+          Create Test
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
