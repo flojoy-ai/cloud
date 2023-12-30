@@ -75,7 +75,7 @@ const CreateTest = ({ project }: Props) => {
   return (
     <Dialog open={isDialogOpen} onOpenChange={(open) => setIsDialogOpen(open)}>
       <DialogTrigger asChild>
-        <Button variant="secondary" size="sm">
+        <Button variant="default" size="sm">
           New Test
         </Button>
       </DialogTrigger>

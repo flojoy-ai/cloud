@@ -41,7 +41,7 @@ const CreateDevice = ({ project }: Props) => {
   return (
     <Dialog open={isDialogOpen} onOpenChange={(open) => setIsDialogOpen(open)}>
       <DialogTrigger asChild>
-        <Button variant="secondary" size="sm">
+        <Button variant="default" size="sm">
           New Device
         </Button>
       </DialogTrigger>
