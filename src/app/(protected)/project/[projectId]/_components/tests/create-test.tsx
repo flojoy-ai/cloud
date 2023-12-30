@@ -93,7 +93,11 @@ const CreateTest = ({ project }: Props) => {
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Pass/Fail Test" {...field} />
+                    <Input
+                      placeholder="Pass/Fail Test"
+                      {...field}
+                      data-1p-ignore
+                    />
                   </FormControl>
                   <FormDescription>
                     How do you want to call your test?
