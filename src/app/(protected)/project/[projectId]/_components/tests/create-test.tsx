@@ -1,11 +1,21 @@
 "use client";
 
 import { type SelectProject } from "~/types/project";
+import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "~/components/ui/form";
 
 import {
   Dialog,
@@ -18,27 +28,49 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { Input } from "~/components/ui/input";
 import { api } from "~/trpc/react";
+import { insertTestSchema } from "~/types/test";
+import { type z } from "zod";
+import { measurementConfig } from "~/config/measurement";
 
 type Props = {
   project: SelectProject;
 };
 
 const CreateTest = ({ project }: Props) => {
-  // TODO: remake this component into a proper form
   const router = useRouter();
-  const [name, setName] = useState<string>("");
 
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
   const createTest = api.test.createTest.useMutation({
     onSuccess: () => {
       router.refresh();
-      setName("");
       setIsDialogOpen(false);
     },
   });
+
+  const form = useForm<z.infer<typeof insertTestSchema>>({
+    resolver: zodResolver(insertTestSchema),
+    defaultValues: {
+      projectId: project.id,
+    },
+  });
+
+  function onSubmit(values: z.infer<typeof insertTestSchema>) {
+    toast.promise(
+      createTest.mutateAsync({
+        ...values,
+      }),
+      {
+        loading: "Creating your test...",
+        success: "Your test is ready.",
+        error: "Something went wrong :(",
+      },
+    );
+  }
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={(open) => setIsDialogOpen(open)}>
@@ -52,42 +84,69 @@ const CreateTest = ({ project }: Props) => {
           <DialogTitle>Create a new test</DialogTitle>
           <DialogDescription>What do you want to test today?</DialogDescription>
         </DialogHeader>
-        <div className="flex items-center space-x-2">
-          <div className="grid flex-1 gap-2">
-            <Input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="How do you want to call your new test?"
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Pass/Fail Test" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    How do you want to call your test?
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-        </div>
-        <DialogFooter className="">
-          <DialogClose asChild>
-            <Button type="button" variant="secondary">
-              Close
-            </Button>
-          </DialogClose>
-          <Button
-            type="button"
-            variant="default"
-            onClick={() =>
-              toast.promise(
-                createTest.mutateAsync({
-                  name,
-                  projectId: project.id,
-                  measurementType: "boolean",
-                }),
-                {
-                  loading: "Creating your test...",
-                  success: "Your test is ready.",
-                  error: "Something went wrong :(",
-                },
-              )
-            }
-          >
-            Create
-          </Button>
-        </DialogFooter>
+            <FormField
+              control={form.control}
+              name="measurementType"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel>Measurement Type</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="flex flex-col space-y-1"
+                    >
+                      {measurementConfig.supportedTypes.map((supportedType) => (
+                        <FormItem
+                          key={supportedType}
+                          className="flex items-center space-x-3 space-y-0"
+                        >
+                          <FormControl>
+                            <RadioGroupItem value={supportedType} />
+                          </FormControl>
+                          <FormLabel className="font-normal">
+                            {supportedType}
+                          </FormLabel>
+                        </FormItem>
+                      ))}
+                    </RadioGroup>
+                  </FormControl>
+
+                  <FormDescription>
+                    What type of measurement will this test receive?
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <DialogFooter className="">
+              <DialogClose asChild>
+                <Button type="button" variant="secondary">
+                  Close
+                </Button>
+              </DialogClose>
+              <Button type="submit">Submit</Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
