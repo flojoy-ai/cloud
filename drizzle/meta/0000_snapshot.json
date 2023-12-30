@@ -1,5 +1,5 @@
 {
-  "id": "55cbc7c3-c0ab-42ae-9a81-249358807230",
+  "id": "bd6f4a1c-b0f1-4532-97cd-72772c693087",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -65,7 +65,16 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {
+        "cloud_device_project_id_name_unique": {
+          "name": "cloud_device_project_id_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "project_id",
+            "name"
+          ]
+        }
+      }
     },
     "cloud_measurement": {
       "name": "cloud_measurement",
@@ -262,7 +271,16 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {
+        "cloud_project_workspace_id_name_unique": {
+          "name": "cloud_project_workspace_id_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "workspace_id",
+            "name"
+          ]
+        }
+      }
     },
     "cloud_test": {
       "name": "cloud_test",
@@ -331,7 +349,16 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {
+        "cloud_test_project_id_name_unique": {
+          "name": "cloud_test_project_id_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "project_id",
+            "name"
+          ]
+        }
+      }
     },
     "cloud_user": {
       "name": "cloud_user",
@@ -519,7 +546,15 @@
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {
+        "cloud_workspace_name_unique": {
+          "name": "cloud_workspace_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name"
+          ]
+        }
+      }
     },
     "cloud_workspace_user": {
       "name": "cloud_workspace_user",
@@ -610,7 +645,16 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {
+        "cloud_workspace_user_workspace_id_user_id_unique": {
+          "name": "cloud_workspace_user_workspace_id_user_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "workspace_id",
+            "user_id"
+          ]
+        }
+      }
     }
   },
   "enums": {

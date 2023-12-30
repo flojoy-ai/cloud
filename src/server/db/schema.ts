@@ -8,6 +8,7 @@ import {
   bigint,
   integer,
   jsonb,
+  unique,
 } from "drizzle-orm/pg-core";
 import { createId } from "@paralleldrive/cuid2";
 import { measurementConfig } from "~/config/measurement";
@@ -68,7 +69,7 @@ export const workspace = pgTable(
   "workspace",
   {
     ...baseModal("workspace"),
-    name: text("name").notNull(),
+    name: text("name").notNull().unique(),
     planType: planTypeEnum("plan_type").notNull(),
     totalSeats: integer("total_seats").notNull().default(1),
     updatedAt: timestamp("updated_at"),
@@ -108,6 +109,7 @@ export const workspace_user = pgTable(
     workspaceUserWorkspaceIdIndex: index(
       "workspace_user_workspace_id_index",
     ).on(workspace_user.workspaceId),
+    unq: unique().on(workspace_user.workspaceId, workspace_user.userId),
   }),
 );
 
@@ -124,6 +126,7 @@ export const project = pgTable(
   },
   (project) => ({
     projectNameIndex: index("project_name_index").on(project.name),
+    unq: unique().on(project.workspaceId, project.name),
   }),
 );
 
@@ -146,6 +149,7 @@ export const test = pgTable(
   },
   (test) => ({
     testNameIndex: index("test_name_idx").on(test.name),
+    unq: unique().on(test.projectId, test.name),
   }),
 );
 
@@ -162,6 +166,7 @@ export const device = pgTable(
   },
   (device) => ({
     deviceNameIndex: index("device_name_idx").on(device.name),
+    unq: unique().on(device.projectId, device.name),
   }),
 );
 

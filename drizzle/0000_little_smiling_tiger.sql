@@ -33,7 +33,8 @@ CREATE TABLE IF NOT EXISTS "cloud_device" (
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"name" text NOT NULL,
 	"updated_at" timestamp,
-	"project_id" text NOT NULL
+	"project_id" text NOT NULL,
+	CONSTRAINT "cloud_device_project_id_name_unique" UNIQUE("project_id","name")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_measurement" (
@@ -56,7 +57,8 @@ CREATE TABLE IF NOT EXISTS "cloud_project" (
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"name" text NOT NULL,
 	"updated_at" timestamp,
-	"workspace_id" text NOT NULL
+	"workspace_id" text NOT NULL,
+	CONSTRAINT "cloud_project_workspace_id_name_unique" UNIQUE("workspace_id","name")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_test" (
@@ -65,7 +67,8 @@ CREATE TABLE IF NOT EXISTS "cloud_test" (
 	"name" text NOT NULL,
 	"updated_at" timestamp,
 	"measurement_type" "measurement_type" NOT NULL,
-	"project_id" text NOT NULL
+	"project_id" text NOT NULL,
+	CONSTRAINT "cloud_test_project_id_name_unique" UNIQUE("project_id","name")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_user" (
@@ -95,7 +98,8 @@ CREATE TABLE IF NOT EXISTS "cloud_workspace" (
 	"name" text NOT NULL,
 	"plan_type" "plan_type" NOT NULL,
 	"total_seats" integer DEFAULT 1 NOT NULL,
-	"updated_at" timestamp
+	"updated_at" timestamp,
+	CONSTRAINT "cloud_workspace_name_unique" UNIQUE("name")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_workspace_user" (
@@ -103,7 +107,8 @@ CREATE TABLE IF NOT EXISTS "cloud_workspace_user" (
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"workspace_id" text NOT NULL,
 	"user_id" text NOT NULL,
-	"workspace_role" "workspace_role" NOT NULL
+	"workspace_role" "workspace_role" NOT NULL,
+	CONSTRAINT "cloud_workspace_user_workspace_id_user_id_unique" UNIQUE("workspace_id","user_id")
 );
 --> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "device_name_idx" ON "cloud_device" ("name");--> statement-breakpoint
