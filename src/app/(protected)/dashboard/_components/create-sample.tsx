@@ -20,7 +20,6 @@ const CreateSample = () => {
     setIsCreating(true);
     const workspace = await workspaceCreate.mutateAsync({
       name: "Sample Workspace",
-      planType: "hobby",
     });
 
     const project = await projectCreate.mutateAsync({
@@ -47,7 +46,6 @@ const CreateSample = () => {
         deviceId: device.id,
         testId: test.id,
         measurementType: "boolean",
-        storageProvider: "local",
         data: { passed: Math.random() < 0.8 },
       })),
     );

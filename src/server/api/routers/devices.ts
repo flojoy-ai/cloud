@@ -4,18 +4,15 @@ import { z } from "zod";
 import _ from "lodash";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { device, project } from "~/server/db/schema";
-import { insertDeviceSchema } from "~/types/device";
+import { publicInsertDeviceSchema } from "~/types/device";
 
 export const deviceRouter = createTRPCRouter({
   createDevice: protectedProcedure
-    .input(insertDeviceSchema)
+    .input(publicInsertDeviceSchema)
     .mutation(async ({ ctx, input }) => {
       const [deviceCreateResult] = await ctx.db
         .insert(device)
-        .values({
-          name: input.name,
-          projectId: input.projectId,
-        })
+        .values(input)
         .returning();
 
       if (!deviceCreateResult) {
@@ -31,7 +28,7 @@ export const deviceRouter = createTRPCRouter({
     }),
 
   createDevices: protectedProcedure
-    .input(z.array(insertDeviceSchema))
+    .input(z.array(publicInsertDeviceSchema))
     .mutation(async ({ ctx, input }) => {
       const devicesCreateResult = await ctx.db
         .insert(device)

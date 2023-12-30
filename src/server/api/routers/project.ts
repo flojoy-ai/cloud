@@ -3,18 +3,15 @@ import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { project, workspace } from "~/server/db/schema";
-import { insertProjectSchema } from "~/types/project";
+import { publicInsertProjectSchema } from "~/types/project";
 
 export const projectRouter = createTRPCRouter({
   createProject: protectedProcedure
-    .input(insertProjectSchema)
+    .input(publicInsertProjectSchema)
     .mutation(async ({ ctx, input }) => {
       const [projectCreateResult] = await ctx.db
         .insert(project)
-        .values({
-          name: input.name,
-          workspaceId: input.workspaceId,
-        })
+        .values(input)
         .returning();
 
       if (!projectCreateResult) {

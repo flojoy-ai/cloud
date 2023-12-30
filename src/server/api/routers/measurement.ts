@@ -4,7 +4,10 @@ import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { measurement, device, test } from "~/server/db/schema";
-import { insertMeasurementSchema } from "~/types/measurement";
+import {
+  insertMeasurementSchema,
+  publicInsertMeasurementSchema,
+} from "~/types/measurement";
 
 export const measurementRouter = createTRPCRouter({
   createMeasurement: protectedProcedure
@@ -13,12 +16,8 @@ export const measurementRouter = createTRPCRouter({
       const [measurementCreateResult] = await ctx.db
         .insert(measurement)
         .values({
-          name: input.name,
-          testId: input.testId,
-          deviceId: input.deviceId,
-          measurementType: input.measurementType,
+          ...input,
           storageProvider: "local", // TODO: make this configurable
-          data: input.data,
         })
         .returning();
 
@@ -38,11 +37,16 @@ export const measurementRouter = createTRPCRouter({
     }),
 
   createMeasurements: protectedProcedure
-    .input(z.array(insertMeasurementSchema))
+    .input(z.array(publicInsertMeasurementSchema))
     .mutation(async ({ ctx, input }) => {
+      const measurements = input.map((m) => ({
+        ...m,
+        storageProvider: "local" as const, // TODO: make this configurable
+      }));
+
       const measurementsCreateResult = await ctx.db
         .insert(measurement)
-        .values([...input])
+        .values([...measurements])
         .returning();
 
       if (!measurementsCreateResult) {
