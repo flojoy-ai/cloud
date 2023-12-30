@@ -6,21 +6,11 @@ import {
 import AllWorkspaces from "./_components/all-workspaces";
 import NewWorkspace from "./_components/new-workspace";
 
-import { auth } from "~/auth/lucia";
-import * as context from "next/headers";
 import NewProject from "./_components/new-project";
-import { redirect } from "next/navigation";
 import { api } from "~/trpc/server";
 import CreateSample from "./_components/create-sample";
 
 export default async function Dashboard() {
-  const authRequest = auth.handleRequest("GET", context);
-  const session = await authRequest.validate();
-
-  if (!session) {
-    redirect("/login");
-  }
-
   const workspaces = await api.workspace.getAllWorkspaces.query();
 
   return (

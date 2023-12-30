@@ -4,23 +4,9 @@ import {
   PageHeaderHeading,
 } from "~/components/page-header";
 
-import { auth } from "~/auth/lucia";
-import * as context from "next/headers";
-import { redirect } from "next/navigation";
-
 import { db } from "~/server/db";
 
 export default async function Test({ params }: { params: { testId: string } }) {
-  // TODO: need to check if this user has access
-  // to the workspace this project belongs to
-
-  const authRequest = auth.handleRequest("GET", context);
-  const session = await authRequest.validate();
-
-  if (!session) {
-    redirect("/login");
-  }
-
   const test = await db.query.test.findFirst({
     where: (test, { eq }) => eq(test.id, params.testId),
   });
