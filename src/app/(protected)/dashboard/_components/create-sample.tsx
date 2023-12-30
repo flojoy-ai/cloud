@@ -27,9 +27,10 @@ const CreateSample = () => {
     const test = await testCreate.mutateAsync({
       name: "Pass/Fail Test",
       projectId: project.id,
+      measurementType: "boolean",
     });
 
-    for (let i = 1; i <= 20; i++) {
+    for (let i = 1; i <= 10; i++) {
       const device = await deviceCreate.mutateAsync({
         name: `Circuit Board #${i}`,
         projectId: project.id,
