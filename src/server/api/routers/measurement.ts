@@ -51,22 +51,22 @@ export const measurementRouter = createTRPCRouter({
 
       await Promise.all(
         _.uniq(input.flatMap((measurement) => measurement.testId)).map(
-          async (projectId) => {
+          async (testId) => {
             await ctx.db
               .update(test)
               .set({ updatedAt: new Date() })
-              .where(eq(test.projectId, projectId));
+              .where(eq(test.id, testId));
           },
         ),
       );
 
       await Promise.all(
         _.uniq(input.flatMap((measurement) => measurement.deviceId)).map(
-          async (projectId) => {
+          async (deviceId) => {
             await ctx.db
               .update(device)
               .set({ updatedAt: new Date() })
-              .where(eq(device.projectId, projectId));
+              .where(eq(device.id, deviceId));
           },
         ),
       );
