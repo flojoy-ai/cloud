@@ -85,6 +85,7 @@ export const workspaceRoleEnum = pgEnum("workspace_role", [
   "owner",
   "admin",
   "member",
+  "pending", // An invite has sent but the user has not accepted it yet
 ]);
 
 export const workspace_user = pgTable(
@@ -109,7 +110,10 @@ export const workspace_user = pgTable(
     workspaceUserWorkspaceIdIndex: index(
       "workspace_user_workspace_id_index",
     ).on(workspace_user.workspaceId),
-    unq: unique().on(workspace_user.workspaceId, workspace_user.userId),
+    unq: unique("workspace_user_unique").on(
+      workspace_user.workspaceId,
+      workspace_user.userId,
+    ),
   }),
 );
 
@@ -126,7 +130,7 @@ export const project = pgTable(
   },
   (project) => ({
     projectNameIndex: index("project_name_index").on(project.name),
-    unq: unique().on(project.workspaceId, project.name),
+    unq: unique("project_unique").on(project.workspaceId, project.name),
   }),
 );
 
@@ -149,7 +153,7 @@ export const test = pgTable(
   },
   (test) => ({
     testNameIndex: index("test_name_idx").on(test.name),
-    unq: unique().on(test.projectId, test.name),
+    unq: unique("test_unique").on(test.projectId, test.name),
   }),
 );
 
@@ -166,7 +170,7 @@ export const device = pgTable(
   },
   (device) => ({
     deviceNameIndex: index("device_name_idx").on(device.name),
-    unq: unique().on(device.projectId, device.name),
+    unq: unique("device_unique").on(device.projectId, device.name),
   }),
 );
 
@@ -178,7 +182,7 @@ export const measurement = pgTable(
   "measurement",
   {
     ...baseModal("measurement"),
-    name: text("name").default("Untitled Measurement"),
+    name: text("name").default("Untitled"),
     deviceId: text("device_id")
       .notNull()
       .references(() => device.id, { onDelete: "cascade" }),
@@ -186,7 +190,6 @@ export const measurement = pgTable(
       .notNull()
       .references(() => test.id, { onDelete: "cascade" }),
     measurementType: measurementTypeEnum("measurement_type").notNull(),
-    tags: text("tags").array().default([]),
     storageProvider: storageProviderEnum("storage_provider").notNull(),
     // TODO: this needs a bit more thought, would be nice to make it more structured
     data: jsonb("data"),
@@ -205,6 +208,24 @@ export const measurement = pgTable(
   }),
 );
 
+export const tag = pgTable(
+  "tag",
+  {
+    ...baseModal("tag"),
+    name: text("name").notNull(),
+    measurementId: text("measurement_id")
+      .notNull()
+      .references(() => measurement.id, { onDelete: "cascade" }),
+  },
+  (tags) => ({
+    tagNameMeasurementIdIndex: index("tag_name_idx").on(
+      tags.name,
+      tags.measurementId,
+    ),
+    unq: unique("tag_unique").on(tags.measurementId, tags.name),
+  }),
+);
+
 export const secret = pgTable(
   "secret",
   {
@@ -219,6 +240,10 @@ export const secret = pgTable(
       .references(() => project.id, { onDelete: "cascade" }),
   },
   (secret) => ({
-    unq: unique().on(secret.userId, secret.name, secret.projectId),
+    unq: unique("secret_unique").on(
+      secret.userId,
+      secret.name,
+      secret.projectId,
+    ),
   }),
 );
