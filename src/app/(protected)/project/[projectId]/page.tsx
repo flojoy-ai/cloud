@@ -4,10 +4,6 @@ import {
   PageHeaderHeading,
 } from "~/components/page-header";
 
-import { auth } from "~/auth/lucia";
-import * as context from "next/headers";
-import { redirect } from "next/navigation";
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { db } from "~/server/db";
 import TestsView from "./_components/tests-view";
@@ -20,16 +16,6 @@ export default async function Project({
 }: {
   params: { projectId: string };
 }) {
-  // TODO: need to check if this user has access
-  // to the workspace this project belongs to
-
-  const authRequest = auth.handleRequest("GET", context);
-  const session = await authRequest.validate();
-
-  if (!session) {
-    redirect("/login");
-  }
-
   const project = await db.query.project.findFirst({
     where: (project, { eq }) => eq(project.id, params.projectId),
   });
