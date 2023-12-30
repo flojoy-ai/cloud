@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1703903902863,
-      "tag": "0000_fair_bruce_banner",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1703956666812,
-      "tag": "0001_overjoyed_genesis",
+      "when": 1703979825910,
+      "tag": "0000_short_stingray",
       "breakpoints": true
     }
   ]
