@@ -10,6 +10,7 @@ import TestsView from "./_components/tests-view";
 import DevicesView from "./_components/devices-view";
 import SettingsView from "./_components/settings-view";
 import UploadView from "./_components/upload-view";
+import ExplorerView from "./_components/explorer-view";
 
 export default async function Project({
   params,
@@ -46,9 +47,10 @@ export default async function Project({
         </PageHeaderDescription>
       </PageHeader>
       <Tabs defaultValue="tests">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="tests">Tests</TabsTrigger>
           <TabsTrigger value="devices">Devices</TabsTrigger>
+          <TabsTrigger value="explorer">Explorer</TabsTrigger>
           <TabsTrigger value="upload">Upload</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
@@ -57,6 +59,9 @@ export default async function Project({
         </TabsContent>
         <TabsContent value="devices">
           <DevicesView project={project} />
+        </TabsContent>
+        <TabsContent value="explorer">
+          <ExplorerView project={project} />
         </TabsContent>
         <TabsContent value="upload">
           <UploadView project={project} />
