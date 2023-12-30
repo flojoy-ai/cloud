@@ -10,6 +10,7 @@ import {
   jsonb,
 } from "drizzle-orm/pg-core";
 import { createId } from "@paralleldrive/cuid2";
+import { measurementConfig } from "~/config/measurement";
 
 export const pgTable = pgTableCreator((name) => `cloud_${name}`);
 
@@ -126,6 +127,11 @@ export const project = pgTable(
   }),
 );
 
+export const measurementTypeEnum = pgEnum(
+  "measurement_type",
+  measurementConfig.supportedTypes,
+);
+
 // Each project can have multiple tests (not "software test").
 export const test = pgTable(
   "test",
@@ -133,6 +139,7 @@ export const test = pgTable(
     ...baseModal("test"),
     name: text("name").notNull(),
     updatedAt: timestamp("updated_at"),
+    measurementType: measurementTypeEnum("measurement_type").notNull(),
     projectId: text("project_id")
       .notNull()
       .references(() => project.id, { onDelete: "cascade" }),
@@ -161,11 +168,6 @@ export const device = pgTable(
 // A measurement from a device that is associated with a test.
 // The is_deleted field is used to soft-delete a measurement.
 export const storageProviderEnum = pgEnum("storage_provider", ["s3", "local"]);
-export const measurementTypeEnum = pgEnum("measurement_type", [
-  "boolean",
-  "dataframe",
-  "image",
-]);
 
 export const measurement = pgTable(
   "measurement",
