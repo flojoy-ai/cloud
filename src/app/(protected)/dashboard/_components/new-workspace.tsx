@@ -3,6 +3,19 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "~/components/ui/form";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -17,20 +30,38 @@ import {
 import { Input } from "~/components/ui/input";
 
 import { api } from "~/trpc/react";
+import { insertWorkspaceSchema } from "~/types/workspace";
+import { type z } from "zod";
 
 export default function NewWorkspace() {
   const router = useRouter();
-  const [name, setName] = useState<string>("");
 
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
   const createWorkspace = api.workspace.createWorkspace.useMutation({
     onSuccess: () => {
       router.refresh();
-      setName("");
       setIsDialogOpen(false);
     },
   });
+
+  const form = useForm<z.infer<typeof insertWorkspaceSchema>>({
+    resolver: zodResolver(insertWorkspaceSchema),
+    defaultValues: {},
+  });
+
+  function onSubmit(values: z.infer<typeof insertWorkspaceSchema>) {
+    toast.promise(
+      createWorkspace.mutateAsync({
+        ...values,
+      }),
+      {
+        loading: "Creating your workspace...",
+        success: "Your workspace is ready.",
+        error: "Something went wrong :(",
+      },
+    );
+  }
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={(open) => setIsDialogOpen(open)}>
@@ -46,41 +77,38 @@ export default function NewWorkspace() {
             Your workspace is the home for all your projects.
           </DialogDescription>
         </DialogHeader>
-        <div className="flex items-center space-x-2">
-          <div className="grid flex-1 gap-2">
-            <Input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="How do you want to call your new workspace?"
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="My Organization Name"
+                      {...field}
+                      data-1p-ignore
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    How do you want to call your workspace?
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-        </div>
-        <DialogFooter className="">
-          <DialogClose asChild>
-            <Button type="button" variant="secondary">
-              Close
-            </Button>
-          </DialogClose>
-          <Button
-            type="button"
-            variant="default"
-            onClick={() =>
-              toast.promise(
-                createWorkspace.mutateAsync({
-                  name,
-                  planType: "hobby", // TODO: Do not hardcode plan type
-                }),
-                {
-                  loading: "Creating your workspace...",
-                  success: "Your workspace is ready.",
-                  error: "Something went wrong :(",
-                },
-              )
-            }
-          >
-            Create
-          </Button>
-        </DialogFooter>
+            <DialogFooter className="">
+              <DialogClose asChild>
+                <Button type="button" variant="secondary">
+                  Close
+                </Button>
+              </DialogClose>
+              <Button type="submit">Create</Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

@@ -148,7 +148,7 @@ const CreateTest = ({ project }: Props) => {
                   Close
                 </Button>
               </DialogClose>
-              <Button type="submit">Submit</Button>
+              <Button type="submit">Create</Button>
             </DialogFooter>
           </form>
         </Form>

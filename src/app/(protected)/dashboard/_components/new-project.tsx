@@ -6,6 +6,20 @@ import { useState } from "react";
 import { Button } from "~/components/ui/button";
 
 import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "~/components/ui/form";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { insertProjectSchema } from "~/types/project";
+
+import {
   Dialog,
   DialogClose,
   DialogContent,
@@ -27,6 +41,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { api } from "~/trpc/react";
 import { type SelectWorkspace } from "~/types/workspace";
+import { type z } from "zod";
 
 type Props = {
   workspaces: SelectWorkspace[];
@@ -34,7 +49,6 @@ type Props = {
 
 export default function NewProjectButton({ workspaces }: Props) {
   const router = useRouter();
-  const [name, setName] = useState<string>("");
   const [selectedWorkspace, setSelectedWorkspace] = useState<string>("");
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
@@ -44,6 +58,26 @@ export default function NewProjectButton({ workspaces }: Props) {
       setIsDialogOpen(false);
     },
   });
+
+  const form = useForm<z.infer<typeof insertProjectSchema>>({
+    resolver: zodResolver(insertProjectSchema),
+    defaultValues: {
+      workspaceId: selectedWorkspace,
+    },
+  });
+
+  function onSubmit(values: z.infer<typeof insertProjectSchema>) {
+    toast.promise(
+      createProject.mutateAsync({
+        ...values,
+      }),
+      {
+        loading: "Creating your project...",
+        success: "Your project is ready.",
+        error: "Something went wrong :(",
+      },
+    );
+  }
 
   return (
     <>
@@ -87,41 +121,38 @@ export default function NewProjectButton({ workspaces }: Props) {
               Your project is the home for all your tests.
             </DialogDescription>
           </DialogHeader>
-          <div className="flex items-center space-x-2">
-            <div className="grid flex-1 gap-2">
-              <Input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="How do you want to call your new project?"
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="My Circuit Testing Project"
+                        {...field}
+                        data-1p-ignore
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      How do you want to call your project?
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-          </div>
-          <DialogFooter className="">
-            <DialogClose asChild>
-              <Button type="button" variant="secondary">
-                Close
-              </Button>
-            </DialogClose>
-            <Button
-              type="button"
-              variant="default"
-              onClick={() =>
-                toast.promise(
-                  createProject.mutateAsync({
-                    name,
-                    workspaceId: selectedWorkspace,
-                  }),
-                  {
-                    loading: "Creating your project...",
-                    success: "Your project is ready.",
-                    error: "Something went wrong :(",
-                  },
-                )
-              }
-            >
-              Create
-            </Button>
-          </DialogFooter>
+              <DialogFooter className="">
+                <DialogClose asChild>
+                  <Button type="button" variant="secondary">
+                    Close
+                  </Button>
+                </DialogClose>
+                <Button type="submit">Create</Button>
+              </DialogFooter>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </>
