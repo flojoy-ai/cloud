@@ -11,8 +11,7 @@ import {
   unique,
 } from "drizzle-orm/pg-core";
 import { createId } from "@paralleldrive/cuid2";
-import { type MeasurementData } from "~/types/data";
-import { allMeasurementTypes } from "~/config/measurement";
+import { allMeasurementDataTypes, type MeasurementData } from "~/types/data";
 
 export const pgTable = pgTableCreator((name) => `cloud_${name}`);
 
@@ -137,7 +136,7 @@ export const project = pgTable(
 
 export const measurementTypeEnum = pgEnum(
   "measurement_type",
-  allMeasurementTypes,
+  allMeasurementDataTypes,
 );
 
 // Each project can have multiple tests (not "software test").
