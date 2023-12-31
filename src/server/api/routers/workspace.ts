@@ -43,7 +43,7 @@ export const workspaceRouter = createTRPCRouter({
           workspaceId: true,
         },
       })
-    ).flatMap((workspace) => workspace.workspaceId);
+    ).map((workspace) => workspace.workspaceId);
 
     if (workspaceIds.length === 0) {
       return [];

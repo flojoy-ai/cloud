@@ -55,7 +55,7 @@ export const measurementRouter = createTRPCRouter({
       }
 
       await Promise.all(
-        _.uniq(input.flatMap((measurement) => measurement.testId)).map(
+        _.uniq(input.map((measurement) => measurement.testId)).map(
           async (testId) => {
             await ctx.db
               .update(test)
@@ -66,7 +66,7 @@ export const measurementRouter = createTRPCRouter({
       );
 
       await Promise.all(
-        _.uniq(input.flatMap((measurement) => measurement.deviceId)).map(
+        _.uniq(input.map((measurement) => measurement.deviceId)).map(
           async (deviceId) => {
             await ctx.db
               .update(device)

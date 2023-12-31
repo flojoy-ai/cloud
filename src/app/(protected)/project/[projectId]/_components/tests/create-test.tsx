@@ -34,7 +34,7 @@ import { Input } from "~/components/ui/input";
 import { api } from "~/trpc/react";
 import { insertTestSchema } from "~/types/test";
 import { type z } from "zod";
-import { allMeasurementTypes } from "~/config/measurement";
+import { allMeasurementDataTypes } from "~/types/data";
 
 type Props = {
   project: SelectProject;
@@ -119,7 +119,7 @@ const CreateTest = ({ project }: Props) => {
                       defaultValue={field.value}
                       className="flex flex-col space-y-1"
                     >
-                      {allMeasurementTypes.map((supportedType) => (
+                      {allMeasurementDataTypes.map((supportedType) => (
                         <FormItem
                           key={supportedType}
                           className="flex items-center space-x-3 space-y-0"

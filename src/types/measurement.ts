@@ -1,6 +1,6 @@
 import { measurement } from "~/server/db/schema";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
-import { measurementDataSchema } from "~/config/measurement";
+import { measurementDataSchema } from "~/types/data";
 
 export type SelectMeasurement = typeof measurement.$inferSelect;
 
