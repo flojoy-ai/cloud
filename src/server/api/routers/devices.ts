@@ -42,7 +42,7 @@ export const deviceRouter = createTRPCRouter({
       }
 
       await Promise.all(
-        _.uniq(input.flatMap((device) => device.projectId)).map(
+        _.uniq(input.map((device) => device.projectId)).map(
           async (projectId) => {
             await ctx.db
               .update(project)

@@ -59,14 +59,14 @@ const ExplorerView = ({ project }: Props) => {
         <ScatterPlot
           title={selectedTest?.name ?? "Untitled Test"}
           x={
-            measurements?.flatMap(
+            measurements?.map(
               (measurement) => measurement.deviceId ?? "Untitled Device",
             ) ?? []
           }
           y={
-            measurements?.flatMap((measurement) => {
+            measurements?.map((measurement) => {
               if (measurement.data.type === "boolean") {
-                return measurement.data.data.passed ? "passed" : "failed";
+                return measurement.data.passed ? "passed" : "failed";
               }
               return "";
             }) ?? []
