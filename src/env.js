@@ -16,6 +16,10 @@ export const env = createEnv({
     AUTH0_REDIRECT_URI: z.string().url().optional(),
     AUTH0_APP_DOMAIN: z.string().url(),
     VERCEL_BRANCH_URL: z.string().optional(),
+    AWS_ACCESS_KEY_ID: z.string(),
+    AWS_SECRET_ACCESS_KEY: z.string(),
+    AWS_BUCKET_NAME: z.string(),
+    AWS_REGION: z.string(),
   },
 
   /**
@@ -40,6 +44,10 @@ export const env = createEnv({
     AUTH0_APP_DOMAIN: process.env.AUTH0_APP_DOMAIN,
     VERCEL_BRANCH_URL: process.env.VERCEL_BRANCH_URL,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
+    AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
+    AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
+    AWS_BUCKET_NAME: process.env.AWS_BUCKET_NAME,
+    AWS_REGION: process.env.AWS_REGION,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
