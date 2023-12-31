@@ -13,6 +13,7 @@ import {
 } from "~/components/ui/card";
 import ScatterPlot from "~/components/visualization/scatter-plot";
 import { type SelectProject } from "~/types/project";
+import LinePlot from "~/components/visualization/line-plot";
 
 type Props = {
   project: SelectProject;
@@ -55,20 +56,42 @@ const ExplorerView = ({ project }: Props) => {
         </Card>
       </div>
 
-      {everythingSelected && (
+      {everythingSelected && measurements && (
         <ScatterPlot
           title={selectedTest?.name ?? "Untitled Test"}
           x={
-            measurements?.map(
+            measurements.map(
               (measurement) => measurement.deviceId ?? "Untitled Device",
             ) ?? []
           }
           y={
-            measurements?.map((measurement) => {
+            measurements.map((measurement) => {
               if (measurement.data.type === "boolean") {
                 return measurement.data.passed ? "passed" : "failed";
               }
               return "";
+            }) ?? []
+          }
+        />
+      )}
+
+      {everythingSelected && measurements && (
+        <LinePlot
+          title={selectedTest?.name ?? "Untitled Test"}
+          // lines={[
+          //   { x: [1, 2, 3], y: [1, 2, 3] },
+          //   { x: [3, 2, 1], y: [1, 2, 3] },
+          // ]}
+          lines={
+            measurements.map((measurement) => {
+              if (measurement.data.type === "dataframe") {
+                return {
+                  x: measurement.data.dataframe.x ?? [],
+                  y: measurement.data.dataframe.y ?? [],
+                  name: measurement.deviceId,
+                };
+              }
+              return { x: [], y: [], name: "" };
             }) ?? []
           }
         />

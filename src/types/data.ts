@@ -1,11 +1,7 @@
 import { z } from "zod";
 
 // Step 1: Add the measurement name here
-export const allMeasurementDataTypes = [
-  "boolean",
-  "image",
-  "dataframe",
-] as const;
+export const allMeasurementDataTypes = ["boolean", "dataframe"] as const;
 
 export type MeasurementDataType = (typeof allMeasurementDataTypes)[number];
 
@@ -14,20 +10,17 @@ const booleanDataSchema = {
   passed: z.boolean(),
 };
 
-const imageDataSchema = {
-  s3Key: z.string(),
-  s3Bucket: z.string(),
-};
-
 const dataframeDataSchema = {
-  s3Key: z.string(),
-  s3Bucket: z.string(),
+  dataframe: z.record(
+    z.string(),
+    // TODO: technically the array can also contain nulls
+    z.union([z.number().array(), z.string().array()]),
+  ),
 };
 
 // Step 3: Add to this config object
 export const measurementConfig = {
   boolean: booleanDataSchema,
-  image: imageDataSchema,
   dataframe: dataframeDataSchema,
 } as const satisfies Record<MeasurementDataType, unknown>;
 
@@ -41,15 +34,6 @@ export const measurementDataSchema = z.discriminatedUnion("type", [
       }),
     }),
     ...measurementConfig.boolean,
-  }),
-  z.object({
-    type: z.literal("image", {
-      errorMap: () => ({
-        message:
-          "The `type` field is reserved for Flojoy Cloud. You should not provide a value for this field.",
-      }),
-    }),
-    ...measurementConfig.image,
   }),
   z.object({
     type: z.literal("dataframe", {

@@ -16,7 +16,7 @@ const CreateSample = () => {
   const testCreate = api.test.createTest.useMutation();
   const measurementsCreate = api.measurement.createMeasurements.useMutation();
 
-  const createSample = async () => {
+  const createSampleBoolean = async () => {
     setIsCreating(true);
     const workspace = await workspaceCreate.mutateAsync({
       name: "Sample Workspace",
@@ -54,13 +54,69 @@ const CreateSample = () => {
     setIsCreating(false);
   };
 
+  const createSampleDataFrame = async () => {
+    setIsCreating(true);
+
+    const workspace = await workspaceCreate.mutateAsync({
+      name: "Sample Workspace",
+    });
+
+    const project = await projectCreate.mutateAsync({
+      name: "My Circuit Testing Project",
+      workspaceId: workspace.id,
+    });
+
+    const test = await testCreate.mutateAsync({
+      name: "Expected vs Measured",
+      projectId: project.id,
+      measurementType: "dataframe",
+    });
+
+    const devices = await devicesCreate.mutateAsync(
+      _.times(3, (i) => ({
+        name: `Circuit Board #${i + 1}`,
+        projectId: project.id,
+      })),
+    );
+
+    const generateRandomNumbers = () => {
+      const randomNumbers = [];
+
+      for (let i = 0; i < 10; i++) {
+        const randomNumber = Math.random();
+        randomNumbers.push(randomNumber);
+      }
+
+      return randomNumbers;
+    };
+
+    await measurementsCreate.mutateAsync(
+      devices.map((device) => ({
+        name: "Data Point",
+        deviceId: device.id,
+        testId: test.id,
+        measurementType: "dataframe",
+        data: {
+          type: "dataframe",
+          dataframe: {
+            x: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            y: generateRandomNumbers(),
+          },
+        },
+      })),
+    );
+
+    router.refresh();
+    setIsCreating(false);
+  };
+
   return (
     <Button
       size="sm"
       disabled={isCreating}
       variant="outline"
       onClick={() =>
-        toast.promise(createSample, {
+        toast.promise(createSampleDataFrame, {
           loading: "Creating your sample workspace + project...",
           success: "The sample is ready!",
           error: (err) => {
