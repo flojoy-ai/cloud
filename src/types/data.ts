@@ -31,27 +31,34 @@ export const measurementConfig = {
   dataframe: dataframeDataSchema,
 } as const satisfies Record<MeasurementDataType, unknown>;
 
-const genTypeWithErrMsg = (type: string) =>
-  z.literal(type, {
-    errorMap: () => ({
-      message:
-        "The `type` field is reserved for Flojoy Cloud. You should not provide a value for this field.",
-    }),
-  });
-
 // Step 4: Add to this discriminated union
 export const measurementDataSchema = z.discriminatedUnion("type", [
   z.object({
+    type: z.literal("boolean", {
+      errorMap: () => ({
+        message:
+          "The `type` field is reserved for Flojoy Cloud. You should not provide a value for this field.",
+      }),
+    }),
     ...measurementConfig.boolean,
-    type: genTypeWithErrMsg("boolean"),
   }),
   z.object({
+    type: z.literal("image", {
+      errorMap: () => ({
+        message:
+          "The `type` field is reserved for Flojoy Cloud. You should not provide a value for this field.",
+      }),
+    }),
     ...measurementConfig.image,
-    type: genTypeWithErrMsg("image"),
   }),
   z.object({
+    type: z.literal("dataframe", {
+      errorMap: () => ({
+        message:
+          "The `type` field is reserved for Flojoy Cloud. You should not provide a value for this field.",
+      }),
+    }),
     ...measurementConfig.dataframe,
-    type: genTypeWithErrMsg("dataframe"),
   }),
 ]);
 
