@@ -60,7 +60,7 @@ const CreateSample = () => {
     );
 
     await measurementsCreate.mutateAsync(
-      devices.map((device) => ({
+      devices.map((device, i) => ({
         name: "Did Power On",
         deviceId: device.id,
         testId: booleanTest.id,
