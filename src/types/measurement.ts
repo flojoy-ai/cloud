@@ -15,6 +15,7 @@ export const publicInsertMeasurementSchema = insertMeasurementSchema.pick({
   deviceId: true,
   measurementType: true,
   testId: true,
+  createdAt: true,
 });
 
 export const selectMeasurementSchema = createSelectSchema(measurement, {

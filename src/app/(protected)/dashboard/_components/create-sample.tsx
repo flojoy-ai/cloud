@@ -77,11 +77,12 @@ const CreateSample = () => {
     });
 
     await measurementsCreate.mutateAsync(
-      devices.map((device) => ({
+      devices.map((device, i) => ({
         name: "Data Point",
         deviceId: device.id,
         testId: dataframeTest.id,
         measurementType: "dataframe",
+        createdAt: new Date(new Date().getTime() + i * 20000),
         data: {
           type: "dataframe",
           dataframe: {
