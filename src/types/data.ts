@@ -50,11 +50,11 @@ export const measurementDataSchema = z.discriminatedUnion("type", [
 
 export type MeasurementData = z.infer<typeof measurementDataSchema>;
 
-const booleanExplorerSchema = {
+const booleanExplorerSchema = z.object({
   xAxis: z.union([z.literal("timestamp"), z.literal("device_id")]),
-};
+});
 
-const dataframeExplorerSchema = {
+const dataframeExplorerSchema = z.object({
   upperControlLimit: z.number().optional(),
   lowerControlLimit: z.number().optional(),
   yTransform: z.string().optional(),
@@ -63,7 +63,7 @@ const dataframeExplorerSchema = {
   logScaleYAxis: z.boolean().optional(),
   errorBars: z.boolean().optional(),
   errorPercentage: z.number().min(0).optional(),
-};
+});
 
 export const explorerConfig = {
   boolean: booleanExplorerSchema,
