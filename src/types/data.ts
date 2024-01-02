@@ -26,24 +26,26 @@ export const measurementConfig = {
 
 // Step 4: Add to this discriminated union
 export const measurementDataSchema = z.discriminatedUnion("type", [
-  z.object({
-    type: z.literal("boolean", {
-      errorMap: () => ({
-        message:
-          "The `type` field is reserved for Flojoy Cloud. You should not provide a value for this field.",
+  z
+    .object({
+      type: z.literal("boolean", {
+        errorMap: () => ({
+          message:
+            "The `type` field is reserved for Flojoy Cloud. You should not provide a value for this field.",
+        }),
       }),
-    }),
-    ...measurementConfig.boolean,
-  }),
-  z.object({
-    type: z.literal("dataframe", {
-      errorMap: () => ({
-        message:
-          "The `type` field is reserved for Flojoy Cloud. You should not provide a value for this field.",
+    })
+    .extend(measurementConfig.boolean),
+  z
+    .object({
+      type: z.literal("dataframe", {
+        errorMap: () => ({
+          message:
+            "The `type` field is reserved for Flojoy Cloud. You should not provide a value for this field.",
+        }),
       }),
-    }),
-    ...measurementConfig.dataframe,
-  }),
+    })
+    .extend(measurementConfig.dataframe),
 ]);
 
 export type MeasurementData = z.infer<typeof measurementDataSchema>;

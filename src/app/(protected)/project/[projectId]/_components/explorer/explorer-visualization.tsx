@@ -50,6 +50,7 @@ const ExplorerVisualization = ({ tests }: Props) => {
           </CardFooter>
         </Card>
       </div>
+
       {everythingSelected && (
         <Card className="p-2">
           {everythingSelected && measurements && (
