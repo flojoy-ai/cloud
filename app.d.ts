@@ -4,8 +4,9 @@ declare namespace Lucia {
   type Auth = import("~/auth/lucia").Auth;
   type DatabaseUserAttributes = {
     signup_completed: boolean;
+    email: string;
   };
   type DatabaseSessionAttributes = {
-    auth_provider: "auth0";
+    auth_provider: "google";
   };
 }

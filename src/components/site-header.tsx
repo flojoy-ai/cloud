@@ -8,8 +8,7 @@ import { ModeToggle } from "~/components/mode-toggle";
 import { Button, buttonVariants } from "~/components/ui/button";
 import { auth } from "~/auth/lucia";
 import * as context from "next/headers";
-import Auth0Logout from "./auth0-logout";
-import { env } from "~/env";
+import Form from "./form";
 
 export async function SiteHeader() {
   const authRequest = auth.handleRequest("GET", context);
@@ -36,21 +35,11 @@ export async function SiteHeader() {
                 <div className="px-1" />
               </>
             ) : (
-              <>
-                {session.authProvider === "auth0" && (
-                  <Auth0Logout
-                    action="/api/logout"
-                    clientId={env.AUTH0_CLIENT_ID}
-                    appDomain={env.AUTH0_APP_DOMAIN}
-                  >
-                    <Button size="sm" variant="secondary" type="submit">
-                      Sign Out
-                    </Button>
-                  </Auth0Logout>
-                )}
-
-                <div className="px-1" />
-              </>
+              <Form action="/api/logout">
+                <Button type="submit" size="sm" variant="secondary">
+                  Sign Out
+                </Button>
+              </Form>
             )}
 
             <Link

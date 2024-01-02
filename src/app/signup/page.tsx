@@ -17,7 +17,7 @@ export default async function SignUp() {
           </div>
 
           <Button asChild>
-            <Link href="/login/auth0">Continue</Link>
+            <Link href="/login/google">Continue</Link>
           </Button>
 
           <TermsAndPrivacy />

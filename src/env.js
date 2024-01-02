@@ -8,14 +8,22 @@ export const env = createEnv({
    */
   server: {
     DATABASE_URL: z.string().url(),
+
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
+
     AUTH0_CLIENT_ID: z.string(),
     AUTH0_CLIENT_SECRET: z.string(),
     AUTH0_REDIRECT_URI: z.string().url().optional(),
     AUTH0_APP_DOMAIN: z.string().url(),
+
     VERCEL_BRANCH_URL: z.string().optional(),
+
+    GOOGLE_CLIENT_ID: z.string(),
+    GOOGLE_CLIENT_SECRET: z.string(),
+    GOOGLE_REDIRECT_URI: z.string().url(),
+
     AWS_ACCESS_KEY_ID: z.string(),
     AWS_SECRET_ACCESS_KEY: z.string(),
     AWS_BUCKET_NAME: z.string(),
@@ -37,13 +45,20 @@ export const env = createEnv({
    */
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
+
     NODE_ENV: process.env.NODE_ENV,
+
     AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID,
     AUTH0_CLIENT_SECRET: process.env.AUTH0_CLIENT_SECRET,
     AUTH0_REDIRECT_URI: process.env.AUTH0_REDIRECT_URI,
     AUTH0_APP_DOMAIN: process.env.AUTH0_APP_DOMAIN,
+
     VERCEL_BRANCH_URL: process.env.VERCEL_BRANCH_URL,
-    // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
+
+    GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+    GOOGLE_REDIRECT_URI: process.env.GOOGLE_REDIRECT_URI,
+
     AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
     AWS_BUCKET_NAME: process.env.AWS_BUCKET_NAME,

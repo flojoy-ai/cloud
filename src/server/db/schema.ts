@@ -36,11 +36,12 @@ export const user = pgTable("user", {
   ...baseModal("user"),
   updatedAt: timestamp("updated_at"),
   signupCompleted: boolean("signup_completed").default(false),
+  email: text("email").notNull().unique(),
 });
 
 // The user_session and user_key tables are internal to Lucia
 // Therefore, they do not have the baseModal fields (ID prefix).
-export const authProviderEnum = pgEnum("auth_provider", ["auth0"]);
+export const authProviderEnum = pgEnum("auth_provider", ["google"]);
 
 export const user_session = pgTable("user_session", {
   id: text("id").notNull().primaryKey(),
