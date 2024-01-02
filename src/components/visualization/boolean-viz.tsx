@@ -1,6 +1,10 @@
-type Props = {};
+import { type SelectMeasurement } from "~/types/measurement";
 
-const BooleanViz = (props: Props) => {
+type Props = {
+  measurements: SelectMeasurement[];
+};
+
+const BooleanViz = ({ measurements }: Props) => {
   return <div>BooleanViz</div>;
 };
 

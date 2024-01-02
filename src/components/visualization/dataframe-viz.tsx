@@ -1,6 +1,10 @@
-type Props = {};
+import { type SelectMeasurement } from "~/types/measurement";
 
-const DataFrameViz = (props: Props) => {
+type Props = {
+  measurements: SelectMeasurement[];
+};
+
+const DataFrameViz = ({ measurements }: Props) => {
   return <div>DataFrameViz</div>;
 };
 
