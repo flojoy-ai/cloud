@@ -20,7 +20,6 @@ const ExplorerView = ({ project }: Props) => {
   return (
     <div>
       <div className="py-1"></div>
-
       <ExplorerVisualization tests={tests} />
     </div>
   );

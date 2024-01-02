@@ -6,13 +6,13 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import ScatterPlot from "~/components/visualization/plot/scatter-plot";
-import LinePlot from "~/components/visualization/plot/line-plot";
 import { Badge } from "~/components/ui/badge";
 import { type SelectTest } from "~/types/test";
 import { useExplorerStore } from "~/store/explorer";
 import { useShallow } from "zustand/react/shallow";
 import { TestCombobox } from "./test-combobox";
+import BooleanViz from "~/components/visualization/boolean-viz";
+import DataFrameViz from "~/components/visualization/dataframe-viz";
 
 type Props = {
   tests: SelectTest[];
@@ -30,7 +30,9 @@ const ExplorerVisualization = ({ tests }: Props) => {
       testId: selectedTest?.id ?? "",
     });
 
-  const everythingSelected = selectedTest;
+  const everythingSelected = selectedTest !== undefined;
+
+  if (!measurements) return null;
 
   return (
     <div className="flex flex-col gap-4">
@@ -51,50 +53,19 @@ const ExplorerVisualization = ({ tests }: Props) => {
         </Card>
       </div>
 
-      {everythingSelected && (
-        <Card className="p-2">
-          {everythingSelected && measurements && (
-            <ScatterPlot
-              title={selectedTest?.name ?? "Untitled Test"}
-              x={
-                measurements.map(
-                  (measurement) => measurement.deviceId ?? "Untitled Device",
-                ) ?? []
-              }
-              y={
-                measurements.map((measurement) => {
-                  if (measurement.data.type === "boolean") {
-                    return measurement.data.passed ? "passed" : "failed";
-                  }
-                  return "";
-                }) ?? []
-              }
-            />
-          )}
-
-          {everythingSelected && measurements && (
-            <LinePlot
-              title={selectedTest?.name ?? "Untitled Test"}
-              // lines={[
-              //   { x: [1, 2, 3], y: [1, 2, 3] },
-              //   { x: [3, 2, 1], y: [1, 2, 3] },
-              // ]}
-              lines={
-                measurements.map((measurement) => {
-                  if (measurement.data.type === "dataframe") {
-                    return {
-                      x: measurement.data.dataframe.x ?? [],
-                      y: measurement.data.dataframe.y ?? [],
-                      name: measurement.deviceId,
-                    };
-                  }
-                  return { x: [], y: [], name: "" };
-                }) ?? []
-              }
-            />
-          )}
-        </Card>
-      )}
+      {selectedTest?.measurementType === "boolean" ? (
+        <BooleanViz
+          measurements={measurements}
+          selectedTest={selectedTest}
+          everythingSelected={everythingSelected}
+        />
+      ) : selectedTest?.measurementType === "dataframe" ? (
+        <DataFrameViz
+          measurements={measurements}
+          selectedTest={selectedTest}
+          everythingSelected={everythingSelected}
+        />
+      ) : null}
     </div>
   );
 };
