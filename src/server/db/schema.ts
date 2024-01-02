@@ -216,7 +216,9 @@ export const secret = pgTable(
   "secret",
   {
     ...baseModal("secret"),
-    value: text("value").notNull(),
+    value: text("value")
+      .notNull()
+      .$defaultFn(() => createId()),
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),

@@ -4,6 +4,7 @@ import { projectRouter } from "./routers/project";
 import { testRouter } from "./routers/test";
 import { deviceRouter } from "./routers/devices";
 import { measurementRouter } from "./routers/measurement";
+import { secretRouter } from "./routers/secret";
 
 /**
  * This is the primary router for your server.
@@ -16,6 +17,7 @@ export const appRouter = createTRPCRouter({
   test: testRouter,
   device: deviceRouter,
   measurement: measurementRouter,
+  secret: secretRouter,
 });
 
 // export type definition of API
