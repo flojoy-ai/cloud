@@ -1,6 +1,6 @@
 import _ from "lodash";
 import Plot from "react-plotly.js";
-import { usePlotLayout } from "~/hooks/usePlotLayout";
+import { usePlotLayout } from "~/hooks/use-plot-layout";
 
 type Props = {
   title: string;

@@ -11,7 +11,7 @@ import { type explorerConfig } from "~/types/data";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import * as math from "mathjs";
 import _ from "lodash";
-import { usePlotLayout } from "~/hooks/usePlotLayout";
+import { usePlotLayout } from "~/hooks/use-plot-layout";
 
 type Line = {
   x: number[];
