@@ -49,3 +49,23 @@ export const measurementDataSchema = z.discriminatedUnion("type", [
 ]);
 
 export type MeasurementData = z.infer<typeof measurementDataSchema>;
+
+const booleanExplorerSchema = {
+  xAxis: z.union([z.literal("timestamp"), z.literal("device_id")]),
+};
+
+const dataframeExplorerSchema = {
+  upperControlLimit: z.number().optional(),
+  lowerControlLimit: z.number().optional(),
+  yTransform: z.string().optional(),
+  upperControlLimitTransform: z.string().optional(),
+  lowerControlLimitTransform: z.string().optional(),
+  logScaleYAxis: z.boolean().optional(),
+  errorBars: z.boolean().optional(),
+  errorPercentage: z.number().min(0).optional(),
+};
+
+export const explorerConfig = {
+  boolean: booleanExplorerSchema,
+  dataframe: dataframeExplorerSchema,
+} as const satisfies Record<MeasurementDataType, unknown>;
