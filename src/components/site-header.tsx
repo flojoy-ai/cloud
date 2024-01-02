@@ -35,11 +35,16 @@ export async function SiteHeader() {
                 <div className="px-1" />
               </>
             ) : (
-              <Form action="/api/logout">
-                <Button type="submit" size="sm" variant="secondary">
-                  Sign Out
-                </Button>
-              </Form>
+              <>
+                <div>Hi, {session.user.email}</div>
+                <div className="px-1" />
+                <Form action="/api/logout">
+                  <Button type="submit" size="sm" variant="secondary">
+                    Sign Out
+                  </Button>
+                </Form>
+                <div className="px-1" />
+              </>
             )}
 
             <Link
