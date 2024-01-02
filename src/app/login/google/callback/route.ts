@@ -30,7 +30,7 @@ export const GET = async (request: NextRequest) => {
       const user = await createUser({
         userId: "user_" + createId(),
         attributes: {
-          signup_completed: false,
+          signupCompleted: false,
           email: googleUser.email ?? "",
         },
       });
@@ -42,7 +42,7 @@ export const GET = async (request: NextRequest) => {
     const session = await auth.createSession({
       userId: user.userId,
       attributes: {
-        auth_provider: "google",
+        authProvider: "google",
       },
     });
 
