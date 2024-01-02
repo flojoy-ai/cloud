@@ -67,9 +67,6 @@ const DataFrameViz = ({
 }: Props) => {
   const form = useForm<FormSchema>({
     resolver: zodResolver(explorerConfig.dataframe),
-    defaultValues: {
-      errorPercentage: 10,
-    },
   });
 
   const router = useRouter();
