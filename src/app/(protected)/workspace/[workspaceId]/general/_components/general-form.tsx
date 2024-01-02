@@ -51,7 +51,6 @@ const GeneralForm = ({ workspaceId }: Props) => {
   });
 
   function onSubmit(values: z.infer<typeof publicUpdateWorkspaceSchema>) {
-    console.log(values);
     toast.promise(
       updateWorkspace.mutateAsync({
         ...values,
