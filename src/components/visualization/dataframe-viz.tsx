@@ -56,7 +56,7 @@ const DataFrameViz = ({
   };
 
   return (
-    <div className="">
+    <>
       <Card>
         <CardHeader>
           <CardTitle>Visualization Options</CardTitle>
@@ -211,36 +211,39 @@ const DataFrameViz = ({
           </form>
         </Form>
       </Card>
-      {everythingSelected && measurements && (
-        <LinePlot
-          title={selectedTest?.name ?? "Untitled Test"}
-          lines={
-            measurements.map((measurement) => {
-              if (measurement.data.type === "dataframe") {
-                return {
-                  x: measurement.data.dataframe.x ?? [],
-                  y: measurement.data.dataframe.y ?? [],
-                  name: measurement.deviceId,
-                };
+
+      <Card className="p-2">
+        {everythingSelected && measurements && (
+          <LinePlot
+            title={selectedTest?.name ?? "Untitled Test"}
+            lines={
+              measurements.map((measurement) => {
+                if (measurement.data.type === "dataframe") {
+                  return {
+                    x: measurement.data.dataframe.x ?? [],
+                    y: measurement.data.dataframe.y ?? [],
+                    name: measurement.deviceId,
+                  };
+                }
+                return { x: [], y: [], name: "" };
+              }) ?? []
+            }
+            config={config}
+            onTraceClick={(e) => {
+              const curveNumber = e.points[0]?.curveNumber;
+              if (!curveNumber) {
+                return;
               }
-              return { x: [], y: [], name: "" };
-            }) ?? []
-          }
-          config={config}
-          onTraceClick={(e) => {
-            const curveNumber = e.points[0]?.curveNumber;
-            if (!curveNumber) {
-              return;
-            }
-            const measurement = measurements[curveNumber];
-            if (!measurement) {
-              return;
-            }
-            router.push(`/device/${measurement.deviceId}`);
-          }}
-        />
-      )}
-    </div>
+              const measurement = measurements[curveNumber];
+              if (!measurement) {
+                return;
+              }
+              router.push(`/device/${measurement.deviceId}`);
+            }}
+          />
+        )}
+      </Card>
+    </>
   );
 };
 

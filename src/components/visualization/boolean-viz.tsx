@@ -53,7 +53,7 @@ const BooleanViz = ({
   };
 
   return (
-    <div>
+    <>
       <Card>
         <CardHeader>
           <CardTitle>Visualization Options</CardTitle>
@@ -105,23 +105,25 @@ const BooleanViz = ({
         </Form>
       </Card>
 
-      {everythingSelected && measurements && (
-        <ScatterPlot
-          title={selectedTest?.name ?? "Untitled Test"}
-          x={measurements.map(
-            form.watch("xAxis") === "device_id"
-              ? (measurement) => measurement.deviceId
-              : (measurement) => measurement.createdAt.toISOString(),
-          )}
-          y={measurements.map((measurement) => {
-            if (measurement.data.type === "boolean") {
-              return measurement.data.passed ? "passed" : "failed";
-            }
-            return "";
-          })}
-        />
-      )}
-    </div>
+      <Card className="p-2">
+        {everythingSelected && measurements && (
+          <ScatterPlot
+            title={selectedTest?.name ?? "Untitled Test"}
+            x={measurements.map(
+              form.watch("xAxis") === "device_id"
+                ? (measurement) => measurement.deviceId
+                : (measurement) => measurement.createdAt.toISOString(),
+            )}
+            y={measurements.map((measurement) => {
+              if (measurement.data.type === "boolean") {
+                return measurement.data.passed ? "passed" : "failed";
+              }
+              return "";
+            })}
+          />
+        )}
+      </Card>
+    </>
   );
 };
 
