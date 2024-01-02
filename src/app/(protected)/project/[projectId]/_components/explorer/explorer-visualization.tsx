@@ -36,7 +36,7 @@ const ExplorerVisualization = ({ tests }: Props) => {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-3 gap-4">
+      <div className="w-80 gap-4">
         <Card>
           <CardHeader>
             <CardTitle>Select test</CardTitle>

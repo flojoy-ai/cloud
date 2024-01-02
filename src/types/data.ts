@@ -1,3 +1,4 @@
+import * as math from "mathjs";
 import { z } from "zod";
 
 // Step 1: Add the measurement name here
@@ -14,7 +15,7 @@ const dataframeDataSchema = {
   dataframe: z.record(
     z.string(),
     // TODO: technically the array can also contain nulls
-    z.union([z.number().array(), z.string().array()]),
+    z.number().array(),
   ),
 };
 
@@ -54,12 +55,44 @@ const booleanExplorerSchema = z.object({
   xAxis: z.union([z.literal("timestamp"), z.literal("device_id")]),
 });
 
+const exprValidator = (varName: string) => (expr: string | undefined) => {
+  if (!expr) return true;
+
+  let valid = true;
+  try {
+    math.parse(expr).traverse((node) => {
+      if (node.type !== "SymbolNode") return;
+      const symbolNode = node as math.SymbolNode;
+
+      if (
+        !math[symbolNode.name as keyof typeof math] &&
+        symbolNode.name !== varName
+      ) {
+        valid = false;
+      }
+    });
+  } catch (e) {
+    return false;
+  }
+
+  return valid;
+};
+
 const dataframeExplorerSchema = z.object({
   upperControlLimit: z.number().optional(),
   lowerControlLimit: z.number().optional(),
-  yTransform: z.string().optional(),
-  upperControlLimitTransform: z.string().optional(),
-  lowerControlLimitTransform: z.string().optional(),
+  yTransform: z
+    .string()
+    .optional()
+    .refine(exprValidator("y"), "Expression must be a function of y"),
+  upperControlLimitTransform: z
+    .string()
+    .optional()
+    .refine(exprValidator("x"), "Expression must be a function of x"),
+  lowerControlLimitTransform: z
+    .string()
+    .optional()
+    .refine(exprValidator("x"), "Expression must be a function of x"),
   logScaleYAxis: z.boolean().optional(),
   errorBars: z.boolean().optional(),
   errorPercentage: z.number().min(0).optional(),
