@@ -1,6 +1,5 @@
 import { Card } from "~/components/ui/card";
 import ScatterPlot from "~/components/visualization/plot/scatter-plot";
-import LinePlot from "~/components/visualization/plot/line-plot";
 import { type SelectTest } from "~/types/test";
 import { type SelectMeasurement } from "~/types/measurement";
 
