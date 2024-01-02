@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { type SelectDevice } from "~/types/device";
 import { type SelectTest } from "~/types/test";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
 
 export interface ExplorerStore {
   selectedDevice: SelectDevice | undefined;
@@ -11,18 +12,20 @@ export interface ExplorerStore {
 }
 
 export const useExplorerStore = create<ExplorerStore>()(
-  persist(
-    (set) => ({
-      selectedDevice: undefined,
-      setSelectedDevice: (device) =>
-        set((state) => ({ ...state, selectedDevice: device })),
-      selectedTest: undefined,
-      setSelectedTest: (test) =>
-        set((state) => ({ ...state, selectedTest: test })),
-    }),
-    {
-      name: "explorer-storage",
-      storage: createJSONStorage(() => sessionStorage),
-    },
+  immer(
+    persist(
+      (set) => ({
+        selectedDevice: undefined,
+        setSelectedDevice: (device) =>
+          set((state) => ({ ...state, selectedDevice: device })),
+        selectedTest: undefined,
+        setSelectedTest: (test) =>
+          set((state) => ({ ...state, selectedTest: test })),
+      }),
+      {
+        name: "explorer-storage",
+        storage: createJSONStorage(() => sessionStorage),
+      },
+    ),
   ),
 );
