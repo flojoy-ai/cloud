@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Icons } from "~/components/icons";
 import TermsAndPrivacy from "~/components/terms-and-privacy";
 import { Button } from "~/components/ui/button";
 
@@ -17,7 +18,10 @@ export default async function LogIn() {
           </div>
 
           <Button asChild>
-            <Link href="/login/google">Continue</Link>
+            <Link href="/login/google" className="flex gap-2">
+              <Icons.google className="h-4 w-4" />
+              Continue with Google
+            </Link>
           </Button>
 
           <TermsAndPrivacy />
