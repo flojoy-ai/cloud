@@ -1,5 +1,5 @@
 DO $$ BEGIN
- CREATE TYPE "auth_provider" AS ENUM('auth0');
+ CREATE TYPE "auth_provider" AS ENUM('google');
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -89,7 +89,9 @@ CREATE TABLE IF NOT EXISTS "cloud_user" (
 	"id" text PRIMARY KEY NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp,
-	"signup_completed" boolean DEFAULT false
+	"signup_completed" boolean DEFAULT false,
+	"email" text NOT NULL,
+	CONSTRAINT "cloud_user_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_user_key" (

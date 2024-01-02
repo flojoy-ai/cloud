@@ -1,5 +1,5 @@
 {
-  "id": "2d01233a-3d81-405d-adc0-ee6557876f9c",
+  "id": "9537d985-90b8-446d-b492-7d090ec56f16",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -515,12 +515,26 @@
           "primaryKey": false,
           "notNull": false,
           "default": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {
+        "cloud_user_email_unique": {
+          "name": "cloud_user_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      }
     },
     "cloud_user_key": {
       "name": "cloud_user_key",
@@ -787,7 +801,7 @@
     "auth_provider": {
       "name": "auth_provider",
       "values": {
-        "auth0": "auth0"
+        "google": "google"
       }
     },
     "measurement_type": {
