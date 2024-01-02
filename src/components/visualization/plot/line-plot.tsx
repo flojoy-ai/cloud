@@ -10,6 +10,9 @@ import { type z } from "zod";
 import { type explorerConfig } from "~/types/data";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import * as math from "mathjs";
+import { useTheme } from "next-themes";
+import _ from "lodash";
+import { usePlotLayout } from "~/hooks/usePlotLayout";
 
 type Line = {
   x: number[];
@@ -74,6 +77,7 @@ const LinePlot = ({ lines, title, config, onTraceClick }: Props) => {
   const [highlightedTraceIndex, setHighlightedTraceIndex] = useState<
     number | null
   >(null);
+  const layoutBase = usePlotLayout();
 
   const computeTraces = useCallback((): ComputedTraces => {
     const yTransform = config.yTransform
@@ -174,19 +178,19 @@ const LinePlot = ({ lines, title, config, onTraceClick }: Props) => {
       shapes.push(hline(config.upperControlLimit));
     }
 
-    return {
-      width: 600,
-      height: 400,
+    return _.merge(layoutBase, {
       title,
-      showlegend: false,
-      yaxis: { type: config.logScaleYAxis ? "log" : "linear" },
+      yaxis: {
+        type: config.logScaleYAxis ? "log" : "linear",
+      },
       shapes,
-    };
+    });
   }, [
     config.logScaleYAxis,
     config.lowerControlLimit,
     config.upperControlLimit,
     title,
+    layoutBase,
   ]);
 
   return (

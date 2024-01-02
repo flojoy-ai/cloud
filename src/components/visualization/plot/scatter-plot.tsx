@@ -1,4 +1,6 @@
+import _ from "lodash";
 import Plot from "react-plotly.js";
+import { usePlotLayout } from "~/hooks/usePlotLayout";
 
 type Props = {
   title: string;
@@ -7,19 +9,19 @@ type Props = {
 };
 
 const ScatterPlot = ({ x, y, title }: Props) => {
+  const layoutBase = usePlotLayout();
   const data = [
     {
       x,
       y,
       mode: "markers",
+      marker: { color: "#7B61FF", width: 10 },
     },
   ];
 
-  const layout = {
-    width: 600,
-    height: 400,
+  const layout = _.merge(layoutBase, {
     title,
-  };
+  });
 
   return <Plot data={data} layout={layout} />;
 };
