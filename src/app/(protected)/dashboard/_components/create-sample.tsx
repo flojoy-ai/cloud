@@ -23,7 +23,18 @@ const CreateSample = () => {
     length: 8,
   });
 
-  const createSampleBoolean = async () => {
+  const generateRandomNumbers = () => {
+    const randomNumbers = [];
+
+    for (let i = 0; i < 10; i++) {
+      const randomNumber = Math.random();
+      randomNumbers.push(randomNumber);
+    }
+
+    return randomNumbers;
+  };
+
+  const createSample = async () => {
     setIsCreating(true);
     const workspace = await workspaceCreate.mutateAsync({
       name: "Sample Workspace " + createId(),
@@ -34,13 +45,14 @@ const CreateSample = () => {
       workspaceId: workspace.id,
     });
 
-    const test = await testCreate.mutateAsync({
+    // boolean example
+    const booleanTest = await testCreate.mutateAsync({
       name: "Pass/Fail Test",
       projectId: project.id,
       measurementType: "boolean",
     });
 
-    const devices = await devicesCreate.mutateAsync(
+    const booleanDevices = await devicesCreate.mutateAsync(
       _.times(10, (i) => ({
         name: `Circuit Board #${i + 1}`,
         projectId: project.id,
@@ -48,60 +60,34 @@ const CreateSample = () => {
     );
 
     await measurementsCreate.mutateAsync(
-      devices.map((device) => ({
+      booleanDevices.map((device) => ({
         name: "Did Power On",
         deviceId: device.id,
-        testId: test.id,
+        testId: booleanTest.id,
         measurementType: "boolean",
         data: { type: "boolean", passed: Math.random() < 0.8 },
       })),
     );
 
-    router.refresh();
-    setIsCreating(false);
-  };
-
-  const createSampleDataFrame = async () => {
-    setIsCreating(true);
-
-    const workspace = await workspaceCreate.mutateAsync({
-      name: "Sample Workspace " + createId(),
-    });
-
-    const project = await projectCreate.mutateAsync({
-      name: "My Circuit Testing Project",
-      workspaceId: workspace.id,
-    });
-
-    const test = await testCreate.mutateAsync({
+    // dataframe example
+    const dataframeTest = await testCreate.mutateAsync({
       name: "Expected vs Measured",
       projectId: project.id,
       measurementType: "dataframe",
     });
 
-    const devices = await devicesCreate.mutateAsync(
+    const dataframeDevices = await devicesCreate.mutateAsync(
       _.times(3, (i) => ({
         name: `Circuit Board #${i + 1}`,
         projectId: project.id,
       })),
     );
 
-    const generateRandomNumbers = () => {
-      const randomNumbers = [];
-
-      for (let i = 0; i < 10; i++) {
-        const randomNumber = Math.random();
-        randomNumbers.push(randomNumber);
-      }
-
-      return randomNumbers;
-    };
-
     await measurementsCreate.mutateAsync(
-      devices.map((device) => ({
+      dataframeDevices.map((device) => ({
         name: "Data Point",
         deviceId: device.id,
-        testId: test.id,
+        testId: dataframeTest.id,
         measurementType: "dataframe",
         data: {
           type: "dataframe",
@@ -123,7 +109,7 @@ const CreateSample = () => {
       disabled={isCreating}
       variant="outline"
       onClick={() =>
-        toast.promise(createSampleBoolean, {
+        toast.promise(createSample, {
           loading: "Creating your sample workspace + project...",
           success: "The sample is ready!",
           error: (err) => {
