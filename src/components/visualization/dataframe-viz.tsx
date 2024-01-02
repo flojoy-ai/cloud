@@ -6,7 +6,7 @@ import { type SelectMeasurement } from "~/types/measurement";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type SubmitHandler, useForm } from "react-hook-form";
 
-import * as math from "mathjs";
+import { useRouter } from "next/navigation";
 
 import {
   Collapsible,
@@ -71,6 +71,8 @@ const DataFrameViz = ({
       errorPercentage: 10,
     },
   });
+
+  const router = useRouter();
 
   const [config, setConfig] = useState<FormSchema>(form.getValues());
 
@@ -270,10 +272,6 @@ const DataFrameViz = ({
       {everythingSelected && measurements && (
         <LinePlot
           title={selectedTest?.name ?? "Untitled Test"}
-          // lines={[
-          //   { x: [1, 2, 3], y: [1, 2, 3] },
-          //   { x: [3, 2, 1], y: [1, 2, 3] },
-          // ]}
           lines={
             measurements.map((measurement) => {
               if (measurement.data.type === "dataframe") {
@@ -288,7 +286,15 @@ const DataFrameViz = ({
           }
           config={config}
           onTraceClick={(e) => {
-            console.log(e.points[0]?.curveNumber);
+            const curveNumber = e.points[0]?.curveNumber;
+            if (!curveNumber) {
+              return;
+            }
+            const measurement = measurements[curveNumber];
+            if (!measurement) {
+              return;
+            }
+            router.push(`/device/${measurement.deviceId}`);
           }}
         />
       )}

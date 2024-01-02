@@ -70,7 +70,7 @@ type Props = {
   onTraceClick: (event: Readonly<PlotMouseEvent>) => void;
 };
 
-const LinePlot = ({ lines, title, config }: Props) => {
+const LinePlot = ({ lines, title, config, onTraceClick }: Props) => {
   const [highlightedTraceIndex, setHighlightedTraceIndex] = useState<
     number | null
   >(null);
@@ -195,6 +195,7 @@ const LinePlot = ({ lines, title, config }: Props) => {
       layout={layout}
       onHover={handleHover}
       onUnhover={handleUnhover}
+      onClick={onTraceClick}
     />
   );
 };
