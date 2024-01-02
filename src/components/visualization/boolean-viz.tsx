@@ -10,7 +10,7 @@ import { type SelectTest } from "~/types/test";
 import { type SelectMeasurement } from "~/types/measurement";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, type SubmitHandler } from "react-hook-form";
 
 import { type z } from "zod";
 import { explorerConfig } from "~/types/data";
@@ -23,12 +23,16 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
+import { Button } from "../ui/button";
+import { useState } from "react";
 
 type Props = {
   measurements: SelectMeasurement[];
   selectedTest: SelectTest;
   everythingSelected: boolean;
 };
+
+type FormSchema = z.infer<typeof explorerConfig.boolean>;
 
 const BooleanViz = ({
   measurements,
@@ -42,9 +46,11 @@ const BooleanViz = ({
     },
   });
 
-  function onSubmit(values: z.infer<typeof explorerConfig.boolean>) {
-    console.log(values);
-  }
+  const [config, setConfig] = useState<FormSchema>(form.getValues());
+
+  const onSubmit: SubmitHandler<FormSchema> = (vals) => {
+    setConfig(vals);
+  };
 
   return (
     <div>
@@ -52,50 +58,51 @@ const BooleanViz = ({
         <CardHeader>
           <CardTitle>Visualization Options</CardTitle>
         </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="grid grid-cols-1 gap-4 lg:grid-cols-3"
-            >
-              <FormField
-                control={form.control}
-                name="xAxis"
-                render={({ field }) => (
-                  <FormItem className="space-y-3">
-                    <FormLabel>x-axis</FormLabel>
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="flex flex-col space-y-1"
-                      >
-                        <FormItem className="flex items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="device_id" />
-                          </FormControl>
-                          <FormLabel className="font-normal">
-                            device_id
-                          </FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="timestamp" />
-                          </FormControl>
-                          <FormLabel className="font-normal">
-                            timestamp
-                          </FormLabel>
-                        </FormItem>
-                      </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </form>
-          </Form>
-        </CardContent>
-        <CardFooter></CardFooter>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <CardContent>
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                <FormField
+                  control={form.control}
+                  name="xAxis"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel>x-axis</FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          className="flex flex-col space-y-1"
+                        >
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value="device_id" />
+                            </FormControl>
+                            <FormLabel className="font-normal">
+                              device_id
+                            </FormLabel>
+                          </FormItem>
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value="timestamp" />
+                            </FormControl>
+                            <FormLabel className="font-normal">
+                              timestamp
+                            </FormLabel>
+                          </FormItem>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button type="submit">Plot</Button>
+            </CardFooter>
+          </form>
+        </Form>
       </Card>
 
       {everythingSelected && measurements && (

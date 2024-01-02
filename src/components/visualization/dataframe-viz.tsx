@@ -205,7 +205,6 @@ const DataFrameViz = ({
                 />
               </div>
             </CardContent>
-
             <CardFooter>
               <Button type="submit">Plot</Button>
             </CardFooter>
