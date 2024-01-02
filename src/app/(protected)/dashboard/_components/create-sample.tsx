@@ -52,7 +52,7 @@ const CreateSample = () => {
       measurementType: "boolean",
     });
 
-    const booleanDevices = await devicesCreate.mutateAsync(
+    const devices = await devicesCreate.mutateAsync(
       _.times(10, (i) => ({
         name: `Circuit Board #${i + 1}`,
         projectId: project.id,
@@ -60,7 +60,7 @@ const CreateSample = () => {
     );
 
     await measurementsCreate.mutateAsync(
-      booleanDevices.map((device) => ({
+      devices.map((device) => ({
         name: "Did Power On",
         deviceId: device.id,
         testId: booleanTest.id,
@@ -76,15 +76,8 @@ const CreateSample = () => {
       measurementType: "dataframe",
     });
 
-    const dataframeDevices = await devicesCreate.mutateAsync(
-      _.times(3, (i) => ({
-        name: `Circuit Board #${i + 1}`,
-        projectId: project.id,
-      })),
-    );
-
     await measurementsCreate.mutateAsync(
-      dataframeDevices.map((device) => ({
+      devices.map((device) => ({
         name: "Data Point",
         deviceId: device.id,
         testId: dataframeTest.id,
