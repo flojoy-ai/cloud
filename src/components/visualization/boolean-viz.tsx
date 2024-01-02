@@ -98,19 +98,17 @@ const BooleanViz = ({
       {everythingSelected && measurements && (
         <ScatterPlot
           title={selectedTest?.name ?? "Untitled Test"}
-          x={
-            measurements.map(
-              (measurement) => measurement.deviceId ?? "Untitled Device",
-            ) ?? []
-          }
-          y={
-            measurements.map((measurement) => {
-              if (measurement.data.type === "boolean") {
-                return measurement.data.passed ? "passed" : "failed";
-              }
-              return "";
-            }) ?? []
-          }
+          x={measurements.map(
+            form.watch("xAxis") === "device_id"
+              ? (measurement) => measurement.deviceId
+              : (measurement) => measurement.createdAt.toISOString(),
+          )}
+          y={measurements.map((measurement) => {
+            if (measurement.data.type === "boolean") {
+              return measurement.data.passed ? "passed" : "failed";
+            }
+            return "";
+          })}
         />
       )}
     </div>
