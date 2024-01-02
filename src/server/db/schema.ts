@@ -75,7 +75,7 @@ export const workspace = pgTable(
     updatedAt: timestamp("updated_at"),
   },
   (workspace) => ({
-    workspaceNameIndex: index("workspace_name_index").on(workspace.name),
+    workspaceNameIndex: index().on(workspace.name),
   }),
 );
 
@@ -101,19 +101,13 @@ export const workspace_user = pgTable(
     workspaceRole: workspaceRoleEnum("workspace_role").notNull(),
   },
   (workspace_user) => ({
-    workspaceUserWorkspaceIdUserIdIndex: index(
-      "workspace_user_workspace_id_user_id_index",
-    ).on(workspace_user.workspaceId, workspace_user.userId),
-    workspaceUserUserIdIndex: index("workspace_user_user_id_index").on(
-      workspace_user.userId,
-    ),
-    workspaceUserWorkspaceIdIndex: index(
-      "workspace_user_workspace_id_index",
-    ).on(workspace_user.workspaceId),
-    unq: unique("workspace_user_unique").on(
+    workspaceUserWorkspaceIdUserIdIndex: index().on(
       workspace_user.workspaceId,
       workspace_user.userId,
     ),
+    workspaceUserUserIdIndex: index().on(workspace_user.userId),
+    workspaceUserWorkspaceIdIndex: index().on(workspace_user.workspaceId),
+    unq: unique().on(workspace_user.workspaceId, workspace_user.userId),
   }),
 );
 
@@ -129,8 +123,8 @@ export const project = pgTable(
       .references(() => workspace.id, { onDelete: "cascade" }),
   },
   (project) => ({
-    projectNameIndex: index("project_name_index").on(project.name),
-    unq: unique("project_unique").on(project.workspaceId, project.name),
+    projectNameIndex: index().on(project.name),
+    unq: unique().on(project.workspaceId, project.name),
   }),
 );
 
@@ -152,8 +146,8 @@ export const test = pgTable(
       .references(() => project.id, { onDelete: "cascade" }),
   },
   (test) => ({
-    testNameIndex: index("test_name_idx").on(test.name),
-    unq: unique("test_unique").on(test.projectId, test.name),
+    testNameIndex: index().on(test.name),
+    unq: unique().on(test.projectId, test.name),
   }),
 );
 
@@ -169,8 +163,8 @@ export const device = pgTable(
       .references(() => project.id, { onDelete: "cascade" }),
   },
   (device) => ({
-    deviceNameIndex: index("device_name_idx").on(device.name),
-    unq: unique("device_unique").on(device.projectId, device.name),
+    deviceNameIndex: index().on(device.name),
+    unq: unique().on(device.projectId, device.name),
   }),
 );
 
@@ -196,13 +190,9 @@ export const measurement = pgTable(
     isDeleted: boolean("is_deleted").default(false),
   },
   (measurement) => ({
-    measurementNameIndex: index("measurement_name_idx").on(measurement.name),
-    measurementDeviceIdIndex: index("measurement_device_id_idx").on(
-      measurement.deviceId,
-    ),
-    measurementTestIdIndex: index("measurement_test_id_idx").on(
-      measurement.testId,
-    ),
+    measurementNameIndex: index().on(measurement.name),
+    measurementDeviceIdIndex: index().on(measurement.deviceId),
+    measurementTestIdIndex: index().on(measurement.testId),
   }),
 );
 
@@ -216,11 +206,8 @@ export const tag = pgTable(
       .references(() => measurement.id, { onDelete: "cascade" }),
   },
   (tags) => ({
-    tagNameMeasurementIdIndex: index("tag_name_idx").on(
-      tags.name,
-      tags.measurementId,
-    ),
-    unq: unique("tag_unique").on(tags.measurementId, tags.name),
+    tagNameMeasurementIdIndex: index().on(tags.name, tags.measurementId),
+    unq: unique().on(tags.measurementId, tags.name),
   }),
 );
 
@@ -238,10 +225,6 @@ export const secret = pgTable(
       .references(() => project.id, { onDelete: "cascade" }),
   },
   (secret) => ({
-    unq: unique("secret_unique").on(
-      secret.userId,
-      secret.name,
-      secret.projectId,
-    ),
+    unq: unique().on(secret.userId, secret.name, secret.projectId),
   }),
 );
