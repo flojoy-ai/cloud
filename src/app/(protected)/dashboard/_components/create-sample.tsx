@@ -1,5 +1,6 @@
 "use client";
 
+import { init } from "@paralleldrive/cuid2";
 import _ from "lodash";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -15,6 +16,12 @@ const CreateSample = () => {
   const devicesCreate = api.device.createDevices.useMutation();
   const testCreate = api.test.createTest.useMutation();
   const measurementsCreate = api.measurement.createMeasurements.useMutation();
+
+  const createId = init({
+    random: Math.random,
+    // the length of the id
+    length: 8,
+  });
 
   const createSampleBoolean = async () => {
     setIsCreating(true);
@@ -58,7 +65,7 @@ const CreateSample = () => {
     setIsCreating(true);
 
     const workspace = await workspaceCreate.mutateAsync({
-      name: "Sample Workspace",
+      name: "Sample Workspace " + createId(),
     });
 
     const project = await projectCreate.mutateAsync({
