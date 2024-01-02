@@ -1,4 +1,4 @@
-import { Card } from "~/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import LinePlot from "~/components/visualization/plot/line-plot";
 import { type SelectTest } from "~/types/test";
 import { type SelectMeasurement } from "~/types/measurement";
@@ -7,12 +7,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { type SubmitHandler, useForm } from "react-hook-form";
 
 import { useRouter } from "next/navigation";
-
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "~/components/ui/collapsible";
 
 import {
   Form,
@@ -28,29 +22,7 @@ import { explorerConfig } from "~/types/data";
 import { Input } from "../ui/input";
 import { Checkbox } from "../ui/checkbox";
 import { Button } from "../ui/button";
-import { ChevronsUpDown } from "lucide-react";
 import { useState } from "react";
-
-type ToggleCollapsibleProps = {
-  children: React.ReactNode;
-  name: string;
-};
-
-const ToggleCollapsible = ({ name, children }: ToggleCollapsibleProps) => {
-  return (
-    <Collapsible className="w-full space-y-2">
-      <div className="flex items-center space-x-4">
-        <h4 className="text-sm font-semibold">{name}</h4>
-        <CollapsibleTrigger asChild>
-          <Button variant="ghost" size="sm" className="w-9 p-0">
-            <ChevronsUpDown className="h-4 w-4" />
-          </Button>
-        </CollapsibleTrigger>
-      </div>
-      <CollapsibleContent>{children}</CollapsibleContent>
-    </Collapsible>
-  );
-};
 
 type Props = {
   measurements: SelectMeasurement[];
@@ -78,11 +50,17 @@ const DataFrameViz = ({
   };
 
   return (
-    <Card className="p-6">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
-          <ToggleCollapsible name="Control Limits">
-            <div className="flex gap-x-8">
+    <div className="">
+      <Card>
+        <CardHeader>
+          <CardTitle>Visualization Options</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="grid grid-cols-1 gap-4 lg:grid-cols-3"
+            >
               <FormField
                 control={form.control}
                 name="upperControlLimit"
@@ -133,10 +111,6 @@ const DataFrameViz = ({
                   </FormItem>
                 )}
               />
-            </div>
-          </ToggleCollapsible>
-          <ToggleCollapsible name="Transform Functions">
-            <div className="flex gap-x-8">
               <FormField
                 control={form.control}
                 name="yTransform"
@@ -188,84 +162,82 @@ const DataFrameViz = ({
                   </FormItem>
                 )}
               />
-            </div>
-          </ToggleCollapsible>
-          <div className="flex items-center gap-x-8">
-            <FormField
-              control={form.control}
-              name="logScaleYAxis"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex items-center gap-x-2">
-                    <FormLabel className="font-bold text-muted-foreground">
-                      Log y-axis
-                    </FormLabel>
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="errorBars"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex items-center gap-x-2">
-                    <FormLabel className="font-bold text-muted-foreground">
-                      Error bars
-                    </FormLabel>
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="errorPercentage"
-              render={({ field }) =>
-                form.watch("errorBars") ? (
+              <FormField
+                control={form.control}
+                name="logScaleYAxis"
+                render={({ field }) => (
                   <FormItem>
                     <div className="flex items-center gap-x-2">
+                      <FormLabel className="font-bold text-muted-foreground">
+                        Log y-axis
+                      </FormLabel>
                       <FormControl>
-                        <Input
-                          type="number"
-                          step="any"
-                          className="h-8 w-16 p-2"
-                          {...field}
-                          {...form.register("errorPercentage", {
-                            setValueAs: (val: string) =>
-                              val !== "" ? parseFloat(val) : undefined,
-                          })}
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
                         />
                       </FormControl>
-                      <FormLabel className="font-bold text-muted-foreground">
-                        %
-                      </FormLabel>
                     </div>
                     <FormMessage />
                   </FormItem>
-                ) : (
-                  <div className="py-4" />
-                )
-              }
-            />
-          </div>
-          <div className="py-1" />
-          <Button type="submit">Replot</Button>
-        </form>
-      </Form>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="errorBars"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-center gap-x-2">
+                      <FormLabel className="font-bold text-muted-foreground">
+                        Error bars
+                      </FormLabel>
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="errorPercentage"
+                render={({ field }) =>
+                  form.watch("errorBars") ? (
+                    <FormItem>
+                      <div className="flex items-center gap-x-2">
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="any"
+                            className="h-8 w-16 p-2"
+                            {...field}
+                            {...form.register("errorPercentage", {
+                              setValueAs: (val: string) =>
+                                val !== "" ? parseFloat(val) : undefined,
+                            })}
+                          />
+                        </FormControl>
+                        <FormLabel className="font-bold text-muted-foreground">
+                          %
+                        </FormLabel>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  ) : (
+                    <div className="py-4" />
+                  )
+                }
+              />
+              <div className="py-1" />
+              <Button type="submit">Replot</Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
       {everythingSelected && measurements && (
         <LinePlot
           title={selectedTest?.name ?? "Untitled Test"}
@@ -295,7 +267,7 @@ const DataFrameViz = ({
           }}
         />
       )}
-    </Card>
+    </div>
   );
 };
 

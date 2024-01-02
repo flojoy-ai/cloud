@@ -47,14 +47,17 @@ const BooleanViz = ({
   }
 
   return (
-    <div className="">
+    <div>
       <Card>
         <CardHeader>
-          <CardTitle>Options</CardTitle>
+          <CardTitle>Visualization Options</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="grid grid-cols-1 gap-4 lg:grid-cols-3"
+            >
               <FormField
                 control={form.control}
                 name="xAxis"
