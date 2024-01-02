@@ -114,7 +114,7 @@ const LinePlot = ({ lines, title, config, onTraceClick }: Props) => {
         line:
           i === highlightedTraceIndex
             ? { color: "#7B61FF", width: 2 }
-            : { color: "rgba(200,200,200,0.5)", width: 0.5 },
+            : { color: "rgba(160,160,160,0.75)", width: 0.5 },
       });
     });
 
