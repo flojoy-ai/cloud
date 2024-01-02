@@ -14,7 +14,8 @@
     "lint": "next lint",
     "start": "next start",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "commitlint": "commitlint --edit"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.484.0",
@@ -78,6 +79,8 @@
     "zustand": "^4.4.7"
   },
   "devDependencies": {
+    "@commitlint/cli": "^18.4.3",
+    "@commitlint/config-conventional": "^18.4.3",
     "@next/eslint-plugin-next": "^14.0.4",
     "@types/eslint": "^8.56.0",
     "@types/lodash": "^4.14.202",
@@ -91,6 +94,7 @@
     "dotenv-cli": "^7.3.0",
     "drizzle-kit": "^0.20.9",
     "eslint": "^8.56.0",
+    "husky": "^8.0.3",
     "mysql2": "^3.6.5",
     "postcss": "^8.4.32",
     "prettier": "^3.1.1",
