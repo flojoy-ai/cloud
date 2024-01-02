@@ -10,7 +10,6 @@ import { type z } from "zod";
 import { type explorerConfig } from "~/types/data";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import * as math from "mathjs";
-import { useTheme } from "next-themes";
 import _ from "lodash";
 import { usePlotLayout } from "~/hooks/usePlotLayout";
 
