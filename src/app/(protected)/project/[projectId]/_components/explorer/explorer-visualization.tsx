@@ -39,7 +39,7 @@ const ExplorerVisualization = ({ tests }: Props) => {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardTitle>Select test</CardTitle>
+            <CardTitle>Select Test</CardTitle>
           </CardHeader>
           <CardContent>
             <TestCombobox tests={tests ?? []} />
@@ -50,6 +50,14 @@ const ExplorerVisualization = ({ tests }: Props) => {
             )}
             {selectedTest && <Badge>{selectedTest.measurementType}</Badge>}
           </CardFooter>
+        </Card>
+
+        <Card className="col-span-2">
+          <CardHeader>
+            <CardTitle>Select Time Range</CardTitle>
+          </CardHeader>
+          <CardContent></CardContent>
+          <CardFooter></CardFooter>
         </Card>
       </div>
 
