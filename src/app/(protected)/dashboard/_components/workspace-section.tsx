@@ -25,7 +25,7 @@ export default async function WorkspaceSection({ workspace }: Props) {
         <Label className="text-muted-foreground">{workspace.id}</Label>
         <div className="grow"></div>
         <Button asChild size="sm" variant="secondary">
-          <Link href={`/workspace/${workspace.id}`} className="gap-2">
+          <Link href={`/workspace/${workspace.id}/general`} className="gap-2">
             <Settings size="16" />
             Configure Workspace
           </Link>
