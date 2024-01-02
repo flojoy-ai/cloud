@@ -70,22 +70,18 @@ const DataFrameViz = ({
                   name="upperControlLimit"
                   render={({ field }) => (
                     <FormItem>
-                      <div className="flex items-center gap-x-2">
-                        <FormLabel className="font-bold text-muted-foreground">
-                          Upper control limit ={" "}
-                        </FormLabel>
-                        <FormControl className="w-40">
-                          <Input
-                            {...field}
-                            type="number"
-                            step="any"
-                            {...form.register("upperControlLimit", {
-                              setValueAs: (val: string) =>
-                                val !== "" ? parseFloat(val) : undefined,
-                            })}
-                          />
-                        </FormControl>
-                      </div>
+                      <FormLabel>Upper control limit</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="number"
+                          step="any"
+                          {...form.register("upperControlLimit", {
+                            setValueAs: (val: string) =>
+                              val !== "" ? parseFloat(val) : undefined,
+                          })}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -95,56 +91,32 @@ const DataFrameViz = ({
                   name="lowerControlLimit"
                   render={({ field }) => (
                     <FormItem>
-                      <div className="flex items-center gap-x-2">
-                        <FormLabel className="font-bold text-muted-foreground">
-                          Lower control limit ={" "}
-                        </FormLabel>
-                        <FormControl className="w-40">
-                          <Input
-                            {...field}
-                            type="number"
-                            step="any"
-                            {...form.register("lowerControlLimit", {
-                              setValueAs: (val: string) =>
-                                val !== "" ? parseFloat(val) : undefined,
-                            })}
-                          ></Input>
-                        </FormControl>
-                      </div>
+                      <FormLabel>Lower control limit</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="number"
+                          step="any"
+                          {...form.register("lowerControlLimit", {
+                            setValueAs: (val: string) =>
+                              val !== "" ? parseFloat(val) : undefined,
+                          })}
+                        ></Input>
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="yTransform"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="flex items-center gap-x-2">
-                        <FormLabel className="font-bold text-muted-foreground">
-                          yT ={" "}
-                        </FormLabel>
-                        <FormControl className="w-40">
-                          <Input {...field}></Input>
-                        </FormControl>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div></div>
                 <FormField
                   control={form.control}
                   name="upperControlLimitTransform"
                   render={({ field }) => (
                     <FormItem>
-                      <div className="flex items-center gap-x-2">
-                        <FormLabel className="font-bold text-muted-foreground">
-                          UCL_T ={" "}
-                        </FormLabel>
-                        <FormControl className="w-40">
-                          <Input {...field}></Input>
-                        </FormControl>
-                      </div>
+                      <FormLabel>UCL_T</FormLabel>
+                      <FormControl>
+                        <Input {...field}></Input>
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -154,14 +126,23 @@ const DataFrameViz = ({
                   name="lowerControlLimitTransform"
                   render={({ field }) => (
                     <FormItem>
-                      <div className="flex items-center gap-x-2">
-                        <FormLabel className="font-bold text-muted-foreground">
-                          LCL_T ={" "}
-                        </FormLabel>
-                        <FormControl className="w-40">
-                          <Input {...field}></Input>
-                        </FormControl>
-                      </div>
+                      <FormLabel>LCL_T</FormLabel>
+                      <FormControl>
+                        <Input {...field}></Input>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="yTransform"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>yT</FormLabel>
+                      <FormControl>
+                        <Input {...field}></Input>
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -170,19 +151,16 @@ const DataFrameViz = ({
                   control={form.control}
                   name="logScaleYAxis"
                   render={({ field }) => (
-                    <FormItem>
-                      <div className="flex items-center gap-x-2">
-                        <FormLabel className="font-bold text-muted-foreground">
-                          Log y-axis
-                        </FormLabel>
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </div>
-                      <FormMessage />
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel className="text-sm font-normal">
+                        Log y-axis
+                      </FormLabel>
                     </FormItem>
                   )}
                 />
@@ -190,51 +168,40 @@ const DataFrameViz = ({
                   control={form.control}
                   name="errorBars"
                   render={({ field }) => (
-                    <FormItem>
-                      <div className="flex items-center gap-x-2">
-                        <FormLabel className="font-bold text-muted-foreground">
-                          Error bars
-                        </FormLabel>
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </div>
-                      <FormMessage />
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel className="text-sm font-normal">
+                        Error bars
+                      </FormLabel>
                     </FormItem>
                   )}
                 />
                 <FormField
                   control={form.control}
                   name="errorPercentage"
-                  render={({ field }) =>
-                    form.watch("errorBars") ? (
-                      <FormItem>
-                        <div className="flex items-center gap-x-2">
-                          <FormControl>
-                            <Input
-                              type="number"
-                              step="any"
-                              className="h-8 w-16 p-2"
-                              {...field}
-                              {...form.register("errorPercentage", {
-                                setValueAs: (val: string) =>
-                                  val !== "" ? parseFloat(val) : undefined,
-                              })}
-                            />
-                          </FormControl>
-                          <FormLabel className="font-bold text-muted-foreground">
-                            %
-                          </FormLabel>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    ) : (
-                      <div className="py-4" />
-                    )
-                  }
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Error percentage</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="any"
+                          {...field}
+                          {...form.register("errorPercentage", {
+                            setValueAs: (val: string) =>
+                              val !== "" ? parseFloat(val) : undefined,
+                          })}
+                          disabled={!form.watch("errorBars")}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
             </CardContent>
