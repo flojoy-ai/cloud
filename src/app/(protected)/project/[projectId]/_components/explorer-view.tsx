@@ -14,6 +14,7 @@ import {
 import ScatterPlot from "~/components/visualization/scatter-plot";
 import { type SelectProject } from "~/types/project";
 import LinePlot from "~/components/visualization/line-plot";
+import { Badge } from "~/components/ui/badge";
 
 type Props = {
   project: SelectProject;
@@ -52,6 +53,7 @@ const ExplorerView = ({ project }: Props) => {
             {tests?.length === 0 && (
               <div>There is no test in the selected project</div>
             )}
+            {selectedTest && <Badge>{selectedTest.measurementType}</Badge>}
           </CardFooter>
         </Card>
       </div>
