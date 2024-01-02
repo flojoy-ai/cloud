@@ -215,7 +215,6 @@ export const secret = pgTable(
   "secret",
   {
     ...baseModal("secret"),
-    name: text("name").notNull(),
     value: text("value").notNull(),
     userId: text("user_id")
       .notNull()
@@ -225,6 +224,6 @@ export const secret = pgTable(
       .references(() => project.id, { onDelete: "cascade" }),
   },
   (secret) => ({
-    unq: unique().on(secret.userId, secret.name, secret.projectId),
+    unq: unique().on(secret.userId, secret.projectId),
   }),
 );

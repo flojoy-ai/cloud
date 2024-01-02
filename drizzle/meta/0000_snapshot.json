@@ -1,5 +1,5 @@
 {
-  "id": "d38b53ce-129e-4610-9262-c9441c897783",
+  "id": "2d01233a-3d81-405d-adc0-ee6557876f9c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -41,8 +41,8 @@
         }
       },
       "indexes": {
-        "device_name_idx": {
-          "name": "device_name_idx",
+        "cloud_device_name_index": {
+          "name": "cloud_device_name_index",
           "columns": [
             "name"
           ],
@@ -66,8 +66,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "device_unique": {
-          "name": "device_unique",
+        "cloud_device_project_id_name_unique": {
+          "name": "cloud_device_project_id_name_unique",
           "nullsNotDistinct": false,
           "columns": [
             "project_id",
@@ -139,22 +139,22 @@
         }
       },
       "indexes": {
-        "measurement_name_idx": {
-          "name": "measurement_name_idx",
+        "cloud_measurement_name_index": {
+          "name": "cloud_measurement_name_index",
           "columns": [
             "name"
           ],
           "isUnique": false
         },
-        "measurement_device_id_idx": {
-          "name": "measurement_device_id_idx",
+        "cloud_measurement_device_id_index": {
+          "name": "cloud_measurement_device_id_index",
           "columns": [
             "device_id"
           ],
           "isUnique": false
         },
-        "measurement_test_id_idx": {
-          "name": "measurement_test_id_idx",
+        "cloud_measurement_test_id_index": {
+          "name": "cloud_measurement_test_id_index",
           "columns": [
             "test_id"
           ],
@@ -229,8 +229,8 @@
         }
       },
       "indexes": {
-        "project_name_index": {
-          "name": "project_name_index",
+        "cloud_project_name_index": {
+          "name": "cloud_project_name_index",
           "columns": [
             "name"
           ],
@@ -254,8 +254,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "project_unique": {
-          "name": "project_unique",
+        "cloud_project_workspace_id_name_unique": {
+          "name": "cloud_project_workspace_id_name_unique",
           "nullsNotDistinct": false,
           "columns": [
             "workspace_id",
@@ -280,12 +280,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
         },
         "value": {
           "name": "value",
@@ -337,12 +331,11 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "secret_unique": {
-          "name": "secret_unique",
+        "cloud_secret_user_id_project_id_unique": {
+          "name": "cloud_secret_user_id_project_id_unique",
           "nullsNotDistinct": false,
           "columns": [
             "user_id",
-            "name",
             "project_id"
           ]
         }
@@ -379,8 +372,8 @@
         }
       },
       "indexes": {
-        "tag_name_idx": {
-          "name": "tag_name_idx",
+        "cloud_tag_name_measurement_id_index": {
+          "name": "cloud_tag_name_measurement_id_index",
           "columns": [
             "name",
             "measurement_id"
@@ -405,8 +398,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "tag_unique": {
-          "name": "tag_unique",
+        "cloud_tag_measurement_id_name_unique": {
+          "name": "cloud_tag_measurement_id_name_unique",
           "nullsNotDistinct": false,
           "columns": [
             "measurement_id",
@@ -458,8 +451,8 @@
         }
       },
       "indexes": {
-        "test_name_idx": {
-          "name": "test_name_idx",
+        "cloud_test_name_index": {
+          "name": "cloud_test_name_index",
           "columns": [
             "name"
           ],
@@ -483,8 +476,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "test_unique": {
-          "name": "test_unique",
+        "cloud_test_project_id_name_unique": {
+          "name": "cloud_test_project_id_name_unique",
           "nullsNotDistinct": false,
           "columns": [
             "project_id",
@@ -669,8 +662,8 @@
         }
       },
       "indexes": {
-        "workspace_name_index": {
-          "name": "workspace_name_index",
+        "cloud_workspace_name_index": {
+          "name": "cloud_workspace_name_index",
           "columns": [
             "name"
           ],
@@ -726,23 +719,23 @@
         }
       },
       "indexes": {
-        "workspace_user_workspace_id_user_id_index": {
-          "name": "workspace_user_workspace_id_user_id_index",
+        "cloud_workspace_user_workspace_id_user_id_index": {
+          "name": "cloud_workspace_user_workspace_id_user_id_index",
           "columns": [
             "workspace_id",
             "user_id"
           ],
           "isUnique": false
         },
-        "workspace_user_user_id_index": {
-          "name": "workspace_user_user_id_index",
+        "cloud_workspace_user_user_id_index": {
+          "name": "cloud_workspace_user_user_id_index",
           "columns": [
             "user_id"
           ],
           "isUnique": false
         },
-        "workspace_user_workspace_id_index": {
-          "name": "workspace_user_workspace_id_index",
+        "cloud_workspace_user_workspace_id_index": {
+          "name": "cloud_workspace_user_workspace_id_index",
           "columns": [
             "workspace_id"
           ],
@@ -779,8 +772,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "workspace_user_unique": {
-          "name": "workspace_user_unique",
+        "cloud_workspace_user_workspace_id_user_id_unique": {
+          "name": "cloud_workspace_user_workspace_id_user_id_unique",
           "nullsNotDistinct": false,
           "columns": [
             "workspace_id",
@@ -801,7 +794,6 @@
       "name": "measurement_type",
       "values": {
         "boolean": "boolean",
-        "image": "image",
         "dataframe": "dataframe"
       }
     },

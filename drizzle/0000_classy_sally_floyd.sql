@@ -5,7 +5,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- CREATE TYPE "measurement_type" AS ENUM('boolean', 'image', 'dataframe');
+ CREATE TYPE "measurement_type" AS ENUM('boolean', 'dataframe');
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS "cloud_device" (
 	"name" text NOT NULL,
 	"updated_at" timestamp,
 	"project_id" text NOT NULL,
-	CONSTRAINT "device_unique" UNIQUE("project_id","name")
+	CONSTRAINT "cloud_device_project_id_name_unique" UNIQUE("project_id","name")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_measurement" (
@@ -55,17 +55,16 @@ CREATE TABLE IF NOT EXISTS "cloud_project" (
 	"name" text NOT NULL,
 	"updated_at" timestamp,
 	"workspace_id" text NOT NULL,
-	CONSTRAINT "project_unique" UNIQUE("workspace_id","name")
+	CONSTRAINT "cloud_project_workspace_id_name_unique" UNIQUE("workspace_id","name")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_secret" (
 	"id" text PRIMARY KEY NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"name" text NOT NULL,
 	"value" text NOT NULL,
 	"user_id" text NOT NULL,
 	"project_id" text NOT NULL,
-	CONSTRAINT "secret_unique" UNIQUE("user_id","name","project_id")
+	CONSTRAINT "cloud_secret_user_id_project_id_unique" UNIQUE("user_id","project_id")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_tag" (
@@ -73,7 +72,7 @@ CREATE TABLE IF NOT EXISTS "cloud_tag" (
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"name" text NOT NULL,
 	"measurement_id" text NOT NULL,
-	CONSTRAINT "tag_unique" UNIQUE("measurement_id","name")
+	CONSTRAINT "cloud_tag_measurement_id_name_unique" UNIQUE("measurement_id","name")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_test" (
@@ -83,7 +82,7 @@ CREATE TABLE IF NOT EXISTS "cloud_test" (
 	"updated_at" timestamp,
 	"measurement_type" "measurement_type" NOT NULL,
 	"project_id" text NOT NULL,
-	CONSTRAINT "test_unique" UNIQUE("project_id","name")
+	CONSTRAINT "cloud_test_project_id_name_unique" UNIQUE("project_id","name")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_user" (
@@ -123,20 +122,20 @@ CREATE TABLE IF NOT EXISTS "cloud_workspace_user" (
 	"workspace_id" text NOT NULL,
 	"user_id" text NOT NULL,
 	"workspace_role" "workspace_role" NOT NULL,
-	CONSTRAINT "workspace_user_unique" UNIQUE("workspace_id","user_id")
+	CONSTRAINT "cloud_workspace_user_workspace_id_user_id_unique" UNIQUE("workspace_id","user_id")
 );
 --> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "device_name_idx" ON "cloud_device" ("name");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "measurement_name_idx" ON "cloud_measurement" ("name");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "measurement_device_id_idx" ON "cloud_measurement" ("device_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "measurement_test_id_idx" ON "cloud_measurement" ("test_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "project_name_index" ON "cloud_project" ("name");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "tag_name_idx" ON "cloud_tag" ("name","measurement_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "test_name_idx" ON "cloud_test" ("name");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "workspace_name_index" ON "cloud_workspace" ("name");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "workspace_user_workspace_id_user_id_index" ON "cloud_workspace_user" ("workspace_id","user_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "workspace_user_user_id_index" ON "cloud_workspace_user" ("user_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "workspace_user_workspace_id_index" ON "cloud_workspace_user" ("workspace_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "cloud_device_name_index" ON "cloud_device" ("name");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "cloud_measurement_name_index" ON "cloud_measurement" ("name");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "cloud_measurement_device_id_index" ON "cloud_measurement" ("device_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "cloud_measurement_test_id_index" ON "cloud_measurement" ("test_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "cloud_project_name_index" ON "cloud_project" ("name");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "cloud_tag_name_measurement_id_index" ON "cloud_tag" ("name","measurement_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "cloud_test_name_index" ON "cloud_test" ("name");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "cloud_workspace_name_index" ON "cloud_workspace" ("name");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "cloud_workspace_user_workspace_id_user_id_index" ON "cloud_workspace_user" ("workspace_id","user_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "cloud_workspace_user_user_id_index" ON "cloud_workspace_user" ("user_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "cloud_workspace_user_workspace_id_index" ON "cloud_workspace_user" ("workspace_id");--> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "cloud_device" ADD CONSTRAINT "cloud_device_project_id_cloud_project_id_fk" FOREIGN KEY ("project_id") REFERENCES "cloud_project"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
