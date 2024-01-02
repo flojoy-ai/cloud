@@ -20,13 +20,13 @@ export const auth = lucia({
 
   getUserAttributes: (user) => {
     return {
-      signupCompleted: user.signupCompleted,
+      signupCompleted: user.signup_completed,
       email: user.email,
     };
   },
   getSessionAttributes: (session) => {
     return {
-      authProvider: session.authProvider,
+      authProvider: session.auth_provider,
     };
   },
 });
