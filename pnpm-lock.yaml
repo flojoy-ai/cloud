@@ -104,9 +104,6 @@ dependencies:
   '@trpc/server':
     specifier: ^10.45.0
     version: 10.45.0
-  '@types/plotly.js':
-    specifier: ^2.12.32
-    version: 2.12.32
   class-variance-authority:
     specifier: ^0.7.0
     version: 0.7.0
@@ -214,6 +211,9 @@ devDependencies:
   '@types/node':
     specifier: ^20.10.6
     version: 20.10.6
+  '@types/plotly.js':
+    specifier: ^2.12.32
+    version: 2.12.32
   '@types/react':
     specifier: ^18.2.46
     version: 18.2.46
@@ -3716,6 +3716,7 @@ packages:
 
   /@types/plotly.js@2.12.32:
     resolution: {integrity: sha512-pCE60W1v77zxobnA1oGIisHhGzTHv8c4fAtM81Y1h7gezeKpLpx4E0fQ3ThKIPOIvGlnoVseUjSpFwFqIKdsXg==}
+    dev: true
 
   /@types/prop-types@15.7.11:
     resolution: {integrity: sha512-ga8y9v9uyeiLdpKddhxYQkxNDrfvuPrlFb0N1qnZZByvcElJaXthF1UhvCh9TLWJBEHeNtdnbysW7Y6Uq8CVng==}

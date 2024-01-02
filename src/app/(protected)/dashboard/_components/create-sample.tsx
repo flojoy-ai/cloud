@@ -65,6 +65,7 @@ const CreateSample = () => {
         deviceId: device.id,
         testId: booleanTest.id,
         measurementType: "boolean",
+        createdAt: new Date(new Date().getTime() + i * 20000),
         data: { type: "boolean", passed: Math.random() < 0.8 },
       })),
     );
