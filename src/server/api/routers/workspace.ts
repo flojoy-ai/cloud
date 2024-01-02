@@ -29,6 +29,15 @@ export const workspaceRouter = createTRPCRouter({
       return workspaceCreateResult;
     }),
 
+  updateWorkspace: protectedProcedure
+    .input(publicInsertWorkspaceSchema.extend({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db
+        .update(workspace)
+        .set(input)
+        .where(eq(workspace.id, input.id));
+    }),
+
   deleteWorkspaceById: protectedProcedure
     .input(z.object({ workspaceId: z.string() }))
     .mutation(async ({ ctx, input }) => {

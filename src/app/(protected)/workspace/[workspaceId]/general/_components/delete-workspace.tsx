@@ -32,7 +32,7 @@ const DeleteWorkspace = ({ workspaceId }: Props) => {
   return (
     <AlertDialog>
       <Button variant="destructive" size="sm" asChild>
-        <AlertDialogTrigger>Delete workspace</AlertDialogTrigger>
+        <AlertDialogTrigger>Delete Workspace</AlertDialogTrigger>
       </Button>
       <AlertDialogContent>
         <AlertDialogHeader>

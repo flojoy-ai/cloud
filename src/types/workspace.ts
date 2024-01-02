@@ -7,4 +7,12 @@ export const insertWorkspaceSchema = createInsertSchema(workspace);
 export const publicInsertWorkspaceSchema = insertWorkspaceSchema.pick({
   name: true,
 });
+
+export const publicUpdateWorkspaceSchema = insertWorkspaceSchema
+  .pick({
+    name: true,
+    id: true,
+  })
+  .required({ id: true });
+
 export const selectWorkspaceSchema = createSelectSchema(workspace);
