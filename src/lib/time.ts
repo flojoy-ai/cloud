@@ -1,3 +1,4 @@
+import { type DateRange } from "react-day-picker";
 import { type SelectMeasurement } from "~/types/measurement";
 
 export const getPrettyTime = (givenDate: Date): string => {
@@ -43,11 +44,11 @@ export const getPrettyTime = (givenDate: Date): string => {
 const ONE_DAY = 60 * 60 * 24 * 1000;
 
 export const matchesDateFilter =
-  (startDate: Date | undefined, endDate: Date | undefined) =>
-  (meas: SelectMeasurement) => {
-    const afterStart = startDate ? meas.createdAt > startDate : true;
-    const beforeEnd = endDate
-      ? meas.createdAt < new Date(endDate.getTime() + ONE_DAY) // make the range inclusive
+  (dateRange: DateRange | undefined) => (meas: SelectMeasurement) => {
+    if (dateRange === undefined) return true;
+    const afterStart = dateRange.from ? meas.createdAt > dateRange.from : true;
+    const beforeEnd = dateRange.to
+      ? meas.createdAt < new Date(dateRange.to.getTime() + ONE_DAY) // make the range inclusive
       : true;
 
     return afterStart && beforeEnd;
