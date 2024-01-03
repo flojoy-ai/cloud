@@ -23,7 +23,14 @@ const ScatterPlot = ({ x, y, title }: Props) => {
     title,
   });
 
-  return <Plot data={data} layout={layout} />;
+  return (
+    <Plot
+      data={data}
+      layout={layout}
+      className="w-full"
+      config={{ responsive: true }}
+    />
+  );
 };
 
 export default ScatterPlot;

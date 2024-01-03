@@ -19,8 +19,6 @@ export const usePlotLayout = (): Partial<Layout> => {
   const { resolvedTheme } = useTheme();
 
   return {
-    width: 600,
-    height: 400,
     showlegend: false,
     hoverlabel: {
       namelength: -1,
