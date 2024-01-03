@@ -58,6 +58,8 @@ export default async function Project({
       <div className="py-2"></div>
 
       <div>{children}</div>
+
+      <div className="py-8"></div>
     </div>
   );
 }
