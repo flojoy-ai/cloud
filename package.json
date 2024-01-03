@@ -87,7 +87,7 @@
     "@commitlint/cli": "^18.4.3",
     "@commitlint/config-conventional": "^18.4.3",
     "@next/eslint-plugin-next": "^14.0.4",
-    "@types/eslint": "^8.56.0",
+    "@types/eslint": "^8.56.1",
     "@types/lodash": "^4.14.202",
     "@types/node": "^20.10.6",
     "@types/plotly.js": "^2.12.32",
