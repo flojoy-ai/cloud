@@ -51,6 +51,7 @@ const BooleanViz = ({
 
   const onSubmit: SubmitHandler<FormSchema> = (vals) => {
     setConfig(vals);
+    console.log(config);
   };
 
   return (
