@@ -15,6 +15,7 @@ import { useShallow } from "zustand/react/shallow";
 import { TestCombobox } from "./test-combobox";
 import BooleanViz from "~/components/visualization/boolean-viz";
 import DataFrameViz from "~/components/visualization/dataframe-viz";
+import { DateTimeRangePicker } from "~/components/date-time-range-picker";
 
 type Props = {
   tests: SelectTest[];
@@ -58,7 +59,10 @@ const ExplorerVisualization = ({ tests }: Props) => {
           <CardHeader>
             <CardTitle>Select Time Range</CardTitle>
           </CardHeader>
-          <CardContent></CardContent>
+          <CardContent>
+            {/* TODO: implement this */}
+            <DateTimeRangePicker />
+          </CardContent>
           <CardFooter></CardFooter>
         </Card>
       </div>
