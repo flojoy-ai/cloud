@@ -21,6 +21,7 @@ import DeleteWorkspace from "./delete-workspace";
 import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { Icons } from "~/components/icons";
 
 type Props = {
   workspaceId: string;
@@ -64,7 +65,7 @@ const GeneralForm = ({ workspaceId }: Props) => {
   }
 
   if (!workspace) {
-    return null;
+    return <Icons.spinner />;
   }
 
   return (

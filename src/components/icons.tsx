@@ -1,3 +1,5 @@
+import { cn } from "~/lib/utils";
+
 type IconProps = React.HTMLAttributes<SVGElement>;
 
 export const Icons = {
@@ -87,6 +89,7 @@ export const Icons = {
       strokeLinecap="round"
       strokeLinejoin="round"
       {...props}
+      className={cn("h-12 w-12 animate-spin", props.className)}
     >
       <path d="M21 12a9 9 0 1 1-6.219-8.56" />
     </svg>

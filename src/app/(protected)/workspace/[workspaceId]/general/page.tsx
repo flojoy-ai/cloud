@@ -1,7 +1,7 @@
 import { Separator } from "~/components/ui/separator";
 import GeneralForm from "./_components/general-form";
 
-function GeneralPage({ params }: { params: { workspaceId: string } }) {
+async function GeneralPage({ params }: { params: { workspaceId: string } }) {
   return (
     <div className="space-y-6">
       <div>

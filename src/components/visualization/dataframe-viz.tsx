@@ -160,9 +160,7 @@ const DataFrameViz = ({
                           onCheckedChange={field.onChange}
                         />
                       </FormControl>
-                      <FormLabel className="text-sm font-normal">
-                        Log y-axis
-                      </FormLabel>
+                      <FormLabel className="font-normal">Log y-axis</FormLabel>
                     </FormItem>
                   )}
                 />
@@ -177,9 +175,7 @@ const DataFrameViz = ({
                           onCheckedChange={field.onChange}
                         />
                       </FormControl>
-                      <FormLabel className="text-sm font-normal">
-                        Error bars
-                      </FormLabel>
+                      <FormLabel className="font-normal">Error bars</FormLabel>
                     </FormItem>
                   )}
                 />

@@ -7,7 +7,6 @@ import { measurement, device, test } from "~/server/db/schema";
 import {
   insertMeasurementSchema,
   publicInsertMeasurementSchema,
-  selectMeasurementSchema,
 } from "~/types/measurement";
 
 export const measurementRouter = createTRPCRouter({

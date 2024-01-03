@@ -5,6 +5,7 @@ import _ from "lodash";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { device, project } from "~/server/db/schema";
 import { publicInsertDeviceSchema, selectDeviceSchema } from "~/types/device";
+import { selectMeasurementSchema } from "~/types/measurement";
 
 export const deviceRouter = createTRPCRouter({
   createDevice: protectedProcedure
@@ -53,6 +54,28 @@ export const deviceRouter = createTRPCRouter({
       );
 
       return devicesCreateResult;
+    }),
+
+  getDeviceById: protectedProcedure
+    .input(z.object({ deviceId: z.string() }))
+    .output(
+      selectDeviceSchema.merge(
+        z.object({ measurements: z.array(selectMeasurementSchema) }),
+      ),
+    )
+    .query(async ({ input, ctx }) => {
+      const result = await ctx.db.query.device.findFirst({
+        where: (device, { eq }) => eq(device.id, input.deviceId),
+        with: {
+          measurements: true,
+        },
+      });
+
+      if (!result) {
+        throw new Error("Failed to find device");
+      }
+
+      return result;
     }),
 
   getAllDevicesByProjectId: protectedProcedure

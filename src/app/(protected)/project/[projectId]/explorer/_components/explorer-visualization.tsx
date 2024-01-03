@@ -1,3 +1,5 @@
+"use client";
+
 import { api } from "~/trpc/react";
 import {
   Card,
@@ -17,6 +19,8 @@ import { useState } from "react";
 import { DatePicker } from "~/components/ui/date-picker";
 import { Label } from "~/components/ui/label";
 import { matchesDateFilter } from "~/lib/time";
+import { DateTimeRangePicker } from "~/components/date-time-range-picker";
+import { type DateRange } from "react-day-picker";
 
 type Props = {
   tests: SelectTest[];
@@ -28,8 +32,7 @@ const ExplorerVisualization = ({ tests }: Props) => {
       selectedTest: state.selectedTest,
     })),
   );
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [date, setDate] = useState<DateRange | undefined>(undefined);
 
   const { data: measurements } =
     api.measurement.getAllMeasurementsByTestId.useQuery({
@@ -40,9 +43,7 @@ const ExplorerVisualization = ({ tests }: Props) => {
 
   if (!measurements) return null;
 
-  const showingMeasurements = measurements.filter(
-    matchesDateFilter(startDate, endDate),
-  );
+  const showingMeasurements = measurements.filter(matchesDateFilter(date));
 
   return (
     <div className="flex flex-col gap-4">
@@ -67,19 +68,7 @@ const ExplorerVisualization = ({ tests }: Props) => {
             <CardTitle>Select Time Range</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-x-2">
-              <Label className="font-semibold">Filter by date: </Label>
-              <DatePicker
-                date={startDate}
-                setDate={setStartDate}
-                placeholder="Start date"
-              />
-              <DatePicker
-                date={endDate}
-                setDate={setEndDate}
-                placeholder="End date"
-              />
-            </div>
+            <DateTimeRangePicker date={date} setDate={setDate} />
           </CardContent>
           <CardFooter></CardFooter>
         </Card>

@@ -1,6 +1,6 @@
 export const siteConfig = {
   name: "Flojoy Cloud",
-  url: "https://flojoy-cloud.vercel.app",
+  url: "https://cloud.flojoy.ai",
   description: "Flojoy Cloud",
   links: {
     login: "/login",
