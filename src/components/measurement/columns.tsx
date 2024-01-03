@@ -28,9 +28,10 @@ export const columns: ColumnDef<SelectMeasurement>[] = [
     accessorKey: "id",
     header: "ID",
   },
-
   {
     accessorKey: "data",
     header: "Data",
+    // TODO: implement a better looking preview here
+    accessorFn: (data) => JSON.stringify(data.data).slice(0, 10),
   },
 ];

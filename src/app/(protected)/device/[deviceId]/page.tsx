@@ -21,7 +21,9 @@ export default async function Device({
     <div className="container max-w-screen-2xl">
       <PageHeader>
         <PageHeaderHeading className="">{device.name}</PageHeaderHeading>
-        <PageHeaderDescription>Your hardware device.</PageHeaderDescription>
+        <PageHeaderDescription>
+          All tests that have been performed on "{device.name}" are listed here.
+        </PageHeaderDescription>
       </PageHeader>
 
       <div className="py-4"></div>

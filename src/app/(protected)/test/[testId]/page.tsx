@@ -16,7 +16,9 @@ export default async function Test({ params }: { params: { testId: string } }) {
     <div className="container max-w-screen-2xl">
       <PageHeader>
         <PageHeaderHeading className="">{test.name}</PageHeaderHeading>
-        <PageHeaderDescription>Your test.</PageHeaderDescription>
+        <PageHeaderDescription>
+          All measurements for the "{test.name}" test are listed here.
+        </PageHeaderDescription>
       </PageHeader>
 
       <div className="py-4"></div>
