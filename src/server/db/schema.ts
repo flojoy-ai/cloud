@@ -12,6 +12,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { createId } from "@paralleldrive/cuid2";
 import { allMeasurementDataTypes, type MeasurementData } from "~/types/data";
+import { relations } from "drizzle-orm";
 
 export const pgTable = pgTableCreator((name) => `cloud_${name}`);
 
@@ -129,6 +130,11 @@ export const project = pgTable(
   }),
 );
 
+export const projectRelation = relations(project, ({ many }) => ({
+  test: many(test),
+  device: many(device),
+}));
+
 export const measurementTypeEnum = pgEnum(
   "measurement_type",
   allMeasurementDataTypes,
@@ -152,6 +158,14 @@ export const test = pgTable(
   }),
 );
 
+export const testRelation = relations(test, ({ one, many }) => ({
+  measurement: many(measurement),
+  project: one(project, {
+    fields: [test.projectId],
+    references: [project.id],
+  }),
+}));
+
 // Each project can have a bunch of hardware devices registered to it.
 export const device = pgTable(
   "device",
@@ -168,6 +182,14 @@ export const device = pgTable(
     unq: unique().on(device.projectId, device.name),
   }),
 );
+
+export const deviceRelation = relations(device, ({ one, many }) => ({
+  measurement: many(measurement),
+  project: one(project, {
+    fields: [device.projectId],
+    references: [project.id],
+  }),
+}));
 
 // A measurement from a device that is associated with a test.
 // The is_deleted field is used to soft-delete a measurement.
@@ -196,6 +218,17 @@ export const measurement = pgTable(
     measurementTestIdIndex: index().on(measurement.testId),
   }),
 );
+
+export const measurementRelation = relations(measurement, ({ one }) => ({
+  test: one(test, {
+    fields: [measurement.testId],
+    references: [test.id],
+  }),
+  device: one(device, {
+    fields: [measurement.deviceId],
+    references: [device.id],
+  }),
+}));
 
 export const tag = pgTable(
   "tag",

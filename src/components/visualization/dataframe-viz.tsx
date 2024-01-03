@@ -29,9 +29,10 @@ import { Input } from "../ui/input";
 import { Checkbox } from "../ui/checkbox";
 import { Button } from "../ui/button";
 import { useState } from "react";
+import { type SelectDevice } from "~/types/device";
 
 type Props = {
-  measurements: SelectMeasurement[];
+  measurements: (SelectMeasurement & { device: SelectDevice })[];
   selectedTest: SelectTest;
   everythingSelected: boolean;
 };
@@ -222,7 +223,7 @@ const DataFrameViz = ({
                   return {
                     x: measurement.data.dataframe.x ?? [],
                     y: measurement.data.dataframe.y ?? [],
-                    name: measurement.deviceId,
+                    name: measurement.device.name,
                   };
                 }
                 return { x: [], y: [], name: "" };

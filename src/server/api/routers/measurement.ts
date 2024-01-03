@@ -79,10 +79,14 @@ export const measurementRouter = createTRPCRouter({
 
   getAllMeasurementsByTestId: protectedProcedure
     .input(z.object({ testId: z.string() }))
-    .output(z.array(selectMeasurementSchema))
+    // .output(z.array(selectMeasurementSchema))
     .query(async ({ ctx, input }) => {
-      return await ctx.db.query.measurement.findMany({
+      const result = await ctx.db.query.measurement.findMany({
         where: (measurement, { eq }) => eq(measurement.testId, input.testId),
+        with: {
+          device: true,
+        },
       });
+      return result;
     }),
 });

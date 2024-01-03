@@ -25,9 +25,10 @@ import {
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Button } from "../ui/button";
 import { useState } from "react";
+import { type SelectDevice } from "~/types/device";
 
 type Props = {
-  measurements: SelectMeasurement[];
+  measurements: (SelectMeasurement & { device: SelectDevice })[];
   selectedTest: SelectTest;
   everythingSelected: boolean;
 };
@@ -111,7 +112,7 @@ const BooleanViz = ({
             title={selectedTest?.name ?? "Untitled Test"}
             x={measurements.map(
               form.watch("xAxis") === "device_id"
-                ? (measurement) => measurement.deviceId
+                ? (measurement) => measurement.device.name
                 : (measurement) => measurement.createdAt.toISOString(),
             )}
             y={measurements.map((measurement) => {
