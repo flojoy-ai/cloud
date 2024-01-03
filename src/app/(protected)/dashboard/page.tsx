@@ -40,7 +40,7 @@ export default async function Dashboard() {
             Welcome to Flojoy Cloud! <br />
             To get started, you need to create a workspace. <br />
             Don't know what to do yet? <br /> Press the 'Create a Sample
-            Workspace + Project' button to pupolate your account with a demo.
+            Workspace + Project' button to populate your account with a demo.
           </div>
         </>
       )}
