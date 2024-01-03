@@ -20,17 +20,13 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "~/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Button } from "../ui/button";
 import { useCallback, useState } from "react";
 import { type SelectDevice } from "~/types/device";
-import { matchesDateFilter } from "~/lib/time";
 import { type PlotMouseEvent } from "plotly.js";
 import { useRouter } from "next/navigation";
-import { Label } from "../ui/label";
-import { DatePicker } from "../ui/date-picker";
 
 type Props = {
   measurements: (SelectMeasurement & { device: SelectDevice })[];
@@ -58,9 +54,6 @@ const BooleanViz = ({
   const onSubmit: SubmitHandler<FormSchema> = (vals) => {
     setConfig(vals);
   };
-  const showingMeasurements = measurements.filter(
-    matchesDateFilter(form.watch("startDate"), form.watch("endDate")),
-  );
 
   const handleClick = useCallback(
     (event: Readonly<PlotMouseEvent>) => {
@@ -86,39 +79,6 @@ const BooleanViz = ({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardContent>
-              <Label className="font-semibold">Filter by date: </Label>
-              <FormField
-                control={form.control}
-                name="startDate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl className="w-40">
-                      <DatePicker
-                        date={field.value}
-                        setDate={field.onChange}
-                        placeholder="Start date"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="endDate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl className="w-40">
-                      <DatePicker
-                        date={field.value}
-                        setDate={field.onChange}
-                        placeholder="End date"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
                 <FormField
                   control={form.control}
