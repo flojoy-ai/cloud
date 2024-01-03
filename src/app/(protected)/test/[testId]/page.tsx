@@ -1,4 +1,5 @@
-import MeasurementTable from "~/components/measurement-table";
+import { columns } from "~/components/measurement/columns";
+import { DataTable } from "~/components/measurement/data-table";
 import {
   PageHeader,
   PageHeaderDescription,
@@ -20,7 +21,7 @@ export default async function Test({ params }: { params: { testId: string } }) {
 
       <div className="py-4"></div>
 
-      <MeasurementTable measurements={test.measurements} />
+      <DataTable columns={columns} data={test.measurements} />
     </div>
   );
 }
