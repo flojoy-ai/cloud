@@ -55,7 +55,7 @@ export default async function Project({
 
       <TabNav items={sidebarNavItems} />
 
-      <div className="py-1"></div>
+      <div className="py-2"></div>
 
       <div>{children}</div>
     </div>
