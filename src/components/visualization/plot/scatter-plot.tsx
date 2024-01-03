@@ -29,7 +29,7 @@ const ScatterPlot = ({ x, y, title, onTraceClick }: Props) => {
     <Plot
       data={data}
       layout={layout}
-      className="w-full"
+      className="h-[512px] w-full"
       config={{ responsive: true }}
       onClick={onTraceClick}
     />
