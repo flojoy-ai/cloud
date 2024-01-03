@@ -1,3 +1,5 @@
+import { type SelectMeasurement } from "~/types/measurement";
+
 export const getPrettyTime = (givenDate: Date): string => {
   // Calculate the time difference in milliseconds
   const currentTime = new Date();
@@ -37,3 +39,16 @@ export const getPrettyTime = (givenDate: Date): string => {
   if (days === 1) return `${days} day ago`;
   return `${days} days ago`;
 };
+
+const ONE_DAY = 60 * 60 * 24 * 1000;
+
+export const matchesDateFilter =
+  (startDate: Date | undefined, endDate: Date | undefined) =>
+  (meas: SelectMeasurement) => {
+    const afterStart = startDate ? meas.createdAt > startDate : true;
+    const beforeEnd = endDate
+      ? meas.createdAt < new Date(endDate.getTime() + ONE_DAY) // make the range inclusive
+      : true;
+
+    return afterStart && beforeEnd;
+  };

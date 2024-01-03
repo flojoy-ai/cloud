@@ -25,11 +25,14 @@ import {
 
 import { type z } from "zod";
 import { explorerConfig } from "~/types/data";
+import { matchesDateFilter } from "~/lib/time";
 import { Input } from "../ui/input";
 import { Checkbox } from "../ui/checkbox";
 import { Button } from "../ui/button";
 import { useState } from "react";
 import { type SelectDevice } from "~/types/device";
+import { DatePicker } from "../ui/date-picker";
+import { Label } from "../ui/label";
 
 type Props = {
   measurements: (SelectMeasurement & { device: SelectDevice })[];
@@ -65,6 +68,41 @@ const DataFrameViz = ({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardContent>
+              <div className="flex items-center gap-x-2">
+                <Label className="font-semibold">Filter by date: </Label>
+                <FormField
+                  control={form.control}
+                  name="startDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl className="w-40">
+                        <DatePicker
+                          date={field.value}
+                          setDate={field.onChange}
+                          placeholder="Start date"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="endDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl className="w-40">
+                        <DatePicker
+                          date={field.value}
+                          setDate={field.onChange}
+                          placeholder="End date"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
                 <FormField
                   control={form.control}
@@ -213,12 +251,13 @@ const DataFrameViz = ({
         </Form>
       </Card>
 
-      <Card className="p-2">
-        {everythingSelected && measurements && (
-          <LinePlot
-            title={selectedTest?.name ?? "Untitled Test"}
-            lines={
-              measurements.map((measurement) => {
+      {everythingSelected && measurements && (
+        <LinePlot
+          title={selectedTest?.name ?? "Untitled Test"}
+          lines={
+            measurements
+              .filter(matchesDateFilter(config.startDate, config.endDate))
+              .map((measurement) => {
                 if (measurement.data.type === "dataframe") {
                   return {
                     x: measurement.data.dataframe.x ?? [],
@@ -228,22 +267,21 @@ const DataFrameViz = ({
                 }
                 return { x: [], y: [], name: "" };
               }) ?? []
+          }
+          config={config}
+          onTraceClick={(e) => {
+            const curveNumber = e.points[0]?.curveNumber;
+            if (!curveNumber) {
+              return;
             }
-            config={config}
-            onTraceClick={(e) => {
-              const curveNumber = e.points[0]?.curveNumber;
-              if (!curveNumber) {
-                return;
-              }
-              const measurement = measurements[curveNumber];
-              if (!measurement) {
-                return;
-              }
-              router.push(`/device/${measurement.deviceId}`);
-            }}
-          />
-        )}
-      </Card>
+            const measurement = measurements[curveNumber];
+            if (!measurement) {
+              return;
+            }
+            router.push(`/device/${measurement.deviceId}`);
+          }}
+        />
+      )}
     </>
   );
 };

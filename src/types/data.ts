@@ -52,6 +52,8 @@ export const measurementDataSchema = z.discriminatedUnion("type", [
 export type MeasurementData = z.infer<typeof measurementDataSchema>;
 
 const booleanExplorerSchema = z.object({
+  startDate: z.date().optional(),
+  endDate: z.date().optional(),
   xAxis: z.union([z.literal("timestamp"), z.literal("device_id")]),
 });
 
@@ -79,6 +81,8 @@ const exprValidator = (varName: string) => (expr: string | undefined) => {
 };
 
 const dataframeExplorerSchema = z.object({
+  startDate: z.date().optional(),
+  endDate: z.date().optional(),
   upperControlLimit: z.number().optional(),
   lowerControlLimit: z.number().optional(),
   yTransform: z
