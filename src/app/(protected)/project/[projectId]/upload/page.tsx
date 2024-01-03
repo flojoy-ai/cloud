@@ -1,16 +1,8 @@
-import { api } from "~/trpc/server";
+"use client";
 
-const UploadView = async ({ params }: { params: { projectId: string } }) => {
-  const project = await api.project.getProjectById.query({
-    projectId: params.projectId,
-  });
+import { useRouter } from "next/navigation";
 
-  return (
-    <div>
-      <div>UploadView</div>
-      <div>{project.id}</div>
-    </div>
-  );
-};
-
-export default UploadView;
+export default function Page({ params }: { params: { projectId: string } }) {
+  const router = useRouter();
+  router.replace(`/project/${params.projectId}/upload/python`);
+}

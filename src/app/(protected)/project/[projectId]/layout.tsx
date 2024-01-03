@@ -35,7 +35,7 @@ export default async function Project({
 
     {
       title: "Upload",
-      href: `/project/${params.projectId}/upload`,
+      href: `/project/${params.projectId}/upload/python`,
     },
 
     {
