@@ -131,8 +131,8 @@ export const project = pgTable(
 );
 
 export const projectRelation = relations(project, ({ many }) => ({
-  test: many(test),
-  device: many(device),
+  tests: many(test),
+  devices: many(device),
 }));
 
 export const measurementTypeEnum = pgEnum(
@@ -159,7 +159,7 @@ export const test = pgTable(
 );
 
 export const testRelation = relations(test, ({ one, many }) => ({
-  measurement: many(measurement),
+  measurements: many(measurement),
   project: one(project, {
     fields: [test.projectId],
     references: [project.id],
@@ -184,7 +184,7 @@ export const device = pgTable(
 );
 
 export const deviceRelation = relations(device, ({ one, many }) => ({
-  measurement: many(measurement),
+  measurements: many(measurement),
   project: one(project, {
     fields: [device.projectId],
     references: [project.id],

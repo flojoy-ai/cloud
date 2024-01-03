@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { project, test } from "~/server/db/schema";
+import { selectMeasurementSchema } from "~/types/measurement";
 import { insertTestSchema, selectTestSchema } from "~/types/test";
 
 export const testRouter = createTRPCRouter({
@@ -28,6 +29,28 @@ export const testRouter = createTRPCRouter({
         .set({ updatedAt: new Date() })
         .where(eq(project.id, input.projectId));
       return testCreateResult;
+    }),
+
+  getTestById: protectedProcedure
+    .input(z.object({ testId: z.string() }))
+    .output(
+      selectTestSchema.merge(
+        z.object({ measurements: z.array(selectMeasurementSchema) }),
+      ),
+    )
+    .query(async ({ input, ctx }) => {
+      const result = await ctx.db.query.test.findFirst({
+        where: (test, { eq }) => eq(test.id, input.testId),
+        with: {
+          measurements: true,
+        },
+      });
+
+      if (!result) {
+        throw new Error("Failed to find test");
+      }
+
+      return result;
     }),
   getAllTestsByProjectId: protectedProcedure
     .input(z.object({ projectId: z.string() }))

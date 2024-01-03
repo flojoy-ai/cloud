@@ -1,36 +1,20 @@
+import MeasurementTable from "~/components/measurement-table";
 import {
   PageHeader,
   PageHeaderDescription,
   PageHeaderHeading,
 } from "~/components/page-header";
 
-import { db } from "~/server/db";
+import { api } from "~/trpc/server";
 
 export default async function Device({
   params,
 }: {
   params: { deviceId: string };
 }) {
-  const device = await db.query.device.findFirst({
-    where: (device, { eq }) => eq(device.id, params.deviceId),
+  const device = await api.device.getDeviceById.query({
+    deviceId: params.deviceId,
   });
-
-  if (!device) {
-    return (
-      <div className="container max-w-screen-2xl">
-        <PageHeader>
-          <PageHeaderHeading className="">Device not found</PageHeaderHeading>
-          <PageHeaderDescription>
-            We cannot find the device you are looking for. <br />
-            Could you double check if the device exists and you have access to
-            it?
-          </PageHeaderDescription>
-        </PageHeader>
-
-        <div className="py-4"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="container max-w-screen-2xl">
@@ -40,6 +24,8 @@ export default async function Device({
       </PageHeader>
 
       <div className="py-4"></div>
+
+      <MeasurementTable measurements={device.measurements} />
     </div>
   );
 }
