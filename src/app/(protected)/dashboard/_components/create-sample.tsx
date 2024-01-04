@@ -54,7 +54,7 @@ const CreateSample = () => {
 
     const devices = await devicesCreate.mutateAsync(
       _.times(9, (i) => ({
-        name: `HL1234-SN000#${i + 1}`,
+        name: `HL1234-SN000${i + 1}`,
         projectId: project.id,
       })),
     );
