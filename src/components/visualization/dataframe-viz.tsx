@@ -215,7 +215,6 @@ const DataFrameViz = ({
           title={selectedTest?.name ?? "Untitled Test"}
           lines={
             measurements
-              .filter(matchesDateFilter(config.startDate, config.endDate))
               .map((measurement) => {
                 if (measurement.data.type === "dataframe") {
                   return {
