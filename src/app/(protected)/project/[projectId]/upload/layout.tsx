@@ -1,6 +1,5 @@
 import { type ReactNode } from "react";
 import { SidebarNav } from "~/components/sidebar-nav";
-import { Label } from "~/components/ui/label";
 import { Separator } from "~/components/ui/separator";
 
 export default async function Upload({
@@ -15,10 +14,10 @@ export default async function Upload({
       title: "Python Client",
       href: `/project/${params.projectId}/upload/python`,
     },
-    {
-      title: "MATLAB Client",
-      href: `/project/${params.projectId}/upload/matlab`,
-    },
+    // {
+    //   title: "MATLAB Client",
+    //   href: `/project/${params.projectId}/upload/matlab`,
+    // },
     {
       title: "REST API",
       href: `/project/${params.projectId}/upload/rest`,
