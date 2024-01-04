@@ -41,7 +41,7 @@ export function DateTimeRangePicker({ className, date, setDate }: Props) {
                 format(date.from, "LLL dd, y")
               )
             ) : (
-              <span>Pick a date</span>
+              <span>Pick a time range</span>
             )}
           </Button>
         </PopoverTrigger>
