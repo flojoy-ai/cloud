@@ -38,7 +38,7 @@ export default async function Project({
     },
 
     {
-      title: "Setting",
+      title: "Settings",
       href: `/project/${params.projectId}/settings/general`,
     },
   ];
