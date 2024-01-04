@@ -37,11 +37,11 @@ const CreateSample = () => {
   const createSample = async () => {
     setIsCreating(true);
     const workspace = await workspaceCreate.mutateAsync({
-      name: "Sample Workspace " + createId(),
+      name: "Sample Workspace" + createId(),
     });
 
     const project = await projectCreate.mutateAsync({
-      name: "My Circuit Testing Project",
+      name: "HL1234 Testing Project",
       workspaceId: workspace.id,
     });
 
@@ -53,8 +53,8 @@ const CreateSample = () => {
     });
 
     const devices = await devicesCreate.mutateAsync(
-      _.times(10, (i) => ({
-        name: `Circuit Board #${i + 1}`,
+      _.times(9, (i) => ({
+        name: `HL1234-SN000#${i + 1}`,
         projectId: project.id,
       })),
     );

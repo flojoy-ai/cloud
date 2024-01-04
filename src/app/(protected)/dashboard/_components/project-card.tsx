@@ -15,7 +15,7 @@ type Props = {
 
 export default async function ProjectCard({ project }: Props) {
   return (
-    <Link href={`/project/${project.id}/tests`}>
+    <Link href={`/project/${project.id}/devices`}>
       <Card className="transition-all duration-300 hover:bg-secondary/80">
         <CardHeader>
           <CardTitle>{project.name}</CardTitle>
