@@ -37,7 +37,7 @@ const CreateSample = () => {
   const createSample = async () => {
     setIsCreating(true);
     const workspace = await workspaceCreate.mutateAsync({
-      name: "Sample Workspace" + createId(),
+      name: "Sample Workspace " + createId(),
     });
 
     const project = await projectCreate.mutateAsync({
