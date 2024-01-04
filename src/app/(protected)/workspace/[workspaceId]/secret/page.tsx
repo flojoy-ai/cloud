@@ -21,7 +21,7 @@ async function GeneralPage({ params }: { params: { workspaceId: string } }) {
       </div>
       <Separator />
 
-      <div className="grid w-full max-w-2xl items-center gap-1.5">
+      <div className="grid w-full max-w-lg items-center gap-1.5">
         <Label htmlFor="workspace_id">Workspace ID</Label>
         <div className="flex items-center gap-2">
           <Input
@@ -34,7 +34,7 @@ async function GeneralPage({ params }: { params: { workspaceId: string } }) {
         </div>
       </div>
 
-      <div className="grid w-full max-w-2xl items-center gap-1.5">
+      <div className="grid w-full max-w-lg items-center gap-1.5">
         <Label htmlFor="workspace_id">Workspace Secret</Label>
 
         <div className="flex items-center gap-2">
