@@ -1,9 +1,8 @@
 import { type ReactNode } from "react";
 import { SidebarNav } from "~/components/sidebar-nav";
-import { Label } from "~/components/ui/label";
 import { Separator } from "~/components/ui/separator";
 
-export default async function Upload({
+export default async function Settings({
   params,
   children,
 }: {
@@ -12,23 +11,19 @@ export default async function Upload({
 }) {
   const sidebarNavItems = [
     {
-      title: "Python Client",
-      href: `/project/${params.projectId}/upload/python`,
+      title: "General",
+      href: `/project/${params.projectId}/settings/general`,
     },
-    {
-      title: "MATLAB Client",
-      href: `/project/${params.projectId}/upload/matlab`,
-    },
-    {
-      title: "REST API",
-      href: `/project/${params.projectId}/upload/rest`,
-    },
+    // {
+    //   title: "Secret",
+    //   href: `/project/${params.projectId}/settings/secret`,
+    // },
   ];
 
   return (
     <div className="">
       <div className="space-y-0.5">
-        <h2 className="text-2xl font-bold tracking-tight">Upload Methods</h2>
+        <h2 className="text-2xl font-bold tracking-tight">Project Settings</h2>
         <p className="text-muted-foreground">
           Here are all the ways you can upload measurements to Flojoy Cloud.
         </p>

@@ -1,16 +1,8 @@
-import { api } from "~/trpc/server";
+"use client";
 
-const SettingsView = async ({ params }: { params: { projectId: string } }) => {
-  const project = await api.project.getProjectById.query({
-    projectId: params.projectId,
-  });
+import { useRouter } from "next/navigation";
 
-  return (
-    <div>
-      <div>SettingsView</div>
-      <div>{project.id}</div>
-    </div>
-  );
-};
-
-export default SettingsView;
+export default function Page({ params }: { params: { projectId: string } }) {
+  const router = useRouter();
+  router.replace(`/project/${params.projectId}/settings/general`);
+}
