@@ -195,6 +195,8 @@ const LinePlot = ({ lines, title, config, onTraceClick }: Props) => {
   return (
     <Plot
       data={[...traces, ...extraTraces]}
+      className="h-[512px] w-full"
+      config={{ responsive: true }}
       layout={layout}
       onHover={handleHover}
       onUnhover={handleUnhover}

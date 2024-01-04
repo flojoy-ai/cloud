@@ -15,7 +15,9 @@ import { useShallow } from "zustand/react/shallow";
 import { TestCombobox } from "./test-combobox";
 import BooleanViz from "~/components/visualization/boolean-viz";
 import DataFrameViz from "~/components/visualization/dataframe-viz";
+import { useState } from "react";
 import { DateTimeRangePicker } from "~/components/date-time-range-picker";
+import { type DateRange } from "react-day-picker";
 
 type Props = {
   tests: SelectTest[];
@@ -27,11 +29,19 @@ const ExplorerVisualization = ({ tests }: Props) => {
       selectedTest: state.selectedTest,
     })),
   );
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
 
   const { data: measurements } =
-    api.measurement.getAllMeasurementsByTestId.useQuery({
-      testId: selectedTest?.id ?? "",
-    });
+    api.measurement.getAllMeasurementsByTestId.useQuery(
+      {
+        testId: selectedTest?.id ?? "",
+        startDate: dateRange?.from,
+        endDate: dateRange?.to,
+      },
+      {
+        keepPreviousData: true, // Prevents flickering
+      },
+    );
 
   const everythingSelected = selectedTest !== undefined;
 
@@ -60,10 +70,15 @@ const ExplorerVisualization = ({ tests }: Props) => {
             <CardTitle>Select Time Range</CardTitle>
           </CardHeader>
           <CardContent>
-            {/* TODO: implement this */}
-            <DateTimeRangePicker />
+            <DateTimeRangePicker date={dateRange} setDate={setDateRange} />
           </CardContent>
-          <CardFooter></CardFooter>
+          <CardFooter>
+            {selectedTest && (
+              <div>
+                {measurements.length} measurement(s) found in this time range
+              </div>
+            )}
+          </CardFooter>
         </Card>
       </div>
 

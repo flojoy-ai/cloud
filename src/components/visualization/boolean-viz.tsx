@@ -20,12 +20,13 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "~/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Button } from "../ui/button";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { type SelectDevice } from "~/types/device";
+import { type PlotMouseEvent } from "plotly.js";
+import { useRouter } from "next/navigation";
 
 type Props = {
   measurements: (SelectMeasurement & { device: SelectDevice })[];
@@ -46,6 +47,7 @@ const BooleanViz = ({
       xAxis: "device_id",
     },
   });
+  const router = useRouter();
 
   const [config, setConfig] = useState<FormSchema>(form.getValues());
 
@@ -53,6 +55,21 @@ const BooleanViz = ({
     setConfig(vals);
     console.log(config);
   };
+
+  const handleClick = useCallback(
+    (event: Readonly<PlotMouseEvent>) => {
+      const curveNumber = event.points[0]?.pointIndex;
+      if (!curveNumber) {
+        return;
+      }
+      const measurement = measurements[curveNumber];
+      if (!measurement) {
+        return;
+      }
+      router.push(`/device/${measurement.deviceId}`);
+    },
+    [measurements, router],
+  );
 
   return (
     <>
@@ -94,7 +111,6 @@ const BooleanViz = ({
                           </FormItem>
                         </RadioGroup>
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -122,6 +138,7 @@ const BooleanViz = ({
               }
               return "";
             })}
+            onTraceClick={handleClick}
           />
         )}
       </Card>

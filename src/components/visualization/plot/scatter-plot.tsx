@@ -1,4 +1,5 @@
 import _ from "lodash";
+import { type PlotMouseEvent } from "plotly.js";
 import Plot from "react-plotly.js";
 import { usePlotLayout } from "~/hooks/use-plot-layout";
 
@@ -6,9 +7,10 @@ type Props = {
   title: string;
   x: string[] | number[];
   y: string[] | number[];
+  onTraceClick: (event: Readonly<PlotMouseEvent>) => void;
 };
 
-const ScatterPlot = ({ x, y, title }: Props) => {
+const ScatterPlot = ({ x, y, title, onTraceClick }: Props) => {
   const layoutBase = usePlotLayout();
   const data = [
     {
@@ -23,7 +25,15 @@ const ScatterPlot = ({ x, y, title }: Props) => {
     title,
   });
 
-  return <Plot data={data} layout={layout} />;
+  return (
+    <Plot
+      data={data}
+      layout={layout}
+      className="h-[512px] w-full"
+      config={{ responsive: true }}
+      onClick={onTraceClick}
+    />
+  );
 };
 
 export default ScatterPlot;

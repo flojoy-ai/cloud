@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { type SQL, eq, lte, gte } from "drizzle-orm";
 import _ from "lodash";
 import { z } from "zod";
 
@@ -77,11 +77,24 @@ export const measurementRouter = createTRPCRouter({
     }),
 
   getAllMeasurementsByTestId: protectedProcedure
-    .input(z.object({ testId: z.string() }))
+    .input(
+      z.object({
+        testId: z.string(),
+        startDate: z.date().optional(),
+        endDate: z.date().optional(),
+      }),
+    )
     // .output(z.array(selectMeasurementSchema))
     .query(async ({ ctx, input }) => {
+      const where: SQL[] = [eq(measurement.testId, input.testId)];
+      if (input.startDate) {
+        where.push(gte(measurement.createdAt, input.startDate));
+      }
+      if (input.endDate) {
+        where.push(lte(measurement.createdAt, input.endDate));
+      }
       const result = await ctx.db.query.measurement.findMany({
-        where: (measurement, { eq }) => eq(measurement.testId, input.testId),
+        where: (measurement, { and }) => and(...where),
         with: {
           device: true,
         },
