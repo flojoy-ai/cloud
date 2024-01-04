@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { project, test } from "~/server/db/schema";
+import { selectDeviceSchema } from "~/types/device";
 import { selectMeasurementSchema } from "~/types/measurement";
 import { insertTestSchema, selectTestSchema } from "~/types/test";
 
@@ -35,14 +36,25 @@ export const testRouter = createTRPCRouter({
     .input(z.object({ testId: z.string() }))
     .output(
       selectTestSchema.merge(
-        z.object({ measurements: z.array(selectMeasurementSchema) }),
+        z.object({
+          measurements: z.array(
+            selectMeasurementSchema.merge(
+              z.object({ test: selectTestSchema, device: selectDeviceSchema }),
+            ),
+          ),
+        }),
       ),
     )
     .query(async ({ input, ctx }) => {
       const result = await ctx.db.query.test.findFirst({
         where: (test, { eq }) => eq(test.id, input.testId),
         with: {
-          measurements: true,
+          measurements: {
+            with: {
+              device: true,
+              test: true,
+            },
+          },
         },
       });
 
