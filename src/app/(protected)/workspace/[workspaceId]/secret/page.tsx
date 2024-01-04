@@ -1,6 +1,16 @@
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
 import { Separator } from "~/components/ui/separator";
+import { api } from "~/trpc/server";
+import GenerateSecret from "./_components/generate-secret";
+import CopyButton from "./_components/copy-button";
 
 async function GeneralPage({ params }: { params: { workspaceId: string } }) {
+  const secret = await api.secret.getSecret.query({
+    workspaceId: params.workspaceId,
+  });
+
   return (
     <div className="space-y-6">
       <div>
@@ -10,6 +20,40 @@ async function GeneralPage({ params }: { params: { workspaceId: string } }) {
         </p>
       </div>
       <Separator />
+
+      <div className="grid w-full max-w-2xl items-center gap-1.5">
+        <Label htmlFor="workspace_id">Workspace ID</Label>
+        <div className="flex items-center gap-2">
+          <Input
+            type="text"
+            id="workspace_id"
+            disabled
+            placeholder={params.workspaceId}
+          />
+          <CopyButton value={params.workspaceId} />
+        </div>
+      </div>
+
+      <div className="grid w-full max-w-2xl items-center gap-1.5">
+        <Label htmlFor="workspace_id">Workspace Secret</Label>
+
+        <div className="flex items-center gap-2">
+          {secret && (
+            <>
+              <Input
+                type="text"
+                id="workspace_id"
+                disabled
+                placeholder={secret.value}
+                className="text-ellipsis"
+                style={{ direction: "rtl" }}
+              />
+              <CopyButton value={secret.value} />
+            </>
+          )}
+        </div>
+        <GenerateSecret workspaceId={params.workspaceId} />
+      </div>
     </div>
   );
 }
