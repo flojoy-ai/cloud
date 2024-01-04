@@ -20,7 +20,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.485.0",
     "@epic-web/remember": "^1.0.2",
-    "@hookform/resolvers": "^3.3.3",
+    "@hookform/resolvers": "^3.3.4",
     "@lucia-auth/adapter-postgresql": "^2.0.2",
     "@lucia-auth/oauth": "^3.5.0",
     "@next/bundle-analyzer": "^14.0.4",
@@ -58,7 +58,7 @@
     "date-fns": "^3.0.6",
     "drizzle-orm": "^0.29.3",
     "drizzle-zod": "^0.5.1",
-    "framer-motion": "^10.17.4",
+    "framer-motion": "^10.17.6",
     "immer": "^10.0.3",
     "lodash": "^4.17.21",
     "lucia": "^2.7.6",
@@ -86,8 +86,8 @@
     "zustand": "^4.4.7"
   },
   "devDependencies": {
-    "@commitlint/cli": "^18.4.3",
-    "@commitlint/config-conventional": "^18.4.3",
+    "@commitlint/cli": "^18.4.4",
+    "@commitlint/config-conventional": "^18.4.4",
     "@next/eslint-plugin-next": "^14.0.4",
     "@types/eslint": "^8.56.1",
     "@types/lodash": "^4.14.202",
@@ -105,7 +105,7 @@
     "eslint": "^8.56.0",
     "husky": "^8.0.3",
     "mysql2": "^3.6.5",
-    "postcss": "^8.4.32",
+    "postcss": "^8.4.33",
     "prettier": "^3.1.1",
     "prettier-plugin-tailwindcss": "^0.5.10",
     "tailwindcss": "^3.4.0",
