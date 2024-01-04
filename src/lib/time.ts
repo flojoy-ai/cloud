@@ -1,6 +1,3 @@
-import { type DateRange } from "react-day-picker";
-import { type SelectMeasurement } from "~/types/measurement";
-
 export const getPrettyTime = (givenDate: Date): string => {
   // Calculate the time difference in milliseconds
   const currentTime = new Date();

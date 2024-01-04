@@ -29,17 +29,17 @@ const ExplorerVisualization = ({ tests }: Props) => {
       selectedTest: state.selectedTest,
     })),
   );
-  const [date, setDate] = useState<DateRange | undefined>(undefined);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
 
   const { data: measurements } =
     api.measurement.getAllMeasurementsByTestId.useQuery(
       {
         testId: selectedTest?.id ?? "",
-        startDate: date?.from,
-        endDate: date?.to,
+        startDate: dateRange?.from,
+        endDate: dateRange?.to,
       },
       {
-        keepPreviousData: true,
+        keepPreviousData: true, // Prevents flickering
       },
     );
 
@@ -70,9 +70,15 @@ const ExplorerVisualization = ({ tests }: Props) => {
             <CardTitle>Select Time Range</CardTitle>
           </CardHeader>
           <CardContent>
-            <DateTimeRangePicker date={date} setDate={setDate} />
+            <DateTimeRangePicker date={dateRange} setDate={setDateRange} />
           </CardContent>
-          <CardFooter></CardFooter>
+          <CardFooter>
+            {selectedTest && (
+              <div>
+                {measurements.length} measurement(s) found in this time range
+              </div>
+            )}
+          </CardFooter>
         </Card>
       </div>
 
