@@ -27,6 +27,10 @@ export default async function Workspace({
       title: "Users",
       href: `/workspace/${params.workspaceId}/users`,
     },
+    {
+      title: "Secret",
+      href: `/workspace/${params.workspaceId}/secret`,
+    },
   ];
 
   return (
