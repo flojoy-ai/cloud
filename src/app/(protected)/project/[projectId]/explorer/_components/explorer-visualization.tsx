@@ -39,7 +39,6 @@ const ExplorerVisualization = ({ tests }: Props) => {
         endDate: date?.to,
       },
       {
-        queryKey: ["measurements", selectedTest?.id, date],
         keepPreviousData: true,
       },
     );
