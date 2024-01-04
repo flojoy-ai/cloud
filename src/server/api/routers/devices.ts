@@ -6,6 +6,7 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { device, project } from "~/server/db/schema";
 import { publicInsertDeviceSchema, selectDeviceSchema } from "~/types/device";
 import { selectMeasurementSchema } from "~/types/measurement";
+import { selectTestSchema } from "~/types/test";
 
 export const deviceRouter = createTRPCRouter({
   createDevice: protectedProcedure
@@ -60,14 +61,25 @@ export const deviceRouter = createTRPCRouter({
     .input(z.object({ deviceId: z.string() }))
     .output(
       selectDeviceSchema.merge(
-        z.object({ measurements: z.array(selectMeasurementSchema) }),
+        z.object({
+          measurements: z.array(
+            selectMeasurementSchema.merge(
+              z.object({ test: selectTestSchema, device: selectDeviceSchema }),
+            ),
+          ),
+        }),
       ),
     )
     .query(async ({ input, ctx }) => {
       const result = await ctx.db.query.device.findFirst({
         where: (device, { eq }) => eq(device.id, input.deviceId),
         with: {
-          measurements: true,
+          measurements: {
+            with: {
+              test: true,
+              device: true,
+            },
+          },
         },
       });
 

@@ -1,9 +1,13 @@
 "use client";
 
 import { type ColumnDef } from "@tanstack/react-table";
+import { type SelectDevice } from "~/types/device";
 import { type SelectMeasurement } from "~/types/measurement";
+import { type SelectTest } from "~/types/test";
 
-export const columns: ColumnDef<SelectMeasurement>[] = [
+export const columns: ColumnDef<
+  SelectMeasurement & { test: SelectTest; device: SelectDevice }
+>[] = [
   {
     accessorKey: "name",
     header: "Name",
@@ -11,10 +15,12 @@ export const columns: ColumnDef<SelectMeasurement>[] = [
   {
     accessorKey: "deviceId",
     header: "Device",
+    accessorFn: (data) => data.device.name,
   },
   {
     accessorKey: "testId",
     header: "Test",
+    accessorFn: (data) => data.test.name,
   },
   {
     accessorKey: "measurementType",
