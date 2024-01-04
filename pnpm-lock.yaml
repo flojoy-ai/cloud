@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  trpc-openapi@1.2.0:
+    hash: kbwzxpbnpeggmx4xbxlzbdvu5i
+    path: patches/trpc-openapi@1.2.0.patch
+
 dependencies:
   '@aws-sdk/client-s3':
     specifier: ^3.484.0
@@ -196,7 +201,7 @@ dependencies:
     version: 1.0.7(tailwindcss@3.4.0)
   trpc-openapi:
     specifier: ^1.2.0
-    version: 1.2.0(@trpc/server@10.45.0)(zod@3.22.4)
+    version: 1.2.0(patch_hash=kbwzxpbnpeggmx4xbxlzbdvu5i)(@trpc/server@10.45.0)(zod@3.22.4)
   zod:
     specifier: ^3.22.4
     version: 3.22.4
@@ -8268,7 +8273,7 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /trpc-openapi@1.2.0(@trpc/server@10.45.0)(zod@3.22.4):
+  /trpc-openapi@1.2.0(patch_hash=kbwzxpbnpeggmx4xbxlzbdvu5i)(@trpc/server@10.45.0)(zod@3.22.4):
     resolution: {integrity: sha512-pfYoCd/3KYXWXvUPZBKJw455OOwngKN/6SIcj7Yit19OMLJ+8yVZkEvGEeg5wUSwfsiTdRsKuvqkRPXVSwV7ew==}
     peerDependencies:
       '@trpc/server': ^10.0.0
@@ -8283,6 +8288,7 @@ packages:
       zod: 3.22.4
       zod-to-json-schema: 3.22.3(zod@3.22.4)
     dev: false
+    patched: true
 
   /ts-api-utils@1.0.3(typescript@5.3.3):
     resolution: {integrity: sha512-wNMeqtMz5NtwpT/UZGY5alT+VoKdSsOOP/kqHFcUW1P/VRhH2wJ48+DN2WwUliNbQ976ETwDL0Ifd2VVvgonvg==}
