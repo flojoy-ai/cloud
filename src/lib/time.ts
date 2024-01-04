@@ -40,16 +40,3 @@ export const getPrettyTime = (givenDate: Date): string => {
   if (days === 1) return `${days} day ago`;
   return `${days} days ago`;
 };
-
-const ONE_DAY = 60 * 60 * 24 * 1000;
-
-export const matchesDateFilter =
-  (dateRange: DateRange | undefined) => (meas: SelectMeasurement) => {
-    if (dateRange === undefined) return true;
-    const afterStart = dateRange.from ? meas.createdAt > dateRange.from : true;
-    const beforeEnd = dateRange.to
-      ? meas.createdAt < new Date(dateRange.to.getTime() + ONE_DAY) // make the range inclusive
-      : true;
-
-    return afterStart && beforeEnd;
-  };

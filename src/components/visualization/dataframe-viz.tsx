@@ -25,7 +25,6 @@ import {
 
 import { type z } from "zod";
 import { explorerConfig } from "~/types/data";
-import { matchesDateFilter } from "~/lib/time";
 import { Input } from "../ui/input";
 import { Checkbox } from "../ui/checkbox";
 import { Button } from "../ui/button";
@@ -214,17 +213,16 @@ const DataFrameViz = ({
         <LinePlot
           title={selectedTest?.name ?? "Untitled Test"}
           lines={
-            measurements
-              .map((measurement) => {
-                if (measurement.data.type === "dataframe") {
-                  return {
-                    x: measurement.data.dataframe.x ?? [],
-                    y: measurement.data.dataframe.y ?? [],
-                    name: measurement.device.name,
-                  };
-                }
-                return { x: [], y: [], name: "" };
-              }) ?? []
+            measurements.map((measurement) => {
+              if (measurement.data.type === "dataframe") {
+                return {
+                  x: measurement.data.dataframe.x ?? [],
+                  y: measurement.data.dataframe.y ?? [],
+                  name: measurement.device.name,
+                };
+              }
+              return { x: [], y: [], name: "" };
+            }) ?? []
           }
           config={config}
           onTraceClick={(e) => {

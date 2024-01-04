@@ -16,9 +16,6 @@ import { TestCombobox } from "./test-combobox";
 import BooleanViz from "~/components/visualization/boolean-viz";
 import DataFrameViz from "~/components/visualization/dataframe-viz";
 import { useState } from "react";
-import { DatePicker } from "~/components/ui/date-picker";
-import { Label } from "~/components/ui/label";
-import { matchesDateFilter } from "~/lib/time";
 import { DateTimeRangePicker } from "~/components/date-time-range-picker";
 import { type DateRange } from "react-day-picker";
 
@@ -35,15 +32,21 @@ const ExplorerVisualization = ({ tests }: Props) => {
   const [date, setDate] = useState<DateRange | undefined>(undefined);
 
   const { data: measurements } =
-    api.measurement.getAllMeasurementsByTestId.useQuery({
-      testId: selectedTest?.id ?? "",
-    });
+    api.measurement.getAllMeasurementsByTestId.useQuery(
+      {
+        testId: selectedTest?.id ?? "",
+        startDate: date?.from,
+        endDate: date?.to,
+      },
+      {
+        queryKey: ["measurements", selectedTest?.id, date],
+        keepPreviousData: true,
+      },
+    );
 
   const everythingSelected = selectedTest !== undefined;
 
   if (!measurements) return null;
-
-  const showingMeasurements = measurements.filter(matchesDateFilter(date));
 
   return (
     <div className="flex flex-col gap-4">
@@ -76,13 +79,13 @@ const ExplorerVisualization = ({ tests }: Props) => {
 
       {selectedTest?.measurementType === "boolean" ? (
         <BooleanViz
-          measurements={showingMeasurements}
+          measurements={measurements}
           selectedTest={selectedTest}
           everythingSelected={everythingSelected}
         />
       ) : selectedTest?.measurementType === "dataframe" ? (
         <DataFrameViz
-          measurements={showingMeasurements}
+          measurements={measurements}
           selectedTest={selectedTest}
           everythingSelected={everythingSelected}
         />
