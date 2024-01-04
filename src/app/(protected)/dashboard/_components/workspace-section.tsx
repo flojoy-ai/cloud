@@ -21,13 +21,13 @@ export default async function WorkspaceSection({ workspace }: Props) {
     <div>
       <div className="flex items-center gap-2">
         <Label className="text-2xl">{workspace.name}</Label>
+        {/* <Label className="text-muted-foreground">{workspace.id}</Label> */}
         <Badge>{workspace.planType} plan</Badge>
-        <Label className="text-muted-foreground">{workspace.id}</Label>
         <div className="grow"></div>
         <Button asChild size="sm" variant="secondary">
           <Link href={`/workspace/${workspace.id}/general`} className="gap-2">
             <Settings size="16" />
-            Configure Workspace
+            <div className="hidden md:block">Configure Workspace</div>
           </Link>
         </Button>
       </div>
