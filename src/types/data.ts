@@ -96,6 +96,8 @@ const dataframeExplorerSchema = z.object({
   logScaleYAxis: z.boolean().optional(),
   errorBars: z.boolean().optional(),
   errorPercentage: z.number().min(0).optional(),
+  xColumn: z.string().optional(),
+  yColumn: z.string().optional(),
 });
 
 export const explorerConfig = {

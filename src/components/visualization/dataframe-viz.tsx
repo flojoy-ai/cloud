@@ -30,6 +30,13 @@ import { Checkbox } from "../ui/checkbox";
 import { Button } from "../ui/button";
 import { useState } from "react";
 import { type SelectDevice } from "~/types/device";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 type Props = {
   measurements: (SelectMeasurement & { device: SelectDevice })[];
@@ -44,8 +51,16 @@ const DataFrameViz = ({
   selectedTest,
   everythingSelected,
 }: Props) => {
+  const columnNames =
+    measurements[0] && measurements[0].data.type === "dataframe"
+      ? Object.keys(measurements[0].data.dataframe)
+      : [];
   const form = useForm<FormSchema>({
     resolver: zodResolver(explorerConfig.dataframe),
+    defaultValues: {
+      xColumn: columnNames[0],
+      yColumn: columnNames[1],
+    },
   });
 
   const router = useRouter();
@@ -66,6 +81,60 @@ const DataFrameViz = ({
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardContent>
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                <FormField
+                  control={form.control}
+                  name="xColumn"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>X Column</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="X Column" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {columnNames.map((name) => (
+                            <SelectItem key={name} value={name}>
+                              {name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="yColumn"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Y Column</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Y Column" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {columnNames.map((name) => (
+                            <SelectItem key={name} value={name}>
+                              {name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="upperControlLimit"
@@ -108,7 +177,6 @@ const DataFrameViz = ({
                     </FormItem>
                   )}
                 />
-                <div></div>
                 <FormField
                   control={form.control}
                   name="upperControlLimitTransform"
@@ -216,8 +284,12 @@ const DataFrameViz = ({
             measurements.map((measurement) => {
               if (measurement.data.type === "dataframe") {
                 return {
-                  x: measurement.data.dataframe.x ?? [],
-                  y: measurement.data.dataframe.y ?? [],
+                  x: config.xColumn
+                    ? measurement.data.dataframe[config.xColumn] ?? []
+                    : [],
+                  y: config.yColumn
+                    ? measurement.data.dataframe[config.yColumn] ?? []
+                    : [],
                   name: measurement.device.name,
                 };
               }
