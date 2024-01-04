@@ -20,14 +20,13 @@ export default async function Project({
 
   const sidebarNavItems = [
     {
-      title: "Tests",
-      href: `/project/${params.projectId}/tests`,
-    },
-    {
       title: "Devices",
       href: `/project/${params.projectId}/devices`,
     },
-
+    {
+      title: "Tests",
+      href: `/project/${params.projectId}/tests`,
+    },
     {
       title: "Explorer",
       href: `/project/${params.projectId}/explorer`,
