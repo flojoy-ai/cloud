@@ -1,5 +1,5 @@
 {
-  "id": "9537d985-90b8-446d-b492-7d090ec56f16",
+  "id": "61f02a00-0824-4d96-aa0e-802edca1172d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -293,8 +293,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "project_id": {
-          "name": "project_id",
+        "workspace_id": {
+          "name": "workspace_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -315,12 +315,12 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "cloud_secret_project_id_cloud_project_id_fk": {
-          "name": "cloud_secret_project_id_cloud_project_id_fk",
+        "cloud_secret_workspace_id_cloud_workspace_id_fk": {
+          "name": "cloud_secret_workspace_id_cloud_workspace_id_fk",
           "tableFrom": "cloud_secret",
-          "tableTo": "cloud_project",
+          "tableTo": "cloud_workspace",
           "columnsFrom": [
-            "project_id"
+            "workspace_id"
           ],
           "columnsTo": [
             "id"
@@ -331,12 +331,12 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "cloud_secret_user_id_project_id_unique": {
-          "name": "cloud_secret_user_id_project_id_unique",
+        "cloud_secret_user_id_workspace_id_unique": {
+          "name": "cloud_secret_user_id_workspace_id_unique",
           "nullsNotDistinct": false,
           "columns": [
             "user_id",
-            "project_id"
+            "workspace_id"
           ]
         }
       }
