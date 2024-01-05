@@ -6,7 +6,6 @@ import { cookies } from "next/headers";
 import { Toaster } from "~/components/ui/sonner";
 
 import { TRPCReactProvider } from "~/trpc/react";
-import { SiteHeader } from "~/components/site-header";
 import { ThemeProvider } from "~/components/theme-provider";
 import { TailwindIndicator } from "~/components/tailwind-indicator";
 
@@ -36,7 +35,6 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <SiteHeader />
             <main>{children}</main>
             <Toaster />
             <TailwindIndicator />
