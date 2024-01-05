@@ -4,9 +4,10 @@ import { api } from "~/trpc/server";
 
 type Props = {
   project: SelectProject;
+  workspaceId: string;
 };
 
-const AllDevices = async ({ project }: Props) => {
+const AllDevices = async ({ project, workspaceId }: Props) => {
   const devices = await api.device.getAllDevicesByProjectId.query({
     projectId: project.id,
   });
@@ -20,7 +21,11 @@ const AllDevices = async ({ project }: Props) => {
       )}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {devices.map((device) => (
-          <DeviceCard device={device} key={device.id} />
+          <DeviceCard
+            device={device}
+            key={device.id}
+            workspaceId={workspaceId}
+          />
         ))}
       </div>
     </div>

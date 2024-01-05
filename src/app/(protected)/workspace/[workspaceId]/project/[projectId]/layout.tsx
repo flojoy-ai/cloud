@@ -11,7 +11,7 @@ export default async function Project({
   params,
   children,
 }: {
-  params: { projectId: string };
+  params: { projectId: string; workspaceId: string };
   children: ReactNode;
 }) {
   const project = await api.project.getProjectById.query({
@@ -21,25 +21,24 @@ export default async function Project({
   const sidebarNavItems = [
     {
       title: "Devices",
-      href: `/project/${params.projectId}/devices`,
+      href: `/workspace/${params.workspaceId}/project/${params.projectId}/devices`,
     },
     {
       title: "Tests",
-      href: `/project/${params.projectId}/tests`,
+      href: `/workspace/${params.workspaceId}/project/${params.projectId}/tests`,
     },
     {
       title: "Explorer",
-      href: `/project/${params.projectId}/explorer`,
+      href: `/workspace/${params.workspaceId}/project/${params.projectId}/explorer`,
     },
 
     {
       title: "Upload",
-      href: `/project/${params.projectId}/upload/python`,
+      href: `/workspace/${params.workspaceId}/project/${params.projectId}/upload/python`,
     },
-
     {
       title: "Settings",
-      href: `/project/${params.projectId}/settings/general`,
+      href: `/workspace/${params.workspaceId}/project/${params.projectId}/settings/general`,
     },
   ];
 

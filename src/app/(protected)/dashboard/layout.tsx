@@ -1,7 +1,7 @@
 import { auth } from "~/auth/lucia";
 import * as context from "next/headers";
 import { redirect } from "next/navigation";
-import { ProtectedHeader } from "~/components/protected-header";
+import { SiteHeader } from "~/components/site-header";
 
 export default async function ProtectedLayout({
   children,
@@ -17,7 +17,7 @@ export default async function ProtectedLayout({
 
   return (
     <>
-      <ProtectedHeader />
+      <SiteHeader />
       {children}
     </>
   );

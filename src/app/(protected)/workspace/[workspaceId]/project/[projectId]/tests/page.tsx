@@ -3,7 +3,11 @@ import AllTests from "./_components/all-tests";
 import { api } from "~/trpc/server";
 import { Separator } from "~/components/ui/separator";
 
-const TestsView = async ({ params }: { params: { projectId: string } }) => {
+const TestsView = async ({
+  params,
+}: {
+  params: { projectId: string; workspaceId: string };
+}) => {
   const project = await api.project.getProjectById.query({
     projectId: params.projectId,
   });
@@ -18,7 +22,7 @@ const TestsView = async ({ params }: { params: { projectId: string } }) => {
       <Separator className="my-6" />
       <CreateTest project={project} />
       <div className="py-2"></div>
-      <AllTests project={project} />
+      <AllTests project={project} workspaceId={params.workspaceId} />
     </div>
   );
 };

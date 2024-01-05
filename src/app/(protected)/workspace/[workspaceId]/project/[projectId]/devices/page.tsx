@@ -3,7 +3,11 @@ import CreateDevice from "./_components/create-device";
 import AllDevices from "./_components/all-devices";
 import { Separator } from "~/components/ui/separator";
 
-const DevicesView = async ({ params }: { params: { projectId: string } }) => {
+const DevicesView = async ({
+  params,
+}: {
+  params: { projectId: string; workspaceId: string };
+}) => {
   const project = await api.project.getProjectById.query({
     projectId: params.projectId,
   });
@@ -20,7 +24,7 @@ const DevicesView = async ({ params }: { params: { projectId: string } }) => {
       <Separator className="my-6" />
       <CreateDevice project={project} />
       <div className="py-2"></div>
-      <AllDevices project={project} />
+      <AllDevices project={project} workspaceId={params.workspaceId} />
     </div>
   );
 };

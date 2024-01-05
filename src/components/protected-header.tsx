@@ -9,15 +9,22 @@ import { auth } from "~/auth/lucia";
 import * as context from "next/headers";
 import Form from "./form";
 import { ProtectedNav } from "./protected-nav";
+import { api } from "~/trpc/server";
 
-export async function ProtectedHeader() {
+type Props = {
+  workspaceId: string;
+};
+
+export async function ProtectedHeader({ workspaceId }: Props) {
   const authRequest = auth.handleRequest("GET", context);
   const session = await authRequest.validate();
+
+  const workspaces = await api.workspace.getAllWorkspaces.query();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
-        <ProtectedNav />
+        <ProtectedNav workspaces={workspaces} workspaceId={workspaceId} />
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <nav className="flex items-center">
             {!session ? (

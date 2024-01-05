@@ -1,6 +1,5 @@
-import { type SelectTest } from "~/types/test";
-
 import Link from "next/link";
+import { Badge } from "~/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -10,32 +9,30 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { getPrettyTime } from "~/lib/time";
-import { Badge } from "~/components/ui/badge";
+import { type SelectWorkspace } from "~/types/workspace";
 
 type Props = {
-  test: SelectTest;
+  workspace: SelectWorkspace;
 };
 
-const TestCard = ({ test }: Props) => {
+export default async function WorkspaceCard({ workspace }: Props) {
   return (
-    <Link href={`/test/${test.id}`}>
+    <Link href={`/workspace/${workspace.id}`}>
       <Card className="transition-all duration-300 hover:bg-secondary/80">
         <CardHeader>
-          <CardTitle>{test.name}</CardTitle>
-          <CardDescription>{test.id}</CardDescription>
+          <CardTitle>{workspace.name}</CardTitle>
+          <CardDescription>{workspace.id}</CardDescription>
         </CardHeader>
         <CardContent>
-          <Badge>{test.measurementType}</Badge>
+          <Badge>{workspace.planType}</Badge>
         </CardContent>
         <CardFooter>
           <div>
             Last updated:{" "}
-            {test.updatedAt ? getPrettyTime(test.updatedAt) : "Never"}
+            {workspace.updatedAt ? getPrettyTime(workspace.updatedAt) : "Never"}
           </div>
         </CardFooter>
       </Card>
     </Link>
   );
-};
-
-export default TestCard;
+}
