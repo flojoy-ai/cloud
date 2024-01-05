@@ -35,6 +35,7 @@ type Props = {
   measurements: (SelectMeasurement & { device: SelectDevice })[];
   selectedTest: SelectTest;
   everythingSelected: boolean;
+  workspaceId: string;
 };
 
 type FormSchema = z.infer<typeof explorerConfig.dataframe>;
@@ -43,6 +44,7 @@ const DataFrameViz = ({
   measurements,
   selectedTest,
   everythingSelected,
+  workspaceId,
 }: Props) => {
   const form = useForm<FormSchema>({
     resolver: zodResolver(explorerConfig.dataframe),
@@ -234,7 +236,9 @@ const DataFrameViz = ({
             if (!measurement) {
               return;
             }
-            router.push(`/device/${measurement.deviceId}`);
+            router.push(
+              `/workspace/${workspaceId}/device/${measurement.deviceId}`,
+            );
           }}
         />
       )}

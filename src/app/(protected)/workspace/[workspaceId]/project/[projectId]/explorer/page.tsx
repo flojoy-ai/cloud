@@ -1,7 +1,11 @@
 import { api } from "~/trpc/server";
 import ExplorerVisualization from "./_components/explorer-visualization";
 
-const ExplorerView = async ({ params }: { params: { projectId: string } }) => {
+const ExplorerView = async ({
+  params,
+}: {
+  params: { projectId: string; workspaceId: string };
+}) => {
   const project = await api.project.getProjectById.query({
     projectId: params.projectId,
   });
@@ -11,7 +15,7 @@ const ExplorerView = async ({ params }: { params: { projectId: string } }) => {
 
   return (
     <div>
-      <ExplorerVisualization tests={tests} />
+      <ExplorerVisualization tests={tests} workspaceId={params.workspaceId} />
     </div>
   );
 };

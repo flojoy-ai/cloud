@@ -21,9 +21,10 @@ import { type DateRange } from "react-day-picker";
 
 type Props = {
   tests: SelectTest[];
+  workspaceId: string;
 };
 
-const ExplorerVisualization = ({ tests }: Props) => {
+const ExplorerVisualization = ({ tests, workspaceId }: Props) => {
   const { selectedTest } = useExplorerStore(
     useShallow((state) => ({
       selectedTest: state.selectedTest,
@@ -87,12 +88,14 @@ const ExplorerVisualization = ({ tests }: Props) => {
           measurements={measurements}
           selectedTest={selectedTest}
           everythingSelected={everythingSelected}
+          workspaceId={workspaceId}
         />
       ) : selectedTest?.measurementType === "dataframe" ? (
         <DataFrameViz
           measurements={measurements}
           selectedTest={selectedTest}
           everythingSelected={everythingSelected}
+          workspaceId={workspaceId}
         />
       ) : null}
     </div>
