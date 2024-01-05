@@ -14,7 +14,7 @@ import _ from "lodash";
 import { usePlotLayout } from "~/hooks/use-plot-layout";
 
 type Line = {
-  x: number[];
+  x: number[] | string[];
   y: number[];
   name: string;
 };

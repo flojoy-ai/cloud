@@ -67,11 +67,35 @@ const DataFrameViz = ({
     // },
   });
 
+  const validateYColumn = (val: string) => {
+    const meas = measurements[0];
+    if (!meas) {
+      return true;
+    }
+    if (meas.data.type !== "dataframe") {
+      return "Measurements aren't dataframes, this shouldn't happen";
+    }
+    const data = meas.data.dataframe[val];
+    if (data === undefined) {
+      return "Invalid column";
+    }
+    if (typeof data[0] !== "number") {
+      return "Y data must be numeric";
+    }
+    return true;
+  };
+
   const router = useRouter();
 
   const [config, setConfig] = useState<FormSchema>(form.getValues());
 
   const onSubmit: SubmitHandler<FormSchema> = (vals) => {
+    const res = validateYColumn(vals.yColumn);
+    if (res !== true) {
+      form.setError("yColumn", { type: "custom", message: res });
+      return;
+    }
+
     setConfig(vals);
   };
 
@@ -122,8 +146,8 @@ const DataFrameViz = ({
                     <FormItem>
                       <FormLabel>Y Column</FormLabel>
                       <Select
-                        onValueChange={field.onChange}
                         defaultValue={field.value}
+                        onValueChange={field.onChange}
                       >
                         <FormControl>
                           <SelectTrigger className="w-[180px]">
@@ -319,7 +343,9 @@ const DataFrameViz = ({
                     ? measurement.data.dataframe[config.xColumn] ?? []
                     : [],
                   y: config.yColumn
-                    ? measurement.data.dataframe[config.yColumn] ?? []
+                    ? (measurement.data.dataframe[
+                        config.yColumn
+                      ] as number[]) ?? []
                     : [],
                   name: measurement.device.name,
                 };
