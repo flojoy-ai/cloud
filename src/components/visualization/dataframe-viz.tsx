@@ -55,12 +55,16 @@ const DataFrameViz = ({
     measurements[0] && measurements[0].data.type === "dataframe"
       ? Object.keys(measurements[0].data.dataframe)
       : [];
+  console.log(columnNames);
   const form = useForm<FormSchema>({
     resolver: zodResolver(explorerConfig.dataframe),
     defaultValues: {
-      xColumn: columnNames[0],
-      yColumn: columnNames[1],
+      mode: "lines",
     },
+    // defaultValues: {
+    //   xColumn: columnNames[0],
+    //   yColumn: columnNames[1],
+    // },
   });
 
   const router = useRouter();
@@ -93,7 +97,10 @@ const DataFrameViz = ({
                       >
                         <FormControl>
                           <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="X Column" />
+                            <SelectValue
+                              placeholder="X Column"
+                              className="text-muted-foreground"
+                            />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -129,6 +136,30 @@ const DataFrameViz = ({
                               {name}
                             </SelectItem>
                           ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="mode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mode</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Mode" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="lines">Line</SelectItem>
+                          <SelectItem value="markers">Scatter</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />

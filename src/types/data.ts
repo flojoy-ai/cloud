@@ -15,7 +15,7 @@ const dataframeDataSchema = {
   dataframe: z.record(
     z.string(),
     // TODO: technically the array can also contain nulls
-    z.number().array(),
+    z.union([z.number().array(), z.string().array()]),
   ),
 };
 
@@ -96,8 +96,9 @@ const dataframeExplorerSchema = z.object({
   logScaleYAxis: z.boolean().optional(),
   errorBars: z.boolean().optional(),
   errorPercentage: z.number().min(0).optional(),
-  xColumn: z.string().optional(),
-  yColumn: z.string().optional(),
+  xColumn: z.string(),
+  yColumn: z.string(),
+  mode: z.union([z.literal("lines"), z.literal("markers")]),
 });
 
 export const explorerConfig = {

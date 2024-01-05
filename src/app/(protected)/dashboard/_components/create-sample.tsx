@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
+import { getPsdData, getSampleData } from "~/lib/sample-data";
 import { api } from "~/trpc/react";
 
 const CreateSample = () => {
@@ -16,6 +17,28 @@ const CreateSample = () => {
   const devicesCreate = api.device.createDevices.useMutation();
   const testCreate = api.test.createTest.useMutation();
   const measurementsCreate = api.measurement.createMeasurements.useMutation();
+
+  getSampleData("/current.csv")
+    .then((data) => {
+      console.log("Current data:", data);
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+  getSampleData("/psd.csv")
+    .then((data) => {
+      console.log("Current data:", data);
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+  getSampleData("/atten.csv")
+    .then((data) => {
+      console.log("Current data:", data);
+    })
+    .catch((err) => {
+      console.error(err);
+    });
 
   const createId = init({
     random: Math.random,
@@ -46,11 +69,11 @@ const CreateSample = () => {
     });
 
     // boolean example
-    const booleanTest = await testCreate.mutateAsync({
-      name: "Pass/Fail Test",
-      projectId: project.id,
-      measurementType: "boolean",
-    });
+    // const booleanTest = await testCreate.mutateAsync({
+    //   name: "Pass/Fail Test",
+    //   projectId: project.id,
+    //   measurementType: "boolean",
+    // });
 
     const devices = await devicesCreate.mutateAsync(
       _.times(9, (i) => ({
@@ -59,40 +82,157 @@ const CreateSample = () => {
       })),
     );
 
+    // await measurementsCreate.mutateAsync(
+    //   devices.map((device, i) => ({
+    //     name: "Did Power On",
+    //     deviceId: device.id,
+    //     testId: booleanTest.id,
+    //     measurementType: "boolean",
+    //     createdAt: new Date(new Date().getTime() + i * 20000),
+    //     data: { type: "boolean", passed: Math.random() < 0.8 },
+    //   })),
+    // );
+
+    // dataframe example
+    // const dataframeTest = await testCreate.mutateAsync({
+    //   name: "Expected vs Measured",
+    //   projectId: project.id,
+    //   measurementType: "dataframe",
+    // });
+    //
+    // await measurementsCreate.mutateAsync(
+    //   devices.map((device, i) => ({
+    //     name: "Data Point",
+    //     deviceId: device.id,
+    //     testId: dataframeTest.id,
+    //     measurementType: "dataframe",
+    //     createdAt: new Date(new Date().getTime() + i * 20000),
+    //     data: {
+    //       type: "dataframe",
+    //       dataframe: {
+    //         x: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    //         y: generateRandomNumbers(),
+    //       },
+    //     },
+    //   })),
+    // );
+
+    const currentTest = await testCreate.mutateAsync({
+      name: "Expected vs Measured Current",
+      projectId: project.id,
+      measurementType: "dataframe",
+    });
+
+    const currentData = (await getSampleData("/current.csv")) as Record<
+      string,
+      number[] | string[]
+    >;
+
+    await measurementsCreate.mutateAsync([
+      {
+        name: "Current values",
+        deviceId: devices[0]!.id,
+        testId: currentTest.id,
+        measurementType: "dataframe",
+        createdAt: new Date(),
+        data: {
+          type: "dataframe",
+          dataframe: currentData,
+        },
+      },
+    ]);
+
+    const psdData = await getPsdData();
+
+    const psdDevices = await devicesCreate.mutateAsync(
+      psdData.deviceNames.map((name) => ({
+        name,
+        projectId: project.id,
+      })),
+    );
+
+    const psdPassFailTest = await testCreate.mutateAsync({
+      name: "PSD (Pass/Fail)",
+      projectId: project.id,
+      measurementType: "boolean",
+    });
+
+    await measurementsCreate.mutateAsync(
+      _.zip(psdDevices, psdData.passFail, _.range(psdDevices.length)).map(
+        ([device, pass, i]) => ({
+          name: "PSD Data Point",
+          deviceId: device!.id,
+          testId: psdPassFailTest.id,
+          measurementType: "dataframe",
+          createdAt: new Date(new Date().getTime() + i! * 20000),
+          data: {
+            type: "boolean",
+            passed: pass!,
+          },
+        }),
+      ),
+    );
+
+    const psdTest = await testCreate.mutateAsync({
+      name: "PSD",
+      projectId: project.id,
+      measurementType: "dataframe",
+    });
+
+    await measurementsCreate.mutateAsync(
+      _.zip(psdDevices, psdData.y, _.range(psdDevices.length)).map(
+        ([device, y, i]) => ({
+          name: "PSD Data Point",
+          deviceId: device!.id,
+          testId: psdTest.id,
+          measurementType: "dataframe",
+          createdAt: new Date(new Date().getTime() + i! * 20000),
+          data: {
+            type: "dataframe",
+            dataframe: {
+              Frequency: psdData.x,
+              "dB/Hz": y!,
+            },
+          },
+        }),
+      ),
+    );
+
     await measurementsCreate.mutateAsync(
       devices.map((device, i) => ({
-        name: "Did Power On",
+        name: "PSD",
         deviceId: device.id,
-        testId: booleanTest.id,
+        testId: psdPassFailTest.id,
         measurementType: "boolean",
         createdAt: new Date(new Date().getTime() + i * 20000),
         data: { type: "boolean", passed: Math.random() < 0.8 },
       })),
     );
 
-    // dataframe example
-    const dataframeTest = await testCreate.mutateAsync({
-      name: "Expected vs Measured",
+    const attenuationData = (await getSampleData("/atten.csv")) as Record<
+      string,
+      number[] | string[]
+    >;
+
+    const attenuationTest = await testCreate.mutateAsync({
+      name: "Expected vs Measured Attenuation",
       projectId: project.id,
       measurementType: "dataframe",
     });
 
-    await measurementsCreate.mutateAsync(
-      devices.map((device, i) => ({
-        name: "Data Point",
-        deviceId: device.id,
-        testId: dataframeTest.id,
+    await measurementsCreate.mutateAsync([
+      {
+        name: "Attenuation values",
+        deviceId: devices[0]!.id,
+        testId: attenuationTest.id,
         measurementType: "dataframe",
-        createdAt: new Date(new Date().getTime() + i * 20000),
+        createdAt: new Date(),
         data: {
           type: "dataframe",
-          dataframe: {
-            x: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-            y: generateRandomNumbers(),
-          },
+          dataframe: attenuationData,
         },
-      })),
-    );
+      },
+    ]);
 
     router.refresh();
     setIsCreating(false);

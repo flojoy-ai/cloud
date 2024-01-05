@@ -100,7 +100,7 @@ const LinePlot = ({ lines, title, config, onTraceClick }: Props) => {
 
       traces.push({
         type: "scatter",
-        mode: "lines",
+        mode: config.mode,
         x: line.x,
         y: yTransform
           ? line.y.map((y) => yTransform.evaluate({ y }) as number)
@@ -128,6 +128,7 @@ const LinePlot = ({ lines, title, config, onTraceClick }: Props) => {
     config.errorPercentage,
     config.errorBars,
     config.yTransform,
+    config.mode,
   ]);
 
   const [minX, setMinX] = useState<number>(0);
@@ -179,7 +180,11 @@ const LinePlot = ({ lines, title, config, onTraceClick }: Props) => {
 
     return _.merge(layoutBase, {
       title,
+      xaxis: {
+        title: config.xColumn,
+      },
       yaxis: {
+        title: config.yColumn,
         type: config.logScaleYAxis ? "log" : "linear",
       },
       shapes,
@@ -195,7 +200,8 @@ const LinePlot = ({ lines, title, config, onTraceClick }: Props) => {
   return (
     <Plot
       data={[...traces, ...extraTraces]}
-      className="h-[512px] w-full"
+      className="h-[640px] w-full"
+      frames={[]}
       config={{ responsive: true }}
       layout={layout}
       onHover={handleHover}
