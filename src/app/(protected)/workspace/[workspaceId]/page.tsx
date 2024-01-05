@@ -36,7 +36,7 @@ export default async function Page({
         <NewProject workspace={workspace} />
         <Button asChild size="sm" variant="secondary">
           <Link href={`/workspace/${workspace.id}/settings/general`}>
-            <div className="hidden md:block">Configure Workspace</div>
+            <div className="">Configure Workspace</div>
           </Link>
         </Button>
       </div>
