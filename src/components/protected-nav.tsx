@@ -139,7 +139,7 @@ export function ProtectedNav({ workspaces, workspaceId }: Props) {
           href={`/workspace/${workspaceId}`}
           className={cn(
             "transition-colors hover:text-foreground/80",
-            pathname?.startsWith(`/workspace/${workspaceId}`)
+            pathname === `/workspace/${workspaceId}`
               ? "text-foreground"
               : "text-foreground/60",
           )}
