@@ -8,14 +8,16 @@ import {
 } from "~/components/ui/card";
 import { getPrettyTime } from "~/lib/time";
 import { type SelectProject } from "~/types/project";
+import { type SelectWorkspace } from "~/types/workspace";
 
 type Props = {
   project: SelectProject;
+  workspace: SelectWorkspace;
 };
 
-export default async function ProjectCard({ project }: Props) {
+export default async function ProjectCard({ project, workspace }: Props) {
   return (
-    <Link href={`/project/${project.id}/devices`}>
+    <Link href={`/workspace/${workspace.id}/project/${project.id}/devices`}>
       <Card className="transition-all duration-300 hover:bg-secondary/80">
         <CardHeader>
           <CardTitle>{project.name}</CardTitle>

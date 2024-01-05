@@ -1,7 +1,4 @@
-"use client";
-
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { toast } from "sonner";
 
 import {
@@ -25,32 +22,35 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
 
 import { api } from "~/trpc/react";
-import { insertWorkspaceSchema } from "~/types/workspace";
+import { publicInsertWorkspaceSchema } from "~/types/workspace";
 import { type z } from "zod";
 
-export default function NewWorkspace() {
+type Props = {
+  isDialogOpen: boolean;
+  setIsDialogOpen: (isOpen: boolean) => void;
+};
+
+export default function NewWorkspace({ isDialogOpen, setIsDialogOpen }: Props) {
   const router = useRouter();
 
-  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-
   const createWorkspace = api.workspace.createWorkspace.useMutation({
-    onSuccess: () => {
-      router.refresh();
+    onSuccess: (data) => {
+      router.push(`/workspace/${data.id}`);
       setIsDialogOpen(false);
     },
   });
 
-  const form = useForm<z.infer<typeof insertWorkspaceSchema>>({
-    resolver: zodResolver(insertWorkspaceSchema),
+  const form = useForm<z.infer<typeof publicInsertWorkspaceSchema>>({
+    resolver: zodResolver(publicInsertWorkspaceSchema),
     defaultValues: {},
   });
 
-  function onSubmit(values: z.infer<typeof insertWorkspaceSchema>) {
+  function onSubmit(values: z.infer<typeof publicInsertWorkspaceSchema>) {
+    console.log(values);
     toast.promise(
       createWorkspace.mutateAsync({
         ...values,
@@ -65,11 +65,6 @@ export default function NewWorkspace() {
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={(open) => setIsDialogOpen(open)}>
-      <DialogTrigger asChild>
-        <Button variant="secondary" size="sm">
-          New Workspace
-        </Button>
-      </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Create your new workspace</DialogTitle>

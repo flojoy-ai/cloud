@@ -30,26 +30,17 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
 import { Input } from "~/components/ui/input";
 import { api } from "~/trpc/react";
 import { type SelectWorkspace } from "~/types/workspace";
 import { type z } from "zod";
 
 type Props = {
-  workspaces: SelectWorkspace[];
+  workspace: SelectWorkspace;
 };
 
-export default function NewProjectButton({ workspaces }: Props) {
+export default function NewProjectButton({ workspace }: Props) {
   const router = useRouter();
-  const [selectedWorkspace, setSelectedWorkspace] = useState<string>("");
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
   const createProject = api.project.createProject.useMutation({
@@ -62,7 +53,7 @@ export default function NewProjectButton({ workspaces }: Props) {
   const form = useForm<z.infer<typeof insertProjectSchema>>({
     resolver: zodResolver(insertProjectSchema),
     defaultValues: {
-      workspaceId: selectedWorkspace,
+      workspaceId: workspace.id,
     },
   });
 
@@ -81,39 +72,15 @@ export default function NewProjectButton({ workspaces }: Props) {
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="default" size="sm">
-            New Project
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56">
-          <DropdownMenuLabel>Choose a workspace</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          {workspaces.map((workspace) => (
-            <DropdownMenuItem
-              key={workspace.id}
-              onSelect={() => {
-                setSelectedWorkspace(workspace.id);
-                setIsDialogOpen(true);
-              }}
-            >
-              {workspace.name}
-            </DropdownMenuItem>
-          ))}
-          {workspaces.length === 0 && (
-            <DropdownMenuItem>
-              No workspace found, you must to create one first!
-            </DropdownMenuItem>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
-
       <Dialog
         open={isDialogOpen}
         onOpenChange={(open) => setIsDialogOpen(open)}
       >
-        <DialogTrigger asChild></DialogTrigger>
+        <DialogTrigger asChild>
+          <Button variant="default" size="sm">
+            New Project
+          </Button>
+        </DialogTrigger>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Create your new project</DialogTitle>

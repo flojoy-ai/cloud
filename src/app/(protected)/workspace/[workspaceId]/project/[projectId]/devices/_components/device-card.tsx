@@ -11,11 +11,12 @@ import { type SelectDevice } from "~/types/device";
 
 type Props = {
   device: SelectDevice;
+  workspaceId: string;
 };
 
-const DeviceCard = ({ device }: Props) => {
+const DeviceCard = ({ device, workspaceId }: Props) => {
   return (
-    <Link href={`/device/${device.id}`}>
+    <Link href={`/workspace/${workspaceId}/device/${device.id}`}>
       <Card className="transition-all duration-300 hover:bg-secondary/80">
         <CardHeader>
           <CardTitle>{device.name}</CardTitle>

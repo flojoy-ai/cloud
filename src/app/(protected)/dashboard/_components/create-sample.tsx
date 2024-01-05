@@ -60,7 +60,7 @@ const CreateSample = () => {
   const createSample = async () => {
     setIsCreating(true);
     const workspace = await workspaceCreate.mutateAsync({
-      name: "Sample Workspace" + createId(),
+      name: "Sample Workspace " + createId(),
     });
 
     const project = await projectCreate.mutateAsync({
@@ -242,10 +242,10 @@ const CreateSample = () => {
     <Button
       size="sm"
       disabled={isCreating}
-      variant="outline"
+      variant="secondary"
       onClick={() =>
         toast.promise(createSample, {
-          loading: "Creating your sample workspace + project...",
+          loading: "Creating your sample workspace...",
           success: "The sample is ready!",
           error: (err) => {
             console.log(err);
@@ -255,7 +255,7 @@ const CreateSample = () => {
         })
       }
     >
-      Create a Sample Workspace + Project
+      Create a Sample Workspace
     </Button>
   );
 };

@@ -1,6 +1,7 @@
 import { auth } from "~/auth/lucia";
 import * as context from "next/headers";
 import { redirect } from "next/navigation";
+import { SiteHeader } from "~/components/site-header";
 
 export default async function ProtectedLayout({
   children,
@@ -14,5 +15,10 @@ export default async function ProtectedLayout({
     redirect("/login");
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      <SiteHeader />
+      {children}
+    </>
+  );
 }

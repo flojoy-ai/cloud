@@ -60,6 +60,7 @@
     "drizzle-zod": "^0.5.1",
     "framer-motion": "^10.17.6",
     "immer": "^10.0.3",
+    "jose": "^5.2.0",
     "lodash": "^4.17.21",
     "lucia": "^2.7.6",
     "lucide-react": "^0.303.0",

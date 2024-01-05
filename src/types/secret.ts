@@ -6,7 +6,7 @@ export type InsertSecret = typeof secret.$inferSelect;
 
 export const insertSecretSchema = createInsertSchema(secret);
 export const publicInsertSecretSchema = insertSecretSchema.pick({
-  projectId: true,
+  workspaceId: true,
 });
 
 export const selectSecretSchema = createSelectSchema(secret);
