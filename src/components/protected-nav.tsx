@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { siteConfig } from "~/config/site";
 import { cn } from "~/lib/utils";
@@ -36,6 +36,7 @@ type Props = {
 
 export function ProtectedNav({ workspaces, workspaceId }: Props) {
   const router = useRouter();
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [showNewWorkspaceDialog, setShowNewWorkspaceDialog] = useState(false);
 
@@ -133,6 +134,29 @@ export function ProtectedNav({ workspaces, workspaceId }: Props) {
             </Command>
           </PopoverContent>
         </Popover>
+
+        <Link
+          href={`/workspace/${workspaceId}`}
+          className={cn(
+            "transition-colors hover:text-foreground/80",
+            pathname?.startsWith(`/workspace/${workspaceId}`)
+              ? "text-foreground"
+              : "text-foreground/60",
+          )}
+        >
+          Projects
+        </Link>
+        <Link
+          href={`/workspace/${workspaceId}/device`}
+          className={cn(
+            "transition-colors hover:text-foreground/80",
+            pathname === `/workspace/${workspaceId}/device`
+              ? "text-foreground"
+              : "text-foreground/60",
+          )}
+        >
+          Device Inventory
+        </Link>
       </nav>
     </div>
   );
