@@ -2,6 +2,7 @@ set dotenv-load := true
 set dotenv-filename := ".env.local"
 
 init:
+  vercel link
   vercel env pull
   supabase start
   supabase status
