@@ -1,21 +1,20 @@
-set dotenv-load := true
-set dotenv-filename := ".env.local"
-
 init:
-  vercel link
-  vercel env pull
-  supabase start
-  supabase status
   pnpm install
-  supabase db reset
+
+  pnpm vercel link
+  pnpm vercel env pull
+
+  pnpm supabase start
+  pnpm supabase status
+  pnpm supabase db reset
   pnpm db:push
 
 dev:
   pnpm dev
 
 reset:
-  supabase start
-  supabase db reset
+  pnpm supabase start
+  pnpm supabase db reset
 
 stop:
-  supabase stop
+  pnpm supabase stop
