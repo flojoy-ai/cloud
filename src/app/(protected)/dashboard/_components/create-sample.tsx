@@ -35,6 +35,8 @@ const CreateSample = () => {
   };
 
   const createSample = async () => {
+    // TODO: instead of making multiple requests, combine it to a single one
+    // and use transction to such that we can rollback if something goes wrong
     setIsCreating(true);
     const workspace = await workspaceCreate.mutateAsync({
       name: "Sample Workspace " + createId(),
