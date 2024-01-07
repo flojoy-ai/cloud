@@ -1,7 +1,6 @@
 import { Separator } from "~/components/ui/separator";
 
 const UploadView = async ({ params }: { params: { projectId: string } }) => {
-  console.log(params.projectId);
   return (
     <div className="space-y-6">
       <div>

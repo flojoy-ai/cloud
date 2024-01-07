@@ -108,7 +108,7 @@ const CreateSample = () => {
           loading: "Creating your sample workspace...",
           success: "The sample is ready!",
           error: (err) => {
-            console.log(err);
+            console.error(err);
             setIsCreating(false);
             return "Something went wrong :(";
           },

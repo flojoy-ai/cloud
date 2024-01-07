@@ -36,6 +36,7 @@ const config = {
       "error",
       { allowSingleExtends: true },
     ],
+    "no-console": ["error", { allow: ["warn", "error"] }],
   },
 };
 
