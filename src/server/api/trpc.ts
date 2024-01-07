@@ -17,7 +17,7 @@ import * as context from "next/headers";
 import { type OpenApiMeta } from "trpc-openapi";
 import * as jose from "jose";
 import { env } from "~/env";
-import { secret, workspace_user } from "../db/schema";
+import { secret } from "../db/schema";
 import { and, eq } from "drizzle-orm";
 
 /**
@@ -125,6 +125,7 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
  *
  * @see https://trpc.io/docs/procedures
  */
+
 export const workspaceProcedure = t.procedure.use(async ({ ctx, next }) => {
   const workspaceSecret = ctx.headers.get("Authorization");
 
