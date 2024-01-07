@@ -46,8 +46,6 @@ const ExplorerVisualization = ({ tests, workspaceId }: Props) => {
 
   const everythingSelected = selectedTest !== undefined;
 
-  if (!measurements) return null;
-
   return (
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -76,7 +74,8 @@ const ExplorerVisualization = ({ tests, workspaceId }: Props) => {
           <CardFooter>
             {selectedTest && (
               <div>
-                {measurements.length} measurement(s) found in this time range
+                {measurements?.length ?? 0} measurement(s) found in this time
+                range
               </div>
             )}
           </CardFooter>
@@ -85,14 +84,14 @@ const ExplorerVisualization = ({ tests, workspaceId }: Props) => {
 
       {selectedTest?.measurementType === "boolean" ? (
         <BooleanViz
-          measurements={measurements}
+          measurements={measurements ?? []}
           selectedTest={selectedTest}
           everythingSelected={everythingSelected}
           workspaceId={workspaceId}
         />
       ) : selectedTest?.measurementType === "dataframe" ? (
         <DataFrameViz
-          measurements={measurements}
+          measurements={measurements ?? []}
           selectedTest={selectedTest}
           everythingSelected={everythingSelected}
           workspaceId={workspaceId}
