@@ -9,11 +9,9 @@ const ExplorerView = async ({
   const project = await api.project.getProjectById.query({
     projectId: params.projectId,
   });
-  const tests = await api.test.getAllTestsByProjectId.query(
-    {
-      projectId: project.id,
-    },
-  );
+  const tests = await api.test.getAllTestsByProjectId.query({
+    projectId: project.id,
+  });
 
   return (
     <div>
