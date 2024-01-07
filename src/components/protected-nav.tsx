@@ -31,21 +31,16 @@ import NewWorkspace from "~/app/(protected)/dashboard/_components/new-workspace"
 
 type Props = {
   workspaces: SelectWorkspace[];
-  workspaceId: string;
 };
 
-export function ProtectedNav({ workspaces, workspaceId }: Props) {
+export function ProtectedNav({ workspaces }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [showNewWorkspaceDialog, setShowNewWorkspaceDialog] = useState(false);
+  const workspaceId = pathname.split("/")[2];
 
   const currentWorkspace = workspaces.find((ws) => ws.id === workspaceId);
-
-  if (!currentWorkspace) {
-    router.push("/dashboard");
-    return null;
-  }
 
   return (
     <div className="mr-4 hidden md:flex">
@@ -70,16 +65,22 @@ export function ProtectedNav({ workspaces, workspaceId }: Props) {
               aria-label="Select a workspace"
               className={cn("justify-between gap-2")}
             >
-              <Avatar className="h-5 w-5">
-                <AvatarImage
-                  src={`https://avatar.vercel.sh/${currentWorkspace.name}.png`}
-                  alt={currentWorkspace.name}
-                  className="grayscale"
-                />
-                <AvatarFallback>SC</AvatarFallback>
-              </Avatar>
-              {currentWorkspace.name}
-              <Badge>{currentWorkspace.planType}</Badge>
+              {currentWorkspace ? (
+                <>
+                  <Avatar className="h-5 w-5">
+                    <AvatarImage
+                      src={`https://avatar.vercel.sh/${currentWorkspace.name}.png`}
+                      alt={currentWorkspace.name}
+                      className="grayscale"
+                    />
+                    <AvatarFallback>SC</AvatarFallback>
+                  </Avatar>
+                  {currentWorkspace.name}
+                  <Badge>{currentWorkspace.planType}</Badge>
+                </>
+              ) : (
+                <div>Select a workspace</div>
+              )}
               <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
@@ -109,7 +110,7 @@ export function ProtectedNav({ workspaces, workspaceId }: Props) {
                     <CheckIcon
                       className={cn(
                         "ml-auto h-4 w-4",
-                        currentWorkspace.id === workspace.id
+                        currentWorkspace?.id === workspace.id
                           ? "opacity-100"
                           : "opacity-0",
                       )}
@@ -135,28 +136,32 @@ export function ProtectedNav({ workspaces, workspaceId }: Props) {
           </PopoverContent>
         </Popover>
 
-        <Link
-          href={`/workspace/${workspaceId}`}
-          className={cn(
-            "transition-colors hover:text-foreground/80",
-            pathname === `/workspace/${workspaceId}`
-              ? "text-foreground"
-              : "text-foreground/60",
-          )}
-        >
-          Projects
-        </Link>
-        <Link
-          href={`/workspace/${workspaceId}/device`}
-          className={cn(
-            "transition-colors hover:text-foreground/80",
-            pathname === `/workspace/${workspaceId}/device`
-              ? "text-foreground"
-              : "text-foreground/60",
-          )}
-        >
-          Device Inventory
-        </Link>
+        {workspaceId && (
+          <>
+            <Link
+              href={`/workspace/${workspaceId}`}
+              className={cn(
+                "transition-colors hover:text-foreground/80",
+                pathname === `/workspace/${workspaceId}`
+                  ? "text-foreground"
+                  : "text-foreground/60",
+              )}
+            >
+              Projects
+            </Link>
+            <Link
+              href={`/workspace/${workspaceId}/device`}
+              className={cn(
+                "transition-colors hover:text-foreground/80",
+                pathname === `/workspace/${workspaceId}/device`
+                  ? "text-foreground"
+                  : "text-foreground/60",
+              )}
+            >
+              Device Inventory
+            </Link>
+          </>
+        )}
       </nav>
     </div>
   );

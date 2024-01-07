@@ -11,11 +11,7 @@ import Form from "./form";
 import { ProtectedNav } from "./protected-nav";
 import { api } from "~/trpc/server";
 
-type Props = {
-  workspaceId: string;
-};
-
-export async function ProtectedHeader({ workspaceId }: Props) {
+export async function ProtectedHeader() {
   const authRequest = auth.handleRequest("GET", context);
   const session = await authRequest.validate();
 
@@ -24,7 +20,7 @@ export async function ProtectedHeader({ workspaceId }: Props) {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
-        <ProtectedNav workspaces={workspaces} workspaceId={workspaceId} />
+        <ProtectedNav workspaces={workspaces} />
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <nav className="flex items-center">
             {!session ? (

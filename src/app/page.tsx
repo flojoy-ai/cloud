@@ -9,7 +9,6 @@ import { Button } from "~/components/ui/button";
 
 import { auth } from "~/auth/lucia";
 import * as context from "next/headers";
-import { SiteHeader } from "~/components/site-header";
 
 export default async function Home() {
   const authRequest = auth.handleRequest("GET", context);
@@ -17,7 +16,6 @@ export default async function Home() {
 
   return (
     <>
-      <SiteHeader />
       <div className="container max-w-screen-2xl">
         <PageHeader>
           <PageHeaderHeading className="">
