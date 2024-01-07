@@ -1,9 +1,16 @@
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  workspaceProcedure,
+} from "~/server/api/trpc";
 import { db } from "~/server/db";
 import { workspace, workspace_user } from "~/server/db/schema";
-import { publicInsertWorkspaceSchema } from "~/types/workspace";
+import {
+  publicInsertWorkspaceSchema,
+  selectWorkspaceSchema,
+} from "~/types/workspace";
 
 export const workspaceRouter = createTRPCRouter({
   createWorkspace: protectedProcedure
@@ -62,11 +69,13 @@ export const workspaceRouter = createTRPCRouter({
       where: (workspace, { inArray }) => inArray(workspace.id, workspaceIds),
     });
   }),
-  getWorkspaceById: protectedProcedure
-    .input(z.object({ workspaceId: z.string() }))
-    .query(async ({ input }) => {
+  getWorkspaceById: workspaceProcedure
+    .meta({ openapi: { method: "GET", path: "/say-hello" } })
+    .input(z.void())
+    .output(selectWorkspaceSchema)
+    .query(async ({ ctx }) => {
       const result = await db.query.workspace.findFirst({
-        where: (workspace, { eq }) => eq(workspace.id, input.workspaceId),
+        where: (workspace, { eq }) => eq(workspace.id, ctx.workspaceId),
       });
 
       if (!result) {

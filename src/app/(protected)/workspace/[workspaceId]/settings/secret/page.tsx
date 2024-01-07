@@ -6,7 +6,7 @@ import GenerateSecret from "./_components/generate-secret";
 import CopyButton from "./_components/copy-button";
 
 async function GeneralPage({ params }: { params: { workspaceId: string } }) {
-  const secret = await api.secret.getSecret.query({
+  const secret = await api().secret.getSecret.query({
     workspaceId: params.workspaceId,
   });
 

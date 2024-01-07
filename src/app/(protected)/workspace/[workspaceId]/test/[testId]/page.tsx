@@ -8,7 +8,7 @@ import {
 import { api } from "~/trpc/server";
 
 export default async function Test({ params }: { params: { testId: string } }) {
-  const test = await api.test.getTestById.query({
+  const test = await api().test.getTestById.query({
     testId: params.testId,
   });
 

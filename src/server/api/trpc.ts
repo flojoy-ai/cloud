@@ -8,13 +8,17 @@
  */
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
-import { ZodError } from "zod";
+import { z, ZodError } from "zod";
 
 import { db } from "~/server/db";
 
 import { auth } from "~/auth/lucia";
 import * as context from "next/headers";
 import { type OpenApiMeta } from "trpc-openapi";
+import * as jose from "jose";
+import { env } from "~/env";
+import { secret, workspace_user } from "../db/schema";
+import { and, eq } from "drizzle-orm";
 
 /**
  * 1. CONTEXT
@@ -32,9 +36,11 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
   const authRequest = auth.handleRequest("GET", context);
   const session = await authRequest.validate();
 
+  const workspaceId = opts.headers.get("flojoy-cloud-workspace-id");
   return {
     db,
     session,
+    workspaceId,
     ...opts,
   };
 };
@@ -102,6 +108,77 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
     ctx: {
       // infers the `session` as non-nullable
       session: { ...ctx.session, user: ctx.session.user },
+    },
+  });
+});
+
+export const workspaceProcedure = t.procedure.use(async ({ ctx, next }) => {
+  const workspaceSecret = ctx.headers.get("flojoy-cloud-workspace-secret");
+
+  let userId;
+  let workspaceId = ctx.workspaceId;
+
+  if (ctx.session && ctx.session.user) {
+    userId = ctx.session.user.userId;
+
+    if (!workspaceId) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "flojoy-cloud-workspace-id header is required",
+      });
+    }
+
+    const workspaceUser = await ctx.db
+      .select()
+      .from(workspace_user)
+      .where(
+        and(
+          eq(workspace_user.userId, userId),
+          eq(workspace_user.workspaceId, workspaceId),
+        ),
+      );
+    if (!workspaceUser) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+  } else if (workspaceSecret) {
+    const { payload } = await jose.jwtVerify(
+      workspaceSecret,
+      new TextEncoder().encode(env.JWT_SECRET),
+      {},
+    );
+
+    const parsed = z
+      .object({
+        userId: z.string().startsWith("user_"),
+        workspaceId: z.string().startsWith("workspace_"),
+      })
+      .safeParse(payload);
+
+    if (!parsed.success) {
+      throw new Error("Invalid JWT token");
+    }
+    if (parsed.data.workspaceId !== workspaceId) {
+      throw new Error("Invalid JWT token");
+    }
+
+    userId = parsed.data.userId;
+    workspaceId = parsed.data.workspaceId;
+
+    await ctx.db
+      .update(secret)
+      .set({ lastUsedAt: new Date() })
+      .where(
+        and(eq(secret.userId, userId), eq(secret.workspaceId, workspaceId)),
+      );
+  } else {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  return next({
+    ctx: {
+      // infers the `session` as non-nullable
+      userId,
+      workspaceId,
     },
   });
 });

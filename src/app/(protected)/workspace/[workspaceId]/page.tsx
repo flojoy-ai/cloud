@@ -14,12 +14,13 @@ export default async function Page({
 }: {
   params: { workspaceId: string };
 }) {
-  const workspace = await api.workspace.getWorkspaceById.query({
-    workspaceId: params.workspaceId,
-  });
-  const projects = await api.project.getAllProjectsByWorkspaceId.query({
-    workspaceId: params.workspaceId,
-  });
+  const workspace = await api(
+    params.workspaceId,
+  ).workspace.getWorkspaceById.query();
+
+  const projects = await api(
+    params.workspaceId,
+  ).project.getAllProjectsByWorkspaceId.query();
 
   return (
     <div className="container max-w-screen-2xl">

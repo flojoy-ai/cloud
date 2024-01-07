@@ -8,7 +8,7 @@ const DevicesView = async ({
 }: {
   params: { projectId: string; workspaceId: string };
 }) => {
-  const project = await api.project.getProjectById.query({
+  const project = await api().project.getProjectById.query({
     projectId: params.projectId,
   });
 

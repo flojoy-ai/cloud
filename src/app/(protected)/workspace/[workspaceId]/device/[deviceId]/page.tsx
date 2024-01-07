@@ -13,7 +13,7 @@ export default async function Device({
 }: {
   params: { deviceId: string };
 }) {
-  const device = await api.device.getDeviceById.query({
+  const device = await api().device.getDeviceById.query({
     deviceId: params.deviceId,
   });
 
