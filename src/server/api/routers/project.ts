@@ -1,11 +1,7 @@
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  workspaceProcedure,
-} from "~/server/api/trpc";
+import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { project, workspace } from "~/server/db/schema";
 import {
   publicInsertProjectSchema,
@@ -13,7 +9,7 @@ import {
 } from "~/types/project";
 
 export const projectRouter = createTRPCRouter({
-  createProject: protectedProcedure
+  createProject: workspaceProcedure
     .input(publicInsertProjectSchema)
     .mutation(async ({ ctx, input }) => {
       const [projectCreateResult] = await ctx.db
@@ -32,7 +28,7 @@ export const projectRouter = createTRPCRouter({
       return projectCreateResult;
     }),
 
-  getProjectById: protectedProcedure
+  getProjectById: workspaceProcedure
     .input(z.object({ projectId: z.string() }))
     .output(selectProjectSchema)
     .query(async ({ input, ctx }) => {
@@ -44,9 +40,11 @@ export const projectRouter = createTRPCRouter({
       }
       return result;
     }),
-  getAllProjectsByWorkspaceId: workspaceProcedure.query(async ({ ctx }) => {
-    return await ctx.db.query.project.findMany({
-      where: (project, { eq }) => eq(project.workspaceId, ctx.workspaceId),
-    });
-  }),
+  getAllProjectsByWorkspaceId: workspaceProcedure
+    .input(z.object({ workspaceId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.db.query.project.findMany({
+        where: (project, { eq }) => eq(project.workspaceId, input.workspaceId),
+      });
+    }),
 });

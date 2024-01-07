@@ -14,9 +14,9 @@ export default async function Workspace({
   params: { workspaceId: string };
   children: ReactNode;
 }) {
-  const workspace = await api(
-    params.workspaceId,
-  ).workspace.getWorkspaceById.query();
+  const workspace = await api.workspace.getWorkspaceById.query({
+    workspaceId: params.workspaceId,
+  });
 
   const sidebarNavItems = [
     {

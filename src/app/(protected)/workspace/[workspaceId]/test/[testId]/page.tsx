@@ -7,8 +7,12 @@ import {
 } from "~/components/page-header";
 import { api } from "~/trpc/server";
 
-export default async function Test({ params }: { params: { testId: string } }) {
-  const test = await api().test.getTestById.query({
+export default async function Test({
+  params,
+}: {
+  params: { testId: string; workspaceId: string };
+}) {
+  const test = await api.test.getTestById.query({
     testId: params.testId,
   });
 

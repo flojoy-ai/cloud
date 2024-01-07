@@ -2,14 +2,14 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import _ from "lodash";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { device, project } from "~/server/db/schema";
 import { publicInsertDeviceSchema, selectDeviceSchema } from "~/types/device";
 import { selectMeasurementSchema } from "~/types/measurement";
 import { selectTestSchema } from "~/types/test";
 
 export const deviceRouter = createTRPCRouter({
-  createDevice: protectedProcedure
+  createDevice: workspaceProcedure
     .input(publicInsertDeviceSchema)
     .output(selectDeviceSchema)
     .mutation(async ({ ctx, input }) => {
@@ -30,7 +30,7 @@ export const deviceRouter = createTRPCRouter({
       return deviceCreateResult;
     }),
 
-  createDevices: protectedProcedure
+  createDevices: workspaceProcedure
     .input(z.array(publicInsertDeviceSchema))
     .output(z.array(selectDeviceSchema))
     .mutation(async ({ ctx, input }) => {
@@ -57,7 +57,7 @@ export const deviceRouter = createTRPCRouter({
       return devicesCreateResult;
     }),
 
-  getDeviceById: protectedProcedure
+  getDeviceById: workspaceProcedure
     .input(z.object({ deviceId: z.string() }))
     .output(
       selectDeviceSchema.merge(
@@ -90,7 +90,7 @@ export const deviceRouter = createTRPCRouter({
       return result;
     }),
 
-  getAllDevicesByProjectId: protectedProcedure
+  getAllDevicesByProjectId: workspaceProcedure
     .input(z.object({ projectId: z.string() }))
     .output(z.array(selectDeviceSchema))
     .query(async ({ input, ctx }) => {

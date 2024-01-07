@@ -1,14 +1,14 @@
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { project, test } from "~/server/db/schema";
 import { selectDeviceSchema } from "~/types/device";
 import { selectMeasurementSchema } from "~/types/measurement";
 import { insertTestSchema, selectTestSchema } from "~/types/test";
 
 export const testRouter = createTRPCRouter({
-  createTest: protectedProcedure
+  createTest: workspaceProcedure
     .input(insertTestSchema)
     .output(selectTestSchema)
     .mutation(async ({ ctx, input }) => {
@@ -32,7 +32,7 @@ export const testRouter = createTRPCRouter({
       return testCreateResult;
     }),
 
-  getTestById: protectedProcedure
+  getTestById: workspaceProcedure
     .input(z.object({ testId: z.string() }))
     .output(
       selectTestSchema.merge(
@@ -64,7 +64,8 @@ export const testRouter = createTRPCRouter({
 
       return result;
     }),
-  getAllTestsByProjectId: protectedProcedure
+
+  getAllTestsByProjectId: workspaceProcedure
     .input(z.object({ projectId: z.string() }))
     .output(z.array(selectTestSchema))
     .query(async ({ input, ctx }) => {

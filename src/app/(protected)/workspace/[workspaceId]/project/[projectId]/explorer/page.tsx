@@ -6,12 +6,14 @@ const ExplorerView = async ({
 }: {
   params: { projectId: string; workspaceId: string };
 }) => {
-  const project = await api().project.getProjectById.query({
+  const project = await api.project.getProjectById.query({
     projectId: params.projectId,
   });
-  const tests = await api().test.getAllTestsByProjectId.query({
-    projectId: project.id,
-  });
+  const tests = await api.test.getAllTestsByProjectId.query(
+    {
+      projectId: project.id,
+    },
+  );
 
   return (
     <div>

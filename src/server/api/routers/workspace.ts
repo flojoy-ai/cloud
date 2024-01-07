@@ -36,20 +36,29 @@ export const workspaceRouter = createTRPCRouter({
       return workspaceCreateResult;
     }),
 
-  updateWorkspace: protectedProcedure
-    .input(publicInsertWorkspaceSchema.extend({ id: z.string() }))
+  updateWorkspace: workspaceProcedure
+    .input(
+      publicInsertWorkspaceSchema.merge(z.object({ workspaceId: z.string() })),
+    )
     .mutation(async ({ ctx, input }) => {
+      if (ctx.workspaceId && ctx.workspaceId !== input.workspaceId) {
+        throw new Error("Invalid workspace");
+      }
       await ctx.db
         .update(workspace)
         .set(input)
-        .where(eq(workspace.id, input.id));
+        .where(eq(workspace.id, input.workspaceId));
     }),
 
-  deleteWorkspaceById: protectedProcedure
+  deleteWorkspaceById: workspaceProcedure
     .input(z.object({ workspaceId: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      if (ctx.workspaceId && ctx.workspaceId !== input.workspaceId) {
+        throw new Error("Invalid workspace");
+      }
       await ctx.db.delete(workspace).where(eq(workspace.id, input.workspaceId));
     }),
+
   getAllWorkspaces: protectedProcedure.query(async ({ ctx }) => {
     const workspaceIds = (
       await db.query.workspace_user.findMany({
@@ -69,13 +78,18 @@ export const workspaceRouter = createTRPCRouter({
       where: (workspace, { inArray }) => inArray(workspace.id, workspaceIds),
     });
   }),
+
   getWorkspaceById: workspaceProcedure
-    .meta({ openapi: { method: "GET", path: "/say-hello" } })
-    .input(z.void())
+    .meta({ openapi: { method: "GET", path: "/v1/workspaces/{workspaceId}" } })
+    .input(z.object({ workspaceId: z.string() }))
     .output(selectWorkspaceSchema)
-    .query(async ({ ctx }) => {
+    .query(async ({ ctx, input }) => {
+      if (ctx.workspaceId && ctx.workspaceId !== input.workspaceId) {
+        throw new Error("Invalid workspace");
+      }
+
       const result = await db.query.workspace.findFirst({
-        where: (workspace, { eq }) => eq(workspace.id, ctx.workspaceId),
+        where: (workspace, { eq }) => eq(workspace.id, input.workspaceId),
       });
 
       if (!result) {

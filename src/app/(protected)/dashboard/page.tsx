@@ -9,7 +9,7 @@ import CreateSample from "./_components/create-sample";
 import NewWorkspaceButton from "./_components/new-workspace-wrapper";
 
 export default async function Dashboard() {
-  const workspaces = await api().workspace.getAllWorkspaces.query();
+  const workspaces = await api.workspace.getAllWorkspaces.query();
 
   return (
     <div className="container max-w-screen-2xl">

@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { secret, workspace } from "~/server/db/schema";
 import { selectSecretSchema } from "~/types/secret";
 
@@ -11,15 +11,14 @@ import { env } from "~/env";
 const jwtSecret = new TextEncoder().encode(env.JWT_SECRET);
 
 export const secretRouter = createTRPCRouter({
-  createSecret: protectedProcedure
-    .input(z.object({ workspaceId: z.string() }))
+  createSecret: workspaceProcedure
     .output(selectSecretSchema)
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ ctx }) => {
       const date = new Date();
 
       const jwtValue = await new jose.SignJWT({
-        userId: ctx.session.user.userId,
-        workspaceId: input.workspaceId,
+        userId: ctx.userId,
+        workspaceId: ctx.workspaceId,
       })
         .setProtectedHeader({ alg: "HS256" })
         .setIssuedAt(date)
@@ -29,16 +28,16 @@ export const secretRouter = createTRPCRouter({
         .delete(secret)
         .where(
           and(
-            eq(secret.workspaceId, input.workspaceId),
-            eq(secret.userId, ctx.session.user.userId),
+            eq(secret.workspaceId, ctx.workspaceId),
+            eq(secret.userId, ctx.userId),
           ),
         );
 
       const [secretCreateResult] = await ctx.db
         .insert(secret)
         .values({
-          userId: ctx.session.user.userId,
-          workspaceId: input.workspaceId,
+          userId: ctx.userId,
+          workspaceId: ctx.workspaceId,
           value: jwtValue,
         })
         .returning();
@@ -50,20 +49,19 @@ export const secretRouter = createTRPCRouter({
       await ctx.db
         .update(workspace)
         .set({ updatedAt: new Date() })
-        .where(eq(workspace.id, input.workspaceId));
+        .where(eq(workspace.id, ctx.workspaceId));
 
       return secretCreateResult;
     }),
 
-  getSecret: protectedProcedure
-    .input(z.object({ workspaceId: z.string() }))
+  getSecret: workspaceProcedure
     .output(z.optional(selectSecretSchema))
-    .query(async ({ ctx, input }) => {
+    .query(async ({ ctx }) => {
       return await ctx.db.query.secret.findFirst({
         where: (secret, { eq, and }) =>
           and(
-            eq(secret.workspaceId, input.workspaceId),
-            eq(secret.userId, ctx.session.user.userId),
+            eq(secret.workspaceId, ctx.workspaceId),
+            eq(secret.userId, ctx.userId),
           ),
       });
     }),

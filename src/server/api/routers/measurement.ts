@@ -2,15 +2,17 @@ import { type SQL, eq, lte, gte } from "drizzle-orm";
 import _ from "lodash";
 import { z } from "zod";
 
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { measurement, device, test } from "~/server/db/schema";
+import { selectDeviceSchema } from "~/types/device";
 import {
   insertMeasurementSchema,
   publicInsertMeasurementSchema,
+  selectMeasurementSchema,
 } from "~/types/measurement";
 
 export const measurementRouter = createTRPCRouter({
-  createMeasurement: protectedProcedure
+  createMeasurement: workspaceProcedure
     .input(insertMeasurementSchema)
     .mutation(async ({ ctx, input }) => {
       const [measurementCreateResult] = await ctx.db
@@ -36,7 +38,7 @@ export const measurementRouter = createTRPCRouter({
         .where(eq(device.id, input.deviceId));
     }),
 
-  createMeasurements: protectedProcedure
+  createMeasurements: workspaceProcedure
     .input(z.array(publicInsertMeasurementSchema))
     .mutation(async ({ ctx, input }) => {
       const measurements = input.map((m) => ({
@@ -76,7 +78,7 @@ export const measurementRouter = createTRPCRouter({
       );
     }),
 
-  getAllMeasurementsByTestId: protectedProcedure
+  getAllMeasurementsByTestId: workspaceProcedure
     .input(
       z.object({
         testId: z.string(),
@@ -84,17 +86,23 @@ export const measurementRouter = createTRPCRouter({
         endDate: z.date().optional(),
       }),
     )
-    // .output(z.array(selectMeasurementSchema))
+    .output(
+      z.array(
+        selectMeasurementSchema.merge(z.object({ device: selectDeviceSchema })),
+      ),
+    )
     .query(async ({ ctx, input }) => {
       const where: SQL[] = [eq(measurement.testId, input.testId)];
+
       if (input.startDate) {
         where.push(gte(measurement.createdAt, input.startDate));
       }
       if (input.endDate) {
         where.push(lte(measurement.createdAt, input.endDate));
       }
+
       const result = await ctx.db.query.measurement.findMany({
-        where: (measurement, { and }) => and(...where),
+        where: (_, { and }) => and(...where),
         with: {
           device: true,
         },

@@ -15,7 +15,7 @@ export async function ProtectedHeader() {
   const authRequest = auth.handleRequest("GET", context);
   const session = await authRequest.validate();
 
-  const workspaces = await api().workspace.getAllWorkspaces.query();
+  const workspaces = await api.workspace.getAllWorkspaces.query();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

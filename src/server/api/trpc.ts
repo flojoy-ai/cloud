@@ -115,6 +115,8 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
 /**
  * Workspace (authenticated) procedure
  *
+ * Any operations within a workspace should use this procedure!
+ *
  * If you want a query or mutation to ONLY be accessible to logged in users,
  * and you want to ensure that the user has access to the given workspace specified
  * in the HTTP header, use this. This guarantees to return a valid
@@ -124,39 +126,16 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
  * @see https://trpc.io/docs/procedures
  */
 export const workspaceProcedure = t.procedure.use(async ({ ctx, next }) => {
-  const workspaceSecret = ctx.headers.get("flojoy-cloud-workspace-secret");
+  const workspaceSecret = ctx.headers.get("Authorization");
 
   let userId;
   let workspaceId = ctx.workspaceId;
 
-  if (!workspaceId) {
-    throw new TRPCError({
-      code: "UNAUTHORIZED",
-      message: "flojoy-cloud-workspace-id header is required",
-    });
-  }
-
   if (ctx.session && ctx.session.user) {
     userId = ctx.session.user.userId;
-
-    const workspaceUser = await ctx.db
-      .select()
-      .from(workspace_user)
-      .where(
-        and(
-          eq(workspace_user.userId, userId),
-          eq(workspace_user.workspaceId, workspaceId),
-        ),
-      );
-    if (!workspaceUser) {
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "the current user does not have access to the given workspace",
-      });
-    }
   } else if (workspaceSecret) {
     const { payload } = await jose.jwtVerify(
-      workspaceSecret,
+      workspaceSecret.slice("Bearer ".length),
       new TextEncoder().encode(env.JWT_SECRET),
       {},
     );
@@ -172,13 +151,6 @@ export const workspaceProcedure = t.procedure.use(async ({ ctx, next }) => {
       throw new TRPCError({
         code: "UNAUTHORIZED",
         message: "the given JWT token is invalid, parsing failed",
-      });
-    }
-    if (parsed.data.workspaceId !== workspaceId) {
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message:
-          "the given JWT token is invalid, double check if you have the right token?",
       });
     }
 
@@ -200,9 +172,11 @@ export const workspaceProcedure = t.procedure.use(async ({ ctx, next }) => {
 
   return next({
     ctx: {
-      // infers the both `userId` and `workspaceId` as non-nullable
-      userId,
-      workspaceId,
+      userId, // this cannot be null
+
+      // when the workspaceId is not null, then we need to make sure
+      // the request does not access anything outside of this workspace
+      workspaceId, // this can be null
     },
   });
 });
