@@ -28,12 +28,14 @@ type Props = {
 };
 
 const GeneralForm = ({ workspaceId }: Props) => {
-  const { data: workspace } = api.workspace.getWorkspaceById.useQuery();
+  const { data: workspace } = api.workspace.getWorkspaceById.useQuery({
+    workspaceId,
+  });
 
   const router = useRouter();
 
   const defaultValues = {
-    id: workspaceId,
+    workspaceId,
     name: "",
   };
 

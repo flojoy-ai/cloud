@@ -1,5 +1,6 @@
 import { workspace } from "~/server/db/schema";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { z } from "zod";
 
 export type SelectWorkspace = typeof workspace.$inferSelect;
 
@@ -11,8 +12,9 @@ export const publicInsertWorkspaceSchema = insertWorkspaceSchema.pick({
 export const publicUpdateWorkspaceSchema = insertWorkspaceSchema
   .pick({
     name: true,
-    id: true,
   })
-  .required({ id: true });
+  .extend({
+    workspaceId: z.string(),
+  });
 
 export const selectWorkspaceSchema = createSelectSchema(workspace);
