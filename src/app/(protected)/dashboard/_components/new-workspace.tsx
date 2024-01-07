@@ -41,6 +41,7 @@ export default function NewWorkspace({ isDialogOpen, setIsDialogOpen }: Props) {
     onSuccess: (data) => {
       router.push(`/workspace/${data.id}`);
       setIsDialogOpen(false);
+      router.refresh();
     },
   });
 
@@ -50,7 +51,6 @@ export default function NewWorkspace({ isDialogOpen, setIsDialogOpen }: Props) {
   });
 
   function onSubmit(values: z.infer<typeof publicInsertWorkspaceSchema>) {
-    console.log(values);
     toast.promise(
       createWorkspace.mutateAsync({
         ...values,

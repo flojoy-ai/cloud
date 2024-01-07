@@ -75,7 +75,9 @@ export function ProtectedNav({ workspaces }: Props) {
                     />
                     <AvatarFallback>SC</AvatarFallback>
                   </Avatar>
-                  {currentWorkspace.name}
+                  <div className="max-w-32 overflow-hidden text-ellipsis">
+                    {currentWorkspace.name}
+                  </div>
                   <Badge>{currentWorkspace.planType}</Badge>
                 </>
               ) : (
