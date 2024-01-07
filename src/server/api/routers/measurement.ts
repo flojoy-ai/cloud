@@ -6,7 +6,6 @@ import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { measurement, device, test } from "~/server/db/schema";
 import { selectDeviceSchema } from "~/types/device";
 import {
-  insertMeasurementSchema,
   publicInsertMeasurementSchema,
   selectMeasurementSchema,
 } from "~/types/measurement";

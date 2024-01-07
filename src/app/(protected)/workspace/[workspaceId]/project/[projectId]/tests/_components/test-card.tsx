@@ -15,10 +15,9 @@ import { Badge } from "~/components/ui/badge";
 type Props = {
   test: SelectTest;
   workspaceId: string;
-  projectId: string;
 };
 
-const TestCard = ({ test, workspaceId, projectId }: Props) => {
+const TestCard = ({ test, workspaceId }: Props) => {
   return (
     <Link href={`/workspace/${workspaceId}/test/${test.id}`}>
       <Card className="transition-all duration-300 hover:bg-secondary/80">

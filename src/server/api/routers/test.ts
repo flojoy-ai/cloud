@@ -5,11 +5,7 @@ import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { project, test } from "~/server/db/schema";
 import { selectDeviceSchema } from "~/types/device";
 import { selectMeasurementSchema } from "~/types/measurement";
-import {
-  insertTestSchema,
-  publicInsertTestSchema,
-  selectTestSchema,
-} from "~/types/test";
+import { publicInsertTestSchema, selectTestSchema } from "~/types/test";
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
 import { type db } from "~/server/db";
 import { projectAccessMiddleware } from "./project";

@@ -19,12 +19,7 @@ const AllTests = async ({ project, workspaceId }: Props) => {
       )}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {tests.map((test) => (
-          <TestCard
-            test={test}
-            key={test.id}
-            workspaceId={workspaceId}
-            projectId={project.id}
-          />
+          <TestCard test={test} key={test.id} workspaceId={workspaceId} />
         ))}
       </div>
     </div>
