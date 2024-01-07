@@ -81,6 +81,10 @@ export const workspace = pgTable(
   }),
 );
 
+export const workspaceRelation = relations(workspace, ({ many }) => ({
+  projects: many(project),
+}));
+
 // The workspaces_users table is a join table between the workspaces and users
 // It is used to keep track of which user belongs to which workspace.
 export const workspaceRoleEnum = pgEnum("workspace_role", [
@@ -130,9 +134,13 @@ export const project = pgTable(
   }),
 );
 
-export const projectRelation = relations(project, ({ many }) => ({
+export const projectRelation = relations(project, ({ many, one }) => ({
   tests: many(test),
   devices: many(device),
+  workspace: one(workspace, {
+    fields: [project.workspaceId],
+    references: [workspace.id],
+  }),
 }));
 
 export const measurementTypeEnum = pgEnum(
