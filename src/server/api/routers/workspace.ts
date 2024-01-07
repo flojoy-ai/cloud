@@ -65,34 +65,40 @@ export const workspaceRouter = createTRPCRouter({
   createWorkspace: protectedProcedure
     .input(publicInsertWorkspaceSchema)
     .mutation(async ({ ctx, input }) => {
-      const [workspaceCreateResult] = await ctx.db
-        .insert(workspace)
-        .values({
-          ...input,
-          planType: "hobby",
-        })
-        .returning();
+      return await ctx.db.transaction(async (tx) => {
+        const [workspaceCreateResult] = await tx
+          .insert(workspace)
+          .values({
+            ...input,
+            planType: "hobby",
+          })
+          .returning();
 
-      if (!workspaceCreateResult) {
-        throw new Error("Failed to create workspace");
-      }
+        if (!workspaceCreateResult) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create workspace",
+          });
+        }
 
-      await ctx.db.insert(workspace_user).values({
-        userId: ctx.session.user.userId,
-        workspaceId: workspaceCreateResult.id,
-        workspaceRole: "owner",
+        await tx.insert(workspace_user).values({
+          userId: ctx.session.user.userId,
+          workspaceId: workspaceCreateResult.id,
+          workspaceRole: "owner",
+        });
+        return workspaceCreateResult;
       });
-      return workspaceCreateResult;
     }),
 
   updateWorkspace: workspaceProcedure
+    .meta({
+      openapi: { method: "PATCH", path: "/v1/workspaces/{workspaceId}" },
+    })
     .input(
       publicInsertWorkspaceSchema.merge(z.object({ workspaceId: z.string() })),
     )
+    .use(workspaceAccessMiddleware)
     .mutation(async ({ ctx, input }) => {
-      if (ctx.workspaceId && ctx.workspaceId !== input.workspaceId) {
-        throw new Error("Invalid workspace");
-      }
       await ctx.db
         .update(workspace)
         .set(input)
@@ -100,49 +106,52 @@ export const workspaceRouter = createTRPCRouter({
     }),
 
   deleteWorkspaceById: workspaceProcedure
+    .meta({
+      openapi: { method: "DELETE", path: "/v1/workspaces/{workspaceId}" },
+    })
     .input(z.object({ workspaceId: z.string() }))
+    .use(workspaceAccessMiddleware)
     .mutation(async ({ ctx, input }) => {
-      if (ctx.workspaceId && ctx.workspaceId !== input.workspaceId) {
-        throw new Error("Invalid workspace");
-      }
       await ctx.db.delete(workspace).where(eq(workspace.id, input.workspaceId));
     }),
 
-  getAllWorkspaces: protectedProcedure.query(async ({ ctx }) => {
-    const workspaceIds = (
-      await db.query.workspace_user.findMany({
-        where: (workspace_user, { eq }) =>
-          eq(workspace_user.userId, ctx.session.user.userId),
-        columns: {
-          workspaceId: true,
-        },
-      })
-    ).map((workspace) => workspace.workspaceId);
+  getAllWorkspaces: protectedProcedure
+    .meta({ openapi: { method: "GET", path: "/v1/workspaces/" } })
+    .query(async ({ ctx }) => {
+      const workspaceIds = (
+        await db.query.workspace_user.findMany({
+          where: (workspace_user, { eq }) =>
+            eq(workspace_user.userId, ctx.session.user.userId),
+          columns: {
+            workspaceId: true,
+          },
+        })
+      ).map((workspace) => workspace.workspaceId);
 
-    if (workspaceIds.length === 0) {
-      return [];
-    }
+      if (workspaceIds.length === 0) {
+        return [];
+      }
 
-    return await db.query.workspace.findMany({
-      where: (workspace, { inArray }) => inArray(workspace.id, workspaceIds),
-    });
-  }),
+      return await db.query.workspace.findMany({
+        where: (workspace, { inArray }) => inArray(workspace.id, workspaceIds),
+      });
+    }),
 
   getWorkspaceById: workspaceProcedure
     .meta({ openapi: { method: "GET", path: "/v1/workspaces/{workspaceId}" } })
     .input(z.object({ workspaceId: z.string() }))
+    .use(workspaceAccessMiddleware)
     .output(selectWorkspaceSchema)
-    .query(async ({ ctx, input }) => {
-      if (ctx.workspaceId && ctx.workspaceId !== input.workspaceId) {
-        throw new Error("Invalid workspace");
-      }
-
+    .query(async ({ input }) => {
       const result = await db.query.workspace.findFirst({
         where: (workspace, { eq }) => eq(workspace.id, input.workspaceId),
       });
 
       if (!result) {
-        throw new Error("Workspace not found");
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Workspace not found",
+        });
       }
       return result;
     }),

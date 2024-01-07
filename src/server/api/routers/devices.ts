@@ -77,48 +77,61 @@ export const deviceRouter = createTRPCRouter({
     .use(projectAccessMiddleware)
     .output(selectDeviceSchema)
     .mutation(async ({ ctx, input }) => {
-      const [deviceCreateResult] = await ctx.db
-        .insert(device)
-        .values(input)
-        .returning();
+      return await ctx.db.transaction(async (tx) => {
+        const [deviceCreateResult] = await tx
+          .insert(device)
+          .values(input)
+          .returning();
 
-      if (!deviceCreateResult) {
-        throw new Error("Failed to create device");
-      }
+        if (!deviceCreateResult) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create device",
+          });
+        }
 
-      await ctx.db
-        .update(project)
-        .set({ updatedAt: new Date() })
-        .where(eq(project.id, input.projectId));
+        await tx
+          .update(project)
+          .set({ updatedAt: new Date() })
+          .where(eq(project.id, input.projectId));
 
-      return deviceCreateResult;
+        return deviceCreateResult;
+      });
     }),
 
+  // TODO: Remove this, this is just for testing
+  // Since the input is an array it is not possible (nasty) to use the
+  // middleware to handle permission check.
   _createDevices: workspaceProcedure
     .input(z.array(publicInsertDeviceSchema))
     .output(z.array(selectDeviceSchema))
     .mutation(async ({ ctx, input }) => {
-      const devicesCreateResult = await ctx.db
-        .insert(device)
-        .values([...input])
-        .returning();
+      return await ctx.db.transaction(async (tx) => {
+        const devicesCreateResult = await tx
+          .insert(device)
+          .values([...input])
+          .returning();
 
-      if (!devicesCreateResult) {
-        throw new Error("Failed to create devices");
-      }
+        if (!devicesCreateResult) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create devices",
+          });
+        }
 
-      await Promise.all(
-        _.uniq(input.map((device) => device.projectId)).map(
-          async (projectId) => {
-            await ctx.db
-              .update(project)
-              .set({ updatedAt: new Date() })
-              .where(eq(project.id, projectId));
-          },
-        ),
-      );
+        await Promise.all(
+          _.uniq(input.map((device) => device.projectId)).map(
+            async (projectId) => {
+              await tx
+                .update(project)
+                .set({ updatedAt: new Date() })
+                .where(eq(project.id, projectId));
+            },
+          ),
+        );
 
-      return devicesCreateResult;
+        return devicesCreateResult;
+      });
     }),
 
   getDeviceById: workspaceProcedure
@@ -155,7 +168,10 @@ export const deviceRouter = createTRPCRouter({
       });
 
       if (!result) {
-        throw new Error("Failed to find device");
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Device not found",
+        });
       }
 
       return result;
@@ -188,7 +204,10 @@ export const deviceRouter = createTRPCRouter({
         .returning();
 
       if (!deleted) {
-        throw new Error("Failed to delete device");
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to delete device",
+        });
       }
 
       return deleted;

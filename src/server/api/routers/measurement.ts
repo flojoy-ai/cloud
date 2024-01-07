@@ -12,6 +12,8 @@ import {
 } from "~/types/measurement";
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
 import { type db } from "~/server/db";
+import { deviceAccessMiddleware } from "./devices";
+import { testAccessMiddleware } from "./test";
 
 export const measurementAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -80,32 +82,44 @@ export const measurementAccessMiddleware = experimental_standaloneMiddleware<{
 
 export const measurementRouter = createTRPCRouter({
   createMeasurement: workspaceProcedure
-    .input(insertMeasurementSchema)
+    .meta({
+      openapi: { method: "POST", path: "/v1/measurements/" },
+    })
+    .input(publicInsertMeasurementSchema)
+    .use(deviceAccessMiddleware)
+    .use(testAccessMiddleware)
+    .output(z.void())
     .mutation(async ({ ctx, input }) => {
-      const [measurementCreateResult] = await ctx.db
-        .insert(measurement)
-        .values({
-          ...input,
-          storageProvider: "local", // TODO: make this configurable
-        })
-        .returning();
+      return await ctx.db.transaction(async (tx) => {
+        const [measurementCreateResult] = await tx
+          .insert(measurement)
+          .values({
+            ...input,
+            storageProvider: "local", // TODO: make this configurable
+          })
+          .returning();
 
-      if (!measurementCreateResult) {
-        throw new Error("Failed to create measurement");
-      }
+        if (!measurementCreateResult) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create measurement",
+          });
+        }
 
-      await ctx.db
-        .update(test)
-        .set({ updatedAt: new Date() })
-        .where(eq(test.id, input.testId));
+        await tx
+          .update(test)
+          .set({ updatedAt: new Date() })
+          .where(eq(test.id, input.testId));
 
-      await ctx.db
-        .update(device)
-        .set({ updatedAt: new Date() })
-        .where(eq(device.id, input.deviceId));
+        await tx
+          .update(device)
+          .set({ updatedAt: new Date() })
+          .where(eq(device.id, input.deviceId));
+      });
     }),
 
-  createMeasurements: workspaceProcedure
+  // TODO: remove this
+  _createMeasurements: workspaceProcedure
     .input(z.array(publicInsertMeasurementSchema))
     .mutation(async ({ ctx, input }) => {
       const measurements = input.map((m) => ({
@@ -119,7 +133,10 @@ export const measurementRouter = createTRPCRouter({
         .returning();
 
       if (!measurementsCreateResult) {
-        throw new Error("Failed to create measurements");
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to create measurements",
+        });
       }
 
       await Promise.all(
@@ -146,6 +163,9 @@ export const measurementRouter = createTRPCRouter({
     }),
 
   getAllMeasurementsByTestId: workspaceProcedure
+    .meta({
+      openapi: { method: "GET", path: "/v1/measurements/" },
+    })
     .input(
       z.object({
         testId: z.string(),
@@ -153,6 +173,7 @@ export const measurementRouter = createTRPCRouter({
         endDate: z.date().optional(),
       }),
     )
+    .use(testAccessMiddleware)
     .output(
       z.array(
         selectMeasurementSchema.merge(z.object({ device: selectDeviceSchema })),

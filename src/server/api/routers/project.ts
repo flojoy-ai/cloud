@@ -9,6 +9,7 @@ import {
   selectProjectSchema,
 } from "~/types/project";
 import { type db } from "~/server/db";
+import { workspaceAccessMiddleware } from "./workspace";
 
 export const projectAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -60,22 +61,31 @@ export const projectAccessMiddleware = experimental_standaloneMiddleware<{
 
 export const projectRouter = createTRPCRouter({
   createProject: workspaceProcedure
+    .meta({
+      openapi: { method: "POST", path: "/v1/projects/" },
+    })
     .input(publicInsertProjectSchema)
+    .use(workspaceAccessMiddleware)
     .mutation(async ({ ctx, input }) => {
-      const [projectCreateResult] = await ctx.db
-        .insert(project)
-        .values(input)
-        .returning();
+      return await ctx.db.transaction(async (tx) => {
+        const [projectCreateResult] = await tx
+          .insert(project)
+          .values(input)
+          .returning();
 
-      if (!projectCreateResult) {
-        throw new Error("Failed to create project");
-      }
+        if (!projectCreateResult) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create project",
+          });
+        }
 
-      await ctx.db
-        .update(workspace)
-        .set({ updatedAt: new Date() })
-        .where(eq(workspace.id, input.workspaceId));
-      return projectCreateResult;
+        await tx
+          .update(workspace)
+          .set({ updatedAt: new Date() })
+          .where(eq(workspace.id, input.workspaceId));
+        return projectCreateResult;
+      });
     }),
 
   getProjectById: workspaceProcedure
@@ -88,13 +98,19 @@ export const projectRouter = createTRPCRouter({
         where: (project, { eq }) => eq(project.id, input.projectId),
       });
       if (!result) {
-        throw new Error("Project not found");
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Project not found",
+        });
       }
       return result;
     }),
 
   getAllProjectsByWorkspaceId: workspaceProcedure
+    .meta({ openapi: { method: "GET", path: "/v1/projects/" } })
     .input(z.object({ workspaceId: z.string() }))
+    .use(workspaceAccessMiddleware)
+    .output(z.array(selectProjectSchema))
     .query(async ({ ctx, input }) => {
       return await ctx.db.query.project.findMany({
         where: (project, { eq }) => eq(project.workspaceId, input.workspaceId),

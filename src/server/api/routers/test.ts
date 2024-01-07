@@ -5,9 +5,14 @@ import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { project, test } from "~/server/db/schema";
 import { selectDeviceSchema } from "~/types/device";
 import { selectMeasurementSchema } from "~/types/measurement";
-import { insertTestSchema, selectTestSchema } from "~/types/test";
+import {
+  insertTestSchema,
+  publicInsertTestSchema,
+  selectTestSchema,
+} from "~/types/test";
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
 import { type db } from "~/server/db";
+import { projectAccessMiddleware } from "./project";
 
 export const testAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -68,31 +73,40 @@ export const testAccessMiddleware = experimental_standaloneMiddleware<{
 
 export const testRouter = createTRPCRouter({
   createTest: workspaceProcedure
-    .input(insertTestSchema)
+    .meta({ openapi: { method: "POST", path: "/v1/tests/" } })
+    .input(publicInsertTestSchema)
     .output(selectTestSchema)
     .mutation(async ({ ctx, input }) => {
-      const [testCreateResult] = await ctx.db
-        .insert(test)
-        .values({
-          name: input.name,
-          projectId: input.projectId,
-          measurementType: input.measurementType,
-        })
-        .returning();
+      return await ctx.db.transaction(async (tx) => {
+        const [testCreateResult] = await tx
+          .insert(test)
+          .values({
+            name: input.name,
+            projectId: input.projectId,
+            measurementType: input.measurementType,
+          })
+          .returning();
 
-      if (!testCreateResult) {
-        throw new Error("Failed to create test");
-      }
+        if (!testCreateResult) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create test",
+          });
+        }
 
-      await ctx.db
-        .update(project)
-        .set({ updatedAt: new Date() })
-        .where(eq(project.id, input.projectId));
-      return testCreateResult;
+        await tx
+          .update(project)
+          .set({ updatedAt: new Date() })
+          .where(eq(project.id, input.projectId));
+
+        return testCreateResult;
+      });
     }),
 
   getTestById: workspaceProcedure
+    .meta({ openapi: { method: "GET", path: "/v1/tests/{testId}" } })
     .input(z.object({ testId: z.string() }))
+    .use(testAccessMiddleware)
     .output(
       selectTestSchema.merge(
         z.object({
@@ -118,14 +132,20 @@ export const testRouter = createTRPCRouter({
       });
 
       if (!result) {
-        throw new Error("Failed to find test");
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Test not found",
+        });
       }
 
       return result;
     }),
 
   getAllTestsByProjectId: workspaceProcedure
+    .meta({ openapi: { method: "GET", path: "/v1/tests/" } })
+
     .input(z.object({ projectId: z.string() }))
+    .use(projectAccessMiddleware)
     .output(z.array(selectTestSchema))
     .query(async ({ input, ctx }) => {
       return await ctx.db.query.test.findMany({

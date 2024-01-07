@@ -8,6 +8,7 @@ import { selectSecretSchema } from "~/types/secret";
 import * as jose from "jose";
 import { env } from "~/env";
 import { workspaceAccessMiddleware } from "./workspace";
+import { TRPCError } from "@trpc/server";
 
 const jwtSecret = new TextEncoder().encode(env.JWT_SECRET);
 
@@ -46,7 +47,10 @@ export const secretRouter = createTRPCRouter({
         .returning();
 
       if (!secretCreateResult) {
-        throw new Error("Failed to create test");
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to create secret",
+        });
       }
 
       await ctx.db
