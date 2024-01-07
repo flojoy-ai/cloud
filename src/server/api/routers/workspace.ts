@@ -12,6 +12,55 @@ import {
   selectWorkspaceSchema,
 } from "~/types/workspace";
 
+import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
+
+export const workspaceAccessMiddleware = experimental_standaloneMiddleware<{
+  ctx: { db: typeof db; userId: string; workspaceId: string | null };
+  input: { workspaceId: string };
+}>().create(async (opts) => {
+  const workspace = await opts.ctx.db.query.workspace.findFirst({
+    where: (workspace, { eq }) => eq(workspace.id, opts.input.workspaceId),
+  });
+
+  if (!workspace) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Workspace not found",
+    });
+  }
+
+  // There are 2 cases:
+  // Case 1: Authentication with secret key, in this case workspaceId will be
+  // defined in the ctx, thus just need to check if the resource belongs to that
+  // workspace, then we will be done.
+  if (opts.ctx.workspaceId && workspace.id !== opts.ctx.workspaceId) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You do not have access to this workspace",
+    });
+  }
+
+  // Case 2: Authentication with session, in this case we need to check if the
+  // has access to the workspace that this resource belongs to
+  if (!opts.ctx.workspaceId) {
+    const perm = await opts.ctx.db.query.workspace_user.findFirst({
+      where: (workspace_user, { and, eq }) =>
+        and(
+          eq(workspace_user.workspaceId, workspace.id),
+          eq(workspace_user.userId, opts.ctx.userId),
+        ),
+    });
+    if (!perm) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "You do not have access to this workspace",
+      });
+    }
+  }
+
+  return opts.next();
+});
+
 export const workspaceRouter = createTRPCRouter({
   createWorkspace: protectedProcedure
     .input(publicInsertWorkspaceSchema)

@@ -10,7 +10,7 @@ import {
 } from "~/types/project";
 import { type db } from "~/server/db";
 
-const projectAccessMiddleware = experimental_standaloneMiddleware<{
+export const projectAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
   input: { projectId: string };
 }>().create(async (opts) => {

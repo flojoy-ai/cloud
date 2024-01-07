@@ -7,13 +7,16 @@ import { selectSecretSchema } from "~/types/secret";
 
 import * as jose from "jose";
 import { env } from "~/env";
+import { workspaceAccessMiddleware } from "./workspace";
 
 const jwtSecret = new TextEncoder().encode(env.JWT_SECRET);
 
 export const secretRouter = createTRPCRouter({
-  createSecret: workspaceProcedure
+  _createSecret: workspaceProcedure
+    .input(z.object({ workspaceId: z.string() }))
+    .use(workspaceAccessMiddleware)
     .output(selectSecretSchema)
-    .mutation(async ({ ctx }) => {
+    .mutation(async ({ ctx, input }) => {
       const date = new Date();
 
       const jwtValue = await new jose.SignJWT({
@@ -28,7 +31,7 @@ export const secretRouter = createTRPCRouter({
         .delete(secret)
         .where(
           and(
-            eq(secret.workspaceId, ctx.workspaceId),
+            eq(secret.workspaceId, input.workspaceId),
             eq(secret.userId, ctx.userId),
           ),
         );
@@ -37,7 +40,7 @@ export const secretRouter = createTRPCRouter({
         .insert(secret)
         .values({
           userId: ctx.userId,
-          workspaceId: ctx.workspaceId,
+          workspaceId: input.workspaceId,
           value: jwtValue,
         })
         .returning();
@@ -49,18 +52,20 @@ export const secretRouter = createTRPCRouter({
       await ctx.db
         .update(workspace)
         .set({ updatedAt: new Date() })
-        .where(eq(workspace.id, ctx.workspaceId));
+        .where(eq(workspace.id, input.workspaceId));
 
       return secretCreateResult;
     }),
 
-  getSecret: workspaceProcedure
+  _getSecret: workspaceProcedure
+    .input(z.object({ workspaceId: z.string() }))
+    .use(workspaceAccessMiddleware)
     .output(z.optional(selectSecretSchema))
-    .query(async ({ ctx }) => {
+    .query(async ({ ctx, input }) => {
       return await ctx.db.query.secret.findFirst({
         where: (secret, { eq, and }) =>
           and(
-            eq(secret.workspaceId, ctx.workspaceId),
+            eq(secret.workspaceId, input.workspaceId),
             eq(secret.userId, ctx.userId),
           ),
       });

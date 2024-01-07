@@ -10,6 +10,73 @@ import {
   publicInsertMeasurementSchema,
   selectMeasurementSchema,
 } from "~/types/measurement";
+import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
+import { type db } from "~/server/db";
+
+export const measurementAccessMiddleware = experimental_standaloneMiddleware<{
+  ctx: { db: typeof db; userId: string; workspaceId: string | null };
+  input: { measurementId: string };
+}>().create(async (opts) => {
+  const measurement = await opts.ctx.db.query.measurement.findFirst({
+    where: (measurement, { eq }) =>
+      eq(measurement.id, opts.input.measurementId),
+    with: {
+      device: {
+        with: {
+          project: {
+            with: {
+              workspace: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!measurement) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Measurement not found",
+    });
+  }
+
+  // There are 2 cases:
+  // Case 1: Authentication with secret key, in this case workspaceId will be
+  // defined in the ctx, thus just need to check if the resource belongs to that
+  // workspace, then we will be done.
+  if (
+    opts.ctx.workspaceId &&
+    measurement.device.project.workspace.id !== opts.ctx.workspaceId
+  ) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You do not have access to this measurement",
+    });
+  }
+
+  // Case 2: Authentication with session, in this case we need to check if the
+  // has access to the workspace that this resource belongs to
+  if (!opts.ctx.workspaceId) {
+    const perm = await opts.ctx.db.query.workspace_user.findFirst({
+      where: (workspace_user, { and, eq }) =>
+        and(
+          eq(
+            workspace_user.workspaceId,
+            measurement.device.project.workspace.id,
+          ),
+          eq(workspace_user.userId, opts.ctx.userId),
+        ),
+    });
+    if (!perm) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "You do not have access to this measurement",
+      });
+    }
+  }
+
+  return opts.next();
+});
 
 export const measurementRouter = createTRPCRouter({
   createMeasurement: workspaceProcedure

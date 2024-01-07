@@ -13,7 +13,7 @@ const CreateSample = () => {
   const [isCreating, setIsCreating] = useState<boolean>(false);
   const workspaceCreate = api.workspace.createWorkspace.useMutation();
   const projectCreate = api.project.createProject.useMutation();
-  const devicesCreate = api.device.createDevices.useMutation();
+  const devicesCreate = api.device._createDevices.useMutation();
   const testCreate = api.test.createTest.useMutation();
   const measurementsCreate = api.measurement.createMeasurements.useMutation();
 

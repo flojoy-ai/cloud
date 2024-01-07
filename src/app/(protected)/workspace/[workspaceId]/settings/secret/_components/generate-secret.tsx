@@ -5,9 +5,13 @@ import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import { api } from "~/trpc/react";
 
-const GenerateSecret = () => {
+type Props = {
+  workspaceId: string;
+};
+
+const GenerateSecret = ({ workspaceId }: Props) => {
   const router = useRouter();
-  const generateSecret = api.secret.createSecret.useMutation({
+  const generateSecret = api.secret._createSecret.useMutation({
     onSuccess: () => {
       router.refresh();
     },
@@ -16,7 +20,7 @@ const GenerateSecret = () => {
   return (
     <Button
       onClick={() =>
-        toast.promise(generateSecret.mutateAsync(), {
+        toast.promise(generateSecret.mutateAsync({ workspaceId }), {
           loading: "Creating your secret...",
           success: "Your secret is ready.",
           error: "Something went wrong :(",

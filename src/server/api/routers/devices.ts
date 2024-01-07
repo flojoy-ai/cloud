@@ -9,8 +9,9 @@ import { publicInsertDeviceSchema, selectDeviceSchema } from "~/types/device";
 import { selectMeasurementSchema } from "~/types/measurement";
 import { selectTestSchema } from "~/types/test";
 import { type db } from "~/server/db";
+import { projectAccessMiddleware } from "./project";
 
-const deviceAccessMiddleware = experimental_standaloneMiddleware<{
+export const deviceAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
   input: { deviceId: string };
 }>().create(async (opts) => {
@@ -69,7 +70,11 @@ const deviceAccessMiddleware = experimental_standaloneMiddleware<{
 
 export const deviceRouter = createTRPCRouter({
   createDevice: workspaceProcedure
+    .meta({
+      openapi: { method: "POST", path: "/v1/devices" },
+    })
     .input(publicInsertDeviceSchema)
+    .use(projectAccessMiddleware)
     .output(selectDeviceSchema)
     .mutation(async ({ ctx, input }) => {
       const [deviceCreateResult] = await ctx.db
@@ -89,7 +94,7 @@ export const deviceRouter = createTRPCRouter({
       return deviceCreateResult;
     }),
 
-  createDevices: workspaceProcedure
+  _createDevices: workspaceProcedure
     .input(z.array(publicInsertDeviceSchema))
     .output(z.array(selectDeviceSchema))
     .mutation(async ({ ctx, input }) => {
@@ -118,7 +123,10 @@ export const deviceRouter = createTRPCRouter({
 
   getDeviceById: workspaceProcedure
     .meta({
-      openapi: { method: "GET", path: "/v1/devices/{deviceId}" },
+      openapi: {
+        method: "GET",
+        path: "/v1/devices/{deviceId}",
+      },
     })
     .input(z.object({ deviceId: z.string() }))
     .use(deviceAccessMiddleware)
@@ -154,11 +162,35 @@ export const deviceRouter = createTRPCRouter({
     }),
 
   getAllDevicesByProjectId: workspaceProcedure
+    .meta({
+      openapi: { method: "GET", path: "/v1/devices" },
+    })
     .input(z.object({ projectId: z.string() }))
+    .use(projectAccessMiddleware)
     .output(z.array(selectDeviceSchema))
     .query(async ({ input, ctx }) => {
       return await ctx.db.query.device.findMany({
         where: (device, { eq }) => eq(device.projectId, input.projectId),
       });
+    }),
+
+  deleteDeviceById: workspaceProcedure
+    .meta({
+      openapi: { method: "DELETE", path: "/v1/devices/{deviceId}" },
+    })
+    .input(z.object({ deviceId: z.string() }))
+    .use(deviceAccessMiddleware)
+    .output(selectDeviceSchema)
+    .query(async ({ input, ctx }) => {
+      const [deleted] = await ctx.db
+        .delete(device)
+        .where(eq(device.id, input.deviceId))
+        .returning();
+
+      if (!deleted) {
+        throw new Error("Failed to delete device");
+      }
+
+      return deleted;
     }),
 });
