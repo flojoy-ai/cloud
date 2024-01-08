@@ -62,7 +62,7 @@ export const projectAccessMiddleware = experimental_standaloneMiddleware<{
 export const projectRouter = createTRPCRouter({
   createProject: workspaceProcedure
     .meta({
-      openapi: { method: "POST", path: "/v1/projects/" },
+      openapi: { method: "POST", path: "/v1/projects/", tags: ["project"] },
     })
     .input(publicInsertProjectSchema)
     .output(selectProjectSchema)
@@ -90,7 +90,13 @@ export const projectRouter = createTRPCRouter({
     }),
 
   getProjectById: workspaceProcedure
-    .meta({ openapi: { method: "GET", path: "/v1/projects/{projectId}" } })
+    .meta({
+      openapi: {
+        method: "GET",
+        path: "/v1/projects/{projectId}",
+        tags: ["project"],
+      },
+    })
     .input(z.object({ projectId: z.string() }))
     .use(projectAccessMiddleware)
     .output(selectProjectSchema)
@@ -108,7 +114,9 @@ export const projectRouter = createTRPCRouter({
     }),
 
   getAllProjectsByWorkspaceId: workspaceProcedure
-    .meta({ openapi: { method: "GET", path: "/v1/projects/" } })
+    .meta({
+      openapi: { method: "GET", path: "/v1/projects/", tags: ["project"] },
+    })
     .input(z.object({ workspaceId: z.string() }))
     .use(workspaceAccessMiddleware)
     .output(z.array(selectProjectSchema))

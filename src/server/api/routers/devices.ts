@@ -71,7 +71,7 @@ export const deviceAccessMiddleware = experimental_standaloneMiddleware<{
 export const deviceRouter = createTRPCRouter({
   createDevice: workspaceProcedure
     .meta({
-      openapi: { method: "POST", path: "/v1/devices" },
+      openapi: { method: "POST", path: "/v1/devices", tags: ["device"] },
     })
     .input(publicInsertDeviceSchema)
     .use(projectAccessMiddleware)
@@ -139,6 +139,7 @@ export const deviceRouter = createTRPCRouter({
       openapi: {
         method: "GET",
         path: "/v1/devices/{deviceId}",
+        tags: ["device"],
       },
     })
     .input(z.object({ deviceId: z.string() }))
@@ -179,7 +180,7 @@ export const deviceRouter = createTRPCRouter({
 
   getAllDevicesByProjectId: workspaceProcedure
     .meta({
-      openapi: { method: "GET", path: "/v1/devices" },
+      openapi: { method: "GET", path: "/v1/devices", tags: ["device"] },
     })
     .input(z.object({ projectId: z.string() }))
     .use(projectAccessMiddleware)
@@ -192,7 +193,11 @@ export const deviceRouter = createTRPCRouter({
 
   deleteDeviceById: workspaceProcedure
     .meta({
-      openapi: { method: "DELETE", path: "/v1/devices/{deviceId}" },
+      openapi: {
+        method: "DELETE",
+        path: "/v1/devices/{deviceId}",
+        tags: ["device"],
+      },
     })
     .input(z.object({ deviceId: z.string() }))
     .use(deviceAccessMiddleware)

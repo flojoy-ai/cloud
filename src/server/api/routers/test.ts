@@ -69,7 +69,7 @@ export const testAccessMiddleware = experimental_standaloneMiddleware<{
 
 export const testRouter = createTRPCRouter({
   createTest: workspaceProcedure
-    .meta({ openapi: { method: "POST", path: "/v1/tests/" } })
+    .meta({ openapi: { method: "POST", path: "/v1/tests/", tags: ["test"] } })
     .input(publicInsertTestSchema)
     .output(selectTestSchema)
     .mutation(async ({ ctx, input }) => {
@@ -100,7 +100,9 @@ export const testRouter = createTRPCRouter({
     }),
 
   getTestById: workspaceProcedure
-    .meta({ openapi: { method: "GET", path: "/v1/tests/{testId}" } })
+    .meta({
+      openapi: { method: "GET", path: "/v1/tests/{testId}", tags: ["test"] },
+    })
     .input(z.object({ testId: z.string() }))
     .use(testAccessMiddleware)
     .output(
@@ -138,7 +140,7 @@ export const testRouter = createTRPCRouter({
     }),
 
   getAllTestsByProjectId: workspaceProcedure
-    .meta({ openapi: { method: "GET", path: "/v1/tests/" } })
+    .meta({ openapi: { method: "GET", path: "/v1/tests/", tags: ["test"] } })
 
     .input(z.object({ projectId: z.string() }))
     .use(projectAccessMiddleware)

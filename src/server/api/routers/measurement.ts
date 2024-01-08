@@ -82,7 +82,11 @@ export const measurementAccessMiddleware = experimental_standaloneMiddleware<{
 export const measurementRouter = createTRPCRouter({
   createMeasurement: workspaceProcedure
     .meta({
-      openapi: { method: "POST", path: "/v1/measurements/" },
+      openapi: {
+        method: "POST",
+        path: "/v1/measurements/",
+        tags: ["measurement"],
+      },
     })
     .input(publicInsertMeasurementSchema)
     .use(deviceAccessMiddleware)
@@ -163,7 +167,11 @@ export const measurementRouter = createTRPCRouter({
 
   getAllMeasurementsByTestId: workspaceProcedure
     .meta({
-      openapi: { method: "GET", path: "/v1/measurements/" },
+      openapi: {
+        method: "GET",
+        path: "/v1/measurements/",
+        tags: ["measurement"],
+      },
     })
     .input(
       z.object({

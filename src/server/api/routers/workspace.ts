@@ -92,7 +92,11 @@ export const workspaceRouter = createTRPCRouter({
 
   updateWorkspace: workspaceProcedure
     .meta({
-      openapi: { method: "PATCH", path: "/v1/workspaces/{workspaceId}" },
+      openapi: {
+        method: "PATCH",
+        path: "/v1/workspaces/{workspaceId}",
+        tags: ["workspace"],
+      },
     })
     .input(
       publicInsertWorkspaceSchema.merge(z.object({ workspaceId: z.string() })),
@@ -108,7 +112,11 @@ export const workspaceRouter = createTRPCRouter({
 
   deleteWorkspaceById: workspaceProcedure
     .meta({
-      openapi: { method: "DELETE", path: "/v1/workspaces/{workspaceId}" },
+      openapi: {
+        method: "DELETE",
+        path: "/v1/workspaces/{workspaceId}",
+        tags: ["workspace"],
+      },
     })
     .input(z.object({ workspaceId: z.string() }))
     .use(workspaceAccessMiddleware)
@@ -118,7 +126,9 @@ export const workspaceRouter = createTRPCRouter({
     }),
 
   getAllWorkspaces: protectedProcedure
-    .meta({ openapi: { method: "GET", path: "/v1/workspaces/" } })
+    .meta({
+      openapi: { method: "GET", path: "/v1/workspaces/", tags: ["workspace"] },
+    })
     .input(z.void())
     .output(z.array(selectWorkspaceSchema))
     .query(async ({ ctx }) => {
@@ -142,7 +152,13 @@ export const workspaceRouter = createTRPCRouter({
     }),
 
   getWorkspaceById: workspaceProcedure
-    .meta({ openapi: { method: "GET", path: "/v1/workspaces/{workspaceId}" } })
+    .meta({
+      openapi: {
+        method: "GET",
+        path: "/v1/workspaces/{workspaceId}",
+        tags: ["workspace"],
+      },
+    })
     .input(z.object({ workspaceId: z.string() }))
     .use(workspaceAccessMiddleware)
     .output(selectWorkspaceSchema)
