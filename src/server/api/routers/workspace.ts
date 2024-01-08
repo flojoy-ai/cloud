@@ -13,7 +13,7 @@ import {
 } from "~/types/workspace";
 
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
-import { hasWorkspaceAccess } from "~/lib/auth";
+import { checkWorkspaceAccess } from "~/lib/auth";
 
 export const workspaceAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -30,15 +30,24 @@ export const workspaceAccessMiddleware = experimental_standaloneMiddleware<{
     });
   }
 
-  const hasAccess = await hasWorkspaceAccess(opts.ctx, opts.input.workspaceId);
-  if (!hasAccess) {
+  const workspaceUser = await checkWorkspaceAccess(
+    opts.ctx,
+    opts.input.workspaceId,
+  );
+  if (!workspaceUser) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
       message: "You do not have access to this workspace",
     });
   }
 
-  return opts.next();
+  return opts.next({
+    // this infers the `workspaceId` in ctx to be non-null
+    // and also adds the respective resource id as well for use
+    ctx: {
+      workspaceId: workspaceUser.workspaceId,
+    },
+  });
 });
 
 export const workspaceRouter = createTRPCRouter({
@@ -88,7 +97,7 @@ export const workspaceRouter = createTRPCRouter({
       await ctx.db
         .update(workspace)
         .set(input)
-        .where(eq(workspace.id, input.workspaceId));
+        .where(eq(workspace.id, ctx.workspaceId));
     }),
 
   deleteWorkspaceById: workspaceProcedure

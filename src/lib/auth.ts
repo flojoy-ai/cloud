@@ -1,4 +1,5 @@
 import { type db } from "~/server/db";
+import { type SelectWorkspaceUser } from "~/types/workspace_user";
 
 export type AccessContext = {
   db: typeof db;
@@ -6,16 +7,16 @@ export type AccessContext = {
   workspaceId: string | null;
 };
 
-export const hasWorkspaceAccess = async (
+export const checkWorkspaceAccess = async (
   ctx: AccessContext,
   workspaceId: string,
-) => {
+): Promise<SelectWorkspaceUser | null> => {
   // There are 2 cases:
   // Case 1: Authentication with secret key, in this case workspaceId will be
   // defined in the ctx, thus just need to check if the resource belongs to that
   // workspace, then we will be done.
   if (ctx.workspaceId && workspaceId !== ctx.workspaceId) {
-    return false;
+    return null;
   }
 
   // Case 2: Authentication with session, in this case we need to check if the
@@ -29,9 +30,10 @@ export const hasWorkspaceAccess = async (
         ),
     });
     if (!perm) {
-      return false;
+      return null;
     }
+    return perm;
   }
 
-  return true;
+  return null;
 };

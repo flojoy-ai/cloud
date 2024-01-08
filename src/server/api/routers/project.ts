@@ -10,7 +10,7 @@ import {
 } from "~/types/project";
 import { type db } from "~/server/db";
 import { workspaceAccessMiddleware } from "./workspace";
-import { hasWorkspaceAccess } from "~/lib/auth";
+import { checkWorkspaceAccess } from "~/lib/auth";
 
 export const projectAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -28,15 +28,25 @@ export const projectAccessMiddleware = experimental_standaloneMiddleware<{
     });
   }
 
-  const hasAccess = await hasWorkspaceAccess(opts.ctx, project.workspace.id);
-  if (!hasAccess) {
+  const workspaceUser = await checkWorkspaceAccess(
+    opts.ctx,
+    project.workspace.id,
+  );
+  if (!workspaceUser) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
       message: "You do not have access to this project",
     });
   }
 
-  return opts.next();
+  return opts.next({
+    // this infers the `workspaceId` in ctx to be non-null
+    // and also adds the respective resource id as well for use
+    ctx: {
+      workspaceId: workspaceUser.workspaceId,
+      projectId: project.id,
+    },
+  });
 });
 
 export const projectRouter = createTRPCRouter({

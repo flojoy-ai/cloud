@@ -10,7 +10,7 @@ import { selectMeasurementSchema } from "~/types/measurement";
 import { selectTestSchema } from "~/types/test";
 import { type db } from "~/server/db";
 import { projectAccessMiddleware } from "./project";
-import { hasWorkspaceAccess } from "~/lib/auth";
+import { checkWorkspaceAccess } from "~/lib/auth";
 
 export const deviceAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -34,18 +34,22 @@ export const deviceAccessMiddleware = experimental_standaloneMiddleware<{
     });
   }
 
-  const hasAccess = await hasWorkspaceAccess(
+  const workspaceUser = await checkWorkspaceAccess(
     opts.ctx,
     device.project.workspace.id,
   );
-  if (!hasAccess) {
+  if (!workspaceUser) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
       message: "You do not have access to this device",
     });
   }
 
-  return opts.next();
+  return opts.next({
+    // this infers the `workspaceId` in ctx to be non-null
+    // and also adds the respective resource id as well for use
+    ctx: { workspaceId: workspaceUser.workspaceId, deviceId: device.id },
+  });
 });
 
 export const deviceRouter = createTRPCRouter({

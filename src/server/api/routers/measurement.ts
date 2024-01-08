@@ -13,7 +13,7 @@ import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
 import { type db } from "~/server/db";
 import { deviceAccessMiddleware } from "./devices";
 import { testAccessMiddleware } from "./test";
-import { hasWorkspaceAccess } from "~/lib/auth";
+import { checkWorkspaceAccess } from "~/lib/auth";
 
 export const measurementAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -42,18 +42,25 @@ export const measurementAccessMiddleware = experimental_standaloneMiddleware<{
     });
   }
 
-  const hasAccess = await hasWorkspaceAccess(
+  const workspaceUser = await checkWorkspaceAccess(
     opts.ctx,
     measurement.device.project.workspace.id,
   );
-  if (!hasAccess) {
+  if (!workspaceUser) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
       message: "You do not have access to this measurement",
     });
   }
 
-  return opts.next();
+  return opts.next({
+    // this infers the `workspaceId` in ctx to be non-null
+    // and also adds the respective resource id as well for use
+    ctx: {
+      workspaceId: workspaceUser.workspaceId,
+      measurementId: measurement.id,
+    },
+  });
 });
 
 export const measurementRouter = createTRPCRouter({
