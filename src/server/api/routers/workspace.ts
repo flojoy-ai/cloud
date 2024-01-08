@@ -96,7 +96,7 @@ export const workspaceRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       await ctx.db
         .update(workspace)
-        .set(input)
+        .set({ name: input.name })
         .where(eq(workspace.id, ctx.workspaceId));
     }),
 
