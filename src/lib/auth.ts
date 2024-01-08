@@ -9,20 +9,24 @@ export type AccessContext = {
 
 export const checkWorkspaceAccess = async (
   ctx: AccessContext,
-  workspaceId: string,
+  workspaceIdOfTheResource: string,
 ): Promise<SelectWorkspaceUser | null> => {
-  // Authentication with secret key, the key potentially does not have
-  // access to this workspace
-  if (ctx.workspaceId && workspaceId !== ctx.workspaceId) {
+  if (ctx.workspaceId && workspaceIdOfTheResource !== ctx.workspaceId) {
+    // This is for when we are authenticating with the secret key.
+    // Each secret key specifies the workspace ID it has access to, and this
+    // ID will be passed to here in context.
+    // If the ID in context does not align with the workspace ID of the resource,
+    // then we reject.
     return null;
   }
 
-  // Then we need to check if the key/user has access
-  // to the workspace that this resource belongs to
+  // Now we need to make sure the given user in ctx has access to the workspace
+  // that holds the resource. The userId field in ctx is always non-null no matter
+  // you are authenticating with a secret key or a user session.
   const perm = await ctx.db.query.workspace_user.findFirst({
     where: (workspace_user, { and, eq }) =>
       and(
-        eq(workspace_user.workspaceId, workspaceId),
+        eq(workspace_user.workspaceId, workspaceIdOfTheResource),
         eq(workspace_user.userId, ctx.userId),
       ),
   });
