@@ -22,7 +22,7 @@ export const secretRouter = createTRPCRouter({
 
       const jwtValue = await new jose.SignJWT({
         userId: ctx.userId,
-        workspaceId: ctx.workspaceId,
+        workspaceId: input.workspaceId,
       })
         .setProtectedHeader({ alg: "HS256" })
         .setIssuedAt(date)
