@@ -84,7 +84,6 @@ export const workspaceRouter = createTRPCRouter({
     )
     .output(z.void())
     .use(workspaceAccessMiddleware)
-    .output(z.void())
     .mutation(async ({ ctx, input }) => {
       await ctx.db
         .update(workspace)
@@ -101,7 +100,6 @@ export const workspaceRouter = createTRPCRouter({
       },
     })
     .input(z.object({ workspaceId: z.string() }))
-    .output(z.void())
     .use(workspaceAccessMiddleware)
     .output(z.void())
     .mutation(async ({ ctx, input }) => {
