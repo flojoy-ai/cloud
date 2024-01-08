@@ -98,6 +98,7 @@ export const workspaceRouter = createTRPCRouter({
       publicInsertWorkspaceSchema.merge(z.object({ workspaceId: z.string() })),
     )
     .use(workspaceAccessMiddleware)
+    .output(z.void())
     .mutation(async ({ ctx, input }) => {
       await ctx.db
         .update(workspace)
@@ -111,12 +112,15 @@ export const workspaceRouter = createTRPCRouter({
     })
     .input(z.object({ workspaceId: z.string() }))
     .use(workspaceAccessMiddleware)
+    .output(z.void())
     .mutation(async ({ ctx, input }) => {
       await ctx.db.delete(workspace).where(eq(workspace.id, input.workspaceId));
     }),
 
   getAllWorkspaces: protectedProcedure
     .meta({ openapi: { method: "GET", path: "/v1/workspaces/" } })
+    .input(z.void())
+    .output(z.array(selectWorkspaceSchema))
     .query(async ({ ctx }) => {
       const workspaceIds = (
         await db.query.workspace_user.findMany({

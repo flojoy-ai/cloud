@@ -32,17 +32,17 @@ export function MainNav() {
           Dashboard
         </Link>
 
-        {/* <Link */}
-        {/*   href="/pricing" */}
-        {/*   className={cn( */}
-        {/*     "transition-colors hover:text-foreground/80", */}
-        {/*     pathname?.startsWith("/pricing") */}
-        {/*       ? "text-foreground" */}
-        {/*       : "text-foreground/60", */}
-        {/*   )} */}
-        {/* > */}
-        {/*   Pricing */}
-        {/* </Link> */}
+        <Link
+          href="/docs"
+          className={cn(
+            "transition-colors hover:text-foreground/80",
+            pathname?.startsWith("/pricing")
+              ? "text-foreground"
+              : "text-foreground/60",
+          )}
+        >
+          Docs
+        </Link>
 
         <Link
           href="https://www.flojoy.ai/contact-sales"

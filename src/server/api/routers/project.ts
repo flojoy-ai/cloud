@@ -65,6 +65,7 @@ export const projectRouter = createTRPCRouter({
       openapi: { method: "POST", path: "/v1/projects/" },
     })
     .input(publicInsertProjectSchema)
+    .output(selectProjectSchema)
     .use(workspaceAccessMiddleware)
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.transaction(async (tx) => {
