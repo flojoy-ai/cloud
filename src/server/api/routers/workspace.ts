@@ -94,9 +94,11 @@ export const workspaceRouter = createTRPCRouter({
     .output(z.void())
     .use(workspaceAccessMiddleware)
     .mutation(async ({ ctx, input }) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { workspaceId, ...updatedWorkspace } = input;
       await ctx.db
         .update(workspace)
-        .set({ name: input.name })
+        .set(updatedWorkspace)
         .where(eq(workspace.id, ctx.workspaceId));
     }),
 
