@@ -23,7 +23,6 @@ const baseModal = (prefix: string) => ({
     .notNull()
     .primaryKey()
     .$defaultFn(() => prefix + "_" + createId()),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 // After a user signs up with the auth provider, we will create a user
@@ -35,9 +34,10 @@ const baseModal = (prefix: string) => ({
 // to complete the signup process.
 export const user = pgTable("user", {
   ...baseModal("user"),
-  updatedAt: timestamp("updated_at"),
   signupCompleted: boolean("signup_completed").default(false),
   email: text("email").notNull().unique(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at"),
 });
 
 // The user_session and user_key tables are internal to Lucia
@@ -74,6 +74,7 @@ export const workspace = pgTable(
     name: text("name").notNull().unique(),
     planType: planTypeEnum("plan_type").notNull(),
     totalSeats: integer("total_seats").notNull().default(1),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at"),
   },
   (workspace) => ({
@@ -98,13 +99,14 @@ export const workspace_user = pgTable(
   "workspace_user",
   {
     ...baseModal("workspace_user"),
-    workspaceId: text("workspace_id")
-      .notNull()
-      .references(() => workspace.id, { onDelete: "cascade" }),
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
     workspaceRole: workspaceRoleEnum("workspace_role").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (workspace_user) => ({
     workspaceUserWorkspaceIdUserIdIndex: index().on(
@@ -123,10 +125,11 @@ export const project = pgTable(
   {
     ...baseModal("project"),
     name: text("name").notNull(),
-    updatedAt: timestamp("updated_at"),
     workspaceId: text("workspace_id")
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at"),
   },
   (project) => ({
     projectNameIndex: index().on(project.name),
@@ -153,12 +156,13 @@ export const test = pgTable(
   "test",
   {
     ...baseModal("test"),
-    name: text("name").notNull(),
-    updatedAt: timestamp("updated_at"),
     measurementType: measurementTypeEnum("measurement_type").notNull(),
+    name: text("name").notNull(),
     projectId: text("project_id")
       .notNull()
       .references(() => project.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at"),
   },
   (test) => ({
     testNameIndex: index().on(test.name),
@@ -180,10 +184,11 @@ export const device = pgTable(
   {
     ...baseModal("device"),
     name: text("name").notNull(),
-    updatedAt: timestamp("updated_at"),
     projectId: text("project_id")
       .notNull()
       .references(() => project.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at"),
   },
   (device) => ({
     deviceNameIndex: index().on(device.name),
@@ -206,19 +211,20 @@ export const storageProviderEnum = pgEnum("storage_provider", ["s3", "local"]);
 export const measurement = pgTable(
   "measurement",
   {
-    ...baseModal("measurement"),
-    name: text("name").default("Untitled"),
+    isDeleted: boolean("is_deleted").default(false),
+    // TODO: this needs a bit more thought, would be nice to make it more structured
+    data: jsonb("data").$type<MeasurementData>().notNull(),
     deviceId: text("device_id")
       .notNull()
       .references(() => device.id, { onDelete: "cascade" }),
+    ...baseModal("measurement"),
+    measurementType: measurementTypeEnum("measurement_type").notNull(),
+    name: text("name").default("Untitled"),
+    storageProvider: storageProviderEnum("storage_provider").notNull(),
     testId: text("test_id")
       .notNull()
       .references(() => test.id, { onDelete: "cascade" }),
-    measurementType: measurementTypeEnum("measurement_type").notNull(),
-    storageProvider: storageProviderEnum("storage_provider").notNull(),
-    // TODO: this needs a bit more thought, would be nice to make it more structured
-    data: jsonb("data").$type<MeasurementData>().notNull(),
-    isDeleted: boolean("is_deleted").default(false),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (measurement) => ({
     measurementNameIndex: index().on(measurement.name),
@@ -246,6 +252,7 @@ export const tag = pgTable(
     measurementId: text("measurement_id")
       .notNull()
       .references(() => measurement.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (tags) => ({
     tagNameMeasurementIdIndex: index().on(tags.name, tags.measurementId),
@@ -257,13 +264,14 @@ export const secret = pgTable(
   "secret",
   {
     ...baseModal("secret"),
-    value: text("value").notNull(),
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
+    value: text("value").notNull(),
     workspaceId: text("workspace_id")
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
     lastUsedAt: timestamp("last_used_at"),
   },
   (secret) => ({
