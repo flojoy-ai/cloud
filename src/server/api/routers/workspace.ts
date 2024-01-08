@@ -13,6 +13,7 @@ import {
 } from "~/types/workspace";
 
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
+import { hasWorkspaceAccess } from "~/lib/auth";
 
 export const workspaceAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -29,33 +30,12 @@ export const workspaceAccessMiddleware = experimental_standaloneMiddleware<{
     });
   }
 
-  // There are 2 cases:
-  // Case 1: Authentication with secret key, in this case workspaceId will be
-  // defined in the ctx, thus just need to check if the resource belongs to that
-  // workspace, then we will be done.
-  if (opts.ctx.workspaceId && workspace.id !== opts.ctx.workspaceId) {
+  const hasAccess = await hasWorkspaceAccess(opts.ctx, opts.input.workspaceId);
+  if (!hasAccess) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
       message: "You do not have access to this workspace",
     });
-  }
-
-  // Case 2: Authentication with session, in this case we need to check if the
-  // has access to the workspace that this resource belongs to
-  if (!opts.ctx.workspaceId) {
-    const perm = await opts.ctx.db.query.workspace_user.findFirst({
-      where: (workspace_user, { and, eq }) =>
-        and(
-          eq(workspace_user.workspaceId, workspace.id),
-          eq(workspace_user.userId, opts.ctx.userId),
-        ),
-    });
-    if (!perm) {
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "You do not have access to this workspace",
-      });
-    }
   }
 
   return opts.next();
@@ -64,6 +44,7 @@ export const workspaceAccessMiddleware = experimental_standaloneMiddleware<{
 export const workspaceRouter = createTRPCRouter({
   createWorkspace: protectedProcedure
     .input(publicInsertWorkspaceSchema)
+    .output(selectWorkspaceSchema)
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.transaction(async (tx) => {
         const [workspaceCreateResult] = await tx
@@ -101,6 +82,7 @@ export const workspaceRouter = createTRPCRouter({
     .input(
       publicInsertWorkspaceSchema.merge(z.object({ workspaceId: z.string() })),
     )
+    .output(z.void())
     .use(workspaceAccessMiddleware)
     .output(z.void())
     .mutation(async ({ ctx, input }) => {
@@ -119,6 +101,7 @@ export const workspaceRouter = createTRPCRouter({
       },
     })
     .input(z.object({ workspaceId: z.string() }))
+    .output(z.void())
     .use(workspaceAccessMiddleware)
     .output(z.void())
     .mutation(async ({ ctx, input }) => {

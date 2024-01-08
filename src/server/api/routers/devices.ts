@@ -10,6 +10,7 @@ import { selectMeasurementSchema } from "~/types/measurement";
 import { selectTestSchema } from "~/types/test";
 import { type db } from "~/server/db";
 import { projectAccessMiddleware } from "./project";
+import { hasWorkspaceAccess } from "~/lib/auth";
 
 export const deviceAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -33,36 +34,15 @@ export const deviceAccessMiddleware = experimental_standaloneMiddleware<{
     });
   }
 
-  // There are 2 cases:
-  // Case 1: Authentication with secret key, in this case workspaceId will be
-  // defined in the ctx, thus just need to check if the resource belongs to that
-  // workspace, then we will be done.
-  if (
-    opts.ctx.workspaceId &&
-    device.project.workspace.id !== opts.ctx.workspaceId
-  ) {
+  const hasAccess = await hasWorkspaceAccess(
+    opts.ctx,
+    device.project.workspace.id,
+  );
+  if (!hasAccess) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
       message: "You do not have access to this device",
     });
-  }
-
-  // Case 2: Authentication with session, in this case we need to check if the
-  // has access to the workspace that this resource belongs to
-  if (!opts.ctx.workspaceId) {
-    const perm = await opts.ctx.db.query.workspace_user.findFirst({
-      where: (workspace_user, { and, eq }) =>
-        and(
-          eq(workspace_user.workspaceId, device.project.workspace.id),
-          eq(workspace_user.userId, opts.ctx.userId),
-        ),
-    });
-    if (!perm) {
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "You do not have access to this device",
-      });
-    }
   }
 
   return opts.next();
