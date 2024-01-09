@@ -25,11 +25,7 @@ export const measurementAccessMiddleware = experimental_standaloneMiddleware<{
     with: {
       device: {
         with: {
-          project: {
-            with: {
-              workspace: true,
-            },
-          },
+          workspace: true,
         },
       },
     },
@@ -44,7 +40,7 @@ export const measurementAccessMiddleware = experimental_standaloneMiddleware<{
 
   const workspaceUser = await checkWorkspaceAccess(
     opts.ctx,
-    measurement.device.project.workspace.id,
+    measurement.device.workspace.id,
   );
   if (!workspaceUser) {
     throw new TRPCError({

@@ -1,16 +1,17 @@
-import { eq } from "drizzle-orm";
+import { type SQL, eq } from "drizzle-orm";
 import { z } from "zod";
 
 import _ from "lodash";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
-import { device, project } from "~/server/db/schema";
+import { device, project, project_device, workspace } from "~/server/db/schema";
 import { publicInsertDeviceSchema, selectDeviceSchema } from "~/types/device";
 import { selectMeasurementSchema } from "~/types/measurement";
 import { selectTestSchema } from "~/types/test";
 import { type db } from "~/server/db";
 import { projectAccessMiddleware } from "./project";
 import { checkWorkspaceAccess } from "~/lib/auth";
+import { workspaceAccessMiddleware } from "./workspace";
 
 export const deviceAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -19,11 +20,7 @@ export const deviceAccessMiddleware = experimental_standaloneMiddleware<{
   const device = await opts.ctx.db.query.device.findFirst({
     where: (device, { eq }) => eq(device.id, opts.input.deviceId),
     with: {
-      project: {
-        with: {
-          workspace: true,
-        },
-      },
+      workspace: true,
     },
   });
 
@@ -36,7 +33,7 @@ export const deviceAccessMiddleware = experimental_standaloneMiddleware<{
 
   const workspaceUser = await checkWorkspaceAccess(
     opts.ctx,
-    device.project.workspace.id,
+    device.workspace.id,
   );
   if (!workspaceUser) {
     throw new TRPCError({
@@ -58,7 +55,7 @@ export const deviceRouter = createTRPCRouter({
       openapi: { method: "POST", path: "/v1/devices", tags: ["device"] },
     })
     .input(publicInsertDeviceSchema)
-    .use(projectAccessMiddleware)
+    .use(workspaceAccessMiddleware)
     .output(selectDeviceSchema)
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.transaction(async (tx) => {
@@ -75,9 +72,9 @@ export const deviceRouter = createTRPCRouter({
         }
 
         await tx
-          .update(project)
+          .update(workspace)
           .set({ updatedAt: new Date() })
-          .where(eq(project.id, input.projectId));
+          .where(eq(workspace.id, input.workspaceId));
 
         return deviceCreateResult;
       });
@@ -91,12 +88,12 @@ export const deviceRouter = createTRPCRouter({
     .output(z.array(selectDeviceSchema))
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.transaction(async (tx) => {
-        const devicesCreateResult = await tx
+        const devices = await tx
           .insert(device)
           .values([...input])
           .returning();
 
-        if (!devicesCreateResult) {
+        if (!devices) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message: "Failed to create devices",
@@ -104,17 +101,17 @@ export const deviceRouter = createTRPCRouter({
         }
 
         await Promise.all(
-          _.uniq(input.map((device) => device.projectId)).map(
-            async (projectId) => {
+          _.uniq(input.map((device) => device.workspaceId)).map(
+            async (workspaceId) => {
               await tx
-                .update(project)
+                .update(workspace)
                 .set({ updatedAt: new Date() })
-                .where(eq(project.id, projectId));
+                .where(eq(workspace.id, workspaceId));
             },
           ),
         );
 
-        return devicesCreateResult;
+        return devices;
       });
     }),
 
@@ -162,17 +159,43 @@ export const deviceRouter = createTRPCRouter({
       return result;
     }),
 
-  getAllDevicesByProjectId: workspaceProcedure
+  getAllDevices: workspaceProcedure
     .meta({
       openapi: { method: "GET", path: "/v1/devices", tags: ["device"] },
     })
-    .input(z.object({ projectId: z.string() }))
-    .use(projectAccessMiddleware)
+    .input(
+      z.object({ workspaceId: z.string(), projectId: z.string().optional() }),
+    )
+    .use(workspaceAccessMiddleware)
     .output(z.array(selectDeviceSchema))
     .query(async ({ input, ctx }) => {
-      return await ctx.db.query.device.findMany({
-        where: (device, { eq }) => eq(device.projectId, input.projectId),
-      });
+      const devices = ctx.db
+        .select()
+        .from(device)
+        .where(eq(device.workspaceId, input.workspaceId));
+
+      if (input.projectId) {
+        const projects_devices = ctx.db
+          .select()
+          .from(project_device)
+          .where(eq(project_device.projectId, input.projectId))
+          .as("projects_devices");
+
+        const temp = devices.as("devices");
+
+        return await ctx.db
+          .select({
+            name: temp.name,
+            workspaceId: temp.workspaceId,
+            createdAt: temp.createdAt,
+            updatedAt: temp.updatedAt,
+            id: temp.id,
+          })
+          .from(temp)
+          .innerJoin(projects_devices, eq(temp.id, projects_devices.deviceId));
+      } else {
+        return await devices;
+      }
     }),
 
   deleteDeviceById: workspaceProcedure

@@ -7,7 +7,7 @@ export const insertDeviceSchema = createInsertSchema(device);
 
 export const publicInsertDeviceSchema = insertDeviceSchema.pick({
   name: true,
-  projectId: true,
+  workspaceId: true,
 });
 
 export const selectDeviceSchema = createSelectSchema(device);

@@ -1,7 +1,6 @@
 init:
   pnpm install
 
-  pnpm vercel link
   pnpm vercel env pull
 
   pnpm supabase start
@@ -15,6 +14,7 @@ dev:
 reset:
   pnpm supabase start
   pnpm supabase db reset
+  pnpm db:push
 
 stop:
   pnpm supabase stop

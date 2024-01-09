@@ -54,7 +54,7 @@ const CreateDevice = ({ project }: Props) => {
   const form = useForm<z.infer<typeof insertDeviceSchema>>({
     resolver: zodResolver(insertDeviceSchema),
     defaultValues: {
-      projectId: project.id,
+      workspaceId: project.workspaceId,
     },
   });
 
