@@ -10,6 +10,8 @@ import {
 } from "~/components/ui/card";
 import { getPrettyTime } from "~/lib/time";
 import { type SelectWorkspace } from "~/types/workspace";
+import { ContextMenu, ContextMenuTrigger } from "~/components/ui/context-menu";
+import WorkspaceCardContextMenu from "./workspace-card-context-menu";
 
 type Props = {
   workspace: SelectWorkspace;
@@ -17,24 +19,31 @@ type Props = {
 
 export default async function WorkspaceCard({ workspace }: Props) {
   return (
-    <Link href={`/workspace/${workspace.id}`}>
-      <Card className="transition-all duration-300 hover:bg-secondary/80">
-        <CardHeader>
-          <CardTitle className="overflow-hidden text-ellipsis whitespace-nowrap">
-            {workspace.name}
-          </CardTitle>
-          <CardDescription>{workspace.id}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Badge>{workspace.planType}</Badge>
-        </CardContent>
-        <CardFooter>
-          <div>
-            Last updated:{" "}
-            {workspace.updatedAt ? getPrettyTime(workspace.updatedAt) : "Never"}
-          </div>
-        </CardFooter>
-      </Card>
-    </Link>
+    <ContextMenu>
+      <ContextMenuTrigger>
+        <Link href={`/workspace/${workspace.id}`}>
+          <Card className="transition-all duration-300 hover:bg-secondary/80">
+            <CardHeader>
+              <CardTitle className="overflow-hidden text-ellipsis whitespace-nowrap">
+                {workspace.name}
+              </CardTitle>
+              <CardDescription>{workspace.id}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Badge>{workspace.planType}</Badge>
+            </CardContent>
+            <CardFooter>
+              <div>
+                Last updated:{" "}
+                {workspace.updatedAt
+                  ? getPrettyTime(workspace.updatedAt)
+                  : "Never"}
+              </div>
+            </CardFooter>
+          </Card>
+        </Link>
+      </ContextMenuTrigger>
+      <WorkspaceCardContextMenu workspace={workspace} />
+    </ContextMenu>
   );
 }
