@@ -1,9 +1,9 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
-import { project, workspace } from "~/server/db/schema";
+import { project, project_device, workspace } from "~/server/db/schema";
 import {
   publicInsertProjectSchema,
   selectProjectSchema,
@@ -11,6 +11,7 @@ import {
 import { type db } from "~/server/db";
 import { workspaceAccessMiddleware } from "./workspace";
 import { checkWorkspaceAccess } from "~/lib/auth";
+import { deviceAccessMiddleware } from "./devices";
 
 export const projectAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -114,5 +115,47 @@ export const projectRouter = createTRPCRouter({
       return await ctx.db.query.project.findMany({
         where: (project, { eq }) => eq(project.workspaceId, input.workspaceId),
       });
+    }),
+
+  addDeviceToProject: workspaceProcedure
+    .meta({
+      openapi: {
+        method: "PUT",
+        path: "/v1/projects/{projectId}/devices/{deviceId}",
+        tags: ["project", "device"],
+      },
+    })
+    .input(z.object({ projectId: z.string(), deviceId: z.string() }))
+    .use(projectAccessMiddleware)
+    .use(deviceAccessMiddleware)
+    .output(z.void())
+    .mutation(async ({ input, ctx }) => {
+      await ctx.db.insert(project_device).values({
+        deviceId: input.deviceId,
+        projectId: input.projectId,
+      });
+    }),
+
+  removeDeviceFromProject: workspaceProcedure
+    .meta({
+      openapi: {
+        method: "DELETE",
+        path: "/v1/projects/{projectId}/devices/{deviceId}",
+        tags: ["project", "device"],
+      },
+    })
+    .input(z.object({ projectId: z.string(), deviceId: z.string() }))
+    .use(projectAccessMiddleware)
+    .use(deviceAccessMiddleware)
+    .output(z.void())
+    .mutation(async ({ input, ctx }) => {
+      await ctx.db
+        .delete(project_device)
+        .where(
+          and(
+            eq(project_device.deviceId, input.deviceId),
+            eq(project_device.projectId, input.projectId),
+          ),
+        );
     }),
 });

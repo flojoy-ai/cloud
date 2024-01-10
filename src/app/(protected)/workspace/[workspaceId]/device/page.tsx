@@ -1,10 +1,21 @@
+import { columns } from "~/components/device/columns";
+import { DataTable } from "~/components/device/data-table";
 import {
   PageHeader,
   PageHeaderDescription,
   PageHeaderHeading,
 } from "~/components/page-header";
+import { api } from "~/trpc/server";
 
-export default function DeviceInventory() {
+export default async function DeviceInventory({
+  params,
+}: {
+  params: { workspaceId: string };
+}) {
+  const devices = await api.device.getAllDevices.query({
+    workspaceId: params.workspaceId,
+  });
+
   return (
     <div className="container max-w-screen-2xl">
       <PageHeader>
@@ -13,6 +24,9 @@ export default function DeviceInventory() {
           Here you can find all your register devices in this workspace.
         </PageHeaderDescription>
       </PageHeader>
+
+      <DataTable columns={columns} data={devices} />
+      <div className="py-4"></div>
     </div>
   );
 }

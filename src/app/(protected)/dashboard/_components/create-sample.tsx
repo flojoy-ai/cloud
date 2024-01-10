@@ -14,6 +14,7 @@ const CreateSample = () => {
   const workspaceCreate = api.workspace.createWorkspace.useMutation();
   const projectCreate = api.project.createProject.useMutation();
   const devicesCreate = api.device._createDevices.useMutation();
+  const addDeviceToProject = api.project.addDeviceToProject.useMutation();
   const testCreate = api.test.createTest.useMutation();
   const measurementsCreate = api.measurement._createMeasurements.useMutation();
 
@@ -57,9 +58,16 @@ const CreateSample = () => {
     const devices = await devicesCreate.mutateAsync(
       _.times(9, (i) => ({
         name: `HL1234-SN000${i + 1}`,
-        projectId: project.id,
+        workspaceId: workspace.id,
       })),
     );
+
+    for (const device of devices) {
+      await addDeviceToProject.mutateAsync({
+        deviceId: device.id,
+        projectId: project.id,
+      });
+    }
 
     await measurementsCreate.mutateAsync(
       devices.map((device, i) => ({
