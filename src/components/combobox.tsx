@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
 
@@ -18,23 +16,23 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { useState } from "react";
-import { type SelectTest } from "~/types/test";
-import { useExplorerStore } from "~/store/explorer";
-import { useShallow } from "zustand/react/shallow";
 
-type Props = {
-  tests: SelectTest[];
+type Props<T> = {
+  options: T[];
+  value: T | undefined;
+  setValue: (test: T | undefined) => void;
+  displaySelector: (val: T) => string;
+  valueSelector: (val: T) => string;
 };
 
-export function TestCombobox({ tests }: Props) {
+export function Combobox<T>({
+  options,
+  value,
+  setValue,
+  displaySelector,
+  valueSelector,
+}: Props<T>) {
   const [open, setOpen] = useState(false);
-
-  const { selectedTest, setSelectedTest } = useExplorerStore(
-    useShallow((state) => ({
-      selectedTest: state.selectedTest,
-      setSelectedTest: state.setSelectedTest,
-    })),
-  );
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -46,9 +44,7 @@ export function TestCombobox({ tests }: Props) {
           className="justify-between text-left"
         >
           <div className="block w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
-            {selectedTest
-              ? tests.find((test) => test.id === selectedTest.id)?.name
-              : "Select..."}
+            {value ? displaySelector(value) : "Select..."}
           </div>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -58,15 +54,15 @@ export function TestCombobox({ tests }: Props) {
           <CommandInput placeholder="Select test..." />
           <CommandEmpty>No test found.</CommandEmpty>
           <CommandGroup>
-            {tests.map((test) => (
+            {options.map((opt) => (
               <CommandItem
-                key={test.id}
-                value={test.id}
-                onSelect={(currentValue) => {
-                  setSelectedTest(
-                    currentValue === selectedTest?.id
+                key={valueSelector(opt)}
+                value={valueSelector(opt)}
+                onSelect={(val) => {
+                  setValue(
+                    value !== undefined && val === valueSelector(value)
                       ? undefined
-                      : tests.find((test) => test.id === currentValue),
+                      : options.find((opt) => valueSelector(opt) === val),
                   );
                   setOpen(false);
                 }}
@@ -74,10 +70,13 @@ export function TestCombobox({ tests }: Props) {
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    selectedTest?.id === test.id ? "opacity-100" : "opacity-0",
+                    value !== undefined &&
+                      valueSelector(value) === valueSelector(opt)
+                      ? "opacity-100"
+                      : "opacity-0",
                   )}
                 />
-                {test.name}
+                {displaySelector(opt)}
               </CommandItem>
             ))}
           </CommandGroup>
