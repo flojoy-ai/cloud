@@ -20,7 +20,9 @@ export default async function WorkspaceCard({ workspace }: Props) {
     <Link href={`/workspace/${workspace.id}`}>
       <Card className="transition-all duration-300 hover:bg-secondary/80">
         <CardHeader>
-          <CardTitle>{workspace.name}</CardTitle>
+          <CardTitle className="overflow-hidden text-ellipsis whitespace-nowrap">
+            {workspace.name}
+          </CardTitle>
           <CardDescription>{workspace.id}</CardDescription>
         </CardHeader>
         <CardContent>
