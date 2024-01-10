@@ -120,8 +120,8 @@ export const projectRouter = createTRPCRouter({
   addDeviceToProject: workspaceProcedure
     .meta({
       openapi: {
-        method: "GET",
-        path: "/v1/projects/{projectId}/devices/add/{deviceId}",
+        method: "PUT",
+        path: "/v1/projects/{projectId}/devices/{deviceId}",
         tags: ["project", "device"],
       },
     })
@@ -139,8 +139,8 @@ export const projectRouter = createTRPCRouter({
   removeDeviceFromProject: workspaceProcedure
     .meta({
       openapi: {
-        method: "GET",
-        path: "/v1/projects/{projectId}/devices/remove/{deviceId}",
+        method: "DELETE",
+        path: "/v1/projects/{projectId}/devices/{deviceId}",
         tags: ["project", "device"],
       },
     })
