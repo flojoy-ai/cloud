@@ -11,7 +11,7 @@ reset:
   pnpm vercel env pull
   pnpm supabase start
   pnpm supabase db reset
-  pnpm db:push
+  pnpm db:migrate
 
 stop:
   pnpm supabase stop
