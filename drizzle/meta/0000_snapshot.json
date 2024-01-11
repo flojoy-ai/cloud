@@ -1,5 +1,5 @@
 {
-  "id": "61f02a00-0824-4d96-aa0e-802edca1172d",
+  "id": "3d49f859-ea3e-4d80-8c6d-2fcbff27359f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -14,6 +14,18 @@
           "primaryKey": true,
           "notNull": true
         },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -21,23 +33,11 @@
           "notNull": true,
           "default": "now()"
         },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false
-        },
-        "project_id": {
-          "name": "project_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
         }
       },
       "indexes": {
@@ -50,12 +50,13 @@
         }
       },
       "foreignKeys": {
-        "cloud_device_project_id_cloud_project_id_fk": {
-          "name": "cloud_device_project_id_cloud_project_id_fk",
+        "cloud_device_workspace_id_cloud_workspace_id_fk": {
+          "name": "cloud_device_workspace_id_cloud_workspace_id_fk",
           "tableFrom": "cloud_device",
-          "tableTo": "cloud_project",
+          "tableTo": "cloud_workspace",
+          "schemaTo": "public",
           "columnsFrom": [
-            "project_id"
+            "workspace_id"
           ],
           "columnsTo": [
             "id"
@@ -66,11 +67,11 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "cloud_device_project_id_name_unique": {
-          "name": "cloud_device_project_id_name_unique",
+        "cloud_device_workspace_id_name_unique": {
+          "name": "cloud_device_workspace_id_name_unique",
           "nullsNotDistinct": false,
           "columns": [
-            "project_id",
+            "workspace_id",
             "name"
           ]
         }
@@ -80,18 +81,36 @@
       "name": "cloud_measurement",
       "schema": "",
       "columns": {
+        "is_deleted": {
+          "name": "is_deleted",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "data": {
+          "name": "data",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "device_id": {
+          "name": "device_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "id": {
           "name": "id",
           "type": "text",
           "primaryKey": true,
           "notNull": true
         },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
+        "measurement_type": {
+          "name": "measurement_type",
+          "type": "measurement_type",
           "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
+          "notNull": true
         },
         "name": {
           "name": "name",
@@ -100,9 +119,9 @@
           "notNull": false,
           "default": "'Untitled'"
         },
-        "device_id": {
-          "name": "device_id",
-          "type": "text",
+        "storage_provider": {
+          "name": "storage_provider",
+          "type": "storage_provider",
           "primaryKey": false,
           "notNull": true
         },
@@ -112,30 +131,12 @@
           "primaryKey": false,
           "notNull": true
         },
-        "measurement_type": {
-          "name": "measurement_type",
-          "type": "measurement_type",
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
           "primaryKey": false,
-          "notNull": true
-        },
-        "storage_provider": {
-          "name": "storage_provider",
-          "type": "storage_provider",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "data": {
-          "name": "data",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "is_deleted": {
-          "name": "is_deleted",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": false
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {
@@ -166,6 +167,7 @@
           "name": "cloud_measurement_device_id_cloud_device_id_fk",
           "tableFrom": "cloud_measurement",
           "tableTo": "cloud_device",
+          "schemaTo": "public",
           "columnsFrom": [
             "device_id"
           ],
@@ -179,6 +181,7 @@
           "name": "cloud_measurement_test_id_cloud_test_id_fk",
           "tableFrom": "cloud_measurement",
           "tableTo": "cloud_test",
+          "schemaTo": "public",
           "columnsFrom": [
             "test_id"
           ],
@@ -202,6 +205,18 @@
           "primaryKey": true,
           "notNull": true
         },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -209,23 +224,11 @@
           "notNull": true,
           "default": "now()"
         },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false
-        },
-        "workspace_id": {
-          "name": "workspace_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
         }
       },
       "indexes": {
@@ -242,6 +245,7 @@
           "name": "cloud_project_workspace_id_cloud_workspace_id_fk",
           "tableFrom": "cloud_project",
           "tableTo": "cloud_workspace",
+          "schemaTo": "public",
           "columnsFrom": [
             "workspace_id"
           ],
@@ -264,6 +268,102 @@
         }
       }
     },
+    "cloud_project_device": {
+      "name": "cloud_project_device",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "project_id": {
+          "name": "project_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "device_id": {
+          "name": "device_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "cloud_project_device_project_id_device_id_index": {
+          "name": "cloud_project_device_project_id_device_id_index",
+          "columns": [
+            "project_id",
+            "device_id"
+          ],
+          "isUnique": false
+        },
+        "cloud_project_device_project_id_index": {
+          "name": "cloud_project_device_project_id_index",
+          "columns": [
+            "project_id"
+          ],
+          "isUnique": false
+        },
+        "cloud_project_device_device_id_index": {
+          "name": "cloud_project_device_device_id_index",
+          "columns": [
+            "device_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "cloud_project_device_project_id_cloud_project_id_fk": {
+          "name": "cloud_project_device_project_id_cloud_project_id_fk",
+          "tableFrom": "cloud_project_device",
+          "tableTo": "cloud_project",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "project_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "cloud_project_device_device_id_cloud_device_id_fk": {
+          "name": "cloud_project_device_device_id_cloud_device_id_fk",
+          "tableFrom": "cloud_project_device",
+          "tableTo": "cloud_device",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "device_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "cloud_project_device_project_id_device_id_unique": {
+          "name": "cloud_project_device_project_id_device_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "project_id",
+            "device_id"
+          ]
+        }
+      }
+    },
     "cloud_secret": {
       "name": "cloud_secret",
       "schema": "",
@@ -274,21 +374,14 @@
           "primaryKey": true,
           "notNull": true
         },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "value": {
-          "name": "value",
+        "user_id": {
+          "name": "user_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "user_id": {
-          "name": "user_id",
+        "value": {
+          "name": "value",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -298,6 +391,19 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "last_used_at": {
+          "name": "last_used_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
@@ -306,6 +412,7 @@
           "name": "cloud_secret_user_id_cloud_user_id_fk",
           "tableFrom": "cloud_secret",
           "tableTo": "cloud_user",
+          "schemaTo": "public",
           "columnsFrom": [
             "user_id"
           ],
@@ -319,6 +426,7 @@
           "name": "cloud_secret_workspace_id_cloud_workspace_id_fk",
           "tableFrom": "cloud_secret",
           "tableTo": "cloud_workspace",
+          "schemaTo": "public",
           "columnsFrom": [
             "workspace_id"
           ],
@@ -351,13 +459,6 @@
           "primaryKey": true,
           "notNull": true
         },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
         "name": {
           "name": "name",
           "type": "text",
@@ -369,6 +470,13 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {
@@ -386,6 +494,7 @@
           "name": "cloud_tag_measurement_id_cloud_measurement_id_fk",
           "tableFrom": "cloud_tag",
           "tableTo": "cloud_measurement",
+          "schemaTo": "public",
           "columnsFrom": [
             "measurement_id"
           ],
@@ -418,28 +527,15 @@
           "primaryKey": true,
           "notNull": true
         },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
+        "measurement_type": {
+          "name": "measurement_type",
+          "type": "measurement_type",
           "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
+          "notNull": true
         },
         "name": {
           "name": "name",
           "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "measurement_type": {
-          "name": "measurement_type",
-          "type": "measurement_type",
           "primaryKey": false,
           "notNull": true
         },
@@ -448,6 +544,19 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -464,6 +573,7 @@
           "name": "cloud_test_project_id_cloud_project_id_fk",
           "tableFrom": "cloud_test",
           "tableTo": "cloud_project",
+          "schemaTo": "public",
           "columnsFrom": [
             "project_id"
           ],
@@ -496,19 +606,6 @@
           "primaryKey": true,
           "notNull": true
         },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
         "signup_completed": {
           "name": "signup_completed",
           "type": "boolean",
@@ -521,6 +618,19 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
@@ -565,6 +675,7 @@
           "name": "cloud_user_key_user_id_cloud_user_id_fk",
           "tableFrom": "cloud_user_key",
           "tableTo": "cloud_user",
+          "schemaTo": "public",
           "columnsFrom": [
             "user_id"
           ],
@@ -619,6 +730,7 @@
           "name": "cloud_user_session_user_id_cloud_user_id_fk",
           "tableFrom": "cloud_user_session",
           "tableTo": "cloud_user",
+          "schemaTo": "public",
           "columnsFrom": [
             "user_id"
           ],
@@ -642,13 +754,6 @@
           "primaryKey": true,
           "notNull": true
         },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
         "name": {
           "name": "name",
           "type": "text",
@@ -667,6 +772,13 @@
           "primaryKey": false,
           "notNull": true,
           "default": 1
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
@@ -706,21 +818,14 @@
           "primaryKey": true,
           "notNull": true
         },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "workspace_id": {
-          "name": "workspace_id",
+        "user_id": {
+          "name": "user_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "user_id": {
-          "name": "user_id",
+        "workspace_id": {
+          "name": "workspace_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -730,6 +835,13 @@
           "type": "workspace_role",
           "primaryKey": false,
           "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {
@@ -757,12 +869,13 @@
         }
       },
       "foreignKeys": {
-        "cloud_workspace_user_workspace_id_cloud_workspace_id_fk": {
-          "name": "cloud_workspace_user_workspace_id_cloud_workspace_id_fk",
+        "cloud_workspace_user_user_id_cloud_user_id_fk": {
+          "name": "cloud_workspace_user_user_id_cloud_user_id_fk",
           "tableFrom": "cloud_workspace_user",
-          "tableTo": "cloud_workspace",
+          "tableTo": "cloud_user",
+          "schemaTo": "public",
           "columnsFrom": [
-            "workspace_id"
+            "user_id"
           ],
           "columnsTo": [
             "id"
@@ -770,12 +883,13 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "cloud_workspace_user_user_id_cloud_user_id_fk": {
-          "name": "cloud_workspace_user_user_id_cloud_user_id_fk",
+        "cloud_workspace_user_workspace_id_cloud_workspace_id_fk": {
+          "name": "cloud_workspace_user_workspace_id_cloud_workspace_id_fk",
           "tableFrom": "cloud_workspace_user",
-          "tableTo": "cloud_user",
+          "tableTo": "cloud_workspace",
+          "schemaTo": "public",
           "columnsFrom": [
-            "user_id"
+            "workspace_id"
           ],
           "columnsTo": [
             "id"
