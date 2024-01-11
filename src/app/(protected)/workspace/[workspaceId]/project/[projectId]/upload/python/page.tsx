@@ -17,6 +17,7 @@ import {
   oneLight,
 } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { useTheme } from "next-themes";
+import { Button } from "~/components/ui/button";
 
 const EXAMPLE_DATA: Record<MeasurementDataType, string> = {
   boolean: "Boolean(passed=True)",
@@ -92,16 +93,19 @@ client.upload(data, test_id, device_id)
       </div>
       <Separator />
       <div className="relative">
-        <Clipboard
-          size={32}
-          className="absolute right-4 top-4 cursor-pointer rounded-md bg-background/70 p-1 hover:bg-background/40"
+        <Button
+          size="icon"
+          variant="outline"
+          className="absolute right-4 top-4"
           onClick={() => {
             toast.promise(navigator.clipboard.writeText(code), {
               success: "Copied to clipboard",
               error: "Something went wrong :(",
             });
           }}
-        />
+        >
+          <Clipboard size={24} />
+        </Button>
         <SyntaxHighlighter
           language="python"
           style={resolvedTheme === "dark" ? oneDark : oneLight}
