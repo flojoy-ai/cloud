@@ -3,7 +3,8 @@ version: "3"
 services:
   flojoy-cloud-next:
     depends_on:
-      - flojoy-cloud-postgres
+      flojoy-cloud-postgres:
+        condition: service_healthy
     container_name: flojoy-cloud-next
     build:
       context: ./
@@ -27,6 +28,11 @@ services:
       - 5432:5432
     volumes:
       - ./data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 networks:
   flojoy-cloud-network:
