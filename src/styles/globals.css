@@ -73,4 +73,9 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* getto dark mode support for swagger */
+  .dark .swagger-ui {
+    filter: invert(100%) hue-rotate(180deg);
+  }
 }

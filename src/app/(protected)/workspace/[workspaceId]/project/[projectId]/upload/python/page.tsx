@@ -1,30 +1,63 @@
 "use client";
+
 import { Separator } from "~/components/ui/separator";
-import SyntaxHighlighter from "react-syntax-highlighter";
-// import { useTheme } from "next-themes";
-// import {
-//   oneDark,
-//   oneLight,
-// } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { api } from "~/trpc/react";
+import { useState } from "react";
+import { type SelectTest } from "~/types/test";
+import { Label } from "~/components/ui/label";
+import { type SelectDevice } from "~/types/device";
+import { Combobox } from "~/components/combobox";
+import { type MeasurementDataType } from "~/types/data";
+import Link from "next/link";
+import { Clipboard } from "lucide-react";
+import { toast } from "sonner";
+import {
+  oneDark,
+  oneLight,
+} from "react-syntax-highlighter/dist/esm/styles/prism";
+import { useTheme } from "next-themes";
+import { Button } from "~/components/ui/button";
 
-const code = `from flojoy_cloud import FlojoyCloud
+const EXAMPLE_DATA: Record<MeasurementDataType, string> = {
+  boolean: "Boolean(passed=True)",
+  dataframe: "Dataframe(dataframe={'x': [1,2,3,4,5], 'y': [2,4,6,8,10]})",
+};
 
-client = FlojoyCloud(api_key="YOUR_API_KEY")
+const UploadView = ({
+  params,
+}: {
+  params: { workspaceId: string; projectId: string };
+}) => {
+  const { data: tests } = api.test.getAllTestsByProjectId.useQuery({
+    projectId: params.projectId,
+  });
+  const { data: devices } = api.device.getAllDevices.useQuery({
+    workspaceId: params.workspaceId,
+    projectId: params.projectId,
+  });
 
-# test_name and device_name are both unique per project
+  const { resolvedTheme } = useTheme();
 
-test = client.get_test(test_name="PASS/FAIL Test", create_if_not_exist=True)
+  const [selectedTest, setSelectedTest] = useState<SelectTest | undefined>(
+    undefined,
+  );
+  const [selectedDevice, setSelectedDevice] = useState<
+    SelectDevice | undefined
+  >(undefined);
 
-device = client.get_device(device_name="Circuit Board #1", create_if_not_exist=False)
+  const code = `from flojoy.cloud import FlojoyCloud, Boolean, Dataframe
 
-data = {"passed": True}
+client = FlojoyCloud(workspace_secret="YOUR_WORKSPACE_SECRET")
 
-client.upload(data, test, device)
+data = ${EXAMPLE_DATA[selectedTest?.measurementType ?? "boolean"]}
+
+test_id = "${selectedTest?.id ?? "TEST_ID"}"
+
+device_id = "${selectedDevice?.id ?? "DEVICE_ID"}"
+
+client.upload(data, test_id, device_id)
 `;
-
-const UploadView = ({ params }: { params: { projectId: string } }) => {
-  // const { theme } = useTheme();
-  // if (!theme) return null;
 
   return (
     <div className="space-y-6">
@@ -34,8 +67,61 @@ const UploadView = ({ params }: { params: { projectId: string } }) => {
           Upload measurement with Flojoy Cloud's Python client
         </p>
       </div>
+      <div className="grid grid-cols-2 gap-x-4">
+        <div className="flex flex-col gap-2">
+          <Label>Test</Label>
+          <Combobox
+            options={tests ?? []}
+            value={selectedTest}
+            setValue={setSelectedTest}
+            displaySelector={(val) => val.name}
+            valueSelector={(val) => val.id}
+            placeholder="Select test"
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <Label>Device</Label>
+          <Combobox
+            options={devices ?? []}
+            value={selectedDevice}
+            setValue={setSelectedDevice}
+            displaySelector={(val) => val.name}
+            valueSelector={(val) => val.id}
+            placeholder="Select device"
+          />
+        </div>
+      </div>
       <Separator />
-      <SyntaxHighlighter language="python">{code}</SyntaxHighlighter>
+      <div className="relative">
+        <Button
+          size="icon"
+          variant="outline"
+          className="absolute right-4 top-4"
+          onClick={() => {
+            toast.promise(navigator.clipboard.writeText(code), {
+              success: "Copied to clipboard",
+              error: "Something went wrong :(",
+            });
+          }}
+        >
+          <Clipboard size={24} />
+        </Button>
+        <SyntaxHighlighter
+          language="python"
+          style={resolvedTheme === "dark" ? oneDark : oneLight}
+        >
+          {code}
+        </SyntaxHighlighter>
+      </div>
+      <div className="text-sm">
+        To get your workspace secret, go to{" "}
+        <Link
+          href={`/workspace/${params.workspaceId}/settings/secret`}
+          className="underline hover:opacity-70"
+        >
+          your workspace settings.
+        </Link>
+      </div>
     </div>
   );
 };

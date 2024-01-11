@@ -12,12 +12,12 @@ import { Badge } from "~/components/ui/badge";
 import { type SelectTest } from "~/types/test";
 import { useExplorerStore } from "~/store/explorer";
 import { useShallow } from "zustand/react/shallow";
-import { TestCombobox } from "./test-combobox";
 import BooleanViz from "~/components/visualization/boolean-viz";
 import DataFrameViz from "~/components/visualization/dataframe-viz";
 import { useState } from "react";
 import { DateTimeRangePicker } from "~/components/date-time-range-picker";
 import { type DateRange } from "react-day-picker";
+import { Combobox } from "~/components/combobox";
 
 type Props = {
   tests: SelectTest[];
@@ -25,12 +25,14 @@ type Props = {
 };
 
 const ExplorerVisualization = ({ tests, workspaceId }: Props) => {
-  const { selectedTest } = useExplorerStore(
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+
+  const { selectedTest, setSelectedTest } = useExplorerStore(
     useShallow((state) => ({
       selectedTest: state.selectedTest,
+      setSelectedTest: state.setSelectedTest,
     })),
   );
-  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
 
   const { data: measurements } =
     api.measurement.getAllMeasurementsByTestId.useQuery(
@@ -54,7 +56,13 @@ const ExplorerVisualization = ({ tests, workspaceId }: Props) => {
             <CardTitle>Select Test</CardTitle>
           </CardHeader>
           <CardContent>
-            <TestCombobox tests={tests ?? []} />
+            <Combobox
+              options={tests ?? []}
+              value={selectedTest}
+              setValue={setSelectedTest}
+              displaySelector={(val) => val.name}
+              valueSelector={(val) => val.id}
+            />
           </CardContent>
           <CardFooter>
             {tests?.length === 0 && (
