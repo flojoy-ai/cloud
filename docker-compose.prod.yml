@@ -1,0 +1,20 @@
+version: "3"
+
+services:
+  flojoy-cloud-next:
+    container_name: flojoy-cloud-next
+    build:
+      context: ./
+      dockerfile: ./docker/prod.Dockerfile
+      args:
+        ENV_VARIABLE: ${ENV_VARIABLE}
+        NEXT_PUBLIC_ENV_VARIABLE: ${NEXT_PUBLIC_ENV_VARIABLE}
+    restart: always
+    ports:
+      - 3000:3000
+
+  # Add more containers below (nginx, postgres, etc.)
+
+networks:
+  flojoy-cloud-network:
+    external: true
