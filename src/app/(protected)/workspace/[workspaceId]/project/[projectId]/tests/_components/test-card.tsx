@@ -11,8 +11,12 @@ import {
 } from "~/components/ui/card";
 import { getPrettyTime } from "~/lib/time";
 import { Badge } from "~/components/ui/badge";
-import { ContextMenu, ContextMenuTrigger } from "~/components/ui/context-menu";
-import CopyIdContextMenu from "~/components/copy-id-context-menu";
+import {
+  ContextMenu,
+  ContextMenuTrigger,
+  ContextMenuContent,
+} from "~/components/ui/context-menu";
+import CopyIdContextMenuItem from "~/components/copy-id-context-menu";
 
 type Props = {
   test: SelectTest;
@@ -41,7 +45,9 @@ const TestCard = ({ test, workspaceId }: Props) => {
           </Card>
         </Link>
       </ContextMenuTrigger>
-      <CopyIdContextMenu value={test.id} />
+      <ContextMenuContent>
+        <CopyIdContextMenuItem value={test.id} />
+      </ContextMenuContent>
     </ContextMenu>
   );
 };

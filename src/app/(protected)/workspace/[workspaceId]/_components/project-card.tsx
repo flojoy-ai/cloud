@@ -1,5 +1,5 @@
 import Link from "next/link";
-import CopyIdContextMenu from "~/components/copy-id-context-menu";
+import CopyIdContextMenuItem from "~/components/copy-id-context-menu";
 import {
   Card,
   CardDescription,
@@ -7,7 +7,11 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import { ContextMenu, ContextMenuTrigger } from "~/components/ui/context-menu";
+import {
+  ContextMenu,
+  ContextMenuTrigger,
+  ContextMenuContent,
+} from "~/components/ui/context-menu";
 import { getPrettyTime } from "~/lib/time";
 import { type SelectProject } from "~/types/project";
 import { type SelectWorkspace } from "~/types/workspace";
@@ -36,7 +40,9 @@ export default async function ProjectCard({ project, workspace }: Props) {
           </Card>
         </Link>
       </ContextMenuTrigger>
-      <CopyIdContextMenu value={project.id} />
+      <ContextMenuContent>
+        <CopyIdContextMenuItem value={project.id} />
+      </ContextMenuContent>
     </ContextMenu>
   );
 }

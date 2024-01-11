@@ -10,14 +10,18 @@ import {
 } from "~/components/ui/card";
 import { getPrettyTime } from "~/lib/time";
 import { type SelectWorkspace } from "~/types/workspace";
-import { ContextMenu, ContextMenuTrigger } from "~/components/ui/context-menu";
-import CopyIdContextMenu from "~/components/copy-id-context-menu";
+import {
+  ContextMenu,
+  ContextMenuTrigger,
+  ContextMenuContent,
+} from "~/components/ui/context-menu";
+import CopyIdContextMenuItem from "~/components/copy-id-context-menu";
 
 type Props = {
   workspace: SelectWorkspace;
 };
 
-export default async function WorkspaceCard({ workspace }: Props) {
+export default function WorkspaceCard({ workspace }: Props) {
   return (
     <ContextMenu>
       <ContextMenuTrigger>
@@ -43,7 +47,9 @@ export default async function WorkspaceCard({ workspace }: Props) {
           </Card>
         </Link>
       </ContextMenuTrigger>
-      <CopyIdContextMenu value={workspace.id} />
+      <ContextMenuContent>
+        <CopyIdContextMenuItem value={workspace.id} />
+      </ContextMenuContent>
     </ContextMenu>
   );
 }
