@@ -5,18 +5,17 @@ import {
   ContextMenuContent,
   ContextMenuItem,
 } from "~/components/ui/context-menu";
-import { type SelectWorkspace } from "~/types/workspace";
 
 type Props = {
-  workspace: SelectWorkspace;
+  value: string;
 };
 
-const WorkspaceCardContextMenu = ({ workspace }: Props) => {
+const CopyIdContextMenu = ({ value }: Props) => {
   return (
     <ContextMenuContent>
       <ContextMenuItem
         onClick={() => {
-          toast.promise(navigator.clipboard.writeText(workspace.id), {
+          toast.promise(navigator.clipboard.writeText(value), {
             success: "Copied to clipboard",
             error: "Something went wrong :(",
           });
@@ -27,4 +26,4 @@ const WorkspaceCardContextMenu = ({ workspace }: Props) => {
     </ContextMenuContent>
   );
 };
-export default WorkspaceCardContextMenu;
+export default CopyIdContextMenu;
