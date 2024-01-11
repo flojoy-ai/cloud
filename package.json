@@ -10,7 +10,7 @@
     "db:migrate": "dotenv -c -- tsx src/server/db/migrate.ts",
     "db:push": "dotenv -c -- drizzle-kit push:pg",
     "db:studio": "dotenv -c -- drizzle-kit studio",
-    "dev": "next dev",
+    "dev": "sst bind next dev",
     "lint": "next lint",
     "start": "next start",
     "format": "prettier --write .",
@@ -116,7 +116,10 @@
     "tailwindcss": "^3.4.1",
     "tsx": "^4.7.0",
     "typescript": "^5.3.3",
-    "vercel": "^33.0.2"
+    "vercel": "^33.0.2",
+    "sst": "^2.39.3",
+    "aws-cdk-lib": "2.110.1",
+    "constructs": "10.3.0"
   },
   "ct3aMetadata": {
     "initVersion": "7.24.2"
@@ -128,3 +131,4 @@
     }
   }
 }
+
