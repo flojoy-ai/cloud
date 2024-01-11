@@ -1,6 +1,7 @@
 "use client";
+
 import { Separator } from "~/components/ui/separator";
-import SyntaxHighlighter from "react-syntax-highlighter";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { api } from "~/trpc/react";
 import { useState } from "react";
 import { type SelectTest } from "~/types/test";
@@ -11,6 +12,11 @@ import { type MeasurementDataType } from "~/types/data";
 import Link from "next/link";
 import { Clipboard } from "lucide-react";
 import { toast } from "sonner";
+import {
+  oneDark,
+  oneLight,
+} from "react-syntax-highlighter/dist/esm/styles/prism";
+import { useTheme } from "next-themes";
 
 const EXAMPLE_DATA: Record<MeasurementDataType, string> = {
   boolean: "Boolean(passed=True)",
@@ -29,6 +35,8 @@ const UploadView = ({
     workspaceId: params.workspaceId,
     projectId: params.projectId,
   });
+
+  const { resolvedTheme } = useTheme();
 
   const [selectedTest, setSelectedTest] = useState<SelectTest | undefined>(
     undefined,
@@ -92,7 +100,12 @@ client.upload(data, test_id, device_id)
             toast.success("Code copied to clipboard!");
           }}
         />
-        <SyntaxHighlighter language="python">{code}</SyntaxHighlighter>
+        <SyntaxHighlighter
+          language="python"
+          style={resolvedTheme === "dark" ? oneDark : oneLight}
+        >
+          {code}
+        </SyntaxHighlighter>
       </div>
       <div className="text-sm">
         To get your workspace secret, go to{" "}
