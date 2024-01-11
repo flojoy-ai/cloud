@@ -15,7 +15,8 @@
     "start": "next start",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "commitlint": "commitlint --edit"
+    "commitlint": "commitlint --edit",
+    "sso": "aws sso login --sso-session=flojoy"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.485.0",

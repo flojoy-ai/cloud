@@ -2,10 +2,11 @@ import { type SSTConfig } from "sst";
 import { NextjsSite } from "sst/constructs";
 
 export default {
-  config(_input) {
+  config(input) {
     return {
-      name: "cloud",
+      name: "flojoy-cloud",
       region: "us-east-1",
+      profile: input.stage === "production" ? "flojoy-prod" : "flojoy-dev",
     };
   },
   stacks(app) {
