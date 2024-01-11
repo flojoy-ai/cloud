@@ -45,7 +45,7 @@ const UploadView = ({
     SelectDevice | undefined
   >(undefined);
 
-  const code = `from flojoy_cloud import FlojoyCloud
+  const code = `from flojoy.cloud import FlojoyCloud, Boolean, Dataframe
 
 client = FlojoyCloud(workspace_secret="YOUR_WORKSPACE_SECRET")
 
