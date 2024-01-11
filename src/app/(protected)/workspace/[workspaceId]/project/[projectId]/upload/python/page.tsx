@@ -95,9 +95,11 @@ client.upload(data, test_id, device_id)
         <Clipboard
           size={32}
           className="absolute right-4 top-4 cursor-pointer rounded-md bg-background/70 p-1 hover:bg-background/40"
-          onClick={async () => {
-            await navigator.clipboard.writeText(code);
-            toast.success("Code copied to clipboard!");
+          onClick={() => {
+            toast.promise(navigator.clipboard.writeText(code), {
+              success: "Copied to clipboard",
+              error: "Something went wrong :(",
+            });
           }}
         />
         <SyntaxHighlighter
