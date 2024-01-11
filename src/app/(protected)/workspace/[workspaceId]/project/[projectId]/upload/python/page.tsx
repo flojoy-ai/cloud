@@ -7,19 +7,15 @@ import { type SelectTest } from "~/types/test";
 import { Label } from "~/components/ui/label";
 import { type SelectDevice } from "~/types/device";
 import { Combobox } from "~/components/combobox";
-import {
-  type MeasurementDataType,
-  allMeasurementDataTypes,
-} from "~/types/data";
+import { type MeasurementDataType } from "~/types/data";
+import Link from "next/link";
+import { Clipboard } from "lucide-react";
+import { toast } from "sonner";
 
 const EXAMPLE_DATA: Record<MeasurementDataType, string> = {
   boolean: "Boolean(passed=True)",
   dataframe: "Dataframe(dataframe={'x': [1,2,3,4,5], 'y': [2,4,6,8,10]})",
 };
-
-function identity<T>(val: T) {
-  return val;
-}
 
 const UploadView = ({
   params,
@@ -40,15 +36,12 @@ const UploadView = ({
   const [selectedDevice, setSelectedDevice] = useState<
     SelectDevice | undefined
   >(undefined);
-  const [selectedMeasurementType, setSelectedMeasurementType] = useState<
-    MeasurementDataType | undefined
-  >(undefined);
 
   const code = `from flojoy_cloud import FlojoyCloud
 
 client = FlojoyCloud(workspace_secret="YOUR_WORKSPACE_SECRET")
 
-data = ${EXAMPLE_DATA[selectedMeasurementType ?? "boolean"]}
+data = ${EXAMPLE_DATA[selectedTest?.measurementType ?? "boolean"]}
 
 test_id = "${selectedTest?.id ?? "TEST_ID"}"
 
@@ -65,7 +58,7 @@ client.upload(data, test_id, device_id)
           Upload measurement with Flojoy Cloud's Python client
         </p>
       </div>
-      <div className="grid grid-cols-3 gap-x-4">
+      <div className="grid grid-cols-2 gap-x-4">
         <div className="flex flex-col gap-2">
           <Label>Test</Label>
           <Combobox
@@ -74,6 +67,7 @@ client.upload(data, test_id, device_id)
             setValue={setSelectedTest}
             displaySelector={(val) => val.name}
             valueSelector={(val) => val.id}
+            placeholder="Select test"
           />
         </div>
         <div className="flex flex-col gap-2">
@@ -84,21 +78,31 @@ client.upload(data, test_id, device_id)
             setValue={setSelectedDevice}
             displaySelector={(val) => val.name}
             valueSelector={(val) => val.id}
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <Label>Measurement type</Label>
-          <Combobox
-            options={allMeasurementDataTypes.slice()}
-            value={selectedMeasurementType}
-            setValue={setSelectedMeasurementType}
-            displaySelector={identity}
-            valueSelector={identity}
+            placeholder="Select device"
           />
         </div>
       </div>
       <Separator />
-      <SyntaxHighlighter language="python">{code}</SyntaxHighlighter>
+      <div className="relative">
+        <Clipboard
+          size={32}
+          className="absolute right-4 top-4 cursor-pointer rounded-md bg-background/70 p-1 hover:bg-background/40"
+          onClick={async () => {
+            await navigator.clipboard.writeText(code);
+            toast.success("Code copied to clipboard!");
+          }}
+        />
+        <SyntaxHighlighter language="python">{code}</SyntaxHighlighter>
+      </div>
+      <div className="text-sm">
+        To get your workspace secret, go to{" "}
+        <Link
+          href={`/workspace/${params.workspaceId}/settings/secret`}
+          className="underline hover:opacity-70"
+        >
+          your workspace settings.
+        </Link>
+      </div>
     </div>
   );
 };

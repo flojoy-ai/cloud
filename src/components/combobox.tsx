@@ -23,6 +23,7 @@ type Props<T> = {
   setValue: (test: T | undefined) => void;
   displaySelector: (val: T) => string;
   valueSelector: (val: T) => string;
+  placeholder?: string;
 };
 
 export function Combobox<T>({
@@ -31,6 +32,7 @@ export function Combobox<T>({
   setValue,
   displaySelector,
   valueSelector,
+  placeholder,
 }: Props<T>) {
   const [open, setOpen] = useState(false);
 
@@ -51,8 +53,8 @@ export function Combobox<T>({
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
-          <CommandInput placeholder="Select test..." />
-          <CommandEmpty>No test found.</CommandEmpty>
+          <CommandInput placeholder={placeholder} />
+          <CommandEmpty>Nothing found.</CommandEmpty>
           <CommandGroup>
             {options.map((opt) => (
               <CommandItem
