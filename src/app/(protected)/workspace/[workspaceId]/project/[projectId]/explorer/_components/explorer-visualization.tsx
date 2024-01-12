@@ -18,6 +18,8 @@ import { useState } from "react";
 import { DateTimeRangePicker } from "~/components/date-time-range-picker";
 import { type DateRange } from "react-day-picker";
 import { Combobox } from "~/components/combobox";
+import CodeBlock from "~/components/code-block";
+import { WorkspaceSecretReminder } from "~/components/workspace-secret-reminder";
 
 type Props = {
   tests: SelectTest[];
@@ -47,6 +49,15 @@ const ExplorerVisualization = ({ tests, workspaceId }: Props) => {
     );
 
   const everythingSelected = selectedTest !== undefined;
+
+  const code = `from flojoy.cloud import FlojoyCloud
+
+client = FlojoyCloud(workspace_secret="YOUR_WORKSPACE_SECRET")
+
+measurements = client.get_all_measurements_by_test_id("${
+    selectedTest?.id ?? "TEST_ID"
+  }")
+`;
 
   return (
     <div className="flex flex-col gap-4">
@@ -105,6 +116,20 @@ const ExplorerVisualization = ({ tests, workspaceId }: Props) => {
           workspaceId={workspaceId}
         />
       ) : null}
+
+      <div className="py-2" />
+      <div>
+        <h3 className="text-lg font-medium">Python Client</h3>
+        <p className="text-sm text-muted-foreground">
+          To do further analysis, download this data with Flojoy Cloud's Python
+          client.
+        </p>
+      </div>
+      <div>
+        <CodeBlock code={code} />
+        <WorkspaceSecretReminder workspaceId={workspaceId} />
+      </div>
+      <div className="py-8" />
     </div>
   );
 };

@@ -1,7 +1,6 @@
 "use client";
 
 import { Separator } from "~/components/ui/separator";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { api } from "~/trpc/react";
 import { useState } from "react";
 import { type SelectTest } from "~/types/test";
@@ -9,15 +8,8 @@ import { Label } from "~/components/ui/label";
 import { type SelectDevice } from "~/types/device";
 import { Combobox } from "~/components/combobox";
 import { type MeasurementDataType } from "~/types/data";
-import Link from "next/link";
-import { Clipboard } from "lucide-react";
-import { toast } from "sonner";
-import {
-  oneDark,
-  oneLight,
-} from "react-syntax-highlighter/dist/esm/styles/prism";
-import { useTheme } from "next-themes";
-import { Button } from "~/components/ui/button";
+import CodeBlock from "~/components/code-block";
+import { WorkspaceSecretReminder } from "~/components/workspace-secret-reminder";
 
 const EXAMPLE_DATA: Record<MeasurementDataType, string> = {
   boolean: "Boolean(passed=True)",
@@ -36,8 +28,6 @@ const UploadView = ({
     workspaceId: params.workspaceId,
     projectId: params.projectId,
   });
-
-  const { resolvedTheme } = useTheme();
 
   const [selectedTest, setSelectedTest] = useState<SelectTest | undefined>(
     undefined,
@@ -92,36 +82,8 @@ client.upload(data, test_id, device_id)
         </div>
       </div>
       <Separator />
-      <div className="relative">
-        <Button
-          size="icon"
-          variant="outline"
-          className="absolute right-4 top-4"
-          onClick={() => {
-            toast.promise(navigator.clipboard.writeText(code), {
-              success: "Copied to clipboard",
-              error: "Something went wrong :(",
-            });
-          }}
-        >
-          <Clipboard size={24} />
-        </Button>
-        <SyntaxHighlighter
-          language="python"
-          style={resolvedTheme === "dark" ? oneDark : oneLight}
-        >
-          {code}
-        </SyntaxHighlighter>
-      </div>
-      <div className="text-sm">
-        To get your workspace secret, go to{" "}
-        <Link
-          href={`/workspace/${params.workspaceId}/settings/secret`}
-          className="underline hover:opacity-70"
-        >
-          your workspace settings.
-        </Link>
-      </div>
+      <CodeBlock code={code} />
+      <WorkspaceSecretReminder workspaceId={params.workspaceId} />
     </div>
   );
 };
