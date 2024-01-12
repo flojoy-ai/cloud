@@ -17,5 +17,5 @@ stop:
   pnpm supabase stop
 
 nuke:
-  docker kill $(docker ps -aq)
+  -docker kill $(docker ps -aq)
   docker rm $(docker ps -aq)
