@@ -2,10 +2,10 @@ version: "3"
 
 services:
   flojoy-cloud-next:
+    container_name: flojoy-cloud-next
     depends_on:
       flojoy-cloud-postgres:
         condition: service_healthy
-    container_name: flojoy-cloud-next
     build:
       context: ./
       dockerfile: ./docker/dev.Dockerfile
