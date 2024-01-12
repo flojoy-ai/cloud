@@ -6,6 +6,7 @@ import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
 import { project, project_device, workspace } from "~/server/db/schema";
 import {
   publicInsertProjectSchema,
+  publicUpdateProjectSchema,
   selectProjectSchema,
 } from "~/types/project";
 import { type db } from "~/server/db";
@@ -157,5 +158,40 @@ export const projectRouter = createTRPCRouter({
             eq(project_device.projectId, input.projectId),
           ),
         );
+    }),
+
+  updateProject: workspaceProcedure
+    .meta({
+      openapi: {
+        method: "PATCH",
+        path: "/v1/projects/{projectId}",
+        tags: ["project"],
+      },
+    })
+    .input(publicUpdateProjectSchema)
+    .use(projectAccessMiddleware)
+    .output(z.void())
+    .mutation(async ({ ctx, input }) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { projectId, ...updatedProject } = input;
+      await ctx.db
+        .update(project)
+        .set(updatedProject)
+        .where(eq(project.id, input.projectId));
+    }),
+
+  deleteProjectById: workspaceProcedure
+    .meta({
+      openapi: {
+        method: "DELETE",
+        path: "/v1/projects/{projectId}",
+        tags: ["project"],
+      },
+    })
+    .input(z.object({ projectId: z.string() }))
+    .use(projectAccessMiddleware)
+    .output(z.void())
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.delete(project).where(eq(project.id, input.projectId));
     }),
 });
