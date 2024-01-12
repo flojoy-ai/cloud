@@ -20,6 +20,7 @@ RUN \
 
 COPY src ./src
 COPY public ./public
+COPY drizzle ./drizzle
 COPY next.config.js .
 COPY tsconfig.json .
 COPY tailwind.config.ts .

@@ -1,7 +1,8 @@
 init:
   pnpm install
-  pnpm vercel link
-  pnpm vercel env pull
+  # pnpm vercel link
+  # pnpm vercel env pull
+  just migrate
 
 dev:
   # pnpm vercel env pull
