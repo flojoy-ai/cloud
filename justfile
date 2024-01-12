@@ -4,17 +4,18 @@ init:
   pnpm vercel env pull
 
 dev:
-  pnpm vercel env pull
-  pnpm dev
+  # pnpm vercel env pull
+  docker compose -f docker-compose.dev.yml up
+
+migrate:
+  docker compose -f docker-compose.dev.yml run flojoy-cloud-next pnpm db:migrate
 
 reset:
-  pnpm vercel env pull
-  pnpm supabase start
-  pnpm supabase db reset
-  pnpm db:migrate
+  # pnpm vercel env pull
+  rm -rf data
 
 stop:
-  pnpm supabase stop
+  docker compose -f docker-compose.dev.yml down
 
 nuke:
   -docker kill $(docker ps -aq)
