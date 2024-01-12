@@ -164,8 +164,8 @@ export const projectRouter = createTRPCRouter({
     .meta({
       openapi: {
         method: "PATCH",
-        path: "/v1/workspaces/{projectId}",
-        tags: ["workspace"],
+        path: "/v1/projects/{projectId}",
+        tags: ["project"],
       },
     })
     .input(publicUpdateProjectSchema)
