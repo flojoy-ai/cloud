@@ -1,16 +1,15 @@
+branch := `git branch --show-current`
+
 init:
   pnpm install
   pnpm vercel link
-  pnpm vercel env pull
+
+env:
+  pnpm vercel env pull --environment=preview --git-branch={{branch}}
 
 dev:
-  pnpm vercel env pull
   pnpm dev
 
-reset:
-  pnpm vercel env pull
+migrate:
   pnpm db:migrate
 
-nuke:
-  -docker kill $(docker ps -aq)
-  docker rm $(docker ps -aq)
