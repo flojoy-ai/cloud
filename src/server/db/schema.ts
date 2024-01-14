@@ -71,7 +71,8 @@ export const workspace = pgTable(
   "workspace",
   {
     ...baseModal("workspace"),
-    name: text("name").notNull().unique(),
+    name: text("name").notNull(),
+    namespace: text("namespace").notNull().unique(),
     planType: planTypeEnum("plan_type").notNull(),
     totalSeats: integer("total_seats").notNull().default(1),
     createdAt: timestamp("created_at").defaultNow().notNull(),
