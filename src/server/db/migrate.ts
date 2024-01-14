@@ -1,9 +1,8 @@
-import { migrate } from "drizzle-orm/postgres-js/migrator";
+import { migrate } from "drizzle-orm/neon-http/migrator";
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http/driver";
+import { env } from "~/env";
 
-import { db, client } from "./index";
-
-// This will run migrations on the database, skipping the ones already applied
+const sql = neon(env.DATABASE_URL);
+const db = drizzle(sql);
 await migrate(db, { migrationsFolder: "./drizzle" });
-
-// Don't forget to close the connection, otherwise the script will hang
-await client.end();
