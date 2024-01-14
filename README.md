@@ -15,8 +15,7 @@ To initialize the development environment, run
 just init
 ```
 
-This will grab all the environment variables you need from Vercel, setup a local
-Supabase instance (we are only using it for Postgres), and initialize the database.
+This will grab all the environment variables you need from Vercel.
 
 ### Running
 
