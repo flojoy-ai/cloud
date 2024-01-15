@@ -7,7 +7,6 @@ import { ModeToggle } from "~/components/mode-toggle";
 import { Button, buttonVariants } from "~/components/ui/button";
 import { auth } from "~/auth/lucia";
 import * as context from "next/headers";
-import Form from "./form";
 import { ProtectedNav } from "./protected-nav";
 import { api } from "~/trpc/server";
 import UserButton from "./user-button";
