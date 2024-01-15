@@ -27,7 +27,6 @@ import { CheckIcon, ChevronsUpDown, PlusCircleIcon } from "lucide-react";
 import { type SelectWorkspace } from "~/types/workspace";
 import { useState } from "react";
 import { Badge } from "./ui/badge";
-import NewWorkspace from "~/app/(protected)/dashboard/_components/new-workspace";
 
 type Props = {
   workspaces: SelectWorkspace[];
@@ -37,14 +36,13 @@ export function ProtectedNav({ workspaces }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const [showNewWorkspaceDialog, setShowNewWorkspaceDialog] = useState(false);
-  const workspaceId = pathname.split("/")[2];
+  const namespace = pathname.split("/")[1];
 
-  const currentWorkspace = workspaces.find((ws) => ws.id === workspaceId);
+  const currentWorkspace = workspaces.find((ws) => ws.namespace === namespace);
 
   return (
     <div className="mr-4 hidden md:flex">
-      <Link href="/dashboard" className="mr-6 flex items-center space-x-2">
+      <Link href="/" className="mr-6 flex items-center space-x-2">
         <Icons.logo className="h-6 w-6" />
         <span className="hidden font-bold sm:inline-block">
           {siteConfig.name}
@@ -52,10 +50,6 @@ export function ProtectedNav({ workspaces }: Props) {
       </Link>
 
       <nav className="flex items-center gap-6 text-sm">
-        <NewWorkspace
-          isDialogOpen={showNewWorkspaceDialog}
-          setIsDialogOpen={setShowNewWorkspaceDialog}
-        />
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <Button
@@ -95,7 +89,7 @@ export function ProtectedNav({ workspaces }: Props) {
                   <CommandItem
                     key={workspace.name}
                     onSelect={() => {
-                      router.push(`/workspace/${workspace.id}`);
+                      router.push(`/${workspace.namespace}`);
                       setOpen(false);
                     }}
                     className="text-sm"
@@ -126,7 +120,7 @@ export function ProtectedNav({ workspaces }: Props) {
                   <CommandItem
                     onSelect={() => {
                       setOpen(false);
-                      setShowNewWorkspaceDialog(true);
+                      router.push("/setup");
                     }}
                   >
                     <PlusCircleIcon className="mr-2 h-5 w-5" />
@@ -138,13 +132,13 @@ export function ProtectedNav({ workspaces }: Props) {
           </PopoverContent>
         </Popover>
 
-        {workspaceId && (
+        {namespace && (
           <>
             <Link
-              href={`/workspace/${workspaceId}`}
+              href={`/${namespace}`}
               className={cn(
                 "transition-colors hover:text-foreground/80",
-                pathname === `/workspace/${workspaceId}`
+                pathname === `/${namespace}`
                   ? "text-foreground"
                   : "text-foreground/60",
               )}
@@ -152,10 +146,10 @@ export function ProtectedNav({ workspaces }: Props) {
               Projects
             </Link>
             <Link
-              href={`/workspace/${workspaceId}/device`}
+              href={`/${namespace}/device`}
               className={cn(
                 "transition-colors hover:text-foreground/80",
-                pathname === `/workspace/${workspaceId}/device`
+                pathname === `/${namespace}/device`
                   ? "text-foreground"
                   : "text-foreground/60",
               )}

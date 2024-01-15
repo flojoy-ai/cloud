@@ -134,6 +134,29 @@ export const workspaceProcedure = t.procedure.use(async ({ ctx, next }) => {
 
   if (ctx.session && ctx.session.user) {
     userId = ctx.session.user.userId;
+
+    const scopeCookie = context.cookies().get("scope");
+    if (!scopeCookie) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "scope missing in cookies",
+      });
+    }
+
+    const workspace = await ctx.db.query.workspace.findFirst({
+      columns: {
+        id: true,
+      },
+      where: (workspace, { eq }) => eq(workspace.namespace, scopeCookie.value),
+    });
+
+    if (!workspace) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "workspace not found",
+      });
+    }
+    workspaceId = workspace.id;
   } else if (workspaceSecret) {
     const { payload } = await jose.jwtVerify(
       workspaceSecret.slice("Bearer ".length),

@@ -39,7 +39,7 @@ export default function NewWorkspace({ isDialogOpen, setIsDialogOpen }: Props) {
 
   const createWorkspace = api.workspace.createWorkspace.useMutation({
     onSuccess: (data) => {
-      router.push(`/workspace/${data.id}`);
+      router.push(`/${data.namespace}`);
       setIsDialogOpen(false);
       router.refresh();
     },

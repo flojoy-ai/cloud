@@ -1,5 +1,6 @@
+import { type SelectTest } from "~/types/test";
+
 import Link from "next/link";
-import { Badge } from "~/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -9,7 +10,7 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { getPrettyTime } from "~/lib/time";
-import { type SelectWorkspace } from "~/types/workspace";
+import { Badge } from "~/components/ui/badge";
 import {
   ContextMenu,
   ContextMenuTrigger,
@@ -18,38 +19,37 @@ import {
 import CopyIdContextMenuItem from "~/components/copy-id-context-menu";
 
 type Props = {
-  workspace: SelectWorkspace;
+  test: SelectTest;
+  namespace: string;
 };
 
-export default function WorkspaceCard({ workspace }: Props) {
+const TestCard = ({ test, namespace }: Props) => {
   return (
     <ContextMenu>
       <ContextMenuTrigger>
-        <Link href={`/${workspace.namespace}`}>
+        <Link href={`/${namespace}/test/${test.id}`}>
           <Card className="transition-all duration-300 hover:bg-secondary/80">
             <CardHeader>
-              <CardTitle className="overflow-hidden text-ellipsis whitespace-nowrap">
-                {workspace.name}
-              </CardTitle>
-              <CardDescription>{workspace.id}</CardDescription>
+              <CardTitle>{test.name}</CardTitle>
+              <CardDescription>{test.id}</CardDescription>
             </CardHeader>
             <CardContent>
-              <Badge>{workspace.planType}</Badge>
+              <Badge>{test.measurementType}</Badge>
             </CardContent>
             <CardFooter>
               <div>
                 Last updated:{" "}
-                {workspace.updatedAt
-                  ? getPrettyTime(workspace.updatedAt)
-                  : "Never"}
+                {test.updatedAt ? getPrettyTime(test.updatedAt) : "Never"}
               </div>
             </CardFooter>
           </Card>
         </Link>
       </ContextMenuTrigger>
       <ContextMenuContent>
-        <CopyIdContextMenuItem value={workspace.id} />
+        <CopyIdContextMenuItem value={test.id} />
       </ContextMenuContent>
     </ContextMenu>
   );
-}
+};
+
+export default TestCard;

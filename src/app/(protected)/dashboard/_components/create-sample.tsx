@@ -1,6 +1,6 @@
 "use client";
 
-import { init } from "@paralleldrive/cuid2";
+import { createId } from "@paralleldrive/cuid2";
 import _ from "lodash";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -18,12 +18,6 @@ const CreateSample = () => {
   const testCreate = api.test.createTest.useMutation();
   const measurementsCreate = api.measurement._createMeasurements.useMutation();
 
-  const createId = init({
-    random: Math.random,
-    // the length of the id
-    length: 8,
-  });
-
   const generateRandomNumbers = () => {
     const randomNumbers = [];
 
@@ -40,7 +34,8 @@ const CreateSample = () => {
     // and use transction to such that we can rollback if something goes wrong
     setIsCreating(true);
     const workspace = await workspaceCreate.mutateAsync({
-      name: "Sample Workspace " + createId(),
+      name: "Sample Workspace",
+      namespace: createId(),
     });
 
     const project = await projectCreate.mutateAsync({

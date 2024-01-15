@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 
 export async function TailwindIndicator() {
   if (env.NODE_ENV === "production") return null;
+  return null;
 
   return (
     <div className="fixed bottom-1 left-1 z-50 flex items-center justify-center gap-1">

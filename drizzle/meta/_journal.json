@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1705012742399,
-      "tag": "0000_clever_sentry",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1705244424324,
-      "tag": "0001_dark_living_tribunal",
+      "when": 1705350276925,
+      "tag": "0000_magical_mole_man",
       "breakpoints": true
     }
   ]

@@ -9,6 +9,7 @@ import {
   integer,
   jsonb,
   unique,
+  primaryKey,
 } from "drizzle-orm/pg-core";
 import { createId } from "@paralleldrive/cuid2";
 import { allMeasurementDataTypes, type MeasurementData } from "~/types/data";
@@ -79,7 +80,7 @@ export const workspace = pgTable(
     updatedAt: timestamp("updated_at"),
   },
   (workspace) => ({
-    workspaceNameIndex: index().on(workspace.name),
+    workspaceNamespaceIndex: index().on(workspace.namespace),
   }),
 );
 
@@ -100,7 +101,6 @@ export const workspaceRoleEnum = pgEnum("workspace_role", [
 export const workspace_user = pgTable(
   "workspace_user",
   {
-    ...baseModal("workspace_user"),
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
@@ -110,15 +110,11 @@ export const workspace_user = pgTable(
     workspaceRole: workspaceRoleEnum("workspace_role").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
-  (workspace_user) => ({
-    workspaceUserWorkspaceIdUserIdIndex: index().on(
-      workspace_user.workspaceId,
-      workspace_user.userId,
-    ),
-    workspaceUserUserIdIndex: index().on(workspace_user.userId),
-    workspaceUserWorkspaceIdIndex: index().on(workspace_user.workspaceId),
-    unq: unique().on(workspace_user.workspaceId, workspace_user.userId),
-  }),
+  (table) => {
+    return {
+      pk: primaryKey({ columns: [table.workspaceId, table.userId] }),
+    };
+  },
 );
 
 // This table should be self-explanatory.

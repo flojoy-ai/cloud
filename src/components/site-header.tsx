@@ -8,7 +8,7 @@ import { ModeToggle } from "~/components/mode-toggle";
 import { Button, buttonVariants } from "~/components/ui/button";
 import { auth } from "~/auth/lucia";
 import * as context from "next/headers";
-import Form from "./form";
+import UserButton from "./user-button";
 
 export async function SiteHeader() {
   const authRequest = auth.handleRequest("GET", context);
@@ -35,16 +35,7 @@ export async function SiteHeader() {
                 <div className="px-1" />
               </>
             ) : (
-              <>
-                <div>Hi, {session.user.email}</div>
-                <div className="px-1" />
-                <Form action="/api/logout">
-                  <Button type="submit" size="sm" variant="secondary">
-                    Sign Out
-                  </Button>
-                </Form>
-                <div className="px-1" />
-              </>
+              <UserButton session={session} />
             )}
 
             <Link

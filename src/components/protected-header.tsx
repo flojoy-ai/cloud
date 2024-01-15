@@ -10,17 +10,18 @@ import * as context from "next/headers";
 import Form from "./form";
 import { ProtectedNav } from "./protected-nav";
 import { api } from "~/trpc/server";
+import UserButton from "./user-button";
 
 export async function ProtectedHeader() {
   const authRequest = auth.handleRequest("GET", context);
   const session = await authRequest.validate();
 
-  const workspaces = await api.workspace.getAllWorkspaces.query();
+  const workspaces = await api.workspace.getWorkspaces.query();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
-        <ProtectedNav workspaces={workspaces} />
+        <ProtectedNav workspaces={workspaces.map((ws) => ws.workspace)} />
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <nav className="flex items-center">
             {!session ? (
@@ -38,16 +39,7 @@ export async function ProtectedHeader() {
                 <div className="px-1" />
               </>
             ) : (
-              <>
-                <div>Hi, {session.user.email}</div>
-                <div className="px-1" />
-                <Form action="/api/logout">
-                  <Button type="submit" size="sm" variant="secondary">
-                    Sign Out
-                  </Button>
-                </Form>
-                <div className="px-1" />
-              </>
+              <UserButton session={session} />
             )}
 
             <Link

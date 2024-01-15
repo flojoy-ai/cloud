@@ -1,12 +1,22 @@
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { RESERVED_SCOPE } from "~/config/workspace";
 import {
   createTRPCRouter,
   protectedProcedure,
   workspaceProcedure,
 } from "~/server/api/trpc";
 import { db } from "~/server/db";
-import { workspace, workspace_user } from "~/server/db/schema";
+import {
+  workspace,
+  user,
+  workspace_user,
+  project,
+  test,
+  device,
+  project_device,
+  measurement,
+} from "~/server/db/schema";
 import {
   publicInsertWorkspaceSchema,
   selectWorkspaceSchema,
@@ -14,6 +24,19 @@ import {
 
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
 import { checkWorkspaceAccess } from "~/lib/auth";
+import { cookies } from "next/headers";
+import _ from "lodash";
+
+const generateRandomNumbers = () => {
+  const randomNumbers = [];
+
+  for (let i = 0; i < 10; i++) {
+    const randomNumber = Math.random();
+    randomNumbers.push(randomNumber);
+  }
+
+  return randomNumbers;
+};
 
 export const workspaceAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -55,16 +78,20 @@ export const workspaceRouter = createTRPCRouter({
     .input(publicInsertWorkspaceSchema)
     .output(selectWorkspaceSchema)
     .mutation(async ({ ctx, input }) => {
+      if (RESERVED_SCOPE.includes(input.name.toLowerCase())) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `${input.name} is a reserved namespace!`,
+        });
+      }
+
       return await ctx.db.transaction(async (tx) => {
-        const [workspaceCreateResult] = await tx
+        const [newWorkspace] = await tx
           .insert(workspace)
-          .values({
-            ...input,
-            planType: "hobby",
-          })
+          .values({ planType: "enterprise", ...input })
           .returning();
 
-        if (!workspaceCreateResult) {
+        if (!newWorkspace) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message: "Failed to create workspace",
@@ -72,11 +99,166 @@ export const workspaceRouter = createTRPCRouter({
         }
 
         await tx.insert(workspace_user).values({
+          workspaceId: newWorkspace.id,
           userId: ctx.session.user.userId,
-          workspaceId: workspaceCreateResult.id,
           workspaceRole: "owner",
         });
-        return workspaceCreateResult;
+
+        cookies().set("scope", newWorkspace.namespace);
+
+        if (!input.populateData) {
+          return newWorkspace;
+        }
+
+        const [newProject] = await tx
+          .insert(project)
+          .values({
+            name: "HL1234 Testing Project",
+            workspaceId: newWorkspace.id,
+          })
+          .returning();
+
+        if (!newProject) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create project",
+          });
+        }
+
+        const [booleanTest] = await tx
+          .insert(test)
+          .values({
+            name: "Pass/Fail Test",
+            projectId: newProject.id,
+            measurementType: "boolean",
+          })
+          .returning();
+
+        if (!booleanTest) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create test",
+          });
+        }
+
+        const insertDevices = _.times(9, (i) => ({
+          name: `HL1234-SN000${i + 1}`,
+          workspaceId: newWorkspace.id,
+        }));
+
+        const devices = await tx
+          .insert(device)
+          .values([...insertDevices])
+          .returning();
+
+        if (!devices) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create devices",
+          });
+        }
+
+        for (const device of devices) {
+          await tx.insert(project_device).values({
+            deviceId: device.id,
+            projectId: newProject.id,
+          });
+        }
+
+        const boolMeas = devices.map((device, i) => ({
+          name: "Did Power On",
+          deviceId: device.id,
+          testId: booleanTest.id,
+          measurementType: "boolean" as const,
+          createdAt: new Date(new Date().getTime() + i * 20000),
+          data: { type: "boolean" as const, passed: Math.random() < 0.8 },
+          storageProvider: "local" as const, // TODO: make this configurable
+        }));
+
+        const boolMeasCreateResult = await tx
+          .insert(measurement)
+          .values([...boolMeas])
+          .returning();
+
+        if (!boolMeasCreateResult) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create measurements",
+          });
+        }
+
+        await Promise.all(
+          _.uniq(
+            boolMeasCreateResult.map((measurement) => measurement.testId),
+          ).map(async (testId) => {
+            await ctx.db
+              .update(test)
+              .set({ updatedAt: new Date() })
+              .where(eq(test.id, testId));
+          }),
+        );
+
+        const [dataframeTest] = await tx
+          .insert(test)
+          .values({
+            name: "Expected vs Measured",
+            projectId: newProject.id,
+            measurementType: "dataframe",
+          })
+          .returning();
+
+        if (!dataframeTest) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create test",
+          });
+        }
+
+        const dataframeMeas = devices.map((device, i) => ({
+          name: "Data Point",
+          deviceId: device.id,
+          testId: dataframeTest.id,
+          measurementType: "dataframe" as const,
+          createdAt: new Date(new Date().getTime() + i * 20000),
+          data: {
+            type: "dataframe" as const,
+            dataframe: {
+              x: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+              y: generateRandomNumbers(),
+            },
+          },
+          storageProvider: "local" as const, // TODO: make this configurable
+        }));
+
+        const dataframeMeasCreateResult = await tx
+          .insert(measurement)
+          .values([...dataframeMeas])
+          .returning();
+
+        if (!dataframeMeasCreateResult) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create measurements",
+          });
+        }
+
+        await Promise.all(
+          _.uniq(
+            dataframeMeasCreateResult.map((measurement) => measurement.testId),
+          ).map(async (testId) => {
+            await ctx.db
+              .update(test)
+              .set({ updatedAt: new Date() })
+              .where(eq(test.id, testId));
+          }),
+        );
+
+        await tx
+          .update(workspace)
+          .set({ updatedAt: new Date() })
+          .where(eq(workspace.id, newWorkspace.id));
+
+        return newWorkspace;
       });
     }),
 
@@ -117,30 +299,24 @@ export const workspaceRouter = createTRPCRouter({
       await ctx.db.delete(workspace).where(eq(workspace.id, input.workspaceId));
     }),
 
-  getAllWorkspaces: protectedProcedure
+  getWorkspaces: protectedProcedure
+
     .meta({
       openapi: { method: "GET", path: "/v1/workspaces/", tags: ["workspace"] },
     })
     .input(z.void())
-    .output(z.array(selectWorkspaceSchema))
+    .output(z.array(z.object({ workspace: selectWorkspaceSchema })))
     .query(async ({ ctx }) => {
-      const workspaceIds = (
-        await db.query.workspace_user.findMany({
-          where: (workspace_user, { eq }) =>
-            eq(workspace_user.userId, ctx.session.user.userId),
-          columns: {
-            workspaceId: true,
-          },
+      const result = await ctx.db
+        .select({
+          workspace: workspace,
+          workspaceUser: workspace_user,
         })
-      ).map((workspace) => workspace.workspaceId);
-
-      if (workspaceIds.length === 0) {
-        return [];
-      }
-
-      return await db.query.workspace.findMany({
-        where: (workspace, { inArray }) => inArray(workspace.id, workspaceIds),
-      });
+        .from(workspace_user)
+        .innerJoin(workspace, eq(workspace_user.workspaceId, workspace.id))
+        .innerJoin(user, eq(workspace_user.userId, user.id))
+        .where(eq(user.id, ctx.session.user.userId));
+      return result;
     }),
 
   getWorkspaceById: workspaceProcedure
@@ -166,5 +342,20 @@ export const workspaceRouter = createTRPCRouter({
         });
       }
       return result;
+    }),
+  getWorkspaceIdByNamespace: protectedProcedure
+    .input(z.object({ namespace: z.string() }))
+    .output(z.string())
+    .query(async ({ input, ctx }) => {
+      const result = await ctx.db.query.workspace.findFirst({
+        where: (workspace, { eq }) => eq(workspace.namespace, input.namespace),
+      });
+      if (!result) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Workspace not found",
+        });
+      }
+      return result.id;
     }),
 });
