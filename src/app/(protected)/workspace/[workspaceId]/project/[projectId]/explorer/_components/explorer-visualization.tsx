@@ -20,6 +20,9 @@ import { type DateRange } from "react-day-picker";
 import { Combobox } from "~/components/combobox";
 import CodeBlock from "~/components/code-block";
 import { WorkspaceSecretReminder } from "~/components/workspace-secret-reminder";
+import { Checkbox } from "~/components/ui/checkbox";
+import { Label } from "~/components/ui/label";
+import _ from "lodash";
 
 type Props = {
   tests: SelectTest[];
@@ -28,6 +31,7 @@ type Props = {
 
 const ExplorerVisualization = ({ tests, workspaceId }: Props) => {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const [onlyShowLatest, setOnlyShowLatest] = useState<boolean>(false);
 
   const { selectedTest, setSelectedTest } = useExplorerStore(
     useShallow((state) => ({
@@ -36,17 +40,23 @@ const ExplorerVisualization = ({ tests, workspaceId }: Props) => {
     })),
   );
 
-  const { data: measurements } =
-    api.measurement.getAllMeasurementsByTestId.useQuery(
-      {
-        testId: selectedTest?.id ?? "",
-        startDate: dateRange?.from,
-        endDate: dateRange?.to,
-      },
-      {
-        keepPreviousData: true, // Prevents flickering
-      },
-    );
+  const { data } = api.measurement.getAllMeasurementsByTestId.useQuery(
+    {
+      testId: selectedTest?.id ?? "",
+      startDate: dateRange?.from,
+      endDate: dateRange?.to,
+    },
+    {
+      keepPreviousData: true, // Prevents flickering
+    },
+  );
+
+  const measurements = onlyShowLatest
+    ? _.uniqBy(
+        _.orderBy(data, (m) => m.createdAt, "desc"),
+        (m) => m.deviceId,
+      )
+    : data;
 
   const everythingSelected = selectedTest !== undefined;
 
@@ -89,6 +99,16 @@ measurements = client.get_all_measurements_by_test_id("${
           </CardHeader>
           <CardContent>
             <DateTimeRangePicker date={dateRange} setDate={setDateRange} />
+            <div className="py-2" />
+            <div className="flex items-center gap-x-2">
+              <Checkbox
+                checked={onlyShowLatest}
+                onCheckedChange={(state) =>
+                  setOnlyShowLatest(state.valueOf() as boolean)
+                }
+              />
+              <Label>Only show latest measurement per device</Label>
+            </div>
           </CardContent>
           <CardFooter>
             {selectedTest && (
