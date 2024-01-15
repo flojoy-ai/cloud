@@ -20,6 +20,17 @@ export async function SiteHeader() {
         <MainNav />
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <nav className="flex items-center">
+            <Link
+              href="https://rest.flojoy.ai"
+              className={cn(
+                buttonVariants({
+                  variant: "ghost",
+                }),
+                "mr-4 px-2",
+              )}
+            >
+              API Docs
+            </Link>
             {!session ? (
               <>
                 <Button size="sm" variant="outline" asChild>
