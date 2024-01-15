@@ -5,8 +5,8 @@ import {
 } from "~/components/page-header";
 import AllWorkspaces from "./_components/all-workspaces";
 import { api } from "~/trpc/server";
-import CreateSample from "./_components/create-sample";
-import NewWorkspaceButton from "./_components/new-workspace-wrapper";
+import { Button } from "~/components/ui/button";
+import Link from "next/link";
 
 export default async function Dashboard() {
   const workspaces = await api.workspace.getWorkspaces.query();
@@ -24,8 +24,9 @@ export default async function Dashboard() {
       </PageHeader>
 
       <div className="space-x-2">
-        <NewWorkspaceButton />
-        <CreateSample />
+        <Button size="sm" asChild>
+          <Link href="/setup">New Workspace</Link>
+        </Button>
       </div>
 
       <div className="py-2"></div>
