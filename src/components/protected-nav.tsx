@@ -38,7 +38,6 @@ export function ProtectedNav({ workspaces }: Props) {
   const [open, setOpen] = useState(false);
   const segments = pathname.split("/");
 
-  const isWorkspaceRoute = segments[1] === "workspace";
   const namespace = segments[2];
 
   const currentWorkspace = workspaces.find((ws) => ws.namespace === namespace);
@@ -134,33 +133,6 @@ export function ProtectedNav({ workspaces }: Props) {
             </Command>
           </PopoverContent>
         </Popover>
-
-        {isWorkspaceRoute && currentWorkspace && (
-          <>
-            <Link
-              href={`/workspace/${namespace}`}
-              className={cn(
-                "transition-colors hover:text-foreground/80",
-                pathname === `/workspace/${namespace}`
-                  ? "text-foreground"
-                  : "text-foreground/60",
-              )}
-            >
-              Projects
-            </Link>
-            <Link
-              href={`/workspace/${namespace}/device`}
-              className={cn(
-                "transition-colors hover:text-foreground/80",
-                pathname === `/workspace/${namespace}/device`
-                  ? "text-foreground"
-                  : "text-foreground/60",
-              )}
-            >
-              Device Inventory
-            </Link>
-          </>
-        )}
 
         <Link
           href={"https://rest.flojoy.ai"}
