@@ -5,6 +5,7 @@ import {
   PageHeaderDescription,
   PageHeaderHeading,
 } from "~/components/page-header";
+import { Button } from "~/components/ui/button";
 
 export default async function Home() {
   return (
@@ -25,7 +26,9 @@ export default async function Home() {
         </PageHeader>
 
         <div className="flex flex-col items-center">
-          <Link href="/signup">Try it free</Link>
+          <Link href="/signup">
+            <Button>Try it free</Button>
+          </Link>
         </div>
 
         <div className="py-4"></div>
