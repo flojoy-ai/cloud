@@ -1,7 +1,6 @@
 import "~/styles/globals.css";
 
 import { Inter } from "next/font/google";
-import { cookies } from "next/headers";
 
 import { Toaster } from "~/components/ui/sonner";
 
@@ -29,7 +28,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans ${inter.variable}`}>
-        <TRPCReactProvider cookies={cookies().toString()}>
+        <TRPCReactProvider>
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
