@@ -22,9 +22,8 @@ CREATE TABLE IF NOT EXISTS "cloud_device" (
 CREATE TABLE IF NOT EXISTS "cloud_measurement" (
 	"is_deleted" boolean DEFAULT false,
 	"data" jsonb NOT NULL,
-	"device_id" text,
+	"device_id" text NOT NULL,
 	"id" text PRIMARY KEY NOT NULL,
-	"system_id" text,
 	"measurement_type" text NOT NULL,
 	"name" text DEFAULT 'Untitled',
 	"storage_provider" text NOT NULL,
@@ -144,12 +143,6 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "cloud_measurement" ADD CONSTRAINT "cloud_measurement_device_id_cloud_device_id_fk" FOREIGN KEY ("device_id") REFERENCES "cloud_device"("id") ON DELETE cascade ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "cloud_measurement" ADD CONSTRAINT "cloud_measurement_system_id_cloud_device_id_fk" FOREIGN KEY ("system_id") REFERENCES "cloud_device"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

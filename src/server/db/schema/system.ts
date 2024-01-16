@@ -1,7 +1,7 @@
 import { index, text, timestamp, unique } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { workspace } from "./workspace";
-import { measurement } from "./measurement";
+// import { measurement } from "./measurement";
 import { baseModal, pgTable } from "./table";
 
 // Each project can have a bunch of hardware devices registered to it.
@@ -23,7 +23,7 @@ export const system = pgTable(
 );
 
 export const systemRelation = relations(system, ({ one, many }) => ({
-  measurements: many(measurement),
+  // measurements: many(measurement),
   workspace: one(workspace, {
     fields: [system.workspaceId],
     references: [workspace.id],

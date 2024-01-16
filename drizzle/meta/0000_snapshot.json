@@ -1,5 +1,5 @@
 {
-  "id": "b97c365b-a115-43d0-9a2d-13d63e0387b1",
+  "id": "60d3b01a-46d8-446f-9036-28627e0e9c67",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -97,19 +97,13 @@
           "name": "device_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "id": {
           "name": "id",
           "type": "text",
           "primaryKey": true,
           "notNull": true
-        },
-        "system_id": {
-          "name": "system_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
         },
         "measurement_type": {
           "name": "measurement_type",
@@ -174,19 +168,6 @@
           "tableTo": "cloud_device",
           "columnsFrom": [
             "device_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "cloud_measurement_system_id_cloud_device_id_fk": {
-          "name": "cloud_measurement_system_id_cloud_device_id_fk",
-          "tableFrom": "cloud_measurement",
-          "tableTo": "cloud_device",
-          "columnsFrom": [
-            "system_id"
           ],
           "columnsTo": [
             "id"
