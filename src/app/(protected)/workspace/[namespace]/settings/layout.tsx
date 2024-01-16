@@ -24,15 +24,15 @@ export default async function Workspace({
   const sidebarNavItems = [
     {
       title: "General",
-      href: `/${params.namespace}/settings/general`,
+      href: `/workspace/${params.namespace}/settings/general`,
     },
     {
       title: "Users",
-      href: `/${params.namespace}/settings/users`,
+      href: `/workspace/${params.namespace}/settings/users`,
     },
     {
       title: "Secret",
-      href: `/${params.namespace}/settings/secret`,
+      href: `/workspace/${params.namespace}/settings/secret`,
     },
   ];
 

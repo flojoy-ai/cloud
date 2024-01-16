@@ -9,6 +9,6 @@ export default function Page({
 }) {
   const router = useRouter();
   router.replace(
-    `/${params.namespace}/project/${params.projectId}/settings/general`,
+    `/workspace/${params.namespace}/project/${params.projectId}/settings/general`,
   );
 }

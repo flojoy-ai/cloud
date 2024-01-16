@@ -21,24 +21,24 @@ export default async function Project({
   const sidebarNavItems = [
     {
       title: "Devices",
-      href: `/${params.namespace}/project/${params.projectId}/devices`,
+      href: `/workspace/${params.namespace}/project/${params.projectId}/devices`,
     },
     {
       title: "Tests",
-      href: `/${params.namespace}/project/${params.projectId}/tests`,
+      href: `/workspace/${params.namespace}/project/${params.projectId}/tests`,
     },
     {
       title: "Explorer",
-      href: `/${params.namespace}/project/${params.projectId}/explorer`,
+      href: `/workspace/${params.namespace}/project/${params.projectId}/explorer`,
     },
 
     {
       title: "Upload",
-      href: `/${params.namespace}/project/${params.projectId}/upload/python`,
+      href: `/workspace/${params.namespace}/project/${params.projectId}/upload/python`,
     },
     {
       title: "Settings",
-      href: `/${params.namespace}/project/${params.projectId}/settings/general`,
+      href: `/workspace/${params.namespace}/project/${params.projectId}/settings/general`,
     },
   ];
 
