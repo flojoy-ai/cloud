@@ -292,7 +292,6 @@ export const workspaceRouter = createTRPCRouter({
     }),
 
   getWorkspaces: protectedProcedure
-
     .meta({
       openapi: { method: "GET", path: "/v1/workspaces/", tags: ["workspace"] },
     })

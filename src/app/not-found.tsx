@@ -16,7 +16,7 @@ function NotFoundPage() {
           </div>
 
           <Button asChild>
-            <Link href="/dashboard">Return to dashboard</Link>
+            <Link href="/workspace">Return to dashboard</Link>
           </Button>
 
           <Button asChild variant="secondary">
