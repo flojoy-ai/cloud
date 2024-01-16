@@ -59,7 +59,7 @@ export function ProtectedNav({ workspaces }: Props) {
               variant="outline"
               role="combobox"
               aria-expanded={open}
-              aria-label="Select a workspaceSelect a workspace"
+              aria-label="Select a workspace"
               className={cn("justify-between gap-2")}
             >
               {currentWorkspace ? (
