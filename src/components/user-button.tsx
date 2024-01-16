@@ -44,6 +44,7 @@ function UserButton({ session }: Props) {
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem
+          className="cursor-pointer"
           onSelect={async () => {
             return router.push("/profile");
           }}
@@ -52,6 +53,7 @@ function UserButton({ session }: Props) {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
+          className="cursor-pointer"
           onSelect={async () => {
             const response = await fetch("/api/logout", {
               method: "POST",
