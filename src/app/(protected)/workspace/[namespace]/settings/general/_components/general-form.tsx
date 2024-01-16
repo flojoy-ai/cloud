@@ -22,6 +22,7 @@ import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Icons } from "~/components/icons";
+import { useWorkspace } from "../../../workspace-provider";
 
 type Props = {
   workspaceId: string;
@@ -33,10 +34,12 @@ const GeneralForm = ({ workspaceId }: Props) => {
   });
 
   const router = useRouter();
+  const namespace = useWorkspace();
 
   const defaultValues = {
     workspaceId,
     name: "",
+    namespace,
   };
 
   const form = useForm<z.infer<typeof publicUpdateWorkspaceSchema>>({
@@ -45,8 +48,9 @@ const GeneralForm = ({ workspaceId }: Props) => {
   });
 
   const updateWorkspace = api.workspace.updateWorkspace.useMutation({
-    onSuccess: () => {
+    onSuccess: (data) => {
       form.reset(defaultValues);
+      router.push(`/workspace/${data.namespace}/settings/general`);
       router.refresh();
     },
   });
@@ -81,6 +85,23 @@ const GeneralForm = ({ workspaceId }: Props) => {
                 <Input {...field} data-1p-ignore />
               </FormControl>
               <FormDescription>Give your workspace a new name.</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="namespace"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Namespace</FormLabel>
+              <FormControl>
+                <Input {...field} data-1p-ignore />
+              </FormControl>
+              <FormDescription>
+                Give your workspace a new namespace.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

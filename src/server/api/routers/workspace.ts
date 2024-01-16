@@ -266,15 +266,24 @@ export const workspaceRouter = createTRPCRouter({
     .input(
       publicInsertWorkspaceSchema.merge(z.object({ workspaceId: z.string() })),
     )
-    .output(z.void())
+    .output(selectWorkspaceSchema)
     .use(workspaceAccessMiddleware)
     .mutation(async ({ ctx, input }) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { workspaceId, ...updatedWorkspace } = input;
-      await ctx.db
+      const [result] = await ctx.db
         .update(workspace)
         .set(updatedWorkspace)
-        .where(eq(workspace.id, ctx.workspaceId));
+        .where(eq(workspace.id, ctx.workspaceId))
+        .returning();
+      if (!result) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to update workspace",
+        });
+      }
+
+      return result;
     }),
 
   deleteWorkspaceById: workspaceProcedure
