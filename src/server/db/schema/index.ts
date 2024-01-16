@@ -1,6 +1,7 @@
 export * from "./device";
 export * from "./measurement";
 export * from "./project";
+export * from "./project_device";
 export * from "./secret";
 export * from "./tag";
 export * from "./test";

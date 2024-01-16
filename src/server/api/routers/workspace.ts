@@ -165,7 +165,7 @@ export const workspaceRouter = createTRPCRouter({
           measurementType: "boolean" as const,
           createdAt: new Date(new Date().getTime() + i * 20000),
           data: { type: "boolean" as const, passed: Math.random() < 0.8 },
-          storageProvider: "local" as const, // TODO: make this configurable
+          storageProvider: "postgres" as const, // TODO: make this configurable
         }));
 
         const boolMeasCreateResult = await tx
@@ -220,7 +220,7 @@ export const workspaceRouter = createTRPCRouter({
               y: generateRandomNumbers(),
             },
           },
-          storageProvider: "local" as const, // TODO: make this configurable
+          storageProvider: "postgres" as const, // TODO: make this configurable
         }));
 
         const dataframeMeasCreateResult = await tx

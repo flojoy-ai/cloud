@@ -3,7 +3,6 @@ import { relations } from "drizzle-orm";
 import { baseModal, pgTable } from "./table";
 import { workspace } from "./workspace";
 import { test } from "./test";
-import { project_device } from "./device";
 
 // This table should be self-explanatory.
 export const project = pgTable(
@@ -25,7 +24,6 @@ export const project = pgTable(
 
 export const projectRelation = relations(project, ({ many, one }) => ({
   tests: many(test),
-  projects_devices: many(project_device),
   workspace: one(workspace, {
     fields: [project.workspaceId],
     references: [workspace.id],

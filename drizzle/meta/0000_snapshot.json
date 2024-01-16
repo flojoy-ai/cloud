@@ -1,5 +1,5 @@
 {
-  "id": "593be152-5a02-4d9a-a88a-445bbdd53f5e",
+  "id": "b97c365b-a115-43d0-9a2d-13d63e0387b1",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -97,7 +97,7 @@
           "name": "device_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "id": {
           "name": "id",
@@ -105,9 +105,15 @@
           "primaryKey": true,
           "notNull": true
         },
+        "system_id": {
+          "name": "system_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "measurement_type": {
           "name": "measurement_type",
-          "type": "measurement_type",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -120,7 +126,7 @@
         },
         "storage_provider": {
           "name": "storage_provider",
-          "type": "storage_provider",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -168,6 +174,19 @@
           "tableTo": "cloud_device",
           "columnsFrom": [
             "device_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "cloud_measurement_system_id_cloud_device_id_fk": {
+          "name": "cloud_measurement_system_id_cloud_device_id_fk",
+          "tableFrom": "cloud_measurement",
+          "tableTo": "cloud_device",
+          "columnsFrom": [
+            "system_id"
           ],
           "columnsTo": [
             "id"
@@ -268,12 +287,6 @@
       "name": "cloud_project_device",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
         "project_id": {
           "name": "project_id",
           "type": "text",
@@ -294,30 +307,7 @@
           "default": "now()"
         }
       },
-      "indexes": {
-        "cloud_project_device_project_id_device_id_index": {
-          "name": "cloud_project_device_project_id_device_id_index",
-          "columns": [
-            "project_id",
-            "device_id"
-          ],
-          "isUnique": false
-        },
-        "cloud_project_device_project_id_index": {
-          "name": "cloud_project_device_project_id_index",
-          "columns": [
-            "project_id"
-          ],
-          "isUnique": false
-        },
-        "cloud_project_device_device_id_index": {
-          "name": "cloud_project_device_device_id_index",
-          "columns": [
-            "device_id"
-          ],
-          "isUnique": false
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "cloud_project_device_project_id_cloud_project_id_fk": {
           "name": "cloud_project_device_project_id_cloud_project_id_fk",
@@ -346,17 +336,16 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "cloud_project_device_project_id_device_id_unique": {
-          "name": "cloud_project_device_project_id_device_id_unique",
-          "nullsNotDistinct": false,
+      "compositePrimaryKeys": {
+        "cloud_project_device_project_id_device_id_pk": {
+          "name": "cloud_project_device_project_id_device_id_pk",
           "columns": [
             "project_id",
             "device_id"
           ]
         }
-      }
+      },
+      "uniqueConstraints": {}
     },
     "cloud_secret": {
       "name": "cloud_secret",
@@ -520,7 +509,7 @@
         },
         "measurement_type": {
           "name": "measurement_type",
-          "type": "measurement_type",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -696,7 +685,7 @@
         },
         "auth_provider": {
           "name": "auth_provider",
-          "type": "auth_provider",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -871,35 +860,87 @@
         }
       },
       "uniqueConstraints": {}
+    },
+    "cloud_system": {
+      "name": "cloud_system",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "cloud_system_name_index": {
+          "name": "cloud_system_name_index",
+          "columns": [
+            "name"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "cloud_system_workspace_id_cloud_workspace_id_fk": {
+          "name": "cloud_system_workspace_id_cloud_workspace_id_fk",
+          "tableFrom": "cloud_system",
+          "tableTo": "cloud_workspace",
+          "columnsFrom": [
+            "workspace_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "cloud_system_workspace_id_name_unique": {
+          "name": "cloud_system_workspace_id_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "workspace_id",
+            "name"
+          ]
+        }
+      }
     }
   },
   "enums": {
-    "auth_provider": {
-      "name": "auth_provider",
-      "values": {
-        "google": "google"
-      }
-    },
-    "measurement_type": {
-      "name": "measurement_type",
-      "values": {
-        "boolean": "boolean",
-        "dataframe": "dataframe"
-      }
-    },
     "plan_type": {
       "name": "plan_type",
       "values": {
         "hobby": "hobby",
         "pro": "pro",
         "enterprise": "enterprise"
-      }
-    },
-    "storage_provider": {
-      "name": "storage_provider",
-      "values": {
-        "s3": "s3",
-        "local": "local"
       }
     },
     "workspace_role": {

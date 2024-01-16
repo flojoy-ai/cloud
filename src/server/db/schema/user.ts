@@ -1,4 +1,4 @@
-import { text, timestamp, pgEnum, boolean, bigint } from "drizzle-orm/pg-core";
+import { text, timestamp, boolean, bigint } from "drizzle-orm/pg-core";
 import { baseModal, pgTable } from "./table";
 
 // After a user signs up with the auth provider, we will create a user
@@ -18,14 +18,13 @@ export const user = pgTable("user", {
 
 // The user_session and user_key tables are internal to Lucia
 // Therefore, they do not have the baseModal fields (ID prefix).
-export const authProviderEnum = pgEnum("auth_provider", ["google"]);
 
 export const user_session = pgTable("user_session", {
   id: text("id").notNull().primaryKey(),
   userId: text("user_id")
     .notNull()
     .references(() => user.id),
-  authProvider: authProviderEnum("auth_provider").notNull(),
+  authProvider: text("auth_provider", { enum: ["google"] }).notNull(),
   activeExpires: bigint("active_expires", { mode: "number" }).notNull(),
   idleExpires: bigint("idle_expires", { mode: "number" }).notNull(),
 });
