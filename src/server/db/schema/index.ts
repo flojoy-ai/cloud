@@ -7,3 +7,4 @@ export * from "./tag";
 export * from "./test";
 export * from "./user";
 export * from "./workspace";
+export * from "./workspace_user";
