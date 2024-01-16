@@ -59,7 +59,7 @@ export function ProtectedNav({ workspaces }: Props) {
               variant="outline"
               role="combobox"
               aria-expanded={open}
-              aria-label="Select a workspace"
+              aria-label="Select a workspaceSelect a workspace"
               className={cn("justify-between gap-2")}
             >
               {currentWorkspace ? (
@@ -92,7 +92,7 @@ export function ProtectedNav({ workspaces }: Props) {
                   <CommandItem
                     key={workspace.namespace}
                     onSelect={() => {
-                      router.push(`/${workspace.namespace}`);
+                      router.push(`/workspace/${workspace.namespace}`);
                       setOpen(false);
                     }}
                     className="text-sm"

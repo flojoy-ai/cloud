@@ -34,7 +34,7 @@ const CreateWorkspaceForm = () => {
 
   const createWorkspace = api.workspace.createWorkspace.useMutation({
     onSuccess: (data) => {
-      router.push(`/${data.namespace}`);
+      router.push(`/workspace/${data.namespace}`);
       router.refresh();
     },
   });
