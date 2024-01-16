@@ -1,15 +1,14 @@
-import { type SQL, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import _ from "lodash";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
-import { device, project, project_device, workspace } from "~/server/db/schema";
+import { device, project_device, workspace } from "~/server/db/schema";
 import { publicInsertDeviceSchema, selectDeviceSchema } from "~/types/device";
 import { selectMeasurementSchema } from "~/types/measurement";
 import { selectTestSchema } from "~/types/test";
 import { type db } from "~/server/db";
-import { projectAccessMiddleware } from "./project";
 import { checkWorkspaceAccess } from "~/lib/auth";
 import { workspaceAccessMiddleware } from "./workspace";
 

@@ -21,10 +21,10 @@ export function MainNav() {
       </Link>
       <nav className="flex items-center gap-6 text-sm">
         <Link
-          href="/dashboard"
+          href="/workspace"
           className={cn(
             "transition-colors hover:text-foreground/80",
-            pathname?.startsWith("/dashboard")
+            pathname === "/workspace"
               ? "text-foreground"
               : "text-foreground/60",
           )}
@@ -40,6 +40,16 @@ export function MainNav() {
           )}
         >
           Contact Sales
+        </Link>
+
+        <Link
+          href={"https://rest.flojoy.ai"}
+          target="_blank"
+          className={cn(
+            "text-foreground/60 transition-colors hover:text-foreground/80",
+          )}
+        >
+          API Docs
         </Link>
       </nav>
     </div>

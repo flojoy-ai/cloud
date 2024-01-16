@@ -8,7 +8,7 @@ import { ModeToggle } from "~/components/mode-toggle";
 import { Button, buttonVariants } from "~/components/ui/button";
 import { auth } from "~/auth/lucia";
 import * as context from "next/headers";
-import Form from "./form";
+import UserButton from "./user-button";
 
 export async function SiteHeader() {
   const authRequest = auth.handleRequest("GET", context);
@@ -20,17 +20,6 @@ export async function SiteHeader() {
         <MainNav />
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <nav className="flex items-center">
-            <Link
-              href="https://rest.flojoy.ai"
-              className={cn(
-                buttonVariants({
-                  variant: "ghost",
-                }),
-                "mr-4 px-2",
-              )}
-            >
-              API Docs
-            </Link>
             {!session ? (
               <>
                 <Button size="sm" variant="outline" asChild>
@@ -47,13 +36,7 @@ export async function SiteHeader() {
               </>
             ) : (
               <>
-                <div>Hi, {session.user.email}</div>
-                <div className="px-1" />
-                <Form action="/api/logout">
-                  <Button type="submit" size="sm" variant="secondary">
-                    Sign Out
-                  </Button>
-                </Form>
+                <UserButton session={session} />
                 <div className="px-1" />
               </>
             )}

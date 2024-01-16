@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { env } from "~/env";
 import { Button } from "./ui/button";
 
@@ -14,9 +13,6 @@ export async function TailwindIndicator() {
         <div className="hidden lg:block xl:hidden">lg</div>
         <div className="hidden xl:block 2xl:hidden">xl</div>
         <div className="hidden 2xl:block">2xl</div>
-      </Button>
-      <Button size="sm">
-        <Link href="/docs">Docs</Link>
       </Button>
     </div>
   );

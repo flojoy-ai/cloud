@@ -78,7 +78,7 @@ export const measurementRouter = createTRPCRouter({
           .insert(measurement)
           .values({
             ...input,
-            storageProvider: "local", // TODO: make this configurable
+            storageProvider: "postgres", // TODO: make this configurable
           })
           .returning();
 
@@ -107,7 +107,7 @@ export const measurementRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const measurements = input.map((m) => ({
         ...m,
-        storageProvider: "local" as const, // TODO: make this configurable
+        storageProvider: "postgres" as const, // TODO: make this configurable
       }));
 
       const measurementsCreateResult = await ctx.db

@@ -4,7 +4,7 @@ import { Button } from "~/components/ui/button";
 function NotFoundPage() {
   return (
     <>
-      <div className="lg:p-8">
+      <div className="p-8">
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
           <div className="flex flex-col space-y-2 text-center">
             <h1 className="text-2xl font-semibold tracking-tight">
@@ -16,7 +16,7 @@ function NotFoundPage() {
           </div>
 
           <Button asChild>
-            <Link href="/dashboard">Return to dashboard</Link>
+            <Link href="/workspace">Return to dashboard</Link>
           </Button>
 
           <Button asChild variant="secondary">

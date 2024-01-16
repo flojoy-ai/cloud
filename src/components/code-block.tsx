@@ -3,21 +3,21 @@
 import { toast } from "sonner";
 import { Button } from "./ui/button";
 import { Clipboard } from "lucide-react";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
 
 import {
   oneDark,
   oneLight,
 } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { useTheme } from "next-themes";
+import python from "react-syntax-highlighter/dist/esm/languages/prism/python";
+
+SyntaxHighlighter.registerLanguage("python", python);
 
 type Props = {
   code: string;
 };
 
 const CodeBlock = ({ code }: Props) => {
-  const { resolvedTheme } = useTheme();
-
   return (
     <div className="relative">
       <Button
@@ -33,9 +33,18 @@ const CodeBlock = ({ code }: Props) => {
       >
         <Clipboard size={24} />
       </Button>
+
       <SyntaxHighlighter
         language="python"
-        style={resolvedTheme === "dark" ? oneDark : oneLight}
+        style={oneDark}
+        className="hidden dark:block"
+      >
+        {code}
+      </SyntaxHighlighter>
+      <SyntaxHighlighter
+        language="python"
+        style={oneLight}
+        className="dark:hidden"
       >
         {code}
       </SyntaxHighlighter>
