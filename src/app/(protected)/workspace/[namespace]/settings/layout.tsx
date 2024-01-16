@@ -2,7 +2,7 @@ import {
   PageHeader,
   PageHeaderDescription,
   PageHeaderHeading,
-} from "~/components/page-header";
+} from "~/components/small-header";
 import { api } from "~/trpc/server";
 import { type ReactNode } from "react";
 import { SidebarNav } from "~/components/sidebar-nav";
@@ -44,6 +44,7 @@ export default async function Workspace({
           Manage your workspace settings here.
         </PageHeaderDescription>
       </PageHeader>
+      <div className="py-4"></div>
 
       <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
         <aside className="-mx-4 lg:w-1/5">

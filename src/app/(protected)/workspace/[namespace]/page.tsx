@@ -3,11 +3,9 @@ import {
   PageHeader,
   PageHeaderDescription,
   PageHeaderHeading,
-} from "~/components/page-header";
+} from "~/components/small-header";
 import NewProject from "./_components/new-project";
 import ProjectCard from "./_components/project-card";
-import Link from "next/link";
-import { Button } from "~/components/ui/button";
 import CodeBlock from "~/components/code-block";
 import { WorkspaceSecretReminder } from "~/components/workspace-secret-reminder";
 
@@ -43,21 +41,18 @@ project = client.get_all_projects_by_workspace_id("${workspace.id}")
   return (
     <div className="container max-w-screen-2xl">
       <PageHeader>
-        <PageHeaderHeading className="">{workspace.name}</PageHeaderHeading>
+        <PageHeaderHeading className="">Projects</PageHeaderHeading>
         <PageHeaderDescription>
-          Here you can find all the projects in this workspace. <br />
+          Here you can find all the projects in the {workspace.name} workspace.{" "}
+          <br />
           Each project should host a single type of board with all its hardware
           instances.
         </PageHeaderDescription>
       </PageHeader>
+      <div className="py-4"></div>
 
       <div className="space-x-2">
         <NewProject workspace={workspace} />
-        <Button asChild size="sm" variant="secondary">
-          <Link href={`/workspace/${workspace.namespace}/settings/general`}>
-            <div className="">Configure Workspace</div>
-          </Link>
-        </Button>
       </div>
 
       <div className="py-2"></div>

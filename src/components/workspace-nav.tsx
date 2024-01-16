@@ -44,6 +44,18 @@ export const WorkspaceNav = ({ workspaces }: Props) => {
           >
             Device Inventory
           </Link>
+
+          <Link
+            href={`/workspace/${namespace}/settings/general`}
+            className={cn(
+              "transition-colors hover:text-foreground/80",
+              pathname.startsWith(`/workspace/${namespace}/settings/`)
+                ? "text-foreground underline underline-offset-8"
+                : "text-foreground/60",
+            )}
+          >
+            Settings
+          </Link>
         </div>
       )}
     </div>

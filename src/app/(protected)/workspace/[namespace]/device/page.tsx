@@ -4,7 +4,7 @@ import {
   PageHeader,
   PageHeaderDescription,
   PageHeaderHeading,
-} from "~/components/page-header";
+} from "~/components/small-header";
 import { api } from "~/trpc/server";
 
 export default async function DeviceInventory({
@@ -28,6 +28,7 @@ export default async function DeviceInventory({
           Here you can find all your register devices in this workspace.
         </PageHeaderDescription>
       </PageHeader>
+      <div className="py-4"></div>
 
       <DataTable columns={columns} data={devices} />
       <div className="py-4"></div>
