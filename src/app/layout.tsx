@@ -20,7 +20,8 @@ const inter = Inter({
 
 export const metadata = {
   title: "Flojoy Cloud",
-  description: "",
+  description:
+    "The easiest way to supercharge your test & measurement data. Powerful data visualizations. Easy to use. APIs for Python, LabVIEW, and MATLAB.",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
