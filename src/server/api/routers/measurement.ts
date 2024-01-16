@@ -184,4 +184,30 @@ export const measurementRouter = createTRPCRouter({
       });
       return result;
     }),
+
+  getMeasurementById: workspaceProcedure
+    .meta({
+      openapi: {
+        method: "GET",
+        path: "/v1/measurements/{measurementId}",
+        tags: ["measurement"],
+      },
+    })
+    .input(z.object({ measurementId: z.string() }))
+    .use(measurementAccessMiddleware)
+    .output(selectMeasurementSchema)
+    .query(async ({ input, ctx }) => {
+      const result = await ctx.db.query.measurement.findFirst({
+        where: (measurement, { eq }) => eq(measurement.id, input.measurementId),
+      });
+
+      if (!result) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Measurement not found",
+        });
+      }
+
+      return result;
+    }),
 });
