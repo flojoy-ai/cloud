@@ -10,6 +10,7 @@ function UserPage() {
         </p>
       </div>
       <Separator />
+      <div>We are still working on this functionality, coming soon!</div>
     </div>
   );
 }
