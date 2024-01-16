@@ -80,11 +80,13 @@ const GeneralForm = ({ workspaceId }: Props) => {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>Workspace Name</FormLabel>
               <FormControl>
                 <Input {...field} data-1p-ignore />
               </FormControl>
-              <FormDescription>Give your workspace a new name.</FormDescription>
+              <FormDescription>
+                This is your workspace&apos;s visible name within Flojoy.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -95,12 +97,17 @@ const GeneralForm = ({ workspaceId }: Props) => {
           name="namespace"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Namespace</FormLabel>
+              <FormLabel>Workspace URL</FormLabel>
               <FormControl>
-                <Input {...field} data-1p-ignore />
+                <div className="flex gap-1.5">
+                  <div className="flex h-10 w-min rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground opacity-50 ring-offset-background  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                    cloud.flojoy.ai/
+                  </div>
+                  <Input placeholder="hiddenlevel" className="" {...field} />
+                </div>
               </FormControl>
               <FormDescription>
-                Give your workspace a new namespace.
+                This is your workspace’s URL namespace on Flojoy.
               </FormDescription>
               <FormMessage />
             </FormItem>
