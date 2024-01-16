@@ -132,7 +132,7 @@ export function ProtectedNav({ workspaces }: Props) {
           </PopoverContent>
         </Popover>
 
-        {namespace && (
+        {currentWorkspace && (
           <>
             <Link
               href={`/${namespace}`}
