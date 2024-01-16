@@ -4,8 +4,14 @@ import { RESERVED_SCOPE } from "~/config/workspace";
 
 // This function can be marked `async` if using `await` inside
 export async function middleware(request: NextRequest) {
-  const scope = request.nextUrl.pathname.split("/")[1];
-  if (scope && !RESERVED_SCOPE.includes(scope.toLowerCase())) {
+  const segments = request.nextUrl.pathname.split("/");
+  const isWorkspaceRoute = segments[1] === "workspace";
+  const scope = segments[2];
+  if (
+    isWorkspaceRoute &&
+    scope &&
+    !RESERVED_SCOPE.includes(scope.toLowerCase())
+  ) {
     // Now we know we are trying to access a workspace
 
     const scopeCookie = cookies().get("scope");

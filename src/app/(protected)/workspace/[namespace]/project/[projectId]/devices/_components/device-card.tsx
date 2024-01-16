@@ -24,7 +24,7 @@ const DeviceCard = ({ device, namespace }: Props) => {
   return (
     <ContextMenu>
       <ContextMenuTrigger>
-        <Link href={`/${namespace}/device/${device.id}`}>
+        <Link href={`/workspace/${namespace}/device/${device.id}`}>
           <Card className="transition-all duration-300 hover:bg-secondary/80">
             <CardHeader>
               <CardTitle>{device.name}</CardTitle>

@@ -9,7 +9,7 @@ export const WorkspaceSecretReminder = ({
     <div className="text-sm">
       To get your workspace secret, go to{" "}
       <Link
-        href={`/${namespace}/settings/secret`}
+        href={`/workspace/${namespace}/settings/secret`}
         className="underline hover:opacity-70"
       >
         your workspace settings.

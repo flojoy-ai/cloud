@@ -36,7 +36,10 @@ export function ProtectedNav({ workspaces }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const namespace = pathname.split("/")[1];
+  const segments = pathname.split("/");
+
+  const isWorkspaceRoute = segments[1] === "workspace";
+  const namespace = segments[2];
 
   const currentWorkspace = workspaces.find((ws) => ws.namespace === namespace);
 
@@ -132,13 +135,13 @@ export function ProtectedNav({ workspaces }: Props) {
           </PopoverContent>
         </Popover>
 
-        {currentWorkspace && (
+        {isWorkspaceRoute && currentWorkspace && (
           <>
             <Link
-              href={`/${namespace}`}
+              href={`/workspace/${namespace}`}
               className={cn(
                 "transition-colors hover:text-foreground/80",
-                pathname === `/${namespace}`
+                pathname === `/workspace/${namespace}`
                   ? "text-foreground"
                   : "text-foreground/60",
               )}
@@ -146,10 +149,10 @@ export function ProtectedNav({ workspaces }: Props) {
               Projects
             </Link>
             <Link
-              href={`/${namespace}/device`}
+              href={`/workspace/${namespace}/device`}
               className={cn(
                 "transition-colors hover:text-foreground/80",
-                pathname === `/${namespace}/device`
+                pathname === `/workspace/${namespace}/device`
                   ? "text-foreground"
                   : "text-foreground/60",
               )}

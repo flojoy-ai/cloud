@@ -27,7 +27,7 @@ const TestCard = ({ test, namespace }: Props) => {
   return (
     <ContextMenu>
       <ContextMenuTrigger>
-        <Link href={`/${namespace}/test/${test.id}`}>
+        <Link href={`/workspace/${namespace}/test/${test.id}`}>
           <Card className="transition-all duration-300 hover:bg-secondary/80">
             <CardHeader>
               <CardTitle>{test.name}</CardTitle>
