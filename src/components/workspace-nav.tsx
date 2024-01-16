@@ -21,7 +21,7 @@ export const WorkspaceNav = ({ workspaces }: Props) => {
   return (
     <div className="border-b border-border/40 py-4 text-sm font-medium">
       {isWorkspaceRoute && currentWorkspace && (
-        <div className="container flex max-w-screen-2xl gap-x-4">
+        <div className="container flex max-w-screen-2xl gap-x-6">
           <Link
             href={`/workspace/${namespace}`}
             className={cn(
