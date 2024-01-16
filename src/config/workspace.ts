@@ -3,6 +3,7 @@ export const RESERVED_SCOPE = [
   "docs",
   "login",
   "pricing",
+  "profile",
   "privacy",
   "signup",
   "terms",
