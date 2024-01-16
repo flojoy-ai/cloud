@@ -11,8 +11,6 @@ import {
 } from "react-syntax-highlighter/dist/esm/styles/prism";
 import python from "react-syntax-highlighter/dist/esm/languages/prism/python";
 
-import { useTheme } from "next-themes";
-
 SyntaxHighlighter.registerLanguage("python", python);
 
 type Props = {
@@ -20,8 +18,6 @@ type Props = {
 };
 
 const CodeBlock = ({ code }: Props) => {
-  const { resolvedTheme } = useTheme();
-
   return (
     <div className="relative">
       <Button
@@ -37,9 +33,18 @@ const CodeBlock = ({ code }: Props) => {
       >
         <Clipboard size={24} />
       </Button>
+
       <SyntaxHighlighter
         language="python"
-        style={resolvedTheme === "dark" ? oneDark : oneLight}
+        style={oneDark}
+        className="hidden dark:block"
+      >
+        {code}
+      </SyntaxHighlighter>
+      <SyntaxHighlighter
+        language="python"
+        style={oneLight}
+        className="dark:hidden"
       >
         {code}
       </SyntaxHighlighter>
