@@ -3,13 +3,17 @@
 import { toast } from "sonner";
 import { Button } from "./ui/button";
 import { Clipboard } from "lucide-react";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
 
 import {
   oneDark,
   oneLight,
 } from "react-syntax-highlighter/dist/esm/styles/prism";
+import python from "react-syntax-highlighter/dist/esm/languages/prism/python";
+
 import { useTheme } from "next-themes";
+
+SyntaxHighlighter.registerLanguage("python", python);
 
 type Props = {
   code: string;
