@@ -54,7 +54,7 @@ project = client.get_all_projects_by_workspace_id("${workspace.id}")
       <div className="space-x-2">
         <NewProject workspace={workspace} />
         <Button asChild size="sm" variant="secondary">
-          <Link href={`/${workspace.namespace}/settings/general`}>
+          <Link href={`/workspace/${workspace.namespace}/settings/general`}>
             <div className="">Configure Workspace</div>
           </Link>
         </Button>
