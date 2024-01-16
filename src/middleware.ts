@@ -12,6 +12,11 @@ export async function middleware(request: NextRequest) {
     const scopeCookie = cookies().get("scope");
 
     if (scopeCookie?.value !== scope) {
+      // This is to make sure there is no mismatch between the scope cookie
+      // and the actual scope in the URL. This cookie helps us to know which
+      // workspace to redirect the user to after login.
+      // And it persists user's workspace selection across sessions.
+      // (Assume no different user logs in on the same device)
       const response = NextResponse.redirect(request.nextUrl);
       response.cookies.set("scope", scope);
       return response;
