@@ -13,7 +13,9 @@ export default async function PublicLayout({
   const session = await authRequest.validate();
 
   if (session) {
+    // Redirect to the protected space if the user has access to it
     const scope = context.cookies().get("scope");
+
     if (scope) {
       const workspaces = await api.workspace.getWorkspaces.query();
       if (workspaces.some((ws) => ws.workspace.namespace === scope.value)) {

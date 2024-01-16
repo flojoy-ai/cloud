@@ -25,7 +25,9 @@ export default async function ProjectCard({ project, workspace }: Props) {
   return (
     <ContextMenu>
       <ContextMenuTrigger>
-        <Link href={`/${workspace.namespace}/project/${project.id}/devices`}>
+        <Link
+          href={`/workspace/${workspace.namespace}/project/${project.id}/devices`}
+        >
           <Card className="transition-all duration-300 hover:bg-secondary/80">
             <CardHeader>
               <CardTitle>{project.name}</CardTitle>
