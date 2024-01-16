@@ -3,7 +3,7 @@ import { relations } from "drizzle-orm";
 import { workspace } from "./workspace";
 import { measurement } from "./measurement";
 import { project } from "./project";
-import { baseModal, pgTable } from ".";
+import { baseModal, pgTable } from "./table";
 
 // Each project can have a bunch of hardware devices registered to it.
 export const device = pgTable(

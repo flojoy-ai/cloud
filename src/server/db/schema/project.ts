@@ -1,6 +1,6 @@
 import { index, text, timestamp, unique } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { baseModal, pgTable } from ".";
+import { baseModal, pgTable } from "./table";
 import { workspace } from "./workspace";
 import { test } from "./test";
 import { project_device } from "./device";

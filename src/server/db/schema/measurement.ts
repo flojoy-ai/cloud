@@ -8,7 +8,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { allMeasurementDataTypes, type MeasurementData } from "~/types/data";
 import { relations } from "drizzle-orm";
-import { baseModal, pgTable } from ".";
+import { baseModal, pgTable } from "./table";
 import { device } from "./device";
 import { test } from "./test";
 

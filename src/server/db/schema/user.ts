@@ -1,5 +1,5 @@
 import { text, timestamp, pgEnum, boolean, bigint } from "drizzle-orm/pg-core";
-import { baseModal, pgTable } from ".";
+import { baseModal, pgTable } from "./table";
 
 // After a user signs up with the auth provider, we will create a user
 // object in our database as well. This user object will also record the

@@ -7,7 +7,7 @@ import {
   primaryKey,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { baseModal, pgTable } from ".";
+import { baseModal, pgTable } from "./table";
 import { project } from "./project";
 import { device } from "./device";
 import { user } from "./user";

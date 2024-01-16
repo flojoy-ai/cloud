@@ -1,4 +1,4 @@
-import { baseModal, pgTable } from ".";
+import { baseModal, pgTable } from "./table";
 import { text, timestamp, unique } from "drizzle-orm/pg-core";
 import { user } from "./user";
 import { workspace } from "./workspace";
