@@ -11,7 +11,7 @@ import { api } from "~/trpc/server";
 export default async function Device({
   params,
 }: {
-  params: { deviceId: string; workspaceId: string };
+  params: { deviceId: string; namespace: string };
 }) {
   const device = await api.device.getDeviceById.query({
     deviceId: params.deviceId,

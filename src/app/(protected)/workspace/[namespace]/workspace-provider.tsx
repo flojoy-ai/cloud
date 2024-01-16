@@ -7,10 +7,10 @@ const WorkspaceContext = createContext<string>("");
 
 const WorkspaceProvider = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
-  const [state, setState] = useState<string>(pathname.split("/")[1] ?? "");
+  const [state, setState] = useState<string>(getScope(pathname));
 
   useEffect(() => {
-    setState(pathname.split("/")[1] ?? "");
+    setState(getScope(pathname));
   }, [pathname]);
 
   return (
@@ -18,6 +18,12 @@ const WorkspaceProvider = ({ children }: { children: React.ReactNode }) => {
       {children}
     </WorkspaceContext.Provider>
   );
+};
+
+const getScope = (pathname: string): string => {
+  const segments = pathname.split("/");
+  const scope = segments[1] === "workspace" ? segments[2] ?? "" : "";
+  return scope;
 };
 
 export const useWorkspace = () => {

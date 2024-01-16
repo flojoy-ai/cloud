@@ -4,7 +4,7 @@ import GeneralForm from "./_components/general-form";
 async function GeneralPage({
   params,
 }: {
-  params: { workspaceId: string; projectId: string };
+  params: { namespace: string; projectId: string };
 }) {
   return (
     <div className="space-y-6">

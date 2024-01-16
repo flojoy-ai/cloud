@@ -25,7 +25,7 @@ export default function WorkspaceCard({ workspace }: Props) {
   return (
     <ContextMenu>
       <ContextMenuTrigger>
-        <Link href={`/${workspace.namespace}`}>
+        <Link href={`/workspace/${workspace.namespace}`}>
           <Card className="transition-all duration-300 hover:bg-secondary/80">
             <CardHeader>
               <CardTitle className="overflow-hidden text-ellipsis whitespace-nowrap">

@@ -10,9 +10,7 @@ async function GeneralPage({ params }: { params: { namespace: string } }) {
     namespace: params.namespace,
   });
 
-  const secret = await api.secret._getSecret.query({
-    workspaceId,
-  });
+  const secret = await api.secret._getSecret.query({ workspaceId });
 
   return (
     <div className="space-y-6">
