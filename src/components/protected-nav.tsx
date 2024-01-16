@@ -87,7 +87,7 @@ export function ProtectedNav({ workspaces }: Props) {
                 <CommandEmpty>No team found.</CommandEmpty>
                 {workspaces.map((workspace) => (
                   <CommandItem
-                    key={workspace.name}
+                    key={workspace.namespace}
                     onSelect={() => {
                       router.push(`/${workspace.namespace}`);
                       setOpen(false);
@@ -102,7 +102,7 @@ export function ProtectedNav({ workspaces }: Props) {
                       />
                       <AvatarFallback>SC</AvatarFallback>
                     </Avatar>
-                    {workspace.name}
+                    {workspace.name} ({workspace.namespace})
                     <CheckIcon
                       className={cn(
                         "ml-auto h-4 w-4",
