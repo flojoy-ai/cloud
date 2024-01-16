@@ -8,5 +8,7 @@ export default function Page({
   params: { projectId: string; namespace: string };
 }) {
   const router = useRouter();
-  router.replace(`/workspace/${params.namespace}/project/${params.projectId}/devices`);
+  router.replace(
+    `/workspace/${params.namespace}/project/${params.projectId}/devices`,
+  );
 }
