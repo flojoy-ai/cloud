@@ -1,6 +1,5 @@
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { RESERVED_SCOPE } from "~/config/workspace";
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -78,13 +77,6 @@ export const workspaceRouter = createTRPCRouter({
     .input(publicInsertWorkspaceSchema)
     .output(selectWorkspaceSchema)
     .mutation(async ({ ctx, input }) => {
-      if (RESERVED_SCOPE.includes(input.name.toLowerCase())) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `${input.name} is a reserved namespace!`,
-        });
-      }
-
       return await ctx.db.transaction(async (tx) => {
         const [newWorkspace] = await tx
           .insert(workspace)
