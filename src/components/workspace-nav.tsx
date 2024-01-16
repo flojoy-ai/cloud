@@ -19,9 +19,9 @@ export const WorkspaceNav = ({ workspaces }: Props) => {
   const currentWorkspace = workspaces.find((ws) => ws.namespace === namespace);
 
   return (
-    <div className="container flex max-w-screen-2xl gap-x-4 border-b border-border/40 py-4 text-sm font-medium">
+    <div className="border-b border-border/40 py-4 text-sm font-medium">
       {isWorkspaceRoute && currentWorkspace && (
-        <>
+        <div className="container flex max-w-screen-2xl gap-x-4">
           <Link
             href={`/workspace/${namespace}`}
             className={cn(
@@ -44,7 +44,7 @@ export const WorkspaceNav = ({ workspaces }: Props) => {
           >
             Device Inventory
           </Link>
-        </>
+        </div>
       )}
     </div>
   );

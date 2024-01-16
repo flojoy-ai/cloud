@@ -10,7 +10,6 @@ import * as context from "next/headers";
 import { ProtectedNav } from "./protected-nav";
 import { api } from "~/trpc/server";
 import UserButton from "./user-button";
-import { WorkspaceNav } from "./workspace-nav";
 
 export async function ProtectedHeader() {
   const authRequest = auth.handleRequest("GET", context);
@@ -66,7 +65,6 @@ export async function ProtectedHeader() {
           </nav>
         </div>
       </div>
-      <WorkspaceNav workspaces={workspaces} />
     </header>
   );
 }

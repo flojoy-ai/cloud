@@ -8,6 +8,7 @@ import {
 } from "~/components/small-header";
 import { Button } from "~/components/ui/button";
 import Link from "next/link";
+import { WorkspaceNav } from "~/components/workspace-nav";
 
 export default async function ProtectedLayout({
   children,
@@ -49,6 +50,7 @@ export default async function ProtectedLayout({
 
   return (
     <>
+      <WorkspaceNav workspaces={workspaces} />
       <WorkspaceProvider>{children}</WorkspaceProvider>
     </>
   );
