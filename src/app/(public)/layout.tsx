@@ -18,11 +18,11 @@ export default async function PublicLayout({
 
     if (scope) {
       const workspaces = await api.workspace.getWorkspaces.query();
-      if (workspaces.some((ws) => ws.workspace.namespace === scope.value)) {
+      if (workspaces.some((ws) => ws.namespace === scope.value)) {
         redirect(`/workspace/${scope.value}`);
       }
       if (workspaces[0]) {
-        redirect(`/workspace/${workspaces[0].workspace.namespace}`);
+        redirect(`/workspace/${workspaces[0].namespace}`);
       }
     }
 

@@ -42,7 +42,7 @@ export default async function Dashboard() {
           </div>
         </>
       )}
-      <AllWorkspaces workspaces={workspaces.map((r) => r.workspace)} />
+      <AllWorkspaces workspaces={workspaces} />
 
       <div className="py-4"></div>
     </div>
