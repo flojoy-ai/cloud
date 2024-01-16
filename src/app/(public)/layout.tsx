@@ -2,6 +2,7 @@ import * as context from "next/headers";
 import { auth } from "~/auth/lucia";
 import { redirect } from "next/navigation";
 import { api } from "~/trpc/server";
+import { SiteHeader } from "~/components/site-header";
 
 export default async function PublicLayout({
   children,
@@ -26,5 +27,10 @@ export default async function PublicLayout({
     redirect("/setup");
   }
 
-  return <main>{children}</main>;
+  return (
+    <main>
+      <SiteHeader />
+      {children}
+    </main>
+  );
 }
