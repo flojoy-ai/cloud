@@ -115,9 +115,6 @@ dependencies:
   '@trpc/server':
     specifier: ^10.45.0
     version: 10.45.0
-  bright:
-    specifier: ^0.8.4
-    version: 0.8.4(react@18.2.0)
   class-variance-authority:
     specifier: ^0.7.0
     version: 0.7.0
@@ -181,6 +178,9 @@ dependencies:
   react-plotly.js:
     specifier: ^2.6.0
     version: 2.6.0(plotly.js@2.28.0)(react@18.2.0)
+  react-syntax-highlighter:
+    specifier: ^15.5.0
+    version: 15.5.0(react@18.2.0)
   react-wrap-balancer:
     specifier: ^1.1.0
     version: 1.1.0(react@18.2.0)
@@ -243,6 +243,9 @@ devDependencies:
   '@types/react-plotly.js':
     specifier: ^2.6.3
     version: 2.6.3
+  '@types/react-syntax-highlighter':
+    specifier: ^15.5.11
+    version: 15.5.11
   '@types/swagger-ui-react':
     specifier: ^4.18.3
     version: 4.18.3
@@ -931,10 +934,6 @@ packages:
     hasBin: true
     dependencies:
       commander: 2.20.3
-    dev: false
-
-  /@code-hike/lighter@0.8.1:
-    resolution: {integrity: sha512-St4rPmB7C2EWmAK1sAbvD3lZeM7UDInVDMjQDzEDsu4Q3B3AqF25vXedQK51U0UO0MCOASgBBdTiNwvJAfIqMQ==}
     dev: false
 
   /@commitlint/cli@18.4.4(@types/node@20.11.1)(typescript@5.3.3):
@@ -4436,6 +4435,12 @@ packages:
       '@types/react': 18.2.47
     dev: true
 
+  /@types/react-syntax-highlighter@15.5.11:
+    resolution: {integrity: sha512-ZqIJl+Pg8kD+47kxUjvrlElrraSUrYa4h0dauY/U/FTUuprSCqvUj+9PNQNQzVc6AJgIWUUxn87/gqsMHNbRjw==}
+    dependencies:
+      '@types/react': 18.2.47
+    dev: true
+
   /@types/react@18.2.47:
     resolution: {integrity: sha512-xquNkkOirwyCgoClNk85BjP+aqnIS+ckAJ8i37gAbDs14jfW/J23f2GItAf33oiUPQnqNMALiFeoM9Y5mbjpVQ==}
     dependencies:
@@ -5134,16 +5139,6 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       fill-range: 7.0.1
-
-  /bright@0.8.4(react@18.2.0):
-    resolution: {integrity: sha512-SBlcJje8EDh3lLihqr0W27yHCVpuh3NReziNxZOwUzuaShqq+V/imY+J+AvJdTIOifiCQkyIsgVWKAj5G/eOyg==}
-    peerDependencies:
-      react: ^18
-    dependencies:
-      '@code-hike/lighter': 0.8.1
-      react: 18.2.0
-      server-only: 0.0.1
-    dev: false
 
   /browserslist@4.22.2:
     resolution: {integrity: sha512-0UgcrvQmBDvZHFGdYUehrCNIazki7/lUP3kkoi/r3YB2amZbFM9J43ZRkJTXBUZK4gmx56+Sqk9+Vs9mwZx9+A==}

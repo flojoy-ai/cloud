@@ -1,25 +1,44 @@
-import { Code } from "bright";
-import CopyButton from "./copy-button";
+"use client";
+
+import { toast } from "sonner";
+import { Button } from "./ui/button";
+import { Clipboard } from "lucide-react";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+
+import {
+  oneDark,
+  oneLight,
+} from "react-syntax-highlighter/dist/esm/styles/prism";
+import { useTheme } from "next-themes";
 
 type Props = {
   code: string;
 };
 
-Code.theme = {
-  dark: "github-dark",
-  light: "github-light",
-};
-
 const CodeBlock = ({ code }: Props) => {
+  const { resolvedTheme } = useTheme();
+
   return (
     <div className="relative">
-      <CopyButton code={code} />
-      <div data-theme="light" className="dark:hidden">
-        <Code lang="py">{code}</Code>
-      </div>
-      <div data-theme="dark" className="hidden dark:block">
-        <Code lang="py">{code}</Code>
-      </div>
+      <Button
+        size="icon"
+        variant="outline"
+        className="absolute right-4 top-4"
+        onClick={() => {
+          toast.promise(navigator.clipboard.writeText(code), {
+            success: "Copied to clipboard",
+            error: "Something went wrong :(",
+          });
+        }}
+      >
+        <Clipboard size={24} />
+      </Button>
+      <SyntaxHighlighter
+        language="python"
+        style={resolvedTheme === "dark" ? oneDark : oneLight}
+      >
+        {code}
+      </SyntaxHighlighter>
     </div>
   );
 };
