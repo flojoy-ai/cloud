@@ -44,6 +44,7 @@ export function MainNav() {
 
         <Link
           href={"https://rest.flojoy.ai"}
+          target="_blank"
           className={cn(
             "text-foreground/60 transition-colors hover:text-foreground/80",
           )}
