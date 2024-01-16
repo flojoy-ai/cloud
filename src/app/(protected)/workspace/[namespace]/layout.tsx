@@ -18,7 +18,7 @@ export default async function ProtectedLayout({
 }) {
   const workspaces = await api.workspace.getWorkspaces.query();
 
-  if (!workspaces.some((ws) => ws.workspace.namespace === params.namespace)) {
+  if (!workspaces.some((ws) => ws.namespace === params.namespace)) {
     return (
       <div className="container max-w-screen-2xl">
         <PageHeader>
@@ -33,7 +33,7 @@ export default async function ProtectedLayout({
           <div className="flex gap-2">
             <Button>
               {workspaces[0] && (
-                <Link href={`/workspace/${workspaces[0].workspace.namespace}`}>
+                <Link href={`/workspace/${workspaces[0].namespace}`}>
                   Go back
                 </Link>
               )}

@@ -25,6 +25,7 @@ import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
 import { checkWorkspaceAccess } from "~/lib/auth";
 import { cookies } from "next/headers";
 import _ from "lodash";
+import { selectWorkspaceUserSchema } from "~/types/workspace_user";
 
 const generateRandomNumbers = () => {
   const randomNumbers = [];
@@ -296,7 +297,13 @@ export const workspaceRouter = createTRPCRouter({
       openapi: { method: "GET", path: "/v1/workspaces/", tags: ["workspace"] },
     })
     .input(z.void())
-    .output(z.array(z.object({ workspace: selectWorkspaceSchema })))
+    .output(
+      z.array(
+        selectWorkspaceSchema.merge(
+          selectWorkspaceUserSchema.pick({ workspaceRole: true }),
+        ),
+      ),
+    )
     .query(async ({ ctx }) => {
       const result = await ctx.db
         .select({
@@ -307,7 +314,11 @@ export const workspaceRouter = createTRPCRouter({
         .innerJoin(workspace, eq(workspace_user.workspaceId, workspace.id))
         .innerJoin(user, eq(workspace_user.userId, user.id))
         .where(eq(user.id, ctx.session.user.userId));
-      return result;
+
+      return result.map((w) => ({
+        ...w.workspace,
+        workspaceRole: w.workspaceUser.workspaceRole,
+      }));
     }),
 
   getWorkspaceById: workspaceProcedure
