@@ -1,5 +1,4 @@
-import { columns } from "~/components/measurement/columns";
-import { DataTable } from "~/components/measurement/data-table";
+import { MeasurementsDataTable } from "~/components/measurements-data-table";
 import {
   PageHeader,
   PageHeaderDescription,
@@ -28,7 +27,10 @@ export default async function Device({
 
       <div className="py-4"></div>
 
-      <DataTable columns={columns} data={device.measurements} />
+      <MeasurementsDataTable
+        measurements={device.measurements}
+        namespace={params.namespace}
+      />
     </div>
   );
 }
