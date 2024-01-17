@@ -15,7 +15,9 @@
     "start": "next start",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "commitlint": "commitlint --edit"
+    "commitlint": "commitlint --edit",
+    "email:dev": "email dev -d ./src/emails",
+    "email:export": "email export -d ./src/emails"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.490.0",
@@ -86,7 +88,9 @@
     "tailwindcss-animate": "^1.0.7",
     "trpc-openapi": "^1.2.0",
     "zod": "^3.22.4",
-    "zustand": "^4.4.7"
+    "zustand": "^4.4.7",
+    "@react-email/components": "0.0.13",
+    "react-email": "1.10.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^18.4.4",
