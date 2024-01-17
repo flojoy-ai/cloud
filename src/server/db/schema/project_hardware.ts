@@ -1,20 +1,20 @@
 import { primaryKey, text, timestamp } from "drizzle-orm/pg-core";
 import { project } from "./project";
 import { pgTable } from "./table";
-import { device } from "./device";
+import { hardware } from "./hardware";
 
-export const project_device = pgTable(
-  "project_device",
+export const project_hardware = pgTable(
+  "project_hardware",
   {
     projectId: text("project_id")
       .notNull()
       .references(() => project.id, { onDelete: "cascade" }),
-    deviceId: text("device_id")
+    hardwareId: text("hardware_id")
       .notNull()
-      .references(() => device.id, { onDelete: "cascade" }),
+      .references(() => hardware.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => ({
-    pk: primaryKey({ columns: [table.projectId, table.deviceId] }),
+    pk: primaryKey({ columns: [table.projectId, table.hardwareId] }),
   }),
 );
