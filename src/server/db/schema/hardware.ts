@@ -11,10 +11,10 @@ export const hardware = pgTable(
     workspaceId: text("workspace_id")
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
+    type: text("type", { enum: ["device", "system"] }).notNull(),
     modelId: text("model")
       .references(() => model.id, { onDelete: "cascade" })
       .notNull(),
-    type: text("type", { enum: ["device", "system"] }).notNull(),
     name: text("name").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at"),
