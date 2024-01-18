@@ -1,6 +1,6 @@
-export * from "./device";
 export * from "./hardware";
 export * from "./measurement";
+export * from "./model";
 export * from "./project";
 export * from "./project_hardware";
 export * from "./secret";

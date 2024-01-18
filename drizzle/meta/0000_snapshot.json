@@ -1,11 +1,11 @@
 {
-  "id": "60d3b01a-46d8-446f-9036-28627e0e9c67",
+  "id": "323640cf-73bf-43a9-abfb-466534b3ccca",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
   "tables": {
-    "cloud_device": {
-      "name": "cloud_device",
+    "cloud_hardware": {
+      "name": "cloud_hardware",
       "schema": "",
       "columns": {
         "id": {
@@ -14,14 +14,26 @@
           "primaryKey": true,
           "notNull": true
         },
-        "name": {
-          "name": "name",
+        "workspace_id": {
+          "name": "workspace_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "workspace_id": {
-          "name": "workspace_id",
+        "model": {
+          "name": "model",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -41,8 +53,8 @@
         }
       },
       "indexes": {
-        "cloud_device_name_index": {
-          "name": "cloud_device_name_index",
+        "cloud_hardware_name_index": {
+          "name": "cloud_hardware_name_index",
           "columns": [
             "name"
           ],
@@ -50,12 +62,25 @@
         }
       },
       "foreignKeys": {
-        "cloud_device_workspace_id_cloud_workspace_id_fk": {
-          "name": "cloud_device_workspace_id_cloud_workspace_id_fk",
-          "tableFrom": "cloud_device",
+        "cloud_hardware_workspace_id_cloud_workspace_id_fk": {
+          "name": "cloud_hardware_workspace_id_cloud_workspace_id_fk",
+          "tableFrom": "cloud_hardware",
           "tableTo": "cloud_workspace",
           "columnsFrom": [
             "workspace_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "cloud_hardware_model_cloud_model_id_fk": {
+          "name": "cloud_hardware_model_cloud_model_id_fk",
+          "tableFrom": "cloud_hardware",
+          "tableTo": "cloud_model",
+          "columnsFrom": [
+            "model"
           ],
           "columnsTo": [
             "id"
@@ -66,8 +91,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "cloud_device_workspace_id_name_unique": {
-          "name": "cloud_device_workspace_id_name_unique",
+        "cloud_hardware_workspace_id_name_unique": {
+          "name": "cloud_hardware_workspace_id_name_unique",
           "nullsNotDistinct": false,
           "columns": [
             "workspace_id",
@@ -93,8 +118,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "device_id": {
-          "name": "device_id",
+        "hardware_id": {
+          "name": "hardware_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -146,10 +171,10 @@
           ],
           "isUnique": false
         },
-        "cloud_measurement_device_id_index": {
-          "name": "cloud_measurement_device_id_index",
+        "cloud_measurement_hardware_id_index": {
+          "name": "cloud_measurement_hardware_id_index",
           "columns": [
-            "device_id"
+            "hardware_id"
           ],
           "isUnique": false
         },
@@ -162,12 +187,12 @@
         }
       },
       "foreignKeys": {
-        "cloud_measurement_device_id_cloud_device_id_fk": {
-          "name": "cloud_measurement_device_id_cloud_device_id_fk",
+        "cloud_measurement_hardware_id_cloud_hardware_id_fk": {
+          "name": "cloud_measurement_hardware_id_cloud_hardware_id_fk",
           "tableFrom": "cloud_measurement",
-          "tableTo": "cloud_device",
+          "tableTo": "cloud_hardware",
           "columnsFrom": [
-            "device_id"
+            "hardware_id"
           ],
           "columnsTo": [
             "id"
@@ -191,6 +216,78 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
+    },
+    "cloud_model": {
+      "name": "cloud_model",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "cloud_model_name_index": {
+          "name": "cloud_model_name_index",
+          "columns": [
+            "name"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "cloud_model_workspace_id_cloud_workspace_id_fk": {
+          "name": "cloud_model_workspace_id_cloud_workspace_id_fk",
+          "tableFrom": "cloud_model",
+          "tableTo": "cloud_workspace",
+          "columnsFrom": [
+            "workspace_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "cloud_model_workspace_id_name_unique": {
+          "name": "cloud_model_workspace_id_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "workspace_id",
+            "name"
+          ]
+        }
+      }
     },
     "cloud_project": {
       "name": "cloud_project",
@@ -226,6 +323,18 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data": {
+          "name": "data",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {
@@ -264,8 +373,8 @@
         }
       }
     },
-    "cloud_project_device": {
-      "name": "cloud_project_device",
+    "cloud_project_hardware": {
+      "name": "cloud_project_hardware",
       "schema": "",
       "columns": {
         "project_id": {
@@ -274,8 +383,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "device_id": {
-          "name": "device_id",
+        "hardware_id": {
+          "name": "hardware_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -290,9 +399,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "cloud_project_device_project_id_cloud_project_id_fk": {
-          "name": "cloud_project_device_project_id_cloud_project_id_fk",
-          "tableFrom": "cloud_project_device",
+        "cloud_project_hardware_project_id_cloud_project_id_fk": {
+          "name": "cloud_project_hardware_project_id_cloud_project_id_fk",
+          "tableFrom": "cloud_project_hardware",
           "tableTo": "cloud_project",
           "columnsFrom": [
             "project_id"
@@ -303,12 +412,12 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "cloud_project_device_device_id_cloud_device_id_fk": {
-          "name": "cloud_project_device_device_id_cloud_device_id_fk",
-          "tableFrom": "cloud_project_device",
-          "tableTo": "cloud_device",
+        "cloud_project_hardware_hardware_id_cloud_hardware_id_fk": {
+          "name": "cloud_project_hardware_hardware_id_cloud_hardware_id_fk",
+          "tableFrom": "cloud_project_hardware",
+          "tableTo": "cloud_hardware",
           "columnsFrom": [
-            "device_id"
+            "hardware_id"
           ],
           "columnsTo": [
             "id"
@@ -318,11 +427,11 @@
         }
       },
       "compositePrimaryKeys": {
-        "cloud_project_device_project_id_device_id_pk": {
-          "name": "cloud_project_device_project_id_device_id_pk",
+        "cloud_project_hardware_project_id_hardware_id_pk": {
+          "name": "cloud_project_hardware_project_id_hardware_id_pk",
           "columns": [
             "project_id",
-            "device_id"
+            "hardware_id"
           ]
         }
       },
@@ -841,78 +950,6 @@
         }
       },
       "uniqueConstraints": {}
-    },
-    "cloud_system": {
-      "name": "cloud_system",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "workspace_id": {
-          "name": "workspace_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "cloud_system_name_index": {
-          "name": "cloud_system_name_index",
-          "columns": [
-            "name"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {
-        "cloud_system_workspace_id_cloud_workspace_id_fk": {
-          "name": "cloud_system_workspace_id_cloud_workspace_id_fk",
-          "tableFrom": "cloud_system",
-          "tableTo": "cloud_workspace",
-          "columnsFrom": [
-            "workspace_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "cloud_system_workspace_id_name_unique": {
-          "name": "cloud_system_workspace_id_name_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "workspace_id",
-            "name"
-          ]
-        }
-      }
     }
   },
   "enums": {

@@ -20,3 +20,16 @@ export const publicUpdateProjectSchema = insertProjectSchema
   });
 
 export const selectProjectSchema = createSelectSchema(project);
+
+export const projectConstraintSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("system"),
+    build: z.map(z.string().startsWith("model_"), z.number().nonnegative()),
+  }),
+  z.object({
+    type: z.literal("device"),
+    modelId: z.string().startsWith("model_"),
+  }),
+]);
+
+export type ProjectConstraint = z.infer<typeof projectConstraintSchema>;
