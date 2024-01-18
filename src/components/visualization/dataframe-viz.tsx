@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Card,
   CardContent,
@@ -6,7 +8,6 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import LinePlot from "~/components/visualization/plot/line-plot";
-import { type SelectTest } from "~/types/test";
 import { type SelectMeasurement } from "~/types/measurement";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,19 +34,13 @@ import { type SelectDevice } from "~/types/device";
 
 type Props = {
   measurements: (SelectMeasurement & { device: SelectDevice })[];
-  selectedTest: SelectTest;
-  everythingSelected: boolean;
+  title: string;
   workspaceId: string;
 };
 
 type FormSchema = z.infer<typeof explorerConfig.dataframe>;
 
-const DataFrameViz = ({
-  measurements,
-  selectedTest,
-  everythingSelected,
-  workspaceId,
-}: Props) => {
+const DataFrameViz = ({ measurements, title, workspaceId }: Props) => {
   const form = useForm<FormSchema>({
     resolver: zodResolver(explorerConfig.dataframe),
   });
@@ -211,9 +206,9 @@ const DataFrameViz = ({
         </Form>
       </Card>
 
-      {everythingSelected && measurements && (
+      {measurements && (
         <LinePlot
-          title={selectedTest?.name ?? "Untitled Test"}
+          title={title ?? "Untitled Test"}
           lines={
             measurements.map((measurement) => {
               if (measurement.data.type === "dataframe") {
