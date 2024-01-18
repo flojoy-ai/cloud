@@ -1,0 +1,40 @@
+---
+- hosts: all
+  become: yes
+  become_user: root
+  become_method: sudo
+  tasks:
+    - name: Create fj_cloud directory
+      ansible.builtin.file:
+        path: "/root/fj_cloud"
+        state: directory
+
+    - name: Copy src folder
+      ansible.builtin.copy:
+        src: "../../src"
+        dest: "/root/fj_cloud/"
+        mode: 0644
+
+    # - name: Copy public folder
+    #   ansible.builtin.copy:
+    #     src: "../../public"
+    #     dest: "/root/fj_cloud/public"
+    #     mode: 0644
+
+    # - name: Copy package.json
+    #   ansible.builtin.copy:
+    #     src: "../../package.json"
+    #     dest: "/root/fj_cloud/package.json"
+    #     mode: 0644
+
+    # - name: Copy next config files
+    #   ansible.builtin.copy:
+    #     src: "../../next.config.js"
+    #     dest: "/root/fj_cloud/next.config.js"
+    #     mode: 0644
+
+    # - name: Copy static files
+    #   copy:
+    #     src: "./files/static_website/"
+    #     dest: "/root/fj_cloud"
+    #     mode: 0644

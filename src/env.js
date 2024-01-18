@@ -8,6 +8,7 @@ export const env = createEnv({
    */
   server: {
     DATABASE_URL: z.string().url(),
+    LOCAL_POSTGRES_PASS: z.string(),
 
     NODE_ENV: z
       .enum(["development", "test", "production"])
@@ -47,7 +48,7 @@ export const env = createEnv({
    */
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
-
+    LOCAL_POSTGRES_PASS: process.env.LOCAL_POSTGRES_PASS,
     NODE_ENV: process.env.NODE_ENV,
 
     AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID,
