@@ -184,4 +184,33 @@ export const measurementRouter = createTRPCRouter({
       });
       return result;
     }),
+
+  getMeasurementById: workspaceProcedure
+    .meta({
+      openapi: {
+        method: "GET",
+        path: "/v1/measurements/{measurementId}",
+        tags: ["measurement"],
+      },
+    })
+    .input(
+      z.object({
+        measurementId: z.string(),
+      }),
+    )
+    .use(measurementAccessMiddleware)
+    .output(
+      z.array(
+        selectMeasurementSchema.merge(z.object({ device: selectDeviceSchema })),
+      ),
+    )
+    .query(async ({ ctx, input }) => {
+      const result = await ctx.db.query.measurement.findMany({
+        where: () => eq(measurement.id, input.measurementId),
+        with: {
+          device: true,
+        },
+      });
+      return result;
+    }),
 });
