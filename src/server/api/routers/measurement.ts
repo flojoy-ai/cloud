@@ -200,17 +200,22 @@ export const measurementRouter = createTRPCRouter({
     )
     .use(measurementAccessMiddleware)
     .output(
-      z.array(
-        selectMeasurementSchema.merge(z.object({ device: selectDeviceSchema })),
-      ),
+      selectMeasurementSchema.merge(z.object({ device: selectDeviceSchema })),
     )
     .query(async ({ ctx, input }) => {
-      const result = await ctx.db.query.measurement.findMany({
+      const result = await ctx.db.query.measurement.findFirst({
         where: () => eq(measurement.id, input.measurementId),
         with: {
           device: true,
         },
       });
+
+      if (result === undefined) {
+        throw new TRPCError({
+          message: "Measurement not found",
+          code: "BAD_REQUEST",
+        });
+      }
       return result;
     }),
 });
