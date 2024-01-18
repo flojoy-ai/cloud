@@ -7,17 +7,21 @@ export const allMeasurementDataTypes = ["boolean", "dataframe"] as const;
 export type MeasurementDataType = (typeof allMeasurementDataTypes)[number];
 
 // Step 2: Create a schema for the newly added measurement type
-const booleanDataSchema = {
+const booleanDataSchema = z.object({
   passed: z.boolean(),
-};
+});
 
-const dataframeDataSchema = {
+export type BooleanData = z.infer<typeof booleanDataSchema>;
+
+const dataframeDataSchema = z.object({
   dataframe: z.record(
     z.string(),
     // TODO: technically the array can also contain nulls
     z.number().array(),
   ),
-};
+});
+
+export type DataframeData = z.infer<typeof dataframeDataSchema>;
 
 // Step 3: Add to this config object
 export const measurementConfig = {
@@ -36,7 +40,7 @@ export const measurementDataSchema = z.discriminatedUnion("type", [
         }),
       }),
     })
-    .extend(measurementConfig.boolean),
+    .merge(measurementConfig.boolean),
   z
     .object({
       type: z.literal("dataframe", {
@@ -46,7 +50,7 @@ export const measurementDataSchema = z.discriminatedUnion("type", [
         }),
       }),
     })
-    .extend(measurementConfig.dataframe),
+    .merge(measurementConfig.dataframe),
 ]);
 
 export type MeasurementData = z.infer<typeof measurementDataSchema>;
