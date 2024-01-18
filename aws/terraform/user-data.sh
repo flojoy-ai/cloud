@@ -12,7 +12,9 @@ npm install -g pnpm
 npm install -g pm2
 # Allow node to bind to privileged ports like 80
 sudo apt-get install libcap2-bin
-sudo setcap cap_net_bind_service=+ep "$(readlink -f \`which node\`)"
+NODE_PATH="$(which node)"
+
+sudo setcap cap_net_bind_service=+ep "$(readlink -f "$NODE_PATH")"
 
 # Create a systemd service file
 cat <<EOF >/etc/systemd/system/cloud_startup.service
@@ -31,7 +33,6 @@ StartLimitBurst=1
 Environment="HOME=/root"
 Environment="LOCAL_POSTGRES_PASS=Hk5pQw9rJz2X"
 Environment="DATABASE_URL=postgresql://postgres:pass@localhost:5432/neondb"
-Environment="NODE_ENV=production"
 Environment="NODE_TLS_REJECT_UNAUTHORIZED=0"
 
 [Install]
@@ -51,9 +52,6 @@ check_env_file() {
     return 1 
   fi
 }
-git diff > /root/cloud/db-patch.patch
-git pull
-git apply /root/cloud/db-patch.patch
 
 pnpm install
 
@@ -91,11 +89,13 @@ sudo apt update
 sudo apt install -y postgresql postgresql-contrib
 
 # Switch to postgres user
-sudo su - postgres
+sudo -i -u postgres
 
 # Create database and user
 createdb flojoy_cloud
+
 createuser flojoy
+
 psql -c "ALTER USER flojoy WITH ENCRYPTED PASSWORD 'Hk5pQw9rJz2X';"
 
 psql -c "GRANT ALL PRIVILEGES ON DATABASE flojoy_cloud TO flojoy;"
