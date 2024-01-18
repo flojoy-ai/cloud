@@ -59,8 +59,6 @@ const ExplorerVisualization = ({ tests, workspaceId, namespace }: Props) => {
       )
     : data;
 
-  const everythingSelected = selectedTest !== undefined;
-
   const code = `from flojoy.cloud import FlojoyCloud
 
 client = FlojoyCloud(workspace_secret="YOUR_WORKSPACE_SECRET")

@@ -34,18 +34,12 @@ import { type SelectDevice } from "~/types/device";
 type Props = {
   measurements: (SelectMeasurement & { device: SelectDevice })[];
   selectedTest: SelectTest;
-  everythingSelected: boolean;
   workspaceId: string;
 };
 
 type FormSchema = z.infer<typeof explorerConfig.dataframe>;
 
-const DataFrameViz = ({
-  measurements,
-  selectedTest,
-  everythingSelected,
-  workspaceId,
-}: Props) => {
+const DataFrameViz = ({ measurements, selectedTest, workspaceId }: Props) => {
   const form = useForm<FormSchema>({
     resolver: zodResolver(explorerConfig.dataframe),
   });
@@ -211,7 +205,7 @@ const DataFrameViz = ({
         </Form>
       </Card>
 
-      {everythingSelected && measurements && (
+      {measurements && (
         <LinePlot
           title={selectedTest?.name ?? "Untitled Test"}
           lines={
