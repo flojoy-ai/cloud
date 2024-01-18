@@ -123,15 +123,13 @@ measurements = client.get_all_measurements_by_test_id("${
       {selectedTest?.measurementType === "boolean" ? (
         <BooleanViz
           measurements={measurements ?? []}
-          selectedTest={selectedTest}
-          everythingSelected={everythingSelected}
+          title={selectedTest?.name}
           workspaceId={workspaceId}
         />
       ) : selectedTest?.measurementType === "dataframe" ? (
         <DataFrameViz
           measurements={measurements ?? []}
-          selectedTest={selectedTest}
-          everythingSelected={everythingSelected}
+          selectedTest={selectedTest?.name}
           workspaceId={workspaceId}
         />
       ) : null}
