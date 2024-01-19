@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
 
 const Page = () => {
   // I want to implement a countdown after I press the resend button
