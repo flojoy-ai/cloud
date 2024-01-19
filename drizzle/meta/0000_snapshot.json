@@ -1,5 +1,5 @@
 {
-  "id": "5f9d0487-c466-490f-85b3-bc78f0de322d",
+  "id": "0c606416-fe73-41f9-b2be-41c680b6bc44",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -304,6 +304,12 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "parts": {
+          "name": "parts",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {

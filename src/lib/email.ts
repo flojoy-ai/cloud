@@ -22,7 +22,7 @@ export const sendEmailVerificationLink = async (
   );
 
   const params = {
-    Source: "joey@flojoy.io",
+    Source: '"Flojoy Cloud" <joey@flojoy.io>',
     Destination: {
       ToAddresses: [email],
     },

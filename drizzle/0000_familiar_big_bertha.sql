@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS "cloud_model" (
 	"workspace_id" text NOT NULL,
 	"name" text NOT NULL,
 	"type" text NOT NULL,
+	"parts" text[],
 	CONSTRAINT "cloud_model_workspace_id_name_unique" UNIQUE("workspace_id","name")
 );
 --> statement-breakpoint
