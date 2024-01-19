@@ -9,7 +9,7 @@ type Props = {
 };
 
 const AllDevices = async ({ project, workspaceId, namespace }: Props) => {
-  const devices = await api.device.getAllDevices.query({
+  const devices = await api.hardware.getAllHardware.query({
     workspaceId,
     projectId: project.id,
   });

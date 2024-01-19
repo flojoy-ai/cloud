@@ -8,15 +8,15 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  // DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { type ColumnDef } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
-import { type SelectDevice } from "~/types/device";
+import { type SelectHardware } from "~/types/hardware";
 import { toast } from "sonner";
+import { type SelectModel } from "~/types/model";
 
-export const columns: ColumnDef<SelectDevice>[] = [
+export const deviceColumns: ColumnDef<SelectHardware>[] = [
   {
     accessorKey: "name",
     header: "Name",
@@ -73,9 +73,64 @@ export const columns: ColumnDef<SelectDevice>[] = [
             >
               Copy device ID
             </DropdownMenuItem>
-            {/* <DropdownMenuSeparator /> */}
-            {/* <DropdownMenuItem>View customer</DropdownMenuItem> */}
-            {/* <DropdownMenuItem>View payment details</DropdownMenuItem> */}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
+  },
+];
+
+export const modelColumns: ColumnDef<SelectModel>[] = [
+  {
+    accessorKey: "name",
+    header: "Name",
+  },
+  {
+    accessorKey: "type",
+    header: "Type",
+  },
+  {
+    accessorKey: "createdAt",
+    header: "Created At",
+    cell: ({ row }) => {
+      const [mounted, setMounted] = useState(false);
+      useEffect(() => {
+        setMounted(true);
+      }, []);
+      if (mounted) {
+        return row.original.createdAt.toLocaleString();
+      }
+    },
+  },
+  {
+    accessorKey: "parts",
+    header: "Parts",
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      const device = row.original;
+
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem
+              onClick={() =>
+                toast.promise(navigator.clipboard.writeText(device.id), {
+                  success: "Copied to clipboard",
+                  error: "Something went wrong :(",
+                })
+              }
+            >
+              Copy device ID
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

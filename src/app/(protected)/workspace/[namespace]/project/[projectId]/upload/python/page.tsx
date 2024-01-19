@@ -5,11 +5,11 @@ import { api } from "~/trpc/react";
 import { useState } from "react";
 import { type SelectTest } from "~/types/test";
 import { Label } from "~/components/ui/label";
-import { type SelectDevice } from "~/types/device";
 import { Combobox } from "~/components/combobox";
 import { type MeasurementDataType } from "~/types/data";
 import CodeBlock from "~/components/code-block";
 import { WorkspaceSecretReminder } from "~/components/workspace-secret-reminder";
+import { type SelectHardware } from "~/types/hardware";
 
 const EXAMPLE_DATA: Record<MeasurementDataType, string> = {
   boolean: "Boolean(passed=True)",
@@ -30,7 +30,7 @@ const UploadView = ({
     projectId: params.projectId,
   });
 
-  const { data: devices } = api.device.getAllDevices.useQuery({
+  const { data: devices } = api.hardware.getAllHardware.useQuery({
     workspaceId: workspaceId ?? "",
     projectId: params.projectId,
   });
@@ -39,7 +39,7 @@ const UploadView = ({
     undefined,
   );
   const [selectedDevice, setSelectedDevice] = useState<
-    SelectDevice | undefined
+    SelectHardware | undefined
   >(undefined);
 
   const code = `from flojoy.cloud import FlojoyCloud, Boolean, Dataframe

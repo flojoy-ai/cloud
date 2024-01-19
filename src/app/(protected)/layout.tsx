@@ -15,6 +15,10 @@ export default async function ProtectedLayout({
     redirect("/login");
   }
 
+  if (!session.user.emailVerified) {
+    redirect("/verify");
+  }
+
   return (
     <main>
       <ProtectedHeader />

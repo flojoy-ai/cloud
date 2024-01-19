@@ -12,8 +12,8 @@ export default async function Device({
 }: {
   params: { deviceId: string; namespace: string };
 }) {
-  const device = await api.device.getDeviceById.query({
-    deviceId: params.deviceId,
+  const device = await api.hardware.getHardwareById.query({
+    hardwareId: params.deviceId,
   });
 
   return (

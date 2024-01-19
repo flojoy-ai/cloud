@@ -11,40 +11,69 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_device" (
+	"id" text PRIMARY KEY NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "cloud_email_verification" (
 	"id" text PRIMARY KEY NOT NULL,
-	"name" text NOT NULL,
+	"user_id" text NOT NULL,
+	"expires" timestamp NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "cloud_hardware" (
+	"id" text PRIMARY KEY NOT NULL,
 	"workspace_id" text NOT NULL,
+	"name" text NOT NULL,
+	"model_id" text NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp,
-	CONSTRAINT "cloud_device_workspace_id_name_unique" UNIQUE("workspace_id","name")
+	CONSTRAINT "cloud_hardware_workspace_id_name_unique" UNIQUE("workspace_id","name")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_measurement" (
-	"is_deleted" boolean DEFAULT false,
-	"data" jsonb NOT NULL,
-	"device_id" text NOT NULL,
 	"id" text PRIMARY KEY NOT NULL,
-	"measurement_type" text NOT NULL,
 	"name" text DEFAULT 'Untitled',
-	"storage_provider" text NOT NULL,
+	"data" jsonb NOT NULL,
+	"hardware_id" text NOT NULL,
 	"test_id" text NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL
+	"storage_provider" text NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"is_deleted" boolean DEFAULT false
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "cloud_model" (
+	"id" text PRIMARY KEY NOT NULL,
+	"workspace_id" text NOT NULL,
+	"name" text NOT NULL,
+	"type" text NOT NULL,
+	"parts" text[],
+	CONSTRAINT "cloud_model_workspace_id_name_unique" UNIQUE("workspace_id","name")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_project" (
 	"id" text PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"workspace_id" text NOT NULL,
+	"model_id" text NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp,
 	CONSTRAINT "cloud_project_workspace_id_name_unique" UNIQUE("workspace_id","name")
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "cloud_project_device" (
+CREATE TABLE IF NOT EXISTS "cloud_project_hardware" (
 	"project_id" text NOT NULL,
+	"hardware_id" text NOT NULL,
+	CONSTRAINT "cloud_project_hardware_project_id_hardware_id_pk" PRIMARY KEY("project_id","hardware_id")
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "cloud_system" (
+	"id" text PRIMARY KEY NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "cloud_system_device" (
+	"system_id" text NOT NULL,
 	"device_id" text NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	CONSTRAINT "cloud_project_device_project_id_device_id_pk" PRIMARY KEY("project_id","device_id")
+	CONSTRAINT "cloud_system_device_system_id_device_id_pk" PRIMARY KEY("system_id","device_id")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_secret" (
@@ -77,7 +106,7 @@ CREATE TABLE IF NOT EXISTS "cloud_test" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_user" (
 	"id" text PRIMARY KEY NOT NULL,
-	"signup_completed" boolean DEFAULT false,
+	"email_verified" boolean DEFAULT false,
 	"email" text NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp,
@@ -117,32 +146,41 @@ CREATE TABLE IF NOT EXISTS "cloud_workspace_user" (
 	CONSTRAINT "cloud_workspace_user_workspace_id_user_id_pk" PRIMARY KEY("workspace_id","user_id")
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "cloud_system" (
-	"id" text PRIMARY KEY NOT NULL,
-	"name" text NOT NULL,
-	"workspace_id" text NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp,
-	CONSTRAINT "cloud_system_workspace_id_name_unique" UNIQUE("workspace_id","name")
-);
---> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "cloud_device_name_index" ON "cloud_device" ("name");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "cloud_hardware_name_index" ON "cloud_hardware" ("name");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "cloud_measurement_name_index" ON "cloud_measurement" ("name");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "cloud_measurement_device_id_index" ON "cloud_measurement" ("device_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "cloud_measurement_hardware_id_index" ON "cloud_measurement" ("hardware_id");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "cloud_measurement_test_id_index" ON "cloud_measurement" ("test_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "cloud_model_name_index" ON "cloud_model" ("name");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "cloud_project_name_index" ON "cloud_project" ("name");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "cloud_tag_name_measurement_id_index" ON "cloud_tag" ("name","measurement_id");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "cloud_test_name_index" ON "cloud_test" ("name");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "cloud_workspace_namespace_index" ON "cloud_workspace" ("namespace");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "cloud_system_name_index" ON "cloud_system" ("name");--> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "cloud_device" ADD CONSTRAINT "cloud_device_workspace_id_cloud_workspace_id_fk" FOREIGN KEY ("workspace_id") REFERENCES "cloud_workspace"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "cloud_device" ADD CONSTRAINT "cloud_device_id_cloud_hardware_id_fk" FOREIGN KEY ("id") REFERENCES "cloud_hardware"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "cloud_measurement" ADD CONSTRAINT "cloud_measurement_device_id_cloud_device_id_fk" FOREIGN KEY ("device_id") REFERENCES "cloud_device"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "cloud_email_verification" ADD CONSTRAINT "cloud_email_verification_user_id_cloud_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "cloud_user"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "cloud_hardware" ADD CONSTRAINT "cloud_hardware_workspace_id_cloud_workspace_id_fk" FOREIGN KEY ("workspace_id") REFERENCES "cloud_workspace"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "cloud_hardware" ADD CONSTRAINT "cloud_hardware_model_id_cloud_model_id_fk" FOREIGN KEY ("model_id") REFERENCES "cloud_model"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "cloud_measurement" ADD CONSTRAINT "cloud_measurement_hardware_id_cloud_hardware_id_fk" FOREIGN KEY ("hardware_id") REFERENCES "cloud_hardware"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -154,19 +192,49 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
+ ALTER TABLE "cloud_model" ADD CONSTRAINT "cloud_model_workspace_id_cloud_workspace_id_fk" FOREIGN KEY ("workspace_id") REFERENCES "cloud_workspace"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
  ALTER TABLE "cloud_project" ADD CONSTRAINT "cloud_project_workspace_id_cloud_workspace_id_fk" FOREIGN KEY ("workspace_id") REFERENCES "cloud_workspace"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "cloud_project_device" ADD CONSTRAINT "cloud_project_device_project_id_cloud_project_id_fk" FOREIGN KEY ("project_id") REFERENCES "cloud_project"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "cloud_project" ADD CONSTRAINT "cloud_project_model_id_cloud_model_id_fk" FOREIGN KEY ("model_id") REFERENCES "cloud_model"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "cloud_project_device" ADD CONSTRAINT "cloud_project_device_device_id_cloud_device_id_fk" FOREIGN KEY ("device_id") REFERENCES "cloud_device"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "cloud_project_hardware" ADD CONSTRAINT "cloud_project_hardware_project_id_cloud_project_id_fk" FOREIGN KEY ("project_id") REFERENCES "cloud_project"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "cloud_project_hardware" ADD CONSTRAINT "cloud_project_hardware_hardware_id_cloud_hardware_id_fk" FOREIGN KEY ("hardware_id") REFERENCES "cloud_hardware"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "cloud_system" ADD CONSTRAINT "cloud_system_id_cloud_hardware_id_fk" FOREIGN KEY ("id") REFERENCES "cloud_hardware"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "cloud_system_device" ADD CONSTRAINT "cloud_system_device_system_id_cloud_system_id_fk" FOREIGN KEY ("system_id") REFERENCES "cloud_system"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "cloud_system_device" ADD CONSTRAINT "cloud_system_device_device_id_cloud_device_id_fk" FOREIGN KEY ("device_id") REFERENCES "cloud_device"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -215,12 +283,6 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "cloud_workspace_user" ADD CONSTRAINT "cloud_workspace_user_workspace_id_cloud_workspace_id_fk" FOREIGN KEY ("workspace_id") REFERENCES "cloud_workspace"("id") ON DELETE cascade ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "cloud_system" ADD CONSTRAINT "cloud_system_workspace_id_cloud_workspace_id_fk" FOREIGN KEY ("workspace_id") REFERENCES "cloud_workspace"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

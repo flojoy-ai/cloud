@@ -2,7 +2,7 @@ import { index, text, timestamp, pgEnum, integer } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { baseModal, pgTable } from "./table";
 import { project } from "./project";
-import { device } from "./device";
+import { hardware } from ".";
 
 // Upon creating a Flojoy Cloud account, the user will be prompted to
 // create a workspace. (This can be a part of the singup wizard like mentioned
@@ -27,5 +27,5 @@ export const workspace = pgTable(
 
 export const workspaceRelation = relations(workspace, ({ many }) => ({
   projects: many(project),
-  devices: many(device),
+  hardwares: many(hardware),
 }));

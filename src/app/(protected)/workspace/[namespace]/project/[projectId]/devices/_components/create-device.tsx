@@ -18,7 +18,7 @@ import {
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { insertDeviceSchema } from "~/types/device";
+import { insertHardwareSchema } from "~/types/hardware";
 
 import {
   Dialog,
@@ -44,23 +44,23 @@ const CreateDevice = ({ project }: Props) => {
 
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
-  const createDevice = api.device.createDevice.useMutation({
+  const createHardware = api.hardware.createHardware.useMutation({
     onSuccess: () => {
       router.refresh();
       setIsDialogOpen(false);
     },
   });
 
-  const form = useForm<z.infer<typeof insertDeviceSchema>>({
-    resolver: zodResolver(insertDeviceSchema),
+  const form = useForm<z.infer<typeof insertHardwareSchema>>({
+    resolver: zodResolver(insertHardwareSchema),
     defaultValues: {
       workspaceId: project.workspaceId,
     },
   });
 
-  function onSubmit(values: z.infer<typeof insertDeviceSchema>) {
+  function onSubmit(values: z.infer<typeof insertHardwareSchema>) {
     toast.promise(
-      createDevice.mutateAsync({
+      createHardware.mutateAsync({
         ...values,
       }),
       {

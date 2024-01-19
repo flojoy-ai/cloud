@@ -30,7 +30,6 @@ import { Input } from "../ui/input";
 import { Checkbox } from "../ui/checkbox";
 import { Button } from "../ui/button";
 import { useState } from "react";
-import { type SelectDevice } from "~/types/device";
 import {
   Select,
   SelectTrigger,
@@ -38,9 +37,10 @@ import {
   SelectContent,
   SelectItem,
 } from "~/components/ui/select";
+import { type SelectHardware } from "~/types/hardware";
 
 type Props = {
-  measurements: (SelectMeasurement & { device: SelectDevice })[];
+  measurements: (SelectMeasurement & { hardware: SelectHardware })[];
   title: string;
   workspaceId: string;
 };
@@ -296,7 +296,7 @@ const DataFrameViz = ({ measurements, title, workspaceId }: Props) => {
                 return {
                   x: measurement.data.dataframe[xCol] ?? [],
                   y: (measurement.data.dataframe[yCol] ?? []) as number[],
-                  name: measurement.device.name,
+                  name: measurement.hardware.name,
                 };
               }
               return { x: [], y: [], name: "" };
@@ -313,7 +313,7 @@ const DataFrameViz = ({ measurements, title, workspaceId }: Props) => {
               return;
             }
             router.push(
-              `/workspace/${workspaceId}/device/${measurement.deviceId}`,
+              `/workspace/${workspaceId}/device/${measurement.hardwareId}`,
             );
           }}
         />

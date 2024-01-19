@@ -10,7 +10,9 @@ const SetupPage = async () => {
   return (
     <div className="container max-w-screen-2xl">
       <PageHeader>
-        <PageHeaderHeading className="">Welcome to Flojoy</PageHeaderHeading>
+        <PageHeaderHeading className="">
+          Welcome to Flojoy Cloud
+        </PageHeaderHeading>
         <PageHeaderDescription>
           Let&apos;s get you set up with a new workspace.
         </PageHeaderDescription>

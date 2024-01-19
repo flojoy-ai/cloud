@@ -3,10 +3,10 @@
 import { columns } from "~/components/measurement/columns";
 import { DataTable } from "~/components/measurement/data-table";
 import { useRouter } from "next/navigation";
-import { type MeasurementWithDeviceAndTest } from "~/types/measurement";
+import { type MeasurementWithHardwareAndTest } from "~/types/measurement";
 
 type Props = {
-  measurements: MeasurementWithDeviceAndTest[];
+  measurements: MeasurementWithHardwareAndTest[];
   namespace: string;
 };
 
