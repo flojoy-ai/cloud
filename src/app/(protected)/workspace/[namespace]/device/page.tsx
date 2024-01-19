@@ -1,4 +1,4 @@
-import { columns } from "~/components/device/columns";
+import { deviceColumns, modelColumns } from "~/components/device/columns";
 import { DataTable } from "~/components/device/data-table";
 import {
   PageHeader,
@@ -20,9 +20,8 @@ export default async function DeviceInventory({
   const hardware = await api.hardware.getAllHardware.query({
     workspaceId,
   });
-  const deviceModels = await api.model.getAllModels.query({
+  const models = await api.model.getAllModels.query({
     workspaceId,
-    type: "device",
   });
 
   return (
@@ -33,14 +32,22 @@ export default async function DeviceInventory({
           Here you can find all your registered devices in this workspace.
         </PageHeaderDescription>
       </PageHeader>
-      <div className="py-4"></div>
+      <div className="py-4" />
 
-      <h1 className="text-lg">Model</h1>
-      <CreateModel workspaceId={workspaceId} deviceModels={deviceModels} />
-      <div className="py-4"></div>
+      <h1 className="text-xl font-bold">Models</h1>
+      <div className="py-1" />
+      <CreateModel
+        workspaceId={workspaceId}
+        deviceModels={models.filter((m) => m.type === "device")}
+      />
+      <div className="py-2" />
+      <DataTable columns={modelColumns} data={models} />
+      <div className="py-4" />
 
-      <DataTable columns={columns} data={hardware} />
-      <div className="py-4"></div>
+      <h1 className="text-xl font-bold">Devices</h1>
+      <div className="py-1" />
+      <DataTable columns={deviceColumns} data={hardware} />
+      <div className="py-4" />
     </div>
   );
 }

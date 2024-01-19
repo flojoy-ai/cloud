@@ -39,7 +39,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { Plus, Trash2 } from "lucide-react";
+import { Cpu, Plus, Trash2 } from "lucide-react";
 
 const modelFormSchema = publicInsertModelSchema.extend({
   parts: z.object({ value: z.string() }).array(),
@@ -108,6 +108,7 @@ const CreateModel = ({ workspaceId, deviceModels }: Props) => {
     <Dialog open={isDialogOpen} onOpenChange={(open) => setIsDialogOpen(open)}>
       <DialogTrigger asChild>
         <Button variant="default" size="sm">
+          <Cpu className="mr-2 text-muted" size={20} />
           Create Model
         </Button>
       </DialogTrigger>

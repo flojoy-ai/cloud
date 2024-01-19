@@ -1,4 +1,4 @@
-import { index, jsonb, text, unique } from "drizzle-orm/pg-core";
+import { index, text, timestamp, unique } from "drizzle-orm/pg-core";
 import { baseModal, pgTable } from "./table";
 import { workspace } from "./workspace";
 import { relations } from "drizzle-orm";
@@ -14,7 +14,9 @@ export const model = pgTable(
     name: text("name").notNull(),
     type: text("type", { enum: ["device", "system"] }).notNull(),
     // Device parts if it is a system
+    // TODO: Find a good way to get the part names in queries?
     parts: text("parts").array(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => ({
     modelNameIndex: index().on(table.name),
