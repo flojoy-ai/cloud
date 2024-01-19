@@ -3,9 +3,10 @@ import {
   Container,
   Head,
   Heading,
-  Html,
-  // Img,
+  Button,
+  Img,
   Link,
+  Tailwind,
   Preview,
   Text,
 } from "@react-email/components";
@@ -16,36 +17,65 @@ interface Props {
 }
 
 export const EmailVerification = ({ verificationLink }: Props) => (
-  <Html>
-    <Head />
-    <Preview>Log in with this magic link</Preview>
-    <Body>
-      <Container>
-        <Heading>Login</Heading>
-        <Text>
-          <Link href={verificationLink} target="_blank">
-            Click here to log in with this magic link
-          </Link>
-        </Text>
-        <Text>
-          If you didn&apos;t try to login, you can safely ignore this email.
-        </Text>
-        {/* <Img */}
-        {/*   src={`${baseUrl}/static/notion-logo.png`} */}
-        {/*   width="32" */}
-        {/*   height="32" */}
-        {/*   alt="Notion's Logo" */}
-        {/* /> */}
-        <Text>
-          <Link href="https://cloud.flojoy.ai" target="_blank">
-            Flojoy Cloud
-          </Link>
-          <br />
-          the easiest way to supercharge your test & measurement data.
-        </Text>
-      </Container>
-    </Body>
-  </Html>
+  <Tailwind
+    config={{
+      theme: {
+        extend: {
+          fontFamily: {
+            main: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
+          },
+        },
+      },
+    }}
+  >
+    <Head>
+      <Preview>Welcome to Flojoy Cloud!</Preview>
+      <Body className="font-main bg-white">
+        <Container>
+          <div className="flex items-center gap-2">
+            <Link href="https://cloud.flojoy.ai">
+              <Img
+                src="https://cloud.flojoy.ai/logo.png"
+                alt="Flojoy Logo"
+                width="40"
+                height="40"
+              />
+              <Text className="text-xl font-bold">Flojoy Cloud</Text>
+            </Link>
+          </div>
+          <Heading>Confirm your email address</Heading>
+          <Text>
+            Hey there! We&apos;re so excited to have you on board. To get
+            started:
+          </Text>
+          <Button
+            href={verificationLink}
+            target="_blank"
+            className="rounded-lg bg-black px-4 py-2 text-sm text-white"
+          >
+            Click here to login
+          </Button>
+          <Text>
+            If you didn&apos;t try to login, you can safely ignore this email.
+          </Text>
+          <Text>
+            <div className="flex items-center gap-2">
+              <Link href="https://cloud.flojoy.ai">
+                <Img
+                  src="https://cloud.flojoy.ai/logo.png"
+                  alt="Flojoy Logo"
+                  width="40"
+                  height="40"
+                />
+                <Text className="text-xl font-bold">Flojoy Cloud</Text>
+              </Link>
+            </div>
+            the easiest way to supercharge your test & measurement data.
+          </Text>
+        </Container>
+      </Body>
+    </Head>
+  </Tailwind>
 );
 
 export default EmailVerification;
