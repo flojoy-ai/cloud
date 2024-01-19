@@ -1,8 +1,7 @@
 "use client";
 
 import { type ColumnDef } from "@tanstack/react-table";
-import { type SelectMeasurement } from "~/types/measurement";
-import { type SelectTest } from "~/types/test";
+import { type MeasurementWithHardwareAndTest } from "~/types/measurement";
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
@@ -13,11 +12,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { type SelectHardware } from "~/types/hardware";
 
-export const columns: ColumnDef<
-  SelectMeasurement & { test: SelectTest; hardware: SelectHardware }
->[] = [
+export const columns: ColumnDef<MeasurementWithHardwareAndTest>[] = [
   {
     accessorKey: "name",
     header: "Name",

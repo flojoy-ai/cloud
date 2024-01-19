@@ -141,4 +141,40 @@ export const measurementRouter = createTRPCRouter({
       });
       return result;
     }),
+
+  getMeasurementById: workspaceProcedure
+    .meta({
+      openapi: {
+        method: "GET",
+        path: "/v1/measurements/{measurementId}",
+        tags: ["measurement"],
+      },
+    })
+    .input(
+      z.object({
+        measurementId: z.string(),
+      }),
+    )
+    .use(measurementAccessMiddleware)
+    .output(
+      selectMeasurementSchema.merge(
+        z.object({ hardware: selectHardwareSchema }),
+      ),
+    )
+    .query(async ({ ctx, input }) => {
+      const result = await ctx.db.query.measurement.findFirst({
+        where: () => eq(measurement.id, input.measurementId),
+        with: {
+          hardware: true,
+        },
+      });
+
+      if (result === undefined) {
+        throw new TRPCError({
+          message: "Measurement not found",
+          code: "BAD_REQUEST",
+        });
+      }
+      return result;
+    }),
 });

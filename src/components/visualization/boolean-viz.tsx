@@ -30,19 +30,13 @@ import { useRouter } from "next/navigation";
 
 type Props = {
   measurements: (SelectMeasurement & { hardware: SelectHardware })[];
-  selectedTest: SelectTest;
-  everythingSelected: boolean;
+  title?: string;
   workspaceId: string;
 };
 
 type FormSchema = z.infer<typeof explorerConfig.boolean>;
 
-const BooleanViz = ({
-  measurements,
-  selectedTest,
-  everythingSelected,
-  workspaceId,
-}: Props) => {
+const BooleanViz = ({ measurements, title, workspaceId }: Props) => {
   const form = useForm<z.infer<typeof explorerConfig.boolean>>({
     resolver: zodResolver(explorerConfig.boolean),
     defaultValues: {
@@ -125,9 +119,9 @@ const BooleanViz = ({
       </Card>
 
       <Card className="p-2">
-        {everythingSelected && measurements && (
+        {measurements && (
           <ScatterPlot
-            title={selectedTest?.name ?? "Untitled Test"}
+            title={title ?? "Untitled Test"}
             x={measurements.map(
               form.watch("xAxis") === "device_id"
                 ? (measurement) => measurement.hardware.name
