@@ -65,9 +65,9 @@ export default async function Measurement({
       </div>
       <Link
         className="text-lg"
-        href={`/workspace/${params.namespace}/device/${measurement.device.id}`}
+        href={`/workspace/${params.namespace}/device/${measurement.hardware.id}`}
       >
-        {measurement.device.name}
+        {measurement.hardware.name}
       </Link>
       <div className="py-4" />
       {visualization}
