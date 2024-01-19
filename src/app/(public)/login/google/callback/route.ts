@@ -30,7 +30,7 @@ export const GET = async (request: NextRequest) => {
       const user = await createUser({
         userId: "user_" + createId(),
         attributes: {
-          signup_completed: false,
+          email_verified: true,
           email: googleUser.email ?? "",
         },
       });

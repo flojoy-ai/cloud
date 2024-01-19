@@ -10,7 +10,7 @@ import { baseModal, pgTable } from "./table";
 // to complete the signup process.
 export const user = pgTable("user", {
   ...baseModal("user"),
-  signupCompleted: boolean("signup_completed").default(false),
+  emailVerified: boolean("email_verified").default(false),
   email: text("email").notNull().unique(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at"),
@@ -24,7 +24,7 @@ export const user_session = pgTable("user_session", {
   userId: text("user_id")
     .notNull()
     .references(() => user.id),
-  authProvider: text("auth_provider", { enum: ["google"] }).notNull(),
+  authProvider: text("auth_provider", { enum: ["google", "email"] }).notNull(),
   activeExpires: bigint("active_expires", { mode: "number" }).notNull(),
   idleExpires: bigint("idle_expires", { mode: "number" }).notNull(),
 });
