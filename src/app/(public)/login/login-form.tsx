@@ -5,7 +5,7 @@ import { Label } from "~/components/ui/label";
 
 const LoginForm = () => {
   return (
-    <Form action="/api/signup">
+    <Form action="/api/login">
       <Label htmlFor="email">Email</Label>
       <Input name="email" id="email" />
       <div className="py-1"></div>
