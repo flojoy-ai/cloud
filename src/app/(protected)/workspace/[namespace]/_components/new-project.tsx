@@ -34,12 +34,22 @@ import { Input } from "~/components/ui/input";
 import { api } from "~/trpc/react";
 import { type SelectWorkspace } from "~/types/workspace";
 import { type z } from "zod";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "~/components/ui/select";
+import { type SelectModel } from "~/types/model";
+import Link from "next/link";
 
 type Props = {
   workspace: SelectWorkspace;
+  models: SelectModel[];
 };
 
-export default function NewProjectButton({ workspace }: Props) {
+export default function NewProjectButton({ workspace, models }: Props) {
   const router = useRouter();
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
@@ -105,6 +115,48 @@ export default function NewProjectButton({ workspace }: Props) {
                     </FormControl>
                     <FormDescription>
                       How do you want to call your project?
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="modelId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Model</FormLabel>
+                    <FormControl>
+                      {models.length > 0 ? (
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <SelectTrigger className="w-[180px]">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {models.map((model) => (
+                              <SelectItem value={model.id} key={model.id}>
+                                {model.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <div className="text-sm">
+                          No models found, go{" "}
+                          <Link
+                            href={`/workspace/${workspace.namespace}/device`}
+                            className="underline"
+                          >
+                            register one!
+                          </Link>
+                        </div>
+                      )}
+                    </FormControl>
+                    <FormDescription>
+                      What hardware model is this project testing?
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
