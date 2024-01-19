@@ -1,4 +1,4 @@
-import { primaryKey, text, timestamp } from "drizzle-orm/pg-core";
+import { primaryKey, text } from "drizzle-orm/pg-core";
 import { project } from "./project";
 import { pgTable } from "./table";
 import { hardware } from "./hardware";
@@ -12,7 +12,6 @@ export const project_hardware = pgTable(
     hardwareId: text("hardware_id")
       .notNull()
       .references(() => hardware.id, { onDelete: "cascade" }),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => ({
     pk: primaryKey({ columns: [table.projectId, table.hardwareId] }),

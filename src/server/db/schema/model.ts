@@ -1,8 +1,8 @@
-import { index, text, timestamp, unique } from "drizzle-orm/pg-core";
+import { index, text, unique } from "drizzle-orm/pg-core";
 import { baseModal, pgTable } from "./table";
 import { workspace } from "./workspace";
 import { relations } from "drizzle-orm";
-import { hardware } from ".";
+import { hardware, project } from ".";
 
 export const model = pgTable(
   "model",
@@ -12,8 +12,7 @@ export const model = pgTable(
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at"),
+    type: text("type", { enum: ["device", "system"] }).notNull(),
   },
   (table) => ({
     modelNameIndex: index().on(table.name),
@@ -23,4 +22,5 @@ export const model = pgTable(
 
 export const modelRelation = relations(model, ({ many }) => ({
   hardwares: many(hardware),
+  projects: many(project),
 }));

@@ -6,7 +6,7 @@ import { hardware } from ".";
 export const system = pgTable(
   "system",
   {
-    hardwareId: text("hardware_id")
+    id: text("id")
       .primaryKey()
       .references(() => hardware.id, { onDelete: "cascade" }),
   },

@@ -1,9 +1,9 @@
-import { index, jsonb, text, timestamp, unique } from "drizzle-orm/pg-core";
+import { index, text, timestamp, unique } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { baseModal, pgTable } from "./table";
 import { workspace } from "./workspace";
 import { test } from "./test";
-import { type ProjectConstraint } from "~/types/project";
+import { model } from ".";
 
 // This table should be self-explanatory.
 export const project = pgTable(
@@ -14,10 +14,11 @@ export const project = pgTable(
     workspaceId: text("workspace_id")
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
+    modelId: text("model_id")
+      .references(() => model.id, { onDelete: "cascade" })
+      .notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at"),
-    type: text("type", { enum: ["device", "system"] }).notNull(),
-    constraint: jsonb("data").$type<ProjectConstraint>().notNull(),
   },
   (project) => ({
     projectNameIndex: index().on(project.name),
@@ -30,5 +31,9 @@ export const projectRelation = relations(project, ({ many, one }) => ({
   workspace: one(workspace, {
     fields: [project.workspaceId],
     references: [workspace.id],
+  }),
+  model: one(model, {
+    fields: [project.modelId],
+    references: [model.id],
   }),
 }));
