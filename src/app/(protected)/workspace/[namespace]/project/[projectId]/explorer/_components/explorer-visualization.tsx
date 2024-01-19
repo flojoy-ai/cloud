@@ -55,7 +55,7 @@ const ExplorerVisualization = ({ tests, workspaceId, namespace }: Props) => {
   const measurements = onlyShowLatest
     ? _.uniqBy(
         _.orderBy(data, (m) => m.createdAt, "desc"),
-        (m) => m.deviceId,
+        (m) => m.hardwareId,
       )
     : data;
 

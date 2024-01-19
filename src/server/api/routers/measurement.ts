@@ -1,17 +1,16 @@
 import { type SQL, eq, lte, gte } from "drizzle-orm";
-import _ from "lodash";
 import { z } from "zod";
 
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
-import { measurement, device, test } from "~/server/db/schema";
-import { selectDeviceSchema } from "~/types/device";
+import { measurement, hardware, test } from "~/server/db/schema";
+import { selectHardwareSchema } from "~/types/hardware";
 import {
   publicInsertMeasurementSchema,
   selectMeasurementSchema,
 } from "~/types/measurement";
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
 import { type db } from "~/server/db";
-import { deviceAccessMiddleware } from "./hardware";
+import { hardwareAccessMiddleware } from "./hardware";
 import { testAccessMiddleware } from "./test";
 import { checkWorkspaceAccess } from "~/lib/auth";
 
@@ -23,7 +22,7 @@ export const measurementAccessMiddleware = experimental_standaloneMiddleware<{
     where: (measurement, { eq }) =>
       eq(measurement.id, opts.input.measurementId),
     with: {
-      device: {
+      hardware: {
         with: {
           workspace: true,
         },
@@ -40,7 +39,7 @@ export const measurementAccessMiddleware = experimental_standaloneMiddleware<{
 
   const workspaceUser = await checkWorkspaceAccess(
     opts.ctx,
-    measurement.device.workspace.id,
+    measurement.hardware.workspace.id,
   );
   if (!workspaceUser) {
     throw new TRPCError({
@@ -69,7 +68,7 @@ export const measurementRouter = createTRPCRouter({
       },
     })
     .input(publicInsertMeasurementSchema)
-    .use(deviceAccessMiddleware)
+    .use(hardwareAccessMiddleware)
     .use(testAccessMiddleware)
     .output(z.void())
     .mutation(async ({ ctx, input }) => {
@@ -95,54 +94,10 @@ export const measurementRouter = createTRPCRouter({
           .where(eq(test.id, input.testId));
 
         await tx
-          .update(device)
+          .update(hardware)
           .set({ updatedAt: new Date() })
-          .where(eq(device.id, input.deviceId));
+          .where(eq(hardware.id, input.hardwareId));
       });
-    }),
-
-  // TODO: remove this
-  _createMeasurements: workspaceProcedure
-    .input(z.array(publicInsertMeasurementSchema))
-    .mutation(async ({ ctx, input }) => {
-      const measurements = input.map((m) => ({
-        ...m,
-        storageProvider: "postgres" as const, // TODO: make this configurable
-      }));
-
-      const measurementsCreateResult = await ctx.db
-        .insert(measurement)
-        .values([...measurements])
-        .returning();
-
-      if (!measurementsCreateResult) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to create measurements",
-        });
-      }
-
-      await Promise.all(
-        _.uniq(input.map((measurement) => measurement.testId)).map(
-          async (testId) => {
-            await ctx.db
-              .update(test)
-              .set({ updatedAt: new Date() })
-              .where(eq(test.id, testId));
-          },
-        ),
-      );
-
-      await Promise.all(
-        _.uniq(input.map((measurement) => measurement.deviceId)).map(
-          async (deviceId) => {
-            await ctx.db
-              .update(device)
-              .set({ updatedAt: new Date() })
-              .where(eq(device.id, deviceId));
-          },
-        ),
-      );
     }),
 
   getAllMeasurementsByTestId: workspaceProcedure
@@ -163,7 +118,9 @@ export const measurementRouter = createTRPCRouter({
     .use(testAccessMiddleware)
     .output(
       z.array(
-        selectMeasurementSchema.merge(z.object({ device: selectDeviceSchema })),
+        selectMeasurementSchema.merge(
+          z.object({ hardware: selectHardwareSchema }),
+        ),
       ),
     )
     .query(async ({ ctx, input }) => {
@@ -179,7 +136,7 @@ export const measurementRouter = createTRPCRouter({
       const result = await ctx.db.query.measurement.findMany({
         where: (_, { and }) => and(...where),
         with: {
-          device: true,
+          hardware: true,
         },
       });
       return result;

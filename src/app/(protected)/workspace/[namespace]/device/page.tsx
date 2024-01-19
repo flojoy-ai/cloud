@@ -16,7 +16,7 @@ export default async function DeviceInventory({
     namespace: params.namespace,
   });
 
-  const devices = await api.device.getAllDevices.query({
+  const hardware = await api.hardware.getAllHardware.query({
     workspaceId,
   });
 
@@ -30,7 +30,7 @@ export default async function DeviceInventory({
       </PageHeader>
       <div className="py-4"></div>
 
-      <DataTable columns={columns} data={devices} />
+      <DataTable columns={columns} data={hardware} />
       <div className="py-4"></div>
     </div>
   );

@@ -24,12 +24,12 @@ import {
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Button } from "../ui/button";
 import { useCallback, useState } from "react";
-import { type SelectDevice } from "~/types/device";
+import { type SelectHardware } from "~/types/hardware";
 import { type PlotMouseEvent } from "plotly.js";
 import { useRouter } from "next/navigation";
 
 type Props = {
-  measurements: (SelectMeasurement & { device: SelectDevice })[];
+  measurements: (SelectMeasurement & { hardware: SelectHardware })[];
   selectedTest: SelectTest;
   everythingSelected: boolean;
   workspaceId: string;
@@ -67,7 +67,7 @@ const BooleanViz = ({
       if (!measurement) {
         return;
       }
-      router.push(`/workspace/${workspaceId}/device/${measurement.deviceId}`);
+      router.push(`/workspace/${workspaceId}/device/${measurement.hardwareId}`);
     },
     [measurements, router],
   );
@@ -130,7 +130,7 @@ const BooleanViz = ({
             title={selectedTest?.name ?? "Untitled Test"}
             x={measurements.map(
               form.watch("xAxis") === "device_id"
-                ? (measurement) => measurement.device.name
+                ? (measurement) => measurement.hardware.name
                 : (measurement) => measurement.createdAt.toISOString(),
             )}
             y={measurements.map((measurement) => {

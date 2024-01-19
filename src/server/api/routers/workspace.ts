@@ -15,6 +15,8 @@ import {
   device,
   project_hardware,
   measurement,
+  model,
+  hardware,
 } from "~/server/db/schema";
 import {
   publicInsertWorkspaceSchema,
@@ -103,10 +105,27 @@ export const workspaceRouter = createTRPCRouter({
           return newWorkspace;
         }
 
+        const [newModel] = await tx
+          .insert(model)
+          .values({
+            name: "HL1234",
+            type: "device",
+            workspaceId: newWorkspace.id,
+          })
+          .returning();
+
+        if (!newModel) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create model",
+          });
+        }
+
         const [newProject] = await tx
           .insert(project)
           .values({
             name: "HL1234 Testing Project",
+            modelId: newModel.id,
             workspaceId: newWorkspace.id,
           })
           .returning();
@@ -136,31 +155,48 @@ export const workspaceRouter = createTRPCRouter({
 
         const insertDevices = _.times(9, (i) => ({
           name: `HL1234-SN000${i + 1}`,
+          modelId: newModel.id,
           workspaceId: newWorkspace.id,
         }));
 
-        const devices = await tx
-          .insert(device)
+        const hardwareEntries = await tx
+          .insert(hardware)
           .values([...insertDevices])
           .returning();
 
-        if (!devices) {
+        if (!hardwareEntries) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create devices",
+            message: "Failed to create hardware entries",
+          });
+        }
+
+        const devices = await tx
+          .insert(device)
+          .values(
+            hardwareEntries.map((h) => ({
+              id: h.id,
+            })),
+          )
+          .returning();
+
+        if (!hardwareEntries) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create hardware entries",
           });
         }
 
         for (const device of devices) {
           await tx.insert(project_hardware).values({
-            deviceId: device.id,
+            hardwareId: device.id,
             projectId: newProject.id,
           });
         }
 
         const boolMeas = devices.map((device, i) => ({
           name: "Did Power On",
-          deviceId: device.id,
+          hardwareId: device.id,
           testId: booleanTest.id,
           measurementType: "boolean" as const,
           createdAt: new Date(new Date().getTime() + i * 20000),
@@ -209,7 +245,7 @@ export const workspaceRouter = createTRPCRouter({
 
         const dataframeMeas = devices.map((device, i) => ({
           name: "Data Point",
-          deviceId: device.id,
+          hardwareId: device.id,
           testId: dataframeTest.id,
           measurementType: "dataframe" as const,
           createdAt: new Date(new Date().getTime() + i * 20000),

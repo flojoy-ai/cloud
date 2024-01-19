@@ -29,10 +29,10 @@ import { Input } from "../ui/input";
 import { Checkbox } from "../ui/checkbox";
 import { Button } from "../ui/button";
 import { useState } from "react";
-import { type SelectDevice } from "~/types/device";
+import { type SelectHardware } from "~/types/hardware";
 
 type Props = {
-  measurements: (SelectMeasurement & { device: SelectDevice })[];
+  measurements: (SelectMeasurement & { hardware: SelectHardware })[];
   selectedTest: SelectTest;
   everythingSelected: boolean;
   workspaceId: string;
@@ -220,7 +220,7 @@ const DataFrameViz = ({
                 return {
                   x: measurement.data.dataframe.x ?? [],
                   y: measurement.data.dataframe.y ?? [],
-                  name: measurement.device.name,
+                  name: measurement.hardware.name,
                 };
               }
               return { x: [], y: [], name: "" };
@@ -237,7 +237,7 @@ const DataFrameViz = ({
               return;
             }
             router.push(
-              `/workspace/${workspaceId}/device/${measurement.deviceId}`,
+              `/workspace/${workspaceId}/device/${measurement.hardwareId}`,
             );
           }}
         />

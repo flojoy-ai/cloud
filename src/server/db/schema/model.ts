@@ -20,7 +20,11 @@ export const model = pgTable(
   }),
 );
 
-export const modelRelation = relations(model, ({ many }) => ({
+export const modelRelation = relations(model, ({ many, one }) => ({
   hardwares: many(hardware),
   projects: many(project),
+  workspace: one(workspace, {
+    fields: [model.workspaceId],
+    references: [workspace.id],
+  }),
 }));

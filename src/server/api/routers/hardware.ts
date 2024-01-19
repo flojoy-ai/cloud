@@ -1,29 +1,31 @@
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 
-import _ from "lodash";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
-import { device, project_hardware, workspace } from "~/server/db/schema";
-import { publicInsertDeviceSchema, selectDeviceSchema } from "~/types/device";
+import { hardware, project_hardware, workspace } from "~/server/db/schema";
+import {
+  publicInsertHardwareSchema,
+  selectHardwareSchema,
+} from "~/types/hardware";
 import { selectMeasurementSchema } from "~/types/measurement";
 import { selectTestSchema } from "~/types/test";
 import { type db } from "~/server/db";
 import { checkWorkspaceAccess } from "~/lib/auth";
 import { workspaceAccessMiddleware } from "./workspace";
 
-export const deviceAccessMiddleware = experimental_standaloneMiddleware<{
+export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
-  input: { deviceId: string };
+  input: { hardwareId: string };
 }>().create(async (opts) => {
-  const device = await opts.ctx.db.query.device.findFirst({
-    where: (device, { eq }) => eq(device.id, opts.input.deviceId),
+  const hardware = await opts.ctx.db.query.hardware.findFirst({
+    where: (hardware, { eq }) => eq(hardware.id, opts.input.hardwareId),
     with: {
       workspace: true,
     },
   });
 
-  if (!device) {
+  if (!hardware) {
     throw new TRPCError({
       code: "BAD_REQUEST",
       message: "Device not found",
@@ -32,8 +34,9 @@ export const deviceAccessMiddleware = experimental_standaloneMiddleware<{
 
   const workspaceUser = await checkWorkspaceAccess(
     opts.ctx,
-    device.workspace.id,
+    hardware.workspace.id,
   );
+
   if (!workspaceUser) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
@@ -44,22 +47,22 @@ export const deviceAccessMiddleware = experimental_standaloneMiddleware<{
   return opts.next({
     // this infers the `workspaceId` in ctx to be non-null
     // and also adds the respective resource id as well for use
-    ctx: { workspaceId: workspaceUser.workspaceId, deviceId: device.id },
+    ctx: { workspaceId: workspaceUser.workspaceId, hardwareId: hardware.id },
   });
 });
 
 export const hardwareRouter = createTRPCRouter({
-  createDevice: workspaceProcedure
+  createHardware: workspaceProcedure
     .meta({
       openapi: { method: "POST", path: "/v1/devices", tags: ["device"] },
     })
-    .input(publicInsertDeviceSchema)
+    .input(publicInsertHardwareSchema)
     .use(workspaceAccessMiddleware)
-    .output(selectDeviceSchema)
+    .output(selectHardwareSchema)
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.transaction(async (tx) => {
         const [deviceCreateResult] = await tx
-          .insert(device)
+          .insert(hardware)
           .values(input)
           .returning();
 
@@ -79,42 +82,7 @@ export const hardwareRouter = createTRPCRouter({
       });
     }),
 
-  // TODO: Remove this, this is just for testing
-  // Since the input is an array it is not possible (nasty) to use the
-  // middleware to handle permission check.
-  _createDevices: workspaceProcedure
-    .input(z.array(publicInsertDeviceSchema))
-    .output(z.array(selectDeviceSchema))
-    .mutation(async ({ ctx, input }) => {
-      return await ctx.db.transaction(async (tx) => {
-        const devices = await tx
-          .insert(device)
-          .values([...input])
-          .returning();
-
-        if (!devices) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create devices",
-          });
-        }
-
-        await Promise.all(
-          _.uniq(input.map((device) => device.workspaceId)).map(
-            async (workspaceId) => {
-              await tx
-                .update(workspace)
-                .set({ updatedAt: new Date() })
-                .where(eq(workspace.id, workspaceId));
-            },
-          ),
-        );
-
-        return devices;
-      });
-    }),
-
-  getDeviceById: workspaceProcedure
+  getHardwareById: workspaceProcedure
     .meta({
       openapi: {
         method: "GET",
@@ -122,27 +90,30 @@ export const hardwareRouter = createTRPCRouter({
         tags: ["device"],
       },
     })
-    .input(z.object({ deviceId: z.string() }))
-    .use(deviceAccessMiddleware)
+    .input(z.object({ hardwareId: z.string() }))
+    .use(hardwareAccessMiddleware)
     .output(
-      selectDeviceSchema.merge(
+      selectHardwareSchema.merge(
         z.object({
           measurements: z.array(
             selectMeasurementSchema.merge(
-              z.object({ test: selectTestSchema, device: selectDeviceSchema }),
+              z.object({
+                test: selectTestSchema,
+                hardware: selectHardwareSchema,
+              }),
             ),
           ),
         }),
       ),
     )
     .query(async ({ input, ctx }) => {
-      const result = await ctx.db.query.device.findFirst({
-        where: (device, { eq }) => eq(device.id, input.deviceId),
+      const result = await ctx.db.query.hardware.findFirst({
+        where: (hardware, { eq }) => eq(hardware.id, input.hardwareId),
         with: {
           measurements: {
             with: {
               test: true,
-              device: true,
+              hardware: true,
             },
           },
         },
@@ -158,29 +129,29 @@ export const hardwareRouter = createTRPCRouter({
       return result;
     }),
 
-  getAllDevices: workspaceProcedure
+  getAllHardware: workspaceProcedure
     .meta({
-      openapi: { method: "GET", path: "/v1/devices", tags: ["device"] },
+      openapi: { method: "GET", path: "/v1/hardwares", tags: ["hardware"] },
     })
     .input(
       z.object({ workspaceId: z.string(), projectId: z.string().optional() }),
     )
     .use(workspaceAccessMiddleware)
-    .output(z.array(selectDeviceSchema))
+    .output(z.array(selectHardwareSchema))
     .query(async ({ input, ctx }) => {
-      const devices = ctx.db
+      const hardwares = ctx.db
         .select()
-        .from(device)
-        .where(eq(device.workspaceId, input.workspaceId));
+        .from(hardware)
+        .where(eq(hardware.workspaceId, input.workspaceId));
 
       if (input.projectId) {
-        const projects_devices = ctx.db
+        const projects_hardwares = ctx.db
           .select()
           .from(project_hardware)
           .where(eq(project_hardware.projectId, input.projectId))
-          .as("projects_devices");
+          .as("projects_hardwares");
 
-        const temp = devices.as("devices");
+        const temp = hardwares.as("hardwares");
 
         return await ctx.db
           .select({
@@ -188,36 +159,40 @@ export const hardwareRouter = createTRPCRouter({
             workspaceId: temp.workspaceId,
             createdAt: temp.createdAt,
             updatedAt: temp.updatedAt,
+            modelId: temp.modelId,
             id: temp.id,
           })
           .from(temp)
-          .innerJoin(projects_devices, eq(temp.id, projects_devices.deviceId));
+          .innerJoin(
+            projects_hardwares,
+            eq(temp.id, projects_hardwares.hardwareId),
+          );
       } else {
-        return await devices;
+        return await hardwares;
       }
     }),
 
-  deleteDeviceById: workspaceProcedure
+  deleteHardwareById: workspaceProcedure
     .meta({
       openapi: {
         method: "DELETE",
-        path: "/v1/devices/{deviceId}",
-        tags: ["device"],
+        path: "/v1/hardwares/{hardwareId}",
+        tags: ["hardware"],
       },
     })
-    .input(z.object({ deviceId: z.string() }))
-    .use(deviceAccessMiddleware)
-    .output(selectDeviceSchema)
+    .input(z.object({ hardwareId: z.string() }))
+    .use(hardwareAccessMiddleware)
+    .output(selectHardwareSchema)
     .query(async ({ input, ctx }) => {
       const [deleted] = await ctx.db
-        .delete(device)
-        .where(eq(device.id, input.deviceId))
+        .delete(hardware)
+        .where(eq(hardware.id, input.hardwareId))
         .returning();
 
       if (!deleted) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to delete device",
+          message: "Failed to delete hardware",
         });
       }
 

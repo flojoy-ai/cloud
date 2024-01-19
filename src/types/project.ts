@@ -8,6 +8,7 @@ export const insertProjectSchema = createInsertSchema(project);
 
 export const publicInsertProjectSchema = insertProjectSchema.pick({
   name: true,
+  modelId: true,
   workspaceId: true,
 });
 

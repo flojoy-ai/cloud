@@ -12,7 +12,7 @@ import {
 import { type db } from "~/server/db";
 import { workspaceAccessMiddleware } from "./workspace";
 import { checkWorkspaceAccess } from "~/lib/auth";
-import { deviceAccessMiddleware } from "./hardware";
+import { hardwareAccessMiddleware } from "./hardware";
 
 export const projectAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -118,43 +118,44 @@ export const projectRouter = createTRPCRouter({
       });
     }),
 
-  addDeviceToProject: workspaceProcedure
+  // TODO: Extra system logic
+  addHardwareToProject: workspaceProcedure
     .meta({
       openapi: {
         method: "PUT",
-        path: "/v1/projects/{projectId}/devices/{deviceId}",
-        tags: ["project", "device"],
+        path: "/v1/projects/{projectId}/hardware/{deviceId}",
+        tags: ["project", "hardware"],
       },
     })
-    .input(z.object({ projectId: z.string(), deviceId: z.string() }))
+    .input(z.object({ projectId: z.string(), hardwareId: z.string() }))
     .use(projectAccessMiddleware)
-    .use(deviceAccessMiddleware)
+    .use(hardwareAccessMiddleware)
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
       await ctx.db.insert(project_hardware).values({
-        deviceId: input.deviceId,
+        hardwareId: input.hardwareId,
         projectId: input.projectId,
       });
     }),
 
-  removeDeviceFromProject: workspaceProcedure
+  removeHardwareFromProject: workspaceProcedure
     .meta({
       openapi: {
         method: "DELETE",
-        path: "/v1/projects/{projectId}/devices/{deviceId}",
-        tags: ["project", "device"],
+        path: "/v1/projects/{projectId}/hardware/{hardwareId}",
+        tags: ["project", "hardware"],
       },
     })
-    .input(z.object({ projectId: z.string(), deviceId: z.string() }))
+    .input(z.object({ projectId: z.string(), hardwareId: z.string() }))
     .use(projectAccessMiddleware)
-    .use(deviceAccessMiddleware)
+    .use(hardwareAccessMiddleware)
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
       await ctx.db
         .delete(project_hardware)
         .where(
           and(
-            eq(project_hardware.deviceId, input.deviceId),
+            eq(project_hardware.hardwareId, input.hardwareId),
             eq(project_hardware.projectId, input.projectId),
           ),
         );

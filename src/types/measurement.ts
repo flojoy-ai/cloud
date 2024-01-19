@@ -12,7 +12,7 @@ export const insertMeasurementSchema = createInsertSchema(measurement, {
 export const publicInsertMeasurementSchema = insertMeasurementSchema.pick({
   name: true,
   data: true,
-  deviceId: true,
+  hardwareId: true,
   measurementType: true,
   testId: true,
   createdAt: true,

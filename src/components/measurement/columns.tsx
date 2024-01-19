@@ -1,7 +1,6 @@
 "use client";
 
 import { type ColumnDef } from "@tanstack/react-table";
-import { type SelectDevice } from "~/types/device";
 import { type SelectMeasurement } from "~/types/measurement";
 import { type SelectTest } from "~/types/test";
 import { MoreHorizontal } from "lucide-react";
@@ -14,9 +13,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import { type SelectHardware } from "~/types/hardware";
 
 export const columns: ColumnDef<
-  SelectMeasurement & { test: SelectTest; device: SelectDevice }
+  SelectMeasurement & { test: SelectTest; hardware: SelectHardware }
 >[] = [
   {
     accessorKey: "name",
@@ -25,7 +25,7 @@ export const columns: ColumnDef<
   {
     accessorKey: "deviceId",
     header: "Device",
-    accessorFn: (data) => data.device.name,
+    accessorFn: (data) => data.hardware.name,
   },
   {
     accessorKey: "testId",
@@ -56,7 +56,7 @@ export const columns: ColumnDef<
       return JSON.stringify(data.data).slice(0, 10);
     },
     cell: ({ row }) => {
-      switch (row.original.measurementType) {
+      switch (row.original.data.type) {
         case "boolean":
           if (row.getValue("data") === "Passed") {
             return <div className="text-green-500">{row.getValue("data")}</div>;
@@ -92,10 +92,9 @@ export const columns: ColumnDef<
               onClick={() => {
                 const json = {
                   id: measurement.id,
-                  type: measurement.measurementType,
                   name: measurement.name,
                   data: measurement.data,
-                  deviceId: measurement.device.id,
+                  hardwareId: measurement.hardware.id,
                   testId: measurement.test.id,
                   createdAt: measurement.createdAt,
                 };
