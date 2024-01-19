@@ -21,7 +21,7 @@ export const auth = lucia({
 
   getUserAttributes: (user) => {
     return {
-      signupCompleted: user.signup_completed,
+      emailVerified: user.email_verified,
       email: user.email,
     };
   },

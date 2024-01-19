@@ -1,4 +1,5 @@
 export * from "./device";
+export * from "./email_verification";
 export * from "./measurement";
 export * from "./project";
 export * from "./project_device";

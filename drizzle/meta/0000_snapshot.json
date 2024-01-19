@@ -1,5 +1,5 @@
 {
-  "id": "60d3b01a-46d8-446f-9036-28627e0e9c67",
+  "id": "fbe7ba14-0371-45d7-b45c-f5bd7c417627",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -75,6 +75,48 @@
           ]
         }
       }
+    },
+    "cloud_email_verification": {
+      "name": "cloud_email_verification",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires": {
+          "name": "expires",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "cloud_email_verification_user_id_cloud_user_id_fk": {
+          "name": "cloud_email_verification_user_id_cloud_user_id_fk",
+          "tableFrom": "cloud_email_verification",
+          "tableTo": "cloud_user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
     },
     "cloud_measurement": {
       "name": "cloud_measurement",
@@ -566,8 +608,8 @@
           "primaryKey": true,
           "notNull": true
         },
-        "signup_completed": {
-          "name": "signup_completed",
+        "email_verified": {
+          "name": "email_verified",
           "type": "boolean",
           "primaryKey": false,
           "notNull": false,

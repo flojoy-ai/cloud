@@ -13,6 +13,10 @@ export default async function PublicLayout({
   const session = await authRequest.validate();
 
   if (session) {
+    if (!session.user.emailVerified) {
+      redirect("/verify");
+    }
+
     // Redirect to the protected space if the user has access to it
     const scope = context.cookies().get("scope");
 
