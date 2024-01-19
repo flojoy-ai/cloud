@@ -129,7 +129,7 @@ measurements = client.get_all_measurements_by_test_id("${
       ) : selectedTest?.measurementType === "dataframe" ? (
         <DataFrameViz
           measurements={measurements ?? []}
-          selectedTest={selectedTest?.name}
+          title={selectedTest?.name}
           workspaceId={workspaceId}
         />
       ) : null}
