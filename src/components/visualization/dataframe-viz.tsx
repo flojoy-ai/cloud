@@ -38,6 +38,7 @@ import {
   SelectItem,
 } from "~/components/ui/select";
 import { type SelectHardware } from "~/types/hardware";
+import _ from "lodash";
 
 type Props = {
   measurements: (SelectMeasurement & { hardware: SelectHardware })[];
@@ -58,7 +59,7 @@ const getValidColumns = (dataframes: DataframeData[]): [string[], string[]] => {
     }
   }
 
-  return [validXKeys, validYKeys];
+  return [_.uniq(validXKeys), _.uniq(validYKeys)];
 };
 
 type FormSchema = z.infer<typeof explorerConfig.dataframe>;
