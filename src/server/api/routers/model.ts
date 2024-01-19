@@ -6,6 +6,7 @@ import { type db } from "~/server/db";
 import { model, workspace } from "~/server/db/schema";
 import { workspaceAccessMiddleware } from "./workspace";
 import { publicInsertModelSchema, selectModelSchema } from "~/types/model";
+import { z } from "zod";
 
 export const modelAccessMiddlware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -56,6 +57,7 @@ export const modelRouter = createTRPCRouter({
     .use(workspaceAccessMiddleware)
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.transaction(async (tx) => {
+        // TODO: Validate that model parts are all devices
         const [modelCreateResult] = await tx
           .insert(model)
           .values(input)
@@ -73,6 +75,29 @@ export const modelRouter = createTRPCRouter({
           .set({ updatedAt: new Date() })
           .where(eq(workspace.id, input.workspaceId));
         return modelCreateResult;
+      });
+    }),
+
+  getAllModels: workspaceProcedure
+    .meta({
+      openapi: { method: "GET", path: "/v1/models/", tags: ["model"] },
+    })
+    .input(
+      z.object({
+        workspaceId: z.string(),
+        type: z.enum(["device", "system"]).optional(),
+      }),
+    )
+    .output(z.array(selectModelSchema))
+    .use(workspaceAccessMiddleware)
+    .query(async ({ ctx, input }) => {
+      const conditions = [eq(model.workspaceId, input.workspaceId)];
+      if (input.type !== undefined) {
+        conditions.push(eq(model.type, input.type));
+      }
+
+      return await ctx.db.query.model.findMany({
+        where: (_, { and }) => and(...conditions),
       });
     }),
 });

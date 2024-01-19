@@ -110,6 +110,7 @@ export const hardwareRouter = createTRPCRouter({
       const result = await ctx.db.query.hardware.findFirst({
         where: (hardware, { eq }) => eq(hardware.id, input.hardwareId),
         with: {
+          model: true,
           measurements: {
             with: {
               test: true,
@@ -144,32 +145,32 @@ export const hardwareRouter = createTRPCRouter({
         .from(hardware)
         .where(eq(hardware.workspaceId, input.workspaceId));
 
-      if (input.projectId) {
-        const projects_hardwares = ctx.db
-          .select()
-          .from(project_hardware)
-          .where(eq(project_hardware.projectId, input.projectId))
-          .as("projects_hardwares");
-
-        const temp = hardwares.as("hardwares");
-
-        return await ctx.db
-          .select({
-            name: temp.name,
-            workspaceId: temp.workspaceId,
-            createdAt: temp.createdAt,
-            updatedAt: temp.updatedAt,
-            modelId: temp.modelId,
-            id: temp.id,
-          })
-          .from(temp)
-          .innerJoin(
-            projects_hardwares,
-            eq(temp.id, projects_hardwares.hardwareId),
-          );
-      } else {
+      if (!input.projectId) {
         return await hardwares;
       }
+
+      const projects_hardwares = ctx.db
+        .select()
+        .from(project_hardware)
+        .where(eq(project_hardware.projectId, input.projectId))
+        .as("projects_hardwares");
+
+      const temp = hardwares.as("hardwares");
+
+      return await ctx.db
+        .select({
+          name: temp.name,
+          workspaceId: temp.workspaceId,
+          createdAt: temp.createdAt,
+          updatedAt: temp.updatedAt,
+          modelId: temp.modelId,
+          id: temp.id,
+        })
+        .from(temp)
+        .innerJoin(
+          projects_hardwares,
+          eq(temp.id, projects_hardwares.hardwareId),
+        );
     }),
 
   deleteHardwareById: workspaceProcedure

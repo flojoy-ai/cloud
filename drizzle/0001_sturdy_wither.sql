@@ -1,0 +1,1 @@
+ALTER TABLE "cloud_model" ADD COLUMN "parts" text[];
