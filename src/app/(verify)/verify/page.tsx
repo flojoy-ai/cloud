@@ -29,23 +29,20 @@ const Page = () => {
               We just sent you a verification email
             </h1>
             <p className="text-sm text-muted-foreground">
-              Enter the code from the email below to verify your account
+              Click the link in the email to verify your email address.
             </p>
           </div>
 
-          <div className="flex gap-2">
-            <Input />
-            <Button
-              variant="secondary"
-              onClick={async () => {
-                await fetch("/api/email", { method: "POST" });
-                setCountdown(60);
-              }}
-            >
-              {countdown === 0 ? <>Resend</> : <>{countdown}s</>}
-            </Button>
-          </div>
-          <Button>Verify</Button>
+          <Button
+            variant="secondary"
+            disabled={countdown > 0}
+            onClick={async () => {
+              await fetch("/api/email", { method: "POST" });
+              setCountdown(60);
+            }}
+          >
+            {countdown === 0 ? <>Resend</> : <>{countdown}s</>}
+          </Button>
         </div>
       </div>
 
