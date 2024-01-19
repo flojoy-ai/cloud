@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
-import { project, project_device, workspace } from "~/server/db/schema";
+import { project, project_hardware, workspace } from "~/server/db/schema";
 import {
   publicInsertProjectSchema,
   publicUpdateProjectSchema,
@@ -12,7 +12,7 @@ import {
 import { type db } from "~/server/db";
 import { workspaceAccessMiddleware } from "./workspace";
 import { checkWorkspaceAccess } from "~/lib/auth";
-import { deviceAccessMiddleware } from "./devices";
+import { deviceAccessMiddleware } from "./hardware";
 
 export const projectAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -131,7 +131,7 @@ export const projectRouter = createTRPCRouter({
     .use(deviceAccessMiddleware)
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
-      await ctx.db.insert(project_device).values({
+      await ctx.db.insert(project_hardware).values({
         deviceId: input.deviceId,
         projectId: input.projectId,
       });
@@ -151,11 +151,11 @@ export const projectRouter = createTRPCRouter({
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
       await ctx.db
-        .delete(project_device)
+        .delete(project_hardware)
         .where(
           and(
-            eq(project_device.deviceId, input.deviceId),
-            eq(project_device.projectId, input.projectId),
+            eq(project_hardware.deviceId, input.deviceId),
+            eq(project_hardware.projectId, input.projectId),
           ),
         );
     }),

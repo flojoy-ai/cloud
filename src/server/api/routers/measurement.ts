@@ -11,7 +11,7 @@ import {
 } from "~/types/measurement";
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
 import { type db } from "~/server/db";
-import { deviceAccessMiddleware } from "./devices";
+import { deviceAccessMiddleware } from "./hardware";
 import { testAccessMiddleware } from "./test";
 import { checkWorkspaceAccess } from "~/lib/auth";
 

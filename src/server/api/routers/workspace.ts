@@ -13,7 +13,7 @@ import {
   project,
   test,
   device,
-  project_device,
+  project_hardware,
   measurement,
 } from "~/server/db/schema";
 import {
@@ -152,7 +152,7 @@ export const workspaceRouter = createTRPCRouter({
         }
 
         for (const device of devices) {
-          await tx.insert(project_device).values({
+          await tx.insert(project_hardware).values({
             deviceId: device.id,
             projectId: newProject.id,
           });

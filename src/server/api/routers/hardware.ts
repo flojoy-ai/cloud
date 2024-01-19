@@ -4,7 +4,7 @@ import { z } from "zod";
 import _ from "lodash";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
-import { device, project_device, workspace } from "~/server/db/schema";
+import { device, project_hardware, workspace } from "~/server/db/schema";
 import { publicInsertDeviceSchema, selectDeviceSchema } from "~/types/device";
 import { selectMeasurementSchema } from "~/types/measurement";
 import { selectTestSchema } from "~/types/test";
@@ -48,7 +48,7 @@ export const deviceAccessMiddleware = experimental_standaloneMiddleware<{
   });
 });
 
-export const deviceRouter = createTRPCRouter({
+export const hardwareRouter = createTRPCRouter({
   createDevice: workspaceProcedure
     .meta({
       openapi: { method: "POST", path: "/v1/devices", tags: ["device"] },
@@ -176,8 +176,8 @@ export const deviceRouter = createTRPCRouter({
       if (input.projectId) {
         const projects_devices = ctx.db
           .select()
-          .from(project_device)
-          .where(eq(project_device.projectId, input.projectId))
+          .from(project_hardware)
+          .where(eq(project_hardware.projectId, input.projectId))
           .as("projects_devices");
 
         const temp = devices.as("devices");
