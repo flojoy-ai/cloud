@@ -1,16 +1,18 @@
 import { env } from "~/env";
 import * as schema from "./schema";
-
-import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool as NeonPool } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/postgres-js";
+import { drizzle as neonDrizzle } from "drizzle-orm/neon-serverless";
 import pg from "pg";
+import postgres from "postgres";
 const { Pool } = pg;
-export const dbConfig = {
-  host: "127.0.0.1",
-  port: 5432,
-  user: "flojoy",
-  password: env.LOCAL_POSTGRES_PASS ?? process.env.LOCAL_POSTGRES_PASS,
-  database: "flojoy_cloud",
-};
-export const pool = new Pool(dbConfig);
 
-export const db = drizzle(pool, { schema });
+export const pool =
+  env.AWS_AMI === 1
+    ? new Pool({ connectionString: env.DATABASE_URL })
+    : new NeonPool({ connectionString: env.DATABASE_URL });
+const sql = postgres(env.DATABASE_URL, { max: 1 });
+export const db =
+  env.AWS_AMI === 1
+    ? drizzle(sql, { schema })
+    : neonDrizzle(pool as NeonPool, { schema });

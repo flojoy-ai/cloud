@@ -15,7 +15,7 @@ NODE_PATH="$(which node)"
 sudo setcap cap_net_bind_service=+ep "$(readlink -f "$NODE_PATH")"
 
 # Create a systemd service file
-cat <<EOF >/etc/systemd/system/cloud_startup.service
+cat <<EOF >/etc/systemd/system/cloud_app.service
 [Unit]
 Description=Cloud Startup Service
 After=network.target
@@ -29,10 +29,10 @@ RestartSec=3
 StartLimitInterval=60
 StartLimitBurst=1
 Environment="HOME=/root"
-Environment="LOCAL_POSTGRES_PASS=Hk5pQw9rJz2X"
-Environment="DATABASE_URL=postgresql://postgres:pass@localhost:5432/neondb"
+Environment="DATABASE_URL=postgresql://flojoy:Hk5pQw9rJz2X@localhost:5432/flojoy_cloud"
 Environment="NODE_TLS_REJECT_UNAUTHORIZED=0"
 Environment="JWT_SECRET=7851158cc1c255e7d5dada55f5ff05a366d6f45ea6eb73bccd9d2670996a2b24"
+Environment="AWS_AMI=1"
 
 [Install]
 WantedBy=default.target
@@ -79,7 +79,7 @@ chmod +x /root/startup_script.sh
 systemctl daemon-reload
 
 # Enable and start the service
-systemctl enable cloud_startup.service
+systemctl enable cloud_app.service
 
 # Install PostgreSQL
 sudo apt update

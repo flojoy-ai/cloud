@@ -11,7 +11,6 @@ export const env = createEnv({
       .string()
       .url()
       .transform((val) => val + "?sslmode=require"),
-    LOCAL_POSTGRES_PASS: z.string(),
 
     NODE_ENV: z
       .enum(["development", "test", "production"])
@@ -34,6 +33,11 @@ export const env = createEnv({
     // AWS_REGION: z.string(),
 
     JWT_SECRET: z.string(),
+    AWS_AMI: z
+      .string()
+      .transform((v) => Number(v))
+      .optional()
+      .default("0"),
   },
 
   /**
@@ -51,7 +55,6 @@ export const env = createEnv({
    */
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
-    LOCAL_POSTGRES_PASS: process.env.LOCAL_POSTGRES_PASS,
     NODE_ENV: process.env.NODE_ENV,
 
     // AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID,
@@ -71,6 +74,7 @@ export const env = createEnv({
     // AWS_REGION: process.env.AWS_REGION,
 
     JWT_SECRET: process.env.JWT_SECRET,
+    AWS_AMI: process.env.AWS_AMI,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
