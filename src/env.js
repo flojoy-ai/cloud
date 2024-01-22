@@ -33,7 +33,11 @@ export const env = createEnv({
     // AWS_REGION: z.string(),
 
     JWT_SECRET: z.string(),
-    AWS_AMI: z.number().optional().default(0),
+    AWS_AMI: z
+      .string()
+      .transform((v) => +v)
+      .optional()
+      .default("0"),
   },
 
   /**
