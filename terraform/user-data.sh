@@ -44,6 +44,8 @@ cat <<EOF >/root/startup_script.sh
 
 . /.nvm/nvm.sh
 
+export PATH="$PWD/node_modules/.bin:$PATH"
+
 check_env_file() {
   if [ -f "/root/cloud/.env" ]; then
     return 0
