@@ -1,39 +1,9 @@
 {
-  "id": "0c606416-fe73-41f9-b2be-41c680b6bc44",
+  "id": "91d8036b-75d2-41cc-b6f5-cdf81941ed45",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
   "tables": {
-    "cloud_device": {
-      "name": "cloud_device",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "cloud_device_id_cloud_hardware_id_fk": {
-          "name": "cloud_device_id_cloud_hardware_id_fk",
-          "tableFrom": "cloud_device",
-          "tableTo": "cloud_hardware",
-          "columnsFrom": [
-            "id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
     "cloud_email_verification": {
       "name": "cloud_email_verification",
       "schema": "",
@@ -65,6 +35,36 @@
           "tableTo": "cloud_user",
           "columnsFrom": [
             "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "cloud_device": {
+      "name": "cloud_device",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "cloud_device_id_cloud_hardware_id_fk": {
+          "name": "cloud_device_id_cloud_hardware_id_fk",
+          "tableFrom": "cloud_device",
+          "tableTo": "cloud_hardware",
+          "columnsFrom": [
+            "id"
           ],
           "columnsTo": [
             "id"
@@ -166,6 +166,93 @@
           ]
         }
       }
+    },
+    "cloud_system": {
+      "name": "cloud_system",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "cloud_system_id_cloud_hardware_id_fk": {
+          "name": "cloud_system_id_cloud_hardware_id_fk",
+          "tableFrom": "cloud_system",
+          "tableTo": "cloud_hardware",
+          "columnsFrom": [
+            "id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "cloud_system_device": {
+      "name": "cloud_system_device",
+      "schema": "",
+      "columns": {
+        "system_id": {
+          "name": "system_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "device_id": {
+          "name": "device_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "cloud_system_device_system_id_cloud_system_id_fk": {
+          "name": "cloud_system_device_system_id_cloud_system_id_fk",
+          "tableFrom": "cloud_system_device",
+          "tableTo": "cloud_system",
+          "columnsFrom": [
+            "system_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "cloud_system_device_device_id_cloud_device_id_fk": {
+          "name": "cloud_system_device_device_id_cloud_device_id_fk",
+          "tableFrom": "cloud_system_device",
+          "tableTo": "cloud_device",
+          "columnsFrom": [
+            "device_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "cloud_system_device_system_id_device_id_pk": {
+          "name": "cloud_system_device_system_id_device_id_pk",
+          "columns": [
+            "system_id",
+            "device_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
     },
     "cloud_measurement": {
       "name": "cloud_measurement",
@@ -277,6 +364,36 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
+    "cloud_device_model": {
+      "name": "cloud_device_model",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "cloud_device_model_id_cloud_model_id_fk": {
+          "name": "cloud_device_model_id_cloud_model_id_fk",
+          "tableFrom": "cloud_device_model",
+          "tableTo": "cloud_model",
+          "columnsFrom": [
+            "id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
     "cloud_model": {
       "name": "cloud_model",
       "schema": "",
@@ -299,17 +416,12 @@
           "primaryKey": false,
           "notNull": true
         },
-        "type": {
-          "name": "type",
-          "type": "text",
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
           "primaryKey": false,
-          "notNull": true
-        },
-        "parts": {
-          "name": "parts",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {
@@ -347,6 +459,99 @@
           ]
         }
       }
+    },
+    "cloud_system_model": {
+      "name": "cloud_system_model",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "cloud_system_model_id_cloud_model_id_fk": {
+          "name": "cloud_system_model_id_cloud_model_id_fk",
+          "tableFrom": "cloud_system_model",
+          "tableTo": "cloud_model",
+          "columnsFrom": [
+            "id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "cloud_system_model_device_model": {
+      "name": "cloud_system_model_device_model",
+      "schema": "",
+      "columns": {
+        "system_model_id": {
+          "name": "system_model_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "device_model_id": {
+          "name": "device_model_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "count": {
+          "name": "count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "cloud_system_model_device_model_system_model_id_cloud_system_model_id_fk": {
+          "name": "cloud_system_model_device_model_system_model_id_cloud_system_model_id_fk",
+          "tableFrom": "cloud_system_model_device_model",
+          "tableTo": "cloud_system_model",
+          "columnsFrom": [
+            "system_model_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "cloud_system_model_device_model_device_model_id_cloud_device_model_id_fk": {
+          "name": "cloud_system_model_device_model_device_model_id_cloud_device_model_id_fk",
+          "tableFrom": "cloud_system_model_device_model",
+          "tableTo": "cloud_device_model",
+          "columnsFrom": [
+            "device_model_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "cloud_system_model_device_model_system_model_id_device_model_id_pk": {
+          "name": "cloud_system_model_device_model_system_model_id_device_model_id_pk",
+          "columns": [
+            "system_model_id",
+            "device_model_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
     },
     "cloud_project": {
       "name": "cloud_project",
@@ -491,93 +696,6 @@
           "columns": [
             "project_id",
             "hardware_id"
-          ]
-        }
-      },
-      "uniqueConstraints": {}
-    },
-    "cloud_system": {
-      "name": "cloud_system",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "cloud_system_id_cloud_hardware_id_fk": {
-          "name": "cloud_system_id_cloud_hardware_id_fk",
-          "tableFrom": "cloud_system",
-          "tableTo": "cloud_hardware",
-          "columnsFrom": [
-            "id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "cloud_system_device": {
-      "name": "cloud_system_device",
-      "schema": "",
-      "columns": {
-        "system_id": {
-          "name": "system_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "device_id": {
-          "name": "device_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "cloud_system_device_system_id_cloud_system_id_fk": {
-          "name": "cloud_system_device_system_id_cloud_system_id_fk",
-          "tableFrom": "cloud_system_device",
-          "tableTo": "cloud_system",
-          "columnsFrom": [
-            "system_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "cloud_system_device_device_id_cloud_device_id_fk": {
-          "name": "cloud_system_device_device_id_cloud_device_id_fk",
-          "tableFrom": "cloud_system_device",
-          "tableTo": "cloud_device",
-          "columnsFrom": [
-            "device_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "cloud_system_device_system_id_device_id_pk": {
-          "name": "cloud_system_device_system_id_device_id_pk",
-          "columns": [
-            "system_id",
-            "device_id"
           ]
         }
       },

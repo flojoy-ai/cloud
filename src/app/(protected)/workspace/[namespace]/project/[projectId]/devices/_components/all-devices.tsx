@@ -23,7 +23,7 @@ const AllDevices = async ({ project, workspaceId, namespace }: Props) => {
       )}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {devices.map((device) => (
-          <DeviceCard device={device} key={device.id} namespace={namespace} />
+          <DeviceCard hardware={device} key={device.id} namespace={namespace} />
         ))}
       </div>
     </div>

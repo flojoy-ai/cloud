@@ -17,6 +17,7 @@ import {
   measurement,
   model,
   hardware,
+  deviceModel,
 } from "~/server/db/schema";
 import {
   publicInsertWorkspaceSchema,
@@ -109,7 +110,6 @@ export const workspaceRouter = createTRPCRouter({
           .insert(model)
           .values({
             name: "HL1234",
-            type: "device",
             workspaceId: newWorkspace.id,
           })
           .returning();
@@ -120,6 +120,10 @@ export const workspaceRouter = createTRPCRouter({
             message: "Failed to create model",
           });
         }
+
+        await tx.insert(deviceModel).values({
+          id: newModel.id,
+        });
 
         const [newProject] = await tx
           .insert(project)

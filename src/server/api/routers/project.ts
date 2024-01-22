@@ -13,6 +13,7 @@ import { type db } from "~/server/db";
 import { workspaceAccessMiddleware } from "./workspace";
 import { checkWorkspaceAccess } from "~/lib/auth";
 import { hardwareAccessMiddleware } from "./hardware";
+import { selectModelSchema } from "~/types/model";
 
 export const projectAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -91,10 +92,11 @@ export const projectRouter = createTRPCRouter({
     })
     .input(z.object({ projectId: z.string() }))
     .use(projectAccessMiddleware)
-    .output(selectProjectSchema)
+    .output(selectProjectSchema.extend({ model: selectModelSchema }))
     .query(async ({ input, ctx }) => {
       const result = await ctx.db.query.project.findFirst({
         where: (project, { eq }) => eq(project.id, input.projectId),
+        with: { model: true },
       });
       if (!result) {
         throw new TRPCError({

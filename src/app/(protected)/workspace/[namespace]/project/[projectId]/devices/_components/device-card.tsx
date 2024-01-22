@@ -13,37 +13,39 @@ import {
   ContextMenuContent,
 } from "~/components/ui/context-menu";
 import { getPrettyTime } from "~/lib/time";
-import { type SelectDevice } from "~/types/device";
+import { type SelectHardware } from "~/types/hardware";
 
 type Props = {
-  device: SelectDevice;
+  hardware: SelectHardware;
   namespace: string;
 };
 
-const DeviceCard = ({ device, namespace }: Props) => {
+const HardwareCard = ({ hardware, namespace }: Props) => {
   return (
     <ContextMenu>
       <ContextMenuTrigger>
-        <Link href={`/workspace/${namespace}/device/${device.id}`}>
+        <Link href={`/workspace/${namespace}/hardware/${hardware.id}`}>
           <Card className="transition-all duration-300 hover:bg-secondary/80">
             <CardHeader>
-              <CardTitle>{device.name}</CardTitle>
-              <CardDescription>{device.id}</CardDescription>
+              <CardTitle>{hardware.name}</CardTitle>
+              <CardDescription>{hardware.id}</CardDescription>
             </CardHeader>
             <CardFooter>
               <div>
                 Last updated:{" "}
-                {device.updatedAt ? getPrettyTime(device.updatedAt) : "Never"}
+                {hardware.updatedAt
+                  ? getPrettyTime(hardware.updatedAt)
+                  : "Never"}
               </div>
             </CardFooter>
           </Card>
         </Link>
       </ContextMenuTrigger>
       <ContextMenuContent>
-        <CopyIdContextMenuItem value={device.id} />
+        <CopyIdContextMenuItem value={hardware.id} />
       </ContextMenuContent>
     </ContextMenu>
   );
 };
 
-export default DeviceCard;
+export default HardwareCard;

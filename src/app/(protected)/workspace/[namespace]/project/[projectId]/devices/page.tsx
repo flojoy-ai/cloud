@@ -4,6 +4,7 @@ import AllDevices from "./_components/all-devices";
 import { Separator } from "~/components/ui/separator";
 import CodeBlock from "~/components/code-block";
 import { WorkspaceSecretReminder } from "~/components/workspace-secret-reminder";
+import CreateSystem from "./_components/create-system";
 
 const DevicesView = async ({
   params,
@@ -52,7 +53,11 @@ client.delete_device_by_id("DEVICE_ID")
         </p>
       </div>
       <Separator className="my-6" />
-      <CreateDevice project={project} />
+      {project.model.type === "system" ? (
+        <CreateSystem project={project} />
+      ) : (
+        <CreateDevice project={project} />
+      )}
       <div className="py-2"></div>
       <AllDevices
         project={project}

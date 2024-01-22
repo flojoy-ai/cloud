@@ -20,6 +20,9 @@ export default async function DeviceInventory({
   const hardware = await api.hardware.getAllHardware.query({
     workspaceId,
   });
+  const deviceModels = await api.model.getAllDeviceModels.query({
+    workspaceId,
+  });
   const models = await api.model.getAllModels.query({
     workspaceId,
   });
@@ -36,10 +39,7 @@ export default async function DeviceInventory({
 
       <h1 className="text-xl font-bold">Models</h1>
       <div className="py-1" />
-      <CreateModel
-        workspaceId={workspaceId}
-        deviceModels={models.filter((m) => m.type === "device")}
-      />
+      <CreateModel workspaceId={workspaceId} deviceModels={deviceModels} />
       <div className="py-2" />
       <DataTable columns={modelColumns} data={models} />
       <div className="py-4" />

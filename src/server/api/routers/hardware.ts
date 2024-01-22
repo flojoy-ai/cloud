@@ -1,18 +1,27 @@
-import { eq } from "drizzle-orm";
+import { and, eq, exists, getTableColumns, inArray, not } from "drizzle-orm";
 import { z } from "zod";
 
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
-import { hardware, project_hardware, workspace } from "~/server/db/schema";
 import {
-  publicInsertHardwareSchema,
+  device,
+  hardware,
+  project_hardware,
+  system,
+  system_device,
+  workspace,
+} from "~/server/db/schema";
+import {
+  publicInsertDeviceSchema,
+  publicInsertSystemSchema,
   selectHardwareSchema,
 } from "~/types/hardware";
 import { selectMeasurementSchema } from "~/types/measurement";
 import { selectTestSchema } from "~/types/test";
-import { type db } from "~/server/db";
+import { db } from "~/server/db";
 import { checkWorkspaceAccess } from "~/lib/auth";
 import { workspaceAccessMiddleware } from "./workspace";
+import _ from "lodash";
 
 export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -52,18 +61,47 @@ export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
 });
 
 export const hardwareRouter = createTRPCRouter({
-  createHardware: workspaceProcedure
+  createDevice: workspaceProcedure
     .meta({
-      openapi: { method: "POST", path: "/v1/devices", tags: ["device"] },
+      openapi: {
+        method: "POST",
+        path: "/v1/hardware/device",
+        tags: ["hardware", "device"],
+      },
     })
-    .input(publicInsertHardwareSchema)
+    .input(publicInsertDeviceSchema)
     .use(workspaceAccessMiddleware)
     .output(selectHardwareSchema)
     .mutation(async ({ ctx, input }) => {
+      const model = await db.query.model.findFirst({
+        where: (model, { eq }) => eq(model.id, input.modelId),
+      });
+
+      if (model === undefined) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Invalid model ID",
+        });
+      }
+
       return await ctx.db.transaction(async (tx) => {
-        const [deviceCreateResult] = await tx
+        const [hardwareCreateResult] = await tx
           .insert(hardware)
           .values(input)
+          .returning();
+
+        if (!hardwareCreateResult) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create device",
+          });
+        }
+
+        const [deviceCreateResult] = await tx
+          .insert(device)
+          .values({
+            id: hardwareCreateResult.id,
+          })
           .returning();
 
         if (!deviceCreateResult) {
@@ -78,7 +116,108 @@ export const hardwareRouter = createTRPCRouter({
           .set({ updatedAt: new Date() })
           .where(eq(workspace.id, input.workspaceId));
 
-        return deviceCreateResult;
+        return hardwareCreateResult;
+      });
+    }),
+
+  createSystem: workspaceProcedure
+    .meta({
+      openapi: {
+        method: "POST",
+        path: "/v1/hardware/system",
+        tags: ["hardware", "system"],
+      },
+    })
+    .input(publicInsertSystemSchema)
+    .use(workspaceAccessMiddleware)
+    .output(selectHardwareSchema)
+    .mutation(async ({ ctx, input }) => {
+      const model = await db.query.model.findFirst({
+        where: (model, { eq }) => eq(model.id, input.modelId),
+      });
+
+      if (model === undefined) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Invalid model ID",
+        });
+      }
+
+      const notUsed = not(
+        exists(
+          db
+            .select()
+            .from(system_device)
+            .where(inArray(system_device.deviceId, input.deviceIds)),
+        ),
+      );
+
+      const selectResult = await ctx.db
+        .select()
+        .from(device)
+        .innerJoin(hardware, eq(hardware.id, device.id))
+        .where(and(inArray(device.id, input.deviceIds), notUsed));
+
+      if (selectResult.length !== input.deviceIds.length) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message:
+            "Invalid device IDs, or some devices are already used in an existing system.",
+        });
+      }
+
+      const matchesModel = _.isEqual(
+        _.countBy(selectResult, (x) => x.hardware.modelId),
+        _.countBy(model.parts, (x) => x),
+      );
+
+      if (!matchesModel) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Devices given for system do not match model.",
+        });
+      }
+
+      return await ctx.db.transaction(async (tx) => {
+        const [hardwareCreateResult] = await tx
+          .insert(hardware)
+          .values(input)
+          .returning();
+
+        if (!hardwareCreateResult) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create device",
+          });
+        }
+
+        const [systemCreateResult] = await tx
+          .insert(system)
+          .values({
+            id: hardwareCreateResult.id,
+          })
+          .returning();
+
+        if (!systemCreateResult) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create system",
+          });
+        }
+
+        await tx.insert(system_device).values(
+          input.deviceIds.map((deviceId) => ({
+            systemId: systemCreateResult.id,
+            deviceId,
+          })),
+        );
+
+        await tx
+          .update(workspace)
+          .set({ updatedAt: new Date() })
+          .where(eq(workspace.id, input.workspaceId));
+
+        return hardwareCreateResult;
       });
     }),
 
@@ -135,15 +274,53 @@ export const hardwareRouter = createTRPCRouter({
       openapi: { method: "GET", path: "/v1/hardwares", tags: ["hardware"] },
     })
     .input(
-      z.object({ workspaceId: z.string(), projectId: z.string().optional() }),
+      z.object({
+        workspaceId: z.string(),
+        projectId: z.string().optional(),
+        type: z.enum(["device", "system"]).optional(),
+        onlyAvailable: z.boolean().optional(),
+      }),
     )
     .use(workspaceAccessMiddleware)
     .output(z.array(selectHardwareSchema))
     .query(async ({ input, ctx }) => {
-      const hardwares = ctx.db
-        .select()
-        .from(hardware)
-        .where(eq(hardware.workspaceId, input.workspaceId));
+      let hardwares;
+
+      switch (input.type) {
+        case "device":
+          const conditions = [eq(hardware.workspaceId, input.workspaceId)];
+          if (input.onlyAvailable) {
+            const notUsed = not(
+              exists(
+                db
+                  .select()
+                  .from(system_device)
+                  .where(eq(system_device.deviceId, device.id)),
+              ),
+            );
+            conditions.push(notUsed);
+          }
+
+          hardwares = ctx.db
+            .select({ ...getTableColumns(hardware) })
+            .from(hardware)
+            .innerJoin(device, eq(hardware.id, device.id))
+            .where(and(...conditions));
+          break;
+        case "system":
+          hardwares = ctx.db
+            .select({ ...getTableColumns(hardware) })
+            .from(hardware)
+            .innerJoin(system, eq(hardware.id, system.id))
+            .where(eq(hardware.workspaceId, input.workspaceId));
+          break;
+        default:
+          hardwares = ctx.db
+            .select()
+            .from(hardware)
+            .where(eq(hardware.workspaceId, input.workspaceId));
+          break;
+      }
 
       if (!input.projectId) {
         return await hardwares;

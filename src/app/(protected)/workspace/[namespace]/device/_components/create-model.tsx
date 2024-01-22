@@ -31,7 +31,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { api } from "~/trpc/react";
 import { z } from "zod";
-import { publicInsertModelSchema, type SelectModel } from "~/types/model";
+import { publicInsertSystemModelSchema, type SelectModel } from "~/types/model";
 import {
   Select,
   SelectContent,
@@ -40,9 +40,10 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { Cpu, Plus, Trash2 } from "lucide-react";
+import { Label } from "~/components/ui/label";
 
-const modelFormSchema = publicInsertModelSchema.extend({
-  parts: z.object({ value: z.string() }).array(),
+const modelFormSchema = publicInsertSystemModelSchema.extend({
+  type: z.enum(["device", "system"]),
 });
 
 type FormSchema = z.infer<typeof modelFormSchema>;
@@ -57,7 +58,14 @@ const CreateModel = ({ workspaceId, deviceModels }: Props) => {
 
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
-  const createModel = api.model.createModel.useMutation({
+  const createDeviceModel = api.model.createDeviceModel.useMutation({
+    onSuccess: () => {
+      router.refresh();
+      setIsDialogOpen(false);
+    },
+  });
+
+  const createSystemModel = api.model.createSystemModel.useMutation({
     onSuccess: () => {
       router.refresh();
       setIsDialogOpen(false);
@@ -69,13 +77,13 @@ const CreateModel = ({ workspaceId, deviceModels }: Props) => {
     defaultValues: {
       workspaceId,
       type: "device",
-      parts: [{ value: "" }],
+      parts: [{ modelId: "", count: 1 }],
     },
   });
   const { fields, insert, remove } = useFieldArray({
     control: form.control,
     name: "parts",
-    keyName: "id",
+    keyName: "modelId",
   });
 
   const handleRemove = (index: number) => {
@@ -86,16 +94,16 @@ const CreateModel = ({ workspaceId, deviceModels }: Props) => {
   };
 
   useEffect(() => {
-    form.reset();
+    if (isDialogOpen) {
+      form.reset();
+    }
   }, [isDialogOpen]);
 
   function onSubmit(values: FormSchema) {
     toast.promise(
-      createModel.mutateAsync({
-        ...values,
-        parts:
-          values.type === "system" ? values.parts?.map((p) => p.value) : null,
-      }),
+      values.type === "device"
+        ? createDeviceModel.mutateAsync(values)
+        : createSystemModel.mutateAsync(values),
       {
         loading: "Creating your model...",
         success: "Model created.",
@@ -169,15 +177,15 @@ const CreateModel = ({ workspaceId, deviceModels }: Props) => {
             />
             {form.watch("type") === "system" && (
               <>
+                <Label>Parts</Label>
                 {fields.map((field, index) => (
-                  <div className="flex" key={field.id}>
+                  <div className="flex pb-4" key={field.modelId}>
                     <FormField
                       control={form.control}
-                      key={field.id}
-                      name={`parts.${index}.value` as const}
+                      key={field.modelId}
+                      name={`parts.${index}.modelId` as const}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Part {index + 1}</FormLabel>
                           <FormControl>
                             <Select
                               value={field.value}
@@ -199,27 +207,55 @@ const CreateModel = ({ workspaceId, deviceModels }: Props) => {
                         </FormItem>
                       )}
                     />
+                    <FormField
+                      control={form.control}
+                      key={field.modelId}
+                      name={`parts.${index}.count` as const}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              type="number"
+                              min={1}
+                              className="ml-2 w-20"
+                              {...form.register(
+                                `parts.${index}.count` as const,
+                                {
+                                  valueAsNumber: true,
+                                },
+                              )}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                     <Button
                       type="button"
-                      onClick={() => insert(index + 1, { value: "" })}
-                      className="mt-auto"
+                      onClick={() =>
+                        insert(index + 1, { modelId: "", count: 1 })
+                      }
+                      className="mt-auto px-2"
+                      size="icon"
                       variant="ghost"
                     >
-                      <Plus />
+                      <Plus size={20} className="stroke-muted-foreground" />
                     </Button>
                     <Button
                       type="button"
                       onClick={() => handleRemove(index)}
-                      className="mt-auto"
+                      className="mt-auto px-2"
+                      size="icon"
                       variant="ghost"
                     >
-                      <Trash2 />
+                      <Trash2 size={20} className="stroke-muted-foreground" />
                     </Button>
                   </div>
                 ))}
               </>
             )}
-            <DialogFooter className="">
+            <DialogFooter>
               <DialogClose asChild>
                 <Button type="button" variant="secondary">
                   Close

@@ -4,17 +4,26 @@ import { z } from "zod";
 
 export type SelectModel = typeof model.$inferSelect;
 
-export const insertModelSchema = createInsertSchema(model, {
-  parts: z.string().array(),
-});
+export const insertDeviceModelSchema = createInsertSchema(model);
 
-export const publicInsertModelSchema = insertModelSchema.pick({
+export const publicInsertDeviceModelSchema = insertDeviceModelSchema.pick({
   name: true,
   workspaceId: true,
-  type: true,
-  parts: true,
 });
 
-export const selectModelSchema = createSelectSchema(model, {
-  parts: z.string().array(),
+export const systemPartsSchema = z.array(
+  z.object({ modelId: z.string().min(1), count: z.number().min(1) }),
+);
+
+export const publicInsertSystemModelSchema =
+  publicInsertDeviceModelSchema.extend({
+    parts: systemPartsSchema,
+  });
+
+export const selectModelSchema = createSelectSchema(model);
+
+export const selectDeviceModelSchema = selectModelSchema;
+
+export const selectSystemModelSchema = selectModelSchema.extend({
+  parts: systemPartsSchema,
 });
