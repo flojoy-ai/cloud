@@ -19,6 +19,12 @@ CREATE TABLE IF NOT EXISTS "cloud_device" (
 	CONSTRAINT "cloud_device_workspace_id_name_unique" UNIQUE("workspace_id","name")
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "cloud_email_verification" (
+	"id" text PRIMARY KEY NOT NULL,
+	"user_id" text NOT NULL,
+	"expires" timestamp NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_measurement" (
 	"is_deleted" boolean DEFAULT false,
 	"data" jsonb NOT NULL,
@@ -77,7 +83,7 @@ CREATE TABLE IF NOT EXISTS "cloud_test" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_user" (
 	"id" text PRIMARY KEY NOT NULL,
-	"signup_completed" boolean DEFAULT false,
+	"email_verified" boolean DEFAULT false,
 	"email" text NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp,
@@ -137,6 +143,12 @@ CREATE INDEX IF NOT EXISTS "cloud_workspace_namespace_index" ON "cloud_workspace
 CREATE INDEX IF NOT EXISTS "cloud_system_name_index" ON "cloud_system" ("name");--> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "cloud_device" ADD CONSTRAINT "cloud_device_workspace_id_cloud_workspace_id_fk" FOREIGN KEY ("workspace_id") REFERENCES "cloud_workspace"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "cloud_email_verification" ADD CONSTRAINT "cloud_email_verification_user_id_cloud_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "cloud_user"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
