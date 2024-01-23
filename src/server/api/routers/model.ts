@@ -238,7 +238,7 @@ export const modelRouter = createTRPCRouter({
           deviceModel,
           eq(deviceModel.id, systemModelDeviceModel.deviceModelId),
         )
-        .groupBy(systemModel.id)
+        .groupBy(model.id)
         .where(eq(model.workspaceId, input.workspaceId));
     }),
 });
