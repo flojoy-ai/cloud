@@ -1,11 +1,8 @@
 import { api } from "~/trpc/server";
-import { Badge } from "~/components/ui/badge";
 import AllHardwares from "./_components/all-hardwares";
 import { Separator } from "~/components/ui/separator";
 // import CodeBlock from "~/components/code-block";
 // import { WorkspaceSecretReminder } from "~/components/workspace-secret-reminder";
-import { type SelectDeviceModel, type SelectSystemModel } from "~/types/model";
-import { type SelectProject } from "~/types/project";
 
 const DevicesView = async ({
   params,

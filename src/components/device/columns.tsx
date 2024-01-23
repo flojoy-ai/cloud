@@ -72,7 +72,7 @@ export const deviceColumns: ColumnDef<SelectHardware>[] = [
                 })
               }
             >
-              Copy device ID
+              Copy hardware ID
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
