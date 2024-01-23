@@ -102,7 +102,7 @@ const CreateSystem = ({ project }: Props) => {
         deviceIds,
       }),
       {
-        loading: "Creating your sysstem...",
+        loading: "Creating your system instance...",
         success: "Your system is ready.",
         error: "Something went wrong :(",
       },

@@ -1,9 +1,10 @@
 import Link from "next/link";
 import CopyIdContextMenuItem from "~/components/copy-id-context-menu";
+// import { Badge } from "~/components/ui/badge";
 import {
   Card,
   CardDescription,
-  CardFooter,
+  // CardFooter,
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
@@ -12,11 +13,12 @@ import {
   ContextMenuTrigger,
   ContextMenuContent,
 } from "~/components/ui/context-menu";
-import { getPrettyTime } from "~/lib/time";
+// import { getPrettyTime } from "~/lib/time";
 import { type SelectHardware } from "~/types/hardware";
+import { type SelectModel } from "~/types/model";
 
 type Props = {
-  hardware: SelectHardware;
+  hardware: SelectHardware & { model: SelectModel };
   namespace: string;
 };
 
@@ -30,14 +32,7 @@ const HardwareCard = ({ hardware, namespace }: Props) => {
               <CardTitle>{hardware.name}</CardTitle>
               <CardDescription>{hardware.id}</CardDescription>
             </CardHeader>
-            <CardFooter>
-              <div>
-                Last updated:{" "}
-                {hardware.updatedAt
-                  ? getPrettyTime(hardware.updatedAt)
-                  : "Never"}
-              </div>
-            </CardFooter>
+            {/* <CardFooter></CardFooter> */}
           </Card>
         </Link>
       </ContextMenuTrigger>

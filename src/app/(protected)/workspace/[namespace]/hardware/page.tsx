@@ -26,9 +26,6 @@ export default async function HardwareInventory({
   const systemModels = await api.model.getAllSystemModels.query({
     workspaceId,
   });
-  const models = await api.model.getAllModels.query({
-    workspaceId,
-  });
 
   return (
     <div className="container max-w-screen-2xl">
@@ -45,10 +42,13 @@ export default async function HardwareInventory({
       <div className="py-1" />
       <CreateModel workspaceId={workspaceId} deviceModels={deviceModels} />
       <div className="py-2" />
-      <DataTable columns={modelColumns} data={models} />
+      <DataTable
+        columns={modelColumns}
+        data={[...deviceModels, ...systemModels]}
+      />
       <div className="py-4" />
 
-      <h1 className="text-xl font-bold">Devices</h1>
+      <h1 className="text-xl font-bold">Hardware Instances</h1>
       <div className="py-1" />
       <DataTable columns={deviceColumns} data={hardware} />
       <div className="py-4" />

@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import { type SelectHardware } from "~/types/hardware";
 import { toast } from "sonner";
 import { type SelectModel } from "~/types/model";
+import { Badge } from "../ui/badge";
 
 export const deviceColumns: ColumnDef<SelectHardware>[] = [
   {
@@ -83,34 +84,33 @@ export const deviceColumns: ColumnDef<SelectHardware>[] = [
 export const modelColumns: ColumnDef<SelectModel>[] = [
   {
     accessorKey: "name",
-    header: "Name",
-  },
-  {
-    accessorKey: "type",
-    header: "Type",
-  },
-  {
-    accessorKey: "createdAt",
-    header: "Created At",
+    header: "Model Name",
     cell: ({ row }) => {
-      const [mounted, setMounted] = useState(false);
-      useEffect(() => {
-        setMounted(true);
-      }, []);
-      if (mounted) {
-        return row.original.createdAt.toLocaleString();
-      }
+      return <Badge>{row.original.name}</Badge>;
     },
   },
   {
+    accessorKey: "type",
+    header: "Model Type",
+  },
+  {
     accessorKey: "parts",
-    header: "Parts",
+    header: "Components",
     cell: ({ row }) => {
       if (row.original.type === "device") {
-        return undefined;
+        return "N/A";
       }
 
-      return row.original.parts.map((p) => `${p.name} x${p.count}`).join("\n");
+      return (
+        <div className="flex flex-col gap-2">
+          {row.original.parts.map((p) => (
+            <div className="flex gap-2" key={p.name}>
+              <Badge>{p.name}</Badge>
+              <div>x{p.count}</div>
+            </div>
+          ))}
+        </div>
+      );
     },
   },
   {
@@ -136,7 +136,7 @@ export const modelColumns: ColumnDef<SelectModel>[] = [
                 })
               }
             >
-              Copy device ID
+              Copy model ID
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

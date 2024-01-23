@@ -67,8 +67,8 @@ const CreateDevice = ({ project }: Props) => {
         ...values,
       }),
       {
-        loading: "Creating your device...",
-        success: "Your device is ready.",
+        loading: "Creating your device instance...",
+        success: "Your device instance is ready.",
         error: "Something went wrong :(",
       },
     );
@@ -78,14 +78,14 @@ const CreateDevice = ({ project }: Props) => {
     <Dialog open={isDialogOpen} onOpenChange={(open) => setIsDialogOpen(open)}>
       <DialogTrigger asChild>
         <Button variant="default" size="sm">
-          Register Device
+          Register Device Instance
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Register a new device</DialogTitle>
           <DialogDescription>
-            Which hardware device of yours do you want to register?
+            Which device instance of yours do you want to register?
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -95,16 +95,17 @@ const CreateDevice = ({ project }: Props) => {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Device Identifier</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Circuit Board #1"
+                      placeholder="e.g. SN1234"
                       {...field}
                       data-1p-ignore
                     />
                   </FormControl>
                   <FormDescription>
-                    What is the name of your device?
+                    How do you identity this device instance? This is usually a
+                    serial number like SN1234.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

@@ -20,8 +20,8 @@ export default async function Project({
 
   const sidebarNavItems = [
     {
-      title: "Devices",
-      href: `/workspace/${params.namespace}/project/${params.projectId}/devices`,
+      title: "Hardwares",
+      href: `/workspace/${params.namespace}/project/${params.projectId}/hardwares`,
     },
     {
       title: "Tests",

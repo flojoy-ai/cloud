@@ -158,7 +158,7 @@ export const workspaceRouter = createTRPCRouter({
         }
 
         const insertDevices = _.times(9, (i) => ({
-          name: `HL1234-SN000${i + 1}`,
+          name: `SN000${i + 1}`,
           modelId: newModel.id,
           workspaceId: newWorkspace.id,
         }));

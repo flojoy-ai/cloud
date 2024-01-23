@@ -28,7 +28,7 @@ const getScope = (pathname: string): string => {
 
 export const useWorkspace = () => {
   const workspace = useContext(WorkspaceContext);
-  if (!workspace) throw new Error("Workspace not found");
+  // if (!workspace) throw new Error("Workspace not found");
   return workspace;
 };
 

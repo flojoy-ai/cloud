@@ -10,6 +10,7 @@ import { db } from "~/server/db";
 import {
   device,
   hardware,
+  model,
   project_hardware,
   system,
   system_device,
@@ -23,6 +24,7 @@ import {
 import { selectMeasurementSchema } from "~/types/measurement";
 import { selectTestSchema } from "~/types/test";
 import { workspaceAccessMiddleware } from "./workspace";
+import { selectModelSchema } from "~/types/model";
 
 export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -283,7 +285,11 @@ export const hardwareRouter = createTRPCRouter({
       }),
     )
     .use(workspaceAccessMiddleware)
-    .output(z.array(selectHardwareSchema))
+    .output(
+      z.array(
+        selectHardwareSchema.merge(z.object({ model: selectModelSchema })),
+      ),
+    )
     .query(async ({ input, ctx }) => {
       let hardwares;
 
@@ -322,20 +328,9 @@ export const hardwareRouter = createTRPCRouter({
             .where(eq(hardware.workspaceId, input.workspaceId));
           break;
       }
-
-      if (!input.projectId) {
-        return await hardwares;
-      }
-
-      const projects_hardwares = ctx.db
-        .select()
-        .from(project_hardware)
-        .where(eq(project_hardware.projectId, input.projectId))
-        .as("projects_hardwares");
-
       const temp = hardwares.as("hardwares");
 
-      return await ctx.db
+      const query = ctx.db
         .select({
           name: temp.name,
           workspaceId: temp.workspaceId,
@@ -343,12 +338,23 @@ export const hardwareRouter = createTRPCRouter({
           updatedAt: temp.updatedAt,
           modelId: temp.modelId,
           id: temp.id,
+          model: getTableColumns(model),
         })
-        .from(temp)
-        .innerJoin(
+        .from(temp);
+
+      if (input.projectId) {
+        const projects_hardwares = ctx.db
+          .select()
+          .from(project_hardware)
+          .where(eq(project_hardware.projectId, input.projectId))
+          .as("projects_hardwares");
+
+        void query.innerJoin(
           projects_hardwares,
           eq(temp.id, projects_hardwares.hardwareId),
         );
+      }
+      return await query.innerJoin(model, eq(model.id, temp.modelId));
     }),
 
   deleteHardwareById: workspaceProcedure
