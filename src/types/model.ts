@@ -4,9 +4,9 @@ import { z } from "zod";
 
 export type SelectModel = typeof model.$inferSelect;
 
-export const insertDeviceModelSchema = createInsertSchema(model);
+export const insertModelSchema = createInsertSchema(model);
 
-export const publicInsertDeviceModelSchema = insertDeviceModelSchema.pick({
+export const publicInsertDeviceModelSchema = insertModelSchema.pick({
   name: true,
   workspaceId: true,
 });

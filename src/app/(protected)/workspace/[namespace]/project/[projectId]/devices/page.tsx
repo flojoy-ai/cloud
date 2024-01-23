@@ -54,6 +54,9 @@ client.delete_device_by_id("DEVICE_ID")
       </div>
       <Separator className="my-6" />
       {project.model.type === "system" ? (
+        // FIXME: Nested discriminated union does not work properly as of now,
+        // waiting for zod to implement z.switch
+        // @ts-expect-error https://github.com/colinhacks/zod/issues/2106
         <CreateSystem project={project} />
       ) : (
         <CreateDevice project={project} />

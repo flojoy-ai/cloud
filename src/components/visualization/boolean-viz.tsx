@@ -6,7 +6,6 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import ScatterPlot from "~/components/visualization/plot/scatter-plot";
-import { type SelectTest } from "~/types/test";
 import { type SelectMeasurement } from "~/types/measurement";
 
 import { zodResolver } from "@hookform/resolvers/zod";

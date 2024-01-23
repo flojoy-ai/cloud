@@ -40,7 +40,6 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { Cpu, Plus, Trash2 } from "lucide-react";
-import { Label } from "~/components/ui/label";
 
 const modelFormSchema = publicInsertSystemModelSchema.extend({
   type: z.enum(["device", "system"]),

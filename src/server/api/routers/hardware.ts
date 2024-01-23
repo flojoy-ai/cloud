@@ -16,7 +16,6 @@ import {
   deviceModel,
   hardware,
   model,
-  project,
   project_hardware,
   system,
   systemModel,
@@ -256,7 +255,7 @@ export const hardwareRouter = createTRPCRouter({
     .meta({
       openapi: {
         method: "GET",
-        path: "/v1/devices/{deviceId}",
+        path: "/v1/hardware/{hardwareId}",
         tags: ["device"],
       },
     })
@@ -302,7 +301,7 @@ export const hardwareRouter = createTRPCRouter({
 
   getAllHardware: workspaceProcedure
     .meta({
-      openapi: { method: "GET", path: "/v1/hardwares", tags: ["hardware"] },
+      openapi: { method: "GET", path: "/v1/hardware", tags: ["hardware"] },
     })
     .input(
       z.object({
@@ -385,7 +384,7 @@ export const hardwareRouter = createTRPCRouter({
     .meta({
       openapi: {
         method: "DELETE",
-        path: "/v1/hardwares/{hardwareId}",
+        path: "/v1/hardware/{hardwareId}",
         tags: ["hardware"],
       },
     })

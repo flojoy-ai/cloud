@@ -1,4 +1,4 @@
-import { and, eq, getTableColumns, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
@@ -23,7 +23,6 @@ import { checkWorkspaceAccess } from "~/lib/auth";
 import { hardwareAccessMiddleware } from "./hardware";
 import {
   selectDeviceModelSchema,
-  selectModelSchema,
   selectSystemModelSchema,
   type systemPartsSchema,
 } from "~/types/model";
@@ -192,7 +191,7 @@ export const projectRouter = createTRPCRouter({
     .meta({
       openapi: {
         method: "PUT",
-        path: "/v1/projects/{projectId}/hardware/{deviceId}",
+        path: "/v1/projects/{projectId}/hardware/{hardwareId}",
         tags: ["project", "hardware"],
       },
     })
