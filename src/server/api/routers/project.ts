@@ -1,31 +1,20 @@
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 
-import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
-import {
-  deviceModel,
-  model,
-  project,
-  project_hardware,
-  systemModel,
-  systemModelDeviceModel,
-  workspace,
-} from "~/server/db/schema";
+import { checkWorkspaceAccess } from "~/lib/auth";
+import { getSystemModelParts } from "~/lib/query";
+import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
+import { type db } from "~/server/db";
+import { project, project_hardware, workspace } from "~/server/db/schema";
+import { selectModelSchema } from "~/types/model";
 import {
   publicInsertProjectSchema,
   publicUpdateProjectSchema,
   selectProjectSchema,
 } from "~/types/project";
-import { type db } from "~/server/db";
-import { workspaceAccessMiddleware } from "./workspace";
-import { checkWorkspaceAccess } from "~/lib/auth";
 import { hardwareAccessMiddleware } from "./hardware";
-import {
-  selectDeviceModelSchema,
-  selectSystemModelSchema,
-  type systemPartsSchema,
-} from "~/types/model";
+import { workspaceAccessMiddleware } from "./workspace";
 
 export const projectAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -106,7 +95,7 @@ export const projectRouter = createTRPCRouter({
     .use(projectAccessMiddleware)
     .output(
       selectProjectSchema.extend({
-        model: z.union([selectDeviceModelSchema, selectSystemModelSchema]),
+        model: selectModelSchema,
       }),
     )
     .query(async ({ input, ctx }) => {
@@ -137,24 +126,7 @@ export const projectRouter = createTRPCRouter({
         };
       }
 
-      const [deviceParts] = await ctx.db
-        .select({
-          parts: sql<
-            z.infer<typeof systemPartsSchema>
-          >`json_agg(json_build_object('modelId', ${deviceModel.id}, 'count', ${systemModelDeviceModel.count}))`,
-        })
-        .from(model)
-        .innerJoin(systemModel, eq(systemModel.id, model.id))
-        .innerJoin(
-          systemModelDeviceModel,
-          eq(systemModel.id, systemModelDeviceModel.systemModelId),
-        )
-        .innerJoin(
-          deviceModel,
-          eq(deviceModel.id, systemModelDeviceModel.deviceModelId),
-        )
-        .groupBy(systemModel.id)
-        .where(eq(model.id, project.modelId));
+      const deviceParts = await getSystemModelParts(project.modelId);
 
       if (!deviceParts) {
         throw new TRPCError({
@@ -168,7 +140,7 @@ export const projectRouter = createTRPCRouter({
         model: {
           ...project.model,
           type: "system",
-          parts: deviceParts.parts,
+          parts: deviceParts,
         },
       };
     }),

@@ -1,25 +1,17 @@
-import {
-  and,
-  eq,
-  exists,
-  getTableColumns,
-  inArray,
-  not,
-  sql,
-} from "drizzle-orm";
+import { and, eq, exists, getTableColumns, inArray, not } from "drizzle-orm";
 import { z } from "zod";
 
-import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
+import _ from "lodash";
+import { checkWorkspaceAccess } from "~/lib/auth";
+import { getSystemModelParts } from "~/lib/query";
+import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
+import { db } from "~/server/db";
 import {
   device,
-  deviceModel,
   hardware,
-  model,
   project_hardware,
   system,
-  systemModel,
-  systemModelDeviceModel,
   system_device,
   workspace,
 } from "~/server/db/schema";
@@ -30,11 +22,7 @@ import {
 } from "~/types/hardware";
 import { selectMeasurementSchema } from "~/types/measurement";
 import { selectTestSchema } from "~/types/test";
-import { db } from "~/server/db";
-import { checkWorkspaceAccess } from "~/lib/auth";
 import { workspaceAccessMiddleware } from "./workspace";
-import _ from "lodash";
-import { type systemPartsSchema } from "~/types/model";
 
 export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -146,24 +134,7 @@ export const hardwareRouter = createTRPCRouter({
     .output(selectHardwareSchema)
     .mutation(async ({ ctx, input }) => {
       // TODO: Refactor this massive query
-      const [deviceParts] = await ctx.db
-        .select({
-          parts: sql<
-            z.infer<typeof systemPartsSchema>
-          >`json_agg(json_build_object('modelId', ${deviceModel.id}, 'count', ${systemModelDeviceModel.count}))`,
-        })
-        .from(model)
-        .innerJoin(systemModel, eq(systemModel.id, model.id))
-        .innerJoin(
-          systemModelDeviceModel,
-          eq(systemModel.id, systemModelDeviceModel.systemModelId),
-        )
-        .innerJoin(
-          deviceModel,
-          eq(deviceModel.id, systemModelDeviceModel.deviceModelId),
-        )
-        .groupBy(systemModel.id)
-        .where(eq(model.id, input.modelId));
+      const deviceParts = await getSystemModelParts(input.modelId);
 
       if (deviceParts === undefined) {
         throw new TRPCError({
@@ -197,7 +168,7 @@ export const hardwareRouter = createTRPCRouter({
 
       const partCounts = _.countBy(selectResult, (x) => x.hardware.modelId);
 
-      const matchesModel = deviceParts.parts.every(
+      const matchesModel = deviceParts.every(
         ({ modelId, count }) => partCounts[modelId] === count,
       );
 

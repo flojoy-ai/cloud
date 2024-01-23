@@ -1,6 +1,8 @@
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
-import { and, eq, getTableColumns, inArray, sql } from "drizzle-orm";
+import { and, eq, getTableColumns, inArray } from "drizzle-orm";
+import { z } from "zod";
 import { checkWorkspaceAccess } from "~/lib/auth";
+import { partsFrom } from "~/lib/query";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { type db } from "~/server/db";
 import {
@@ -10,16 +12,14 @@ import {
   systemModelDeviceModel,
   workspace,
 } from "~/server/db/schema";
-import { workspaceAccessMiddleware } from "./workspace";
 import {
   publicInsertDeviceModelSchema,
   publicInsertSystemModelSchema,
   selectDeviceModelSchema,
   selectModelSchema,
   selectSystemModelSchema,
-  type systemPartsSchema,
 } from "~/types/model";
-import { z } from "zod";
+import { workspaceAccessMiddleware } from "./workspace";
 
 export const modelAccessMiddlware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -106,7 +106,7 @@ export const modelRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const partIds = input.parts.map((p) => p.modelId);
 
-      const partModels = await ctx.db
+      const res = await ctx.db
         .select()
         .from(deviceModel)
         .innerJoin(model, eq(model.id, deviceModel.id))
@@ -117,11 +117,11 @@ export const modelRouter = createTRPCRouter({
           ),
         );
 
-      if (
-        partIds.some(
-          (id) => partModels.find((m) => m.model.id === id) === undefined,
-        )
-      ) {
+      const deviceModels = Object.fromEntries(
+        res.map(({ model }) => [model.id, model]),
+      );
+
+      if (partIds.some((id) => deviceModels[id] === undefined)) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "All system parts must be valid device models",
@@ -161,7 +161,10 @@ export const modelRouter = createTRPCRouter({
 
         return {
           ...modelCreateResult,
-          parts: input.parts,
+          parts: input.parts.map((part) => ({
+            ...part,
+            name: deviceModels[part.modelId]!.name,
+          })),
         };
       });
     }),
@@ -219,9 +222,11 @@ export const modelRouter = createTRPCRouter({
       return await ctx.db
         .select({
           ...getTableColumns(model),
-          parts: sql<
-            z.infer<typeof systemPartsSchema>
-          >`json_agg(json_build_object(${deviceModel.id}, ${systemModelDeviceModel.count}))`,
+          parts: partsFrom(
+            deviceModel.id,
+            model.name,
+            systemModelDeviceModel.count,
+          ),
         })
         .from(model)
         .innerJoin(systemModel, eq(systemModel.id, model.id))
