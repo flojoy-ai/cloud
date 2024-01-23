@@ -15,13 +15,15 @@ export function partsFrom(modelId: Column, name: Column, count: Column) {
 }
 
 export async function getSystemModelParts(modelId: string) {
+  const sq = db
+    .select({ id: model.id, name: model.name })
+    .from(model)
+    .innerJoin(deviceModel, eq(deviceModel.id, model.id))
+    .as("sq");
+
   const [parts] = await db
     .select({
-      parts: partsFrom(
-        deviceModel.id,
-        model.name,
-        systemModelDeviceModel.count,
-      ),
+      parts: partsFrom(deviceModel.id, sq.name, systemModelDeviceModel.count),
     })
     .from(model)
     .innerJoin(systemModel, eq(systemModel.id, model.id))
@@ -33,6 +35,7 @@ export async function getSystemModelParts(modelId: string) {
       deviceModel,
       eq(deviceModel.id, systemModelDeviceModel.deviceModelId),
     )
+    .leftJoin(sq, eq(sq.id, deviceModel.id))
     .groupBy(systemModel.id)
     .where(eq(model.id, modelId));
 
