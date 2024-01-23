@@ -34,7 +34,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { api } from "~/trpc/react";
 import { z } from "zod";
-import { type SelectModel } from "~/types/model";
+import { type SelectSystemModel } from "~/types/model";
 import { Label } from "~/components/ui/label";
 import {
   Select,
@@ -51,21 +51,11 @@ const systemFormSchema = publicInsertSystemSchema.extend({
 type FormSchema = z.infer<typeof systemFormSchema>;
 
 type Props = {
-  project: SelectProject & { model: SelectModel };
+  project: SelectProject & { model: SelectSystemModel };
 };
 
 const CreateSystem = ({ project }: Props) => {
   const router = useRouter();
-
-  if (project.model.type !== "system") {
-    throw new Error(
-      "This component cannot be used in a project whose model is not a system",
-    );
-  }
-
-  if (project.model.parts === null) {
-    throw new Error("System parts is null, this shouldn't happen");
-  }
 
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
@@ -81,14 +71,16 @@ const CreateSystem = ({ project }: Props) => {
     type: "device",
   });
 
+  const deviceModels = project.model.parts.flatMap((m) =>
+    new Array<string>(m.count).fill(m.modelId),
+  );
+
   const form = useForm<FormSchema>({
     resolver: zodResolver(systemFormSchema),
     defaultValues: {
       workspaceId: project.workspaceId,
       modelId: project.modelId,
-      deviceIds: project.model.parts.map((part) => ({
-        value: part,
-      })),
+      deviceIds: deviceModels.map((_) => ({ value: "" })),
     },
   });
 
@@ -155,7 +147,7 @@ const CreateSystem = ({ project }: Props) => {
             />
 
             <Label>Parts</Label>
-            {project.model.parts.map((part, index) => (
+            {deviceModels.map((part, index) => (
               <FormField
                 control={form.control}
                 key={`${part}-${index}`}

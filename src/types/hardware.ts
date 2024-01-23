@@ -16,7 +16,7 @@ export const publicInsertSystemSchema = publicInsertDeviceSchema.extend({
   deviceIds: z
     .string()
     .array()
-    .nonempty()
+    .min(1)
     .superRefine((val, ctx) => {
       if (val.length !== new Set(val).size) {
         ctx.addIssue({

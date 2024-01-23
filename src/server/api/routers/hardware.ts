@@ -1,13 +1,26 @@
-import { and, eq, exists, getTableColumns, inArray, not } from "drizzle-orm";
+import {
+  and,
+  eq,
+  exists,
+  getTableColumns,
+  inArray,
+  not,
+  sql,
+} from "drizzle-orm";
 import { z } from "zod";
 
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
 import {
   device,
+  deviceModel,
   hardware,
+  model,
+  project,
   project_hardware,
   system,
+  systemModel,
+  systemModelDeviceModel,
   system_device,
   workspace,
 } from "~/server/db/schema";
@@ -22,6 +35,7 @@ import { db } from "~/server/db";
 import { checkWorkspaceAccess } from "~/lib/auth";
 import { workspaceAccessMiddleware } from "./workspace";
 import _ from "lodash";
+import { type systemPartsSchema } from "~/types/model";
 
 export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -132,11 +146,27 @@ export const hardwareRouter = createTRPCRouter({
     .use(workspaceAccessMiddleware)
     .output(selectHardwareSchema)
     .mutation(async ({ ctx, input }) => {
-      const model = await db.query.model.findFirst({
-        where: (model, { eq }) => eq(model.id, input.modelId),
-      });
+      // TODO: Refactor this massive query
+      const [deviceParts] = await ctx.db
+        .select({
+          parts: sql<
+            z.infer<typeof systemPartsSchema>
+          >`json_agg(json_build_object('modelId', ${deviceModel.id}, 'count', ${systemModelDeviceModel.count}))`,
+        })
+        .from(model)
+        .innerJoin(systemModel, eq(systemModel.id, model.id))
+        .innerJoin(
+          systemModelDeviceModel,
+          eq(systemModel.id, systemModelDeviceModel.systemModelId),
+        )
+        .innerJoin(
+          deviceModel,
+          eq(deviceModel.id, systemModelDeviceModel.deviceModelId),
+        )
+        .groupBy(systemModel.id)
+        .where(eq(model.id, input.modelId));
 
-      if (model === undefined) {
+      if (deviceParts === undefined) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "Invalid model ID",
@@ -166,9 +196,10 @@ export const hardwareRouter = createTRPCRouter({
         });
       }
 
-      const matchesModel = _.isEqual(
-        _.countBy(selectResult, (x) => x.hardware.modelId),
-        _.countBy(model.parts, (x) => x),
+      const partCounts = _.countBy(selectResult, (x) => x.hardware.modelId);
+
+      const matchesModel = deviceParts.parts.every(
+        ({ modelId, count }) => partCounts[modelId] === count,
       );
 
       if (!matchesModel) {

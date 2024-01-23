@@ -22,8 +22,14 @@ export const publicInsertSystemModelSchema =
 
 export const selectModelSchema = createSelectSchema(model);
 
-export const selectDeviceModelSchema = selectModelSchema;
+export const selectDeviceModelSchema = selectModelSchema.extend({
+  type: z.literal("device").default("device"),
+});
 
 export const selectSystemModelSchema = selectModelSchema.extend({
+  type: z.literal("system").default("system"),
   parts: systemPartsSchema,
 });
+
+export type SelectSystemModel = z.infer<typeof selectSystemModelSchema>;
+export type SelectDeviceModel = z.infer<typeof selectDeviceModelSchema>;
