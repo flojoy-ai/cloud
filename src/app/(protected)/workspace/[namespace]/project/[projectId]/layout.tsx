@@ -47,7 +47,7 @@ export default async function Project({
       <PageHeader>
         <PageHeaderHeading className="">{project.name}</PageHeaderHeading>
         <PageHeaderDescription>
-          View all the tests, devices and settings for this project.
+          View all the hardwares, tests, and their data for this project.
         </PageHeaderDescription>
       </PageHeader>
 
