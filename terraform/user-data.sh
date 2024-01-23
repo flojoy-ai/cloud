@@ -8,11 +8,30 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 nvm install node
 # Install pnpm
 npm install -g pnpm
-# Allow node to bind to privileged ports like 80
-sudo apt-get install libcap2-bin
-NODE_PATH="$(which node)"
 
-sudo setcap cap_net_bind_service=+ep "$(readlink -f "$NODE_PATH")"
+# Install nginx
+sudo apt install nginx -y
+
+# Configure Nginx reverse proxy
+nginx_config="server {
+listen 80;
+
+server_name _;
+
+location / {
+    proxy_pass http://localhost:3000;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade \$http_upgrade ;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host \$host;
+    proxy_cache_bypass \$http_upgrade;
+    }
+}"
+
+defaut_server_config=""
+echo "$defaut_server_config" >/etc/nginx/sites-enabled/default
+echo "$defaut_server_config" >/etc/nginx/sites-available/default
+echo "$nginx_config" >/etc/nginx/conf.d/default.conf
 
 # Create a systemd service file
 cat <<EOF >/etc/systemd/system/cloud_app.service
@@ -23,7 +42,7 @@ After=network.target
 [Service]
 Type=simple
 WorkingDirectory=/root/cloud
-ExecStart=/bin/bash /root/startup_script.sh
+ExecStart=/bin/bash /root/startup.sh
 Restart=on-failure
 RestartSec=3
 StartLimitInterval=60
@@ -39,8 +58,10 @@ WantedBy=default.target
 EOF
 
 # Create a shell script to run on startup
-cat <<EOF >/root/startup_script.sh
+cat <<EOF >/root/startup.sh
 #!/bin/bash
+
+systemctl start nginx
 
 . /.nvm/nvm.sh
 
@@ -70,18 +91,21 @@ fi
 
 pnpm build
 
-pnpm start -p 80
+pnpm start
 
 EOF
 
 # Make the startup script executable
-chmod +x /root/startup_script.sh
+chmod +x /root/startup.sh
 
 # Reload systemd to pick up the new service
 systemctl daemon-reload
 
 # Enable and start the service
 systemctl enable cloud_app.service
+
+# Stop Nginx
+systemctl stop nginx
 
 # Install PostgreSQL
 sudo apt update
