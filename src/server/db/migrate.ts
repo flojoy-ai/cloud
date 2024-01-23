@@ -7,7 +7,7 @@ import { env } from "~/env";
 import postgres from "postgres";
 
 if (env.AWS_AMI === 1) {
-  const pg = postgres(env.DATABASE_URL, { max: 1 });
+  const pg = postgres(env.DATABASE_URL);
   const db = drizzle(pg);
   await migrate(db, { migrationsFolder: "./drizzle" });
 

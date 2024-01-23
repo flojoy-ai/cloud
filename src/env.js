@@ -7,8 +7,12 @@ export const env = createEnv({
    * isn't built with invalid env vars.
    */
   server: {
-    DATABASE_URL: z.string().url(),
-    // .transform((val) => val + "?sslmode=require"),
+    DATABASE_URL: z
+      .string()
+      .url()
+      .transform((val) =>
+        process.env.NODE_ENV === "development" ? val : val + "?sslmode=require",
+      ),
 
     NODE_ENV: z
       .enum(["development", "test", "production"])

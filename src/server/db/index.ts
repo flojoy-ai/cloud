@@ -11,7 +11,7 @@ export const pool =
   env.AWS_AMI === 1
     ? new Pool({ connectionString: env.DATABASE_URL })
     : new NeonPool({ connectionString: env.DATABASE_URL });
-const sql = postgres(env.DATABASE_URL, { max: 1 });
+const sql = postgres(env.DATABASE_URL);
 export const db =
   env.AWS_AMI === 1
     ? drizzle(sql, { schema })
