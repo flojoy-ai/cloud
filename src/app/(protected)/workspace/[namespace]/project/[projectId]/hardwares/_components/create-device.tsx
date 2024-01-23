@@ -2,7 +2,6 @@
 import { type SelectProject } from "~/types/project";
 
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
 
@@ -42,13 +41,12 @@ type Props = {
 };
 
 const CreateDevice = ({ project }: Props) => {
-  const router = useRouter();
-
+  const utils = api.useUtils();
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
   const createHardware = api.hardware.createDevice.useMutation({
     onSuccess: () => {
-      router.refresh();
+      void utils.hardware.getAllHardware.invalidate();
       setIsDialogOpen(false);
     },
   });
@@ -58,6 +56,7 @@ const CreateDevice = ({ project }: Props) => {
     defaultValues: {
       workspaceId: project.workspaceId,
       modelId: project.modelId,
+      projectId: project.id,
     },
   });
 

@@ -114,6 +114,13 @@ export const hardwareRouter = createTRPCRouter({
           });
         }
 
+        if (input.projectId) {
+          await tx.insert(project_hardware).values({
+            projectId: input.projectId,
+            hardwareId: hardwareCreateResult.id,
+          });
+        }
+
         await tx
           .update(workspace)
           .set({ updatedAt: new Date() })
@@ -205,6 +212,13 @@ export const hardwareRouter = createTRPCRouter({
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message: "Failed to create system",
+          });
+        }
+
+        if (input.projectId) {
+          await tx.insert(project_hardware).values({
+            projectId: input.projectId,
+            hardwareId: hardwareCreateResult.id,
           });
         }
 
@@ -328,6 +342,7 @@ export const hardwareRouter = createTRPCRouter({
             .where(eq(hardware.workspaceId, input.workspaceId));
           break;
       }
+      // console.log(await hardwares);
       const temp = hardwares.as("hardwares");
 
       const query = ctx.db

@@ -1,19 +1,11 @@
 import { api } from "~/trpc/server";
 import { Badge } from "~/components/ui/badge";
-import CreateDevice from "./_components/create-device";
-import AllHardwares from "./_components/all-devices";
+import AllHardwares from "./_components/all-hardwares";
 import { Separator } from "~/components/ui/separator";
 // import CodeBlock from "~/components/code-block";
 // import { WorkspaceSecretReminder } from "~/components/workspace-secret-reminder";
-import CreateSystem from "./_components/create-system";
 import { type SelectDeviceModel, type SelectSystemModel } from "~/types/model";
 import { type SelectProject } from "~/types/project";
-
-const isSystemProject = (
-  project: SelectProject & { model: SelectSystemModel | SelectDeviceModel },
-): project is SelectProject & { model: SelectSystemModel } => {
-  return project.model.type === "system";
-};
 
 const DevicesView = async ({
   params,
@@ -69,23 +61,13 @@ const DevicesView = async ({
         </p>
       </div>
       <Separator className="my-6" />
-      <div className="flex items-center gap-2">
-        {isSystemProject(project) ? (
-          <CreateSystem project={project} />
-        ) : (
-          <CreateDevice project={project} />
-        )}
-        <div>
-          You can only register instances of <Badge>{project.model.name}</Badge>{" "}
-          to this project.
-        </div>
-      </div>
 
       <div className="py-2"></div>
+
       <AllHardwares
         hardwares={hardwares}
         workspaceId={workspaceId}
-        projectId={project.id}
+        project={project}
         namespace={params.namespace}
       />
 

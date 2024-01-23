@@ -2,7 +2,6 @@
 import { type SelectProject } from "~/types/project";
 
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
 
@@ -17,7 +16,7 @@ import {
 } from "~/components/ui/form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { publicInsertSystemSchema } from "~/types/hardware";
 
 import {
@@ -55,13 +54,13 @@ type Props = {
 };
 
 const CreateSystem = ({ project }: Props) => {
-  const router = useRouter();
-
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const utils = api.useUtils();
 
   const createSystem = api.hardware.createSystem.useMutation({
     onSuccess: () => {
-      router.refresh();
+      void utils.hardware.getAllHardware.invalidate();
+
       setIsDialogOpen(false);
     },
   });
@@ -80,14 +79,9 @@ const CreateSystem = ({ project }: Props) => {
     defaultValues: {
       workspaceId: project.workspaceId,
       modelId: project.modelId,
+      projectId: project.id,
       deviceIds: deviceModels.map((_) => ({ value: "" })),
     },
-  });
-
-  const { fields } = useFieldArray({
-    control: form.control,
-    name: "deviceIds",
-    keyName: "id",
   });
 
   if (!devices) {

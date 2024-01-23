@@ -6,11 +6,15 @@ export type SelectHardware = typeof hardware.$inferSelect;
 
 export const insertHardwareSchema = createInsertSchema(hardware);
 
-export const publicInsertDeviceSchema = insertHardwareSchema.pick({
-  name: true,
-  workspaceId: true,
-  modelId: true,
-});
+export const publicInsertDeviceSchema = insertHardwareSchema
+  .pick({
+    name: true,
+    workspaceId: true,
+    modelId: true,
+  })
+  .extend({
+    projectId: z.string().optional(),
+  });
 
 export const publicInsertSystemSchema = publicInsertDeviceSchema.extend({
   deviceIds: z
