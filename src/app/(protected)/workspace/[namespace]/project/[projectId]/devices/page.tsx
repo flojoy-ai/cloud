@@ -5,6 +5,14 @@ import { Separator } from "~/components/ui/separator";
 import CodeBlock from "~/components/code-block";
 import { WorkspaceSecretReminder } from "~/components/workspace-secret-reminder";
 import CreateSystem from "./_components/create-system";
+import { type SelectDeviceModel, type SelectSystemModel } from "~/types/model";
+import { type SelectProject } from "~/types/project";
+
+const isSystemProject = (
+  project: SelectProject & { model: SelectSystemModel | SelectDeviceModel },
+): project is SelectProject & { model: SelectSystemModel } => {
+  return project.model.type === "system";
+};
 
 const DevicesView = async ({
   params,
@@ -53,10 +61,7 @@ client.delete_device_by_id("DEVICE_ID")
         </p>
       </div>
       <Separator className="my-6" />
-      {project.model.type === "system" ? (
-        // FIXME: Nested discriminated union does not work properly as of now,
-        // waiting for zod to implement z.switch
-        // @ts-expect-error https://github.com/colinhacks/zod/issues/2106
+      {isSystemProject(project) ? (
         <CreateSystem project={project} />
       ) : (
         <CreateDevice project={project} />
