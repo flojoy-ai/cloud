@@ -1,10 +1,10 @@
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
-import { and, eq, getTableColumns, inArray } from "drizzle-orm";
+import { and, eq, getTableColumns, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import { checkWorkspaceAccess } from "~/lib/auth";
 import { partsFrom } from "~/lib/query";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
-import { type db } from "~/server/db";
+import { db } from "~/server/db";
 import {
   deviceModel,
   model,
@@ -180,10 +180,11 @@ export const modelRouter = createTRPCRouter({
     )
     .output(z.array(selectModelSchema))
     .use(workspaceAccessMiddleware)
-    .query(async ({ ctx, input }) => {
-      return await ctx.db.query.model.findMany({
-        where: () => eq(model.workspaceId, input.workspaceId),
-      });
+    .query(async ({ input }) => {
+      const deviceModels = await getDeviceModels(input.workspaceId);
+      const systemModels = await getSystemModels(input.workspaceId);
+
+      return [...deviceModels, ...systemModels];
     }),
 
   getAllDeviceModels: workspaceProcedure
@@ -197,14 +198,8 @@ export const modelRouter = createTRPCRouter({
     )
     .output(z.array(selectDeviceModelSchema))
     .use(workspaceAccessMiddleware)
-    .query(async ({ ctx, input }) => {
-      return await ctx.db
-        .select({
-          ...getTableColumns(model),
-        })
-        .from(model)
-        .innerJoin(deviceModel, eq(deviceModel.id, model.id))
-        .where(eq(model.workspaceId, input.workspaceId));
+    .query(async ({ input }) => {
+      return await getDeviceModels(input.workspaceId);
     }),
 
   getAllSystemModels: workspaceProcedure
@@ -218,34 +213,46 @@ export const modelRouter = createTRPCRouter({
     )
     .output(z.array(selectSystemModelSchema))
     .use(workspaceAccessMiddleware)
-    .query(async ({ ctx, input }) => {
-      const sq = ctx.db
-        .select({ id: model.id, name: model.name })
-        .from(model)
-        .innerJoin(deviceModel, eq(deviceModel.id, model.id))
-        .as("sq");
-
-      return await ctx.db
-        .select({
-          ...getTableColumns(model),
-          parts: partsFrom(
-            deviceModel.id,
-            sq.name,
-            systemModelDeviceModel.count,
-          ),
-        })
-        .from(model)
-        .innerJoin(systemModel, eq(systemModel.id, model.id))
-        .innerJoin(
-          systemModelDeviceModel,
-          eq(systemModel.id, systemModelDeviceModel.systemModelId),
-        )
-        .innerJoin(
-          deviceModel,
-          eq(deviceModel.id, systemModelDeviceModel.deviceModelId),
-        )
-        .leftJoin(sq, eq(sq.id, deviceModel.id))
-        .groupBy(model.id)
-        .where(eq(model.workspaceId, input.workspaceId));
+    .query(async ({ input }) => {
+      return await getSystemModels(input.workspaceId);
     }),
 });
+
+async function getDeviceModels(workspaceId: string) {
+  return await db
+    .select({
+      type: sql<"device">`'device'`.as("type"),
+      ...getTableColumns(model),
+    })
+    .from(model)
+    .innerJoin(deviceModel, eq(deviceModel.id, model.id))
+    .where(eq(model.workspaceId, workspaceId));
+}
+
+async function getSystemModels(workspaceId: string) {
+  const sq = db
+    .select({ id: model.id, name: model.name })
+    .from(model)
+    .innerJoin(deviceModel, eq(deviceModel.id, model.id))
+    .as("sq");
+
+  return await db
+    .select({
+      ...getTableColumns(model),
+      type: sql<"system">`'system'`.as("type"),
+      parts: partsFrom(deviceModel.id, sq.name, systemModelDeviceModel.count),
+    })
+    .from(model)
+    .innerJoin(systemModel, eq(systemModel.id, model.id))
+    .innerJoin(
+      systemModelDeviceModel,
+      eq(systemModel.id, systemModelDeviceModel.systemModelId),
+    )
+    .innerJoin(
+      deviceModel,
+      eq(deviceModel.id, systemModelDeviceModel.deviceModelId),
+    )
+    .leftJoin(sq, eq(sq.id, deviceModel.id))
+    .groupBy(model.id)
+    .where(eq(model.workspaceId, workspaceId));
+}

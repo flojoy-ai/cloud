@@ -105,6 +105,13 @@ export const modelColumns: ColumnDef<SelectModel>[] = [
   {
     accessorKey: "parts",
     header: "Parts",
+    cell: ({ row }) => {
+      if (row.original.type === "device") {
+        return undefined;
+      }
+
+      return row.original.parts.map((p) => `${p.name} x${p.count}`).join("\n");
+    },
   },
   {
     id: "actions",
