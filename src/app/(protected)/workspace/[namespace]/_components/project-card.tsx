@@ -34,7 +34,7 @@ export default async function ProjectCard({
     <ContextMenu>
       <ContextMenuTrigger>
         <Link
-          href={`/workspace/${workspace.namespace}/project/${project.id}/devices`}
+          href={`/workspace/${workspace.namespace}/project/${project.id}/hardwares`}
         >
           <Card className="transition-all duration-300 hover:bg-secondary/80">
             <CardHeader>
