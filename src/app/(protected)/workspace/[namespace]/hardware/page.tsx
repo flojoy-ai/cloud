@@ -23,6 +23,9 @@ export default async function HardwareInventory({
   const deviceModels = await api.model.getAllDeviceModels.query({
     workspaceId,
   });
+  const systemModels = await api.model.getAllSystemModels.query({
+    workspaceId,
+  });
   const models = await api.model.getAllModels.query({
     workspaceId,
   });

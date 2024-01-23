@@ -34,10 +34,10 @@ export const WorkspaceNav = ({ workspaces }: Props) => {
             Projects
           </Link>
           <Link
-            href={`/workspace/${namespace}/device`}
+            href={`/workspace/${namespace}/hardware`}
             className={cn(
               "transition-colors hover:text-foreground/80",
-              pathname === `/workspace/${namespace}/device`
+              pathname === `/workspace/${namespace}/hardware`
                 ? "text-foreground underline underline-offset-8"
                 : "text-foreground/60",
             )}
