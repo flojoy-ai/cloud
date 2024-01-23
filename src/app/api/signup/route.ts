@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 import type { NextRequest } from "next/server";
 import { z } from "zod";
-import { DatabaseError } from "@neondatabase/serverless";
+import { type DatabaseError } from "@neondatabase/serverless";
 import { generateEmailVerificationToken } from "~/lib/token";
 import { sendEmailVerificationLink } from "~/lib/email";
 
@@ -71,13 +71,15 @@ export const POST = async (request: NextRequest) => {
       },
       status: 302,
     });
-  } catch (e) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (e: any) {
     // this part depends on the database you're using
     // check for unique constraint error in user table
+
     if (
-      e instanceof DatabaseError &&
-      e.message ===
-        'duplicate key value violates unique constraint "flojoy_user_email_unique"'
+      (e as DatabaseError).message.includes(
+        "duplicate key value violates unique constraint",
+      )
     ) {
       return NextResponse.json(
         {
@@ -91,7 +93,7 @@ export const POST = async (request: NextRequest) => {
 
     return NextResponse.json(
       {
-        error: "An unknown error occurred",
+        error: "An unknown error occurred: " + String(e),
       },
       {
         status: 500,

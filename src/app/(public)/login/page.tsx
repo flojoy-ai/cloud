@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Icons } from "~/components/icons";
 import TermsAndPrivacy from "~/components/terms-and-privacy";
 import { Button } from "~/components/ui/button";
+import EmailPassFields from "~/components/emailPassFields";
 
 export default async function LogIn() {
   return (
@@ -12,11 +13,8 @@ export default async function LogIn() {
             <h1 className="text-2xl font-semibold tracking-tight">
               Log in to your account
             </h1>
-            {/* <p className="text-muted-foreground text-sm"> */}
-            {/*   Enter your email below to create your account */}
-            {/* </p> */}
           </div>
-
+          <EmailPassFields login />
           <Button asChild>
             <Link href="/login/google" className="flex gap-2">
               <Icons.google className="h-4 w-4" />

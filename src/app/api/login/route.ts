@@ -1,6 +1,5 @@
 // app/api/login/route.ts
 import { auth } from "~/auth/lucia";
-import * as context from "next/headers";
 import { NextResponse } from "next/server";
 import { LuciaError } from "lucia";
 
