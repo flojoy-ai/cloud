@@ -11,7 +11,6 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { type ColumnDef } from "@tanstack/react-table";
-import { useEffect, useState } from "react";
 import { type SelectHardware } from "~/types/hardware";
 import { toast } from "sonner";
 import { type SelectModel } from "~/types/model";
@@ -20,34 +19,34 @@ import { Badge } from "../ui/badge";
 export const deviceColumns: ColumnDef<SelectHardware>[] = [
   {
     accessorKey: "name",
-    header: "Name",
+    header: "Hardware Name",
   },
-  {
-    accessorKey: "createdAt",
-    header: "Created At",
-    cell: ({ row }) => {
-      const [mounted, setMounted] = useState(false);
-      useEffect(() => {
-        setMounted(true);
-      }, []);
-      if (mounted) {
-        return row.original.createdAt.toLocaleString();
-      }
-    },
-  },
-  {
-    accessorKey: "updatedAt",
-    header: "Updated At",
-    cell: ({ row }) => {
-      const [mounted, setMounted] = useState(false);
-      useEffect(() => {
-        setMounted(true);
-      }, []);
-      if (mounted) {
-        return row.original.updatedAt?.toLocaleString() ?? "Never";
-      }
-    },
-  },
+  // {
+  //   accessorKey: "createdAt",
+  //   header: "Created At",
+  //   cell: ({ row }) => {
+  //     const [mounted, setMounted] = useState(false);
+  //     useEffect(() => {
+  //       setMounted(true);
+  //     }, []);
+  //     if (mounted) {
+  //       return row.original.createdAt.toLocaleString();
+  //     }
+  //   },
+  // },
+  // {
+  //   accessorKey: "updatedAt",
+  //   header: "Updated At",
+  //   cell: ({ row }) => {
+  //     const [mounted, setMounted] = useState(false);
+  //     useEffect(() => {
+  //       setMounted(true);
+  //     }, []);
+  //     if (mounted) {
+  //       return row.original.updatedAt?.toLocaleString() ?? "Never";
+  //     }
+  //   },
+  // },
 
   {
     id: "actions",
