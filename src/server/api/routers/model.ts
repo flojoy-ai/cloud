@@ -219,12 +219,18 @@ export const modelRouter = createTRPCRouter({
     .output(z.array(selectSystemModelSchema))
     .use(workspaceAccessMiddleware)
     .query(async ({ ctx, input }) => {
+      const sq = ctx.db
+        .select({ id: model.id, name: model.name })
+        .from(model)
+        .innerJoin(deviceModel, eq(deviceModel.id, model.id))
+        .as("sq");
+
       return await ctx.db
         .select({
           ...getTableColumns(model),
           parts: partsFrom(
             deviceModel.id,
-            model.name,
+            sq.name,
             systemModelDeviceModel.count,
           ),
         })
@@ -238,6 +244,7 @@ export const modelRouter = createTRPCRouter({
           deviceModel,
           eq(deviceModel.id, systemModelDeviceModel.deviceModelId),
         )
+        .leftJoin(sq, eq(sq.id, deviceModel.id))
         .groupBy(model.id)
         .where(eq(model.workspaceId, input.workspaceId));
     }),
