@@ -100,16 +100,21 @@ const CreateModel = ({ workspaceId, deviceModels }: Props) => {
   }, [isDialogOpen]);
 
   function onSubmit(values: FormSchema) {
-    toast.promise(
-      values.type === "device"
-        ? createDeviceModel.mutateAsync(values)
-        : createSystemModel.mutateAsync(values),
-      {
+    if (values.type === "device") {
+      toast.promise(createDeviceModel.mutateAsync(values), {
         loading: "Creating your model...",
         success: "Model created.",
         error: "Something went wrong :(",
-      },
-    );
+      });
+    }
+
+    if (values.type === "system") {
+      toast.promise(createSystemModel.mutateAsync(values), {
+        loading: "Creating your model...",
+        success: "Model created.",
+        error: "Something went wrong :(",
+      });
+    }
   }
 
   return (
@@ -124,27 +129,21 @@ const CreateModel = ({ workspaceId, deviceModels }: Props) => {
         <DialogHeader>
           <DialogTitle>Register a new hardware model</DialogTitle>
           <DialogDescription>
-            Which hardware device of yours do you want to register?
+            What is the hardware model you are working with?
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Hardware Model Name</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="New Board Type"
-                      {...field}
-                      data-1p-ignore
-                    />
+                    <Input placeholder="M1234" {...field} data-1p-ignore />
                   </FormControl>
-                  <FormDescription>
-                    What is the name of your hardware model?
-                  </FormDescription>
+                  <FormDescription></FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -154,7 +153,7 @@ const CreateModel = ({ workspaceId, deviceModels }: Props) => {
               name="type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Type</FormLabel>
+                  <FormLabel>Hardware Model Type</FormLabel>
                   <FormControl>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger className="w-[180px]">
@@ -167,19 +166,24 @@ const CreateModel = ({ workspaceId, deviceModels }: Props) => {
                     </Select>
                   </FormControl>
                   <FormDescription>
-                    A <b>device</b> is a standalone hardware device.
-                    <br />A <b>system</b> is a hardware device composed of other
-                    hardware devices.
+                    A <b>device</b> is a standalone hardware device made up of
+                    just itself. A <b>system</b> is a set of interconnected{" "}
+                    <b>devices</b> together.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
             {form.watch("type") === "system" && (
-              <>
-                <Label>Parts</Label>
+              <div className="space-y-2">
+                <FormLabel className="">System Components</FormLabel>
+                <FormDescription>
+                  You can pick the components that make up this system from
+                  existing device models. This will help you build the
+                  'blueprint' of the system.
+                </FormDescription>
                 {fields.map((field, index) => (
-                  <div className="flex pb-4" key={field.modelId}>
+                  <div className="flex gap-2 " key={field.modelId}>
                     <FormField
                       control={form.control}
                       key={field.modelId}
@@ -218,7 +222,7 @@ const CreateModel = ({ workspaceId, deviceModels }: Props) => {
                               {...field}
                               type="number"
                               min={1}
-                              className="ml-2 w-20"
+                              className="w-20"
                               {...form.register(
                                 `parts.${index}.count` as const,
                                 {
@@ -233,19 +237,7 @@ const CreateModel = ({ workspaceId, deviceModels }: Props) => {
                     />
                     <Button
                       type="button"
-                      onClick={() =>
-                        insert(index + 1, { modelId: "", count: 1 })
-                      }
-                      className="mt-auto px-2"
-                      size="icon"
-                      variant="ghost"
-                    >
-                      <Plus size={20} className="stroke-muted-foreground" />
-                    </Button>
-                    <Button
-                      type="button"
                       onClick={() => handleRemove(index)}
-                      className="mt-auto px-2"
                       size="icon"
                       variant="ghost"
                     >
@@ -253,7 +245,22 @@ const CreateModel = ({ workspaceId, deviceModels }: Props) => {
                     </Button>
                   </div>
                 ))}
-              </>
+                <Button
+                  type="button"
+                  onClick={() =>
+                    insert(fields.length, { modelId: "", count: 1 })
+                  }
+                  variant="secondary"
+                  size="sm"
+                >
+                  <Plus size={16} className="mr-2" /> Add Component
+                </Button>
+                <FormDescription>
+                  When you try to initialize an system instance based on this
+                  model, then you first need to make sure all its components
+                  exist.
+                </FormDescription>
+              </div>
             )}
             <DialogFooter>
               <DialogClose asChild>

@@ -33,7 +33,7 @@ export default async function HardwareInventory({
         <PageHeaderHeading>Hardware Inventory</PageHeaderHeading>
         <PageHeaderDescription>
           Here you can find all your registered devices and systems in this
-          workspace.
+          workspace. <br />
         </PageHeaderDescription>
       </PageHeader>
       <div className="py-4" />

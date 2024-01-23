@@ -95,7 +95,8 @@ export default function NewProjectButton({ workspace, models }: Props) {
           <DialogHeader>
             <DialogTitle>Create your new project</DialogTitle>
             <DialogDescription>
-              Your project is the home for all your tests.
+              A project is a collection of device instances that share a common
+              set of tests.
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
@@ -156,7 +157,14 @@ export default function NewProjectButton({ workspace, models }: Props) {
                       )}
                     </FormControl>
                     <FormDescription>
-                      What hardware model is this project testing?
+                      What hardware model is this project testing? <br /> Don't
+                      have a hardware model yet?{" "}
+                      <Link
+                        href="/workspace"
+                        className="underline hover:text-primary"
+                      >
+                        Register one here.
+                      </Link>
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

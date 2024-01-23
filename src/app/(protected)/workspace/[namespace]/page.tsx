@@ -46,10 +46,9 @@ project = client.get_all_projects_by_workspace_id("${workspace.id}")
       <PageHeader>
         <PageHeaderHeading className="">Projects</PageHeaderHeading>
         <PageHeaderDescription>
-          Here you can find all the projects in the {workspace.name} workspace.{" "}
-          <br />
-          Each project should host a single type of board with all its hardware
-          instances.
+          A project is a collection of device instances that share the same
+          hardware model. All device instances in a project will undergo the
+          same set of tests.
         </PageHeaderDescription>
       </PageHeader>
       <div className="py-4"></div>
@@ -70,6 +69,7 @@ project = client.get_all_projects_by_workspace_id("${workspace.id}")
             <ProjectCard
               key={project.id}
               project={project}
+              models={models}
               workspace={workspace}
             />
           ))}
