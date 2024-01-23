@@ -42,7 +42,7 @@ export const WorkspaceNav = ({ workspaces }: Props) => {
                 : "text-foreground/60",
             )}
           >
-            Device Inventory
+            Hardware Inventory
           </Link>
 
           <Link

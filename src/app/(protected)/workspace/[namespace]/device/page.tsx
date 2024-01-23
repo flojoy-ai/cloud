@@ -8,7 +8,7 @@ import {
 import { api } from "~/trpc/server";
 import CreateModel from "./_components/create-model";
 
-export default async function DeviceInventory({
+export default async function HardwareInventory({
   params,
 }: {
   params: { namespace: string };
@@ -30,9 +30,10 @@ export default async function DeviceInventory({
   return (
     <div className="container max-w-screen-2xl">
       <PageHeader>
-        <PageHeaderHeading>Device Inventory</PageHeaderHeading>
+        <PageHeaderHeading>Hardware Inventory</PageHeaderHeading>
         <PageHeaderDescription>
-          Here you can find all your registered devices in this workspace.
+          Here you can find all your registered devices and systems in this
+          workspace.
         </PageHeaderDescription>
       </PageHeader>
       <div className="py-4" />
