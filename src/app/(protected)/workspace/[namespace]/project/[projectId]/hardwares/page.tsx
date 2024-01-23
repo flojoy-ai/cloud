@@ -1,7 +1,7 @@
 import { api } from "~/trpc/server";
 import { Badge } from "~/components/ui/badge";
 import CreateDevice from "./_components/create-device";
-import AllDevices from "./_components/all-devices";
+import AllHardwares from "./_components/all-devices";
 import { Separator } from "~/components/ui/separator";
 // import CodeBlock from "~/components/code-block";
 // import { WorkspaceSecretReminder } from "~/components/workspace-secret-reminder";
@@ -26,6 +26,11 @@ const DevicesView = async ({
 
   const project = await api.project.getProjectById.query({
     projectId: params.projectId,
+  });
+
+  const hardwares = await api.hardware.getAllHardware.query({
+    workspaceId,
+    projectId: project.id,
   });
 
   //   const code = `from flojoy.cloud import FlojoyCloud
@@ -77,9 +82,10 @@ const DevicesView = async ({
       </div>
 
       <div className="py-2"></div>
-      <AllDevices
-        project={project}
+      <AllHardwares
+        hardwares={hardwares}
         workspaceId={workspaceId}
+        projectId={project.id}
         namespace={params.namespace}
       />
 
