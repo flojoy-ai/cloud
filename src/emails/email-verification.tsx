@@ -61,7 +61,7 @@ export const EmailVerification = ({ verificationLink }: Props) => (
           </Text>
           <Text>
             <div className="flex items-center gap-2">
-              <Link href="https://cloud.flojoy.ai">
+              <Link href={env.NEXT_PUBLIC_URL_ORIGIN}>
                 <Img
                   src="https://cloud.flojoy.ai/logo.png"
                   alt="Flojoy Logo"
