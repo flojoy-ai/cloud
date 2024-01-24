@@ -234,6 +234,7 @@ async function getSystemModels(workspaceId: string) {
     .select({ id: model.id, name: model.name })
     .from(model)
     .innerJoin(deviceModel, eq(deviceModel.id, model.id))
+    .where(eq(model.workspaceId, workspaceId))
     .as("sq");
 
   return await db

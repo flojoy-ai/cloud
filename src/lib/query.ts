@@ -1,5 +1,5 @@
 import { sql, type Column, eq } from "drizzle-orm";
-import { type SystemPart } from "~/types/model";
+import { type SystemModelPart } from "~/types/model";
 import { db } from "~/server/db";
 import {
   deviceModel,
@@ -10,7 +10,7 @@ import {
 
 export function partsFrom(modelId: Column, name: Column, count: Column) {
   return sql<
-    SystemPart[]
+    SystemModelPart[]
   >`json_agg(json_build_object('modelId', ${modelId}, 'name', ${name}, 'count', ${count}))`;
 }
 
@@ -35,7 +35,7 @@ export async function getSystemModelParts(modelId: string) {
       deviceModel,
       eq(deviceModel.id, systemModelDeviceModel.deviceModelId),
     )
-    .leftJoin(sq, eq(sq.id, deviceModel.id))
+    .innerJoin(sq, eq(sq.id, deviceModel.id))
     .groupBy(systemModel.id)
     .where(eq(model.id, modelId));
 

@@ -108,6 +108,19 @@ const CreateModel = ({ workspaceId, deviceModels }: Props) => {
     }
 
     if (values.type === "system") {
+      let hasError = false;
+      for (let i = 0; i < values.parts.length; i++) {
+        if (values.parts[i]?.modelId === "") {
+          form.setError(`parts.${i}.modelId` as const, {
+            message: "Cannot have empty component model",
+          });
+          hasError = true;
+        }
+      }
+      if (hasError) {
+        return;
+      }
+
       toast.promise(createSystemModel.mutateAsync(values), {
         loading: "Creating your model...",
         success: "Model created.",
@@ -121,7 +134,7 @@ const CreateModel = ({ workspaceId, deviceModels }: Props) => {
       <DialogTrigger asChild>
         <Button variant="default" size="sm">
           <Cpu className="mr-2 text-muted" size={20} />
-          Create Model
+          Create
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">

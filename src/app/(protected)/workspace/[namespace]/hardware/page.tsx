@@ -1,4 +1,9 @@
-import { deviceColumns, modelColumns } from "~/components/device/columns";
+import {
+  deviceColumns,
+  deviceModelColumns,
+  systemColumns,
+  systemModelColumns,
+} from "~/components/device/columns";
 import { DataTable } from "~/components/device/data-table";
 import {
   PageHeader,
@@ -17,9 +22,13 @@ export default async function HardwareInventory({
     namespace: params.namespace,
   });
 
-  const hardware = await api.hardware.getAllHardware.query({
+  const devices = await api.hardware.getAllDevices.query({
     workspaceId,
   });
+  const systems = await api.hardware.getAllSystems.query({
+    workspaceId,
+  });
+
   const deviceModels = await api.model.getAllDeviceModels.query({
     workspaceId,
   });
@@ -38,19 +47,28 @@ export default async function HardwareInventory({
       </PageHeader>
       <div className="py-4" />
 
-      <h1 className="text-xl font-bold">Models</h1>
+      <h1 className="text-2xl font-bold">Models</h1>
       <div className="py-1" />
       <CreateModel workspaceId={workspaceId} deviceModels={deviceModels} />
+      <div className="py-4" />
+      <h1 className="text-lg font-bold text-muted-foreground">Device Models</h1>
       <div className="py-2" />
-      <DataTable
-        columns={modelColumns}
-        data={[...deviceModels, ...systemModels]}
-      />
+      <DataTable columns={deviceModelColumns} data={deviceModels} />
+      <div className="py-4" />
+      <h1 className="text-lg font-bold text-muted-foreground">System Models</h1>
+      <div className="py-2" />
+      <DataTable columns={systemModelColumns} data={systemModels} />
       <div className="py-4" />
 
-      <h1 className="text-xl font-bold">Hardware Instances</h1>
+      <h1 className="text-2xl font-bold">Hardware Instances</h1>
       <div className="py-1" />
-      <DataTable columns={deviceColumns} data={hardware} />
+      <h1 className="text-lg font-bold text-muted-foreground">Devices</h1>
+      <div className="py-2" />
+      <DataTable columns={deviceColumns} data={devices} />
+      <div className="py-4" />
+      <h1 className="text-lg font-bold text-muted-foreground">Systems</h1>
+      <div className="py-2" />
+      <DataTable columns={systemColumns} data={systems} />
       <div className="py-4" />
     </div>
   );

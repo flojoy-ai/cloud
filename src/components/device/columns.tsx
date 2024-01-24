@@ -11,101 +11,92 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { type ColumnDef } from "@tanstack/react-table";
-import { type SelectHardware } from "~/types/hardware";
+import { type SelectSystem, type SelectDevice } from "~/types/hardware";
 import { toast } from "sonner";
-import { type SelectModel } from "~/types/model";
+import {
+  type SelectSystemModel,
+  type SelectDeviceModel,
+  type SelectModel,
+} from "~/types/model";
 import { Badge } from "../ui/badge";
+import _ from "lodash";
 
-export const deviceColumns: ColumnDef<SelectHardware>[] = [
+type ActionsProps = {
+  elem: { id: string };
+  children?: React.ReactNode;
+};
+
+const Actions = ({ elem, children }: ActionsProps) => {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-8 w-8 p-0">
+          <span className="sr-only">Open menu</span>
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DropdownMenuItem
+          onClick={() =>
+            toast.promise(navigator.clipboard.writeText(elem.id), {
+              success: "Copied to clipboard",
+              error: "Something went wrong :(",
+            })
+          }
+        >
+          Copy ID
+        </DropdownMenuItem>
+        {children}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
+export const deviceColumns: ColumnDef<SelectDevice>[] = [
   {
     accessorKey: "name",
-    header: "Hardware Name",
+    header: "Device Name",
   },
-  // {
-  //   accessorKey: "createdAt",
-  //   header: "Created At",
-  //   cell: ({ row }) => {
-  //     const [mounted, setMounted] = useState(false);
-  //     useEffect(() => {
-  //       setMounted(true);
-  //     }, []);
-  //     if (mounted) {
-  //       return row.original.createdAt.toLocaleString();
-  //     }
-  //   },
-  // },
-  // {
-  //   accessorKey: "updatedAt",
-  //   header: "Updated At",
-  //   cell: ({ row }) => {
-  //     const [mounted, setMounted] = useState(false);
-  //     useEffect(() => {
-  //       setMounted(true);
-  //     }, []);
-  //     if (mounted) {
-  //       return row.original.updatedAt?.toLocaleString() ?? "Never";
-  //     }
-  //   },
-  // },
-
+  {
+    accessorKey: "model",
+    header: "Model",
+    cell: ({ row }) => {
+      return <Badge>{row.original.model.name}</Badge>;
+    },
+  },
   {
     id: "actions",
-    cell: ({ row }) => {
-      const device = row.original;
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() =>
-                toast.promise(navigator.clipboard.writeText(device.id), {
-                  success: "Copied to clipboard",
-                  error: "Something went wrong :(",
-                })
-              }
-            >
-              Copy hardware ID
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
+    cell: ({ row }) => <Actions elem={row.original} />,
   },
 ];
 
-export const modelColumns: ColumnDef<SelectModel>[] = [
+export const systemColumns: ColumnDef<SelectSystem>[] = [
   {
     accessorKey: "name",
-    header: "Model Name",
-    cell: ({ row }) => {
-      return <Badge>{row.original.name}</Badge>;
-    },
+    header: "System Name",
   },
   {
-    accessorKey: "type",
-    header: "Model Type",
+    accessorKey: "model",
+    header: "Model",
+    cell: ({ row }) => {
+      return <Badge>{row.original.model.name}</Badge>;
+    },
   },
   {
     accessorKey: "parts",
     header: "Components",
     cell: ({ row }) => {
-      if (row.original.type === "device") {
-        return "N/A";
-      }
+      const byModel = _.groupBy(row.original.parts, (p) => p.model.name);
 
       return (
         <div className="flex flex-col gap-2">
-          {row.original.parts.map((p) => (
-            <div className="flex gap-2" key={p.name}>
-              <Badge>{p.name}</Badge>
-              <div>x{p.count}</div>
+          {Object.entries(byModel).map(([modelName, devices]) => (
+            <div>
+              <Badge className="mb-1">{modelName}</Badge>
+              {devices.map((d) => (
+                <div key={d.id}>{d.name}</div>
+              ))}
             </div>
           ))}
         </div>
@@ -114,32 +105,50 @@ export const modelColumns: ColumnDef<SelectModel>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => {
-      const device = row.original;
+    cell: ({ row }) => <Actions elem={row.original} />,
+  },
+];
 
+export const deviceModelColumns: ColumnDef<SelectDeviceModel>[] = [
+  {
+    accessorKey: "name",
+    header: "Model Name",
+    cell: ({ row }) => {
+      return <Badge>{row.original.name}</Badge>;
+    },
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => <Actions elem={row.original} />,
+  },
+];
+
+export const systemModelColumns: ColumnDef<SelectSystemModel>[] = [
+  {
+    accessorKey: "name",
+    header: "Model Name",
+    cell: ({ row }) => {
+      return <Badge>{row.original.name}</Badge>;
+    },
+  },
+  {
+    accessorKey: "parts",
+    header: "Components",
+    cell: ({ row }) => {
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() =>
-                toast.promise(navigator.clipboard.writeText(device.id), {
-                  success: "Copied to clipboard",
-                  error: "Something went wrong :(",
-                })
-              }
-            >
-              Copy model ID
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex flex-col gap-2">
+          {row.original.parts.map((p) => (
+            <div className="flex gap-2" key={p.name}>
+              <Badge>{p.name}</Badge>
+              <div className="font-medium">x{p.count}</div>
+            </div>
+          ))}
+        </div>
       );
     },
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => <Actions elem={row.original} />,
   },
 ];

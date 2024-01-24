@@ -1,8 +1,7 @@
 import { hardware } from "~/server/db/schema";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
-
-export type SelectHardware = typeof hardware.$inferSelect;
+import { selectModelBaseSchema } from "./model";
 
 export const insertHardwareSchema = createInsertSchema(hardware);
 
@@ -31,4 +30,31 @@ export const publicInsertSystemSchema = publicInsertDeviceSchema.extend({
     }),
 });
 
-export const selectHardwareSchema = createSelectSchema(hardware);
+export const systemPartSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  model: selectModelBaseSchema,
+});
+
+export const selectHardwareBaseSchema = createSelectSchema(hardware).extend({
+  model: selectModelBaseSchema,
+});
+
+export const selectDeviceSchema = selectHardwareBaseSchema.extend({
+  type: z.literal("device").default("device"),
+});
+
+export const selectSystemSchema = selectHardwareBaseSchema.extend({
+  type: z.literal("system").default("system"),
+  parts: z.array(systemPartSchema),
+});
+
+export const selectHardwareSchema = z.union([
+  selectDeviceSchema,
+  selectSystemSchema,
+]);
+
+export type SelectSystem = z.infer<typeof selectSystemSchema>;
+export type SelectDevice = z.infer<typeof selectDeviceSchema>;
+export type SelectHardware = z.infer<typeof selectHardwareSchema>;
+export type SystemPart = z.infer<typeof systemPartSchema>;

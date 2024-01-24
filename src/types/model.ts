@@ -9,15 +9,15 @@ export const publicInsertDeviceModelSchema = insertModelSchema.pick({
   workspaceId: true,
 });
 
-export const systemPartSchema = z.object({
-  modelId: z.string().min(1),
+export const systemModelPartSchema = z.object({
+  modelId: z.string(),
   name: z.string(),
   count: z.number().min(1),
 });
 
 export const publicInsertSystemModelSchema =
   publicInsertDeviceModelSchema.extend({
-    parts: z.array(systemPartSchema.omit({ name: true })),
+    parts: z.array(systemModelPartSchema.omit({ name: true })),
   });
 
 export const selectModelBaseSchema = createSelectSchema(model);
@@ -28,7 +28,7 @@ export const selectDeviceModelSchema = selectModelBaseSchema.extend({
 
 export const selectSystemModelSchema = selectModelBaseSchema.extend({
   type: z.literal("system").default("system"),
-  parts: z.array(systemPartSchema),
+  parts: z.array(systemModelPartSchema),
 });
 
 export const selectModelSchema = z.union([
@@ -39,4 +39,4 @@ export const selectModelSchema = z.union([
 export type SelectSystemModel = z.infer<typeof selectSystemModelSchema>;
 export type SelectDeviceModel = z.infer<typeof selectDeviceModelSchema>;
 export type SelectModel = z.infer<typeof selectModelSchema>;
-export type SystemPart = z.infer<typeof systemPartSchema>;
+export type SystemModelPart = z.infer<typeof systemModelPartSchema>;
