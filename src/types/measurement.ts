@@ -18,7 +18,6 @@ export const publicInsertMeasurementSchema = insertMeasurementSchema.pick({
   name: true,
   data: true,
   hardwareId: true,
-  measurementType: true,
   testId: true,
   createdAt: true,
 });
