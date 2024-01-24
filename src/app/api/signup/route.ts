@@ -6,6 +6,7 @@ import { z } from "zod";
 import { type DatabaseError } from "@neondatabase/serverless";
 import { generateEmailVerificationToken } from "~/lib/token";
 import { sendEmailVerificationLink } from "~/lib/email";
+import { env } from "~/env";
 
 export const POST = async (request: NextRequest) => {
   const formData = await request.formData();
@@ -60,7 +61,7 @@ export const POST = async (request: NextRequest) => {
 
     const token = await generateEmailVerificationToken(user.userId);
 
-    const verificationLink = request.nextUrl.origin + "/api/email/" + token;
+    const verificationLink = env.URL_ORIGIN + "/api/email/" + token;
     await sendEmailVerificationLink(session.user.email, verificationLink);
 
     const sessionCookie = auth.createSessionCookie(session);
