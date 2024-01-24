@@ -33,7 +33,6 @@ import {
   selectHardwareBaseSchema,
 } from "~/types/hardware";
 import { selectMeasurementSchema } from "~/types/measurement";
-import { selectTestSchema } from "~/types/test";
 import { workspaceAccessMiddleware } from "./workspace";
 
 export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
@@ -78,7 +77,7 @@ export const hardwareRouter = createTRPCRouter({
     .meta({
       openapi: {
         method: "POST",
-        path: "/v1/hardware/device",
+        path: "/v1/hardware/devices",
         tags: ["hardware", "device"],
       },
     })
@@ -147,7 +146,7 @@ export const hardwareRouter = createTRPCRouter({
     .meta({
       openapi: {
         method: "POST",
-        path: "/v1/hardware/system",
+        path: "/v1/hardware/systems",
         tags: ["hardware", "system"],
       },
     })
@@ -282,7 +281,6 @@ export const hardwareRouter = createTRPCRouter({
           measurements: z.array(
             selectMeasurementSchema.merge(
               z.object({
-                test: selectTestSchema,
                 hardware: selectHardwareSchema,
               }),
             ),
@@ -345,7 +343,7 @@ export const hardwareRouter = createTRPCRouter({
     .meta({
       openapi: {
         method: "GET",
-        path: "/v1/hardware/device",
+        path: "/v1/hardware/devices",
         tags: ["hardware"],
       },
     })
@@ -370,7 +368,7 @@ export const hardwareRouter = createTRPCRouter({
     .meta({
       openapi: {
         method: "GET",
-        path: "/v1/hardware/system",
+        path: "/v1/hardware/systems",
         tags: ["hardware"],
       },
     })
