@@ -15,6 +15,14 @@ export const publicInsertDeviceSchema = insertHardwareSchema
     projectId: z.string().optional(),
   });
 
+export const publicUpdateDeviceSchema = insertHardwareSchema
+  .pick({
+    name: true,
+  })
+  .extend({
+    hardwareId: z.string(),
+  });
+
 export const publicInsertSystemSchema = publicInsertDeviceSchema.extend({
   deviceIds: z
     .string()
@@ -29,6 +37,8 @@ export const publicInsertSystemSchema = publicInsertDeviceSchema.extend({
       }
     }),
 });
+
+export const publicUpdateSystemSchema = publicUpdateDeviceSchema.extend({});
 
 export const systemPartSchema = z.object({
   id: z.string(),

@@ -31,6 +31,8 @@ import {
   selectDeviceSchema,
   selectSystemSchema,
   selectHardwareBaseSchema,
+  publicUpdateDeviceSchema,
+  publicUpdateSystemSchema,
 } from "~/types/hardware";
 import { selectMeasurementSchema } from "~/types/measurement";
 import { workspaceAccessMiddleware } from "./workspace";
@@ -264,7 +266,6 @@ export const hardwareRouter = createTRPCRouter({
       });
     }),
 
-  // TODO: Figure out what to do with this route
   getHardwareById: workspaceProcedure
     .meta({
       openapi: {
@@ -309,7 +310,7 @@ export const hardwareRouter = createTRPCRouter({
       if (!result) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "Device not found",
+          message: "Hardware not found",
         });
       }
 
@@ -399,7 +400,71 @@ export const hardwareRouter = createTRPCRouter({
       await ctx.db.delete(hardware).where(eq(hardware.id, input.hardwareId));
     }),
 
-  // TODO: Update Hardware
+  updateDeviceById: workspaceProcedure
+    .meta({
+      openapi: {
+        method: "PATCH",
+        path: "/v1/hardware/device/{hardwareId}",
+        tags: ["hardware"],
+      },
+    })
+    .input(publicUpdateDeviceSchema)
+    .use(hardwareAccessMiddleware)
+    .output(z.void())
+    .mutation(async ({ input, ctx }) => {
+      return await ctx.db.transaction(async (tx) => {
+        const [hardwareUpdateResult] = await tx
+          .update(hardware)
+          .set({ name: input.name })
+          .where(eq(hardware.id, input.hardwareId))
+          .returning();
+
+        if (!hardwareUpdateResult) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to update device",
+          });
+        }
+
+        // await tx
+        //   .update(workspace)
+        //   .set({ updatedAt: new Date() })
+        //   .where(eq(workspace.id, input.workspaceId));
+      });
+    }),
+
+  updateSystemById: workspaceProcedure
+    .meta({
+      openapi: {
+        method: "PATCH",
+        path: "/v1/hardware/system/{hardwareId}",
+        tags: ["hardware"],
+      },
+    })
+    .input(publicUpdateSystemSchema)
+    .use(hardwareAccessMiddleware)
+    .output(z.void())
+    .mutation(async ({ input, ctx }) => {
+      return await ctx.db.transaction(async (tx) => {
+        const [hardwareUpdateResult] = await tx
+          .update(hardware)
+          .set({ name: input.name })
+          .where(eq(hardware.id, input.hardwareId))
+          .returning();
+        if (!hardwareUpdateResult) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to update device",
+          });
+        }
+        // await tx
+        //   .update(workspace)
+        //   .set({ updatedAt: new Date() })
+        //   .where(eq(workspace.id, input.workspaceId));
+      });
+    }),
+
+  // TODO: Add update remove system components
 });
 
 async function getAllDevices(

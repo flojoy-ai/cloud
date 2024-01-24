@@ -97,7 +97,7 @@ export const deviceColumns: ColumnDef<SelectDevice>[] = [
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogContent>
-                {/* TODO: Show a list of devices or systems that use this model */}
+                {/* TODO: Show a list of systems that use this device*/}
               </AlertDialogContent>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
@@ -198,9 +198,7 @@ export const systemColumns: ColumnDef<SelectSystem>[] = [
                   <b>will not be removed.</b>
                 </AlertDialogDescription>
               </AlertDialogHeader>
-              <AlertDialogContent>
-                {/* TODO: Show a list of devices or systems that use this model */}
-              </AlertDialogContent>
+              <AlertDialogContent></AlertDialogContent>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction
