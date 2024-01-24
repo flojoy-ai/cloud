@@ -63,7 +63,7 @@ export const modelAccessMiddlware = experimental_standaloneMiddleware<{
 export const modelRouter = createTRPCRouter({
   createDeviceModel: workspaceProcedure
     .meta({
-      openapi: { method: "POST", path: "/v1/models/device", tags: ["model"] },
+      openapi: { method: "POST", path: "/v1/models/devices", tags: ["model"] },
     })
     .input(publicInsertDeviceModelSchema)
     .output(selectDeviceModelSchema)
@@ -98,7 +98,7 @@ export const modelRouter = createTRPCRouter({
 
   createSystemModel: workspaceProcedure
     .meta({
-      openapi: { method: "POST", path: "/v1/models/system", tags: ["model"] },
+      openapi: { method: "POST", path: "/v1/models/systems", tags: ["model"] },
     })
     .input(publicInsertSystemModelSchema)
     .output(selectSystemModelSchema)
@@ -189,7 +189,7 @@ export const modelRouter = createTRPCRouter({
 
   getAllDeviceModels: workspaceProcedure
     .meta({
-      openapi: { method: "GET", path: "/v1/models/device", tags: ["model"] },
+      openapi: { method: "GET", path: "/v1/models/devices", tags: ["model"] },
     })
     .input(
       z.object({
@@ -204,7 +204,7 @@ export const modelRouter = createTRPCRouter({
 
   getAllSystemModels: workspaceProcedure
     .meta({
-      openapi: { method: "GET", path: "/v1/models/system", tags: ["model"] },
+      openapi: { method: "GET", path: "/v1/models/systems", tags: ["model"] },
     })
     .input(
       z.object({
