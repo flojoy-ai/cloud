@@ -20,8 +20,8 @@
     "email:export": "email export -d ./src/emails"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.498.0",
-    "@aws-sdk/client-ses": "^3.498.0",
+    "@aws-sdk/client-s3": "^3.499.0",
+    "@aws-sdk/client-ses": "^3.499.0",
     "@hookform/resolvers": "^3.3.4",
     "@lucia-auth/adapter-postgresql": "^2.0.2",
     "@lucia-auth/oauth": "^3.5.2",
