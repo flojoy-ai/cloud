@@ -30,6 +30,7 @@ export default async function ProjectCard({
   workspace,
   models,
 }: Props) {
+  const model = models.find((model) => model.id === project.modelId);
   return (
     <ContextMenu>
       <ContextMenuTrigger>
@@ -43,10 +44,8 @@ export default async function ProjectCard({
             </CardHeader>
             <CardContent>
               <div className="flex gap-2">
-                <div>Model:</div>
-                <Badge>
-                  {models.find((model) => model.id === project.modelId)?.name}
-                </Badge>
+                <Badge variant="outline">{model?.type}</Badge>
+                <Badge>{model?.name}</Badge>
               </div>
             </CardContent>
             {/* <CardFooter> */}
