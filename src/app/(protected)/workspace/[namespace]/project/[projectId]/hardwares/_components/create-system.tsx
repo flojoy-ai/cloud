@@ -14,6 +14,7 @@ import {
   FormLabel,
   FormMessage,
 } from "~/components/ui/form";
+import { Badge } from "~/components/ui/badge";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -34,7 +35,6 @@ import { Input } from "~/components/ui/input";
 import { api } from "~/trpc/react";
 import { z } from "zod";
 import { type SelectSystemModel } from "~/types/model";
-import { Label } from "~/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -67,12 +67,15 @@ const CreateSystem = ({ project }: Props) => {
 
   const { data: devices } = api.hardware.getAllHardware.useQuery({
     workspaceId: project.workspaceId,
-    type: "device",
   });
 
   const deviceModels = project.model.parts.flatMap((m) =>
     new Array<string>(m.count).fill(m.modelId),
   );
+
+  const { data: models } = api.model.getAllModels.useQuery({
+    workspaceId: project.workspaceId,
+  });
 
   const form = useForm<FormSchema>({
     resolver: zodResolver(systemFormSchema),
@@ -84,7 +87,7 @@ const CreateSystem = ({ project }: Props) => {
     },
   });
 
-  if (!devices) {
+  if (!devices || !models) {
     return null;
   }
 
@@ -124,55 +127,67 @@ const CreateSystem = ({ project }: Props) => {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>System Identifier</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Circuit Board #1"
+                      placeholder="e.g. SN4321"
                       {...field}
                       data-1p-ignore
                     />
                   </FormControl>
                   <FormDescription>
-                    What is the name of your system?
+                    How do you identity this system instance? This is usually a
+                    serial number like SN4321.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <Label>Parts</Label>
-            {deviceModels.map((part, index) => (
-              <FormField
-                control={form.control}
-                key={`${part}-${index}`}
-                name={`deviceIds.${index}.value` as const}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{part}</FormLabel>
-                    <FormControl>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <SelectTrigger className="w-[180px]">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {devices
-                            .filter((d) => d.modelId === part)
-                            .map((device) => (
-                              <SelectItem value={device.id} key={device.id}>
-                                {device.name}
-                              </SelectItem>
-                            ))}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            ))}
+            <div>
+              <FormLabel>Parts</FormLabel>
+              <FormDescription>
+                What are the device instances that make up this system?
+              </FormDescription>
+              <div>
+                {deviceModels.sort().map((part, index) => (
+                  <FormField
+                    control={form.control}
+                    key={`${part}-${index}`}
+                    name={`deviceIds.${index}.value` as const}
+                    render={({ field }) => (
+                      <FormItem className="flex items-center gap-2">
+                        <FormLabel>
+                          <Badge>
+                            {models.find((m) => m.id === part)?.name}
+                          </Badge>
+                        </FormLabel>
+                        <FormControl>
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <SelectTrigger className="w-[180px]">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {devices
+                                .filter((d) => d.modelId === part)
+                                .map((device) => (
+                                  <SelectItem value={device.id} key={device.id}>
+                                    {device.name}
+                                  </SelectItem>
+                                ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ))}
+              </div>
+            </div>
             <DialogFooter className="">
               <DialogClose asChild>
                 <Button type="button" variant="secondary">

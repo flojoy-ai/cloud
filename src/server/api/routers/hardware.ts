@@ -25,7 +25,6 @@ import {
   workspace,
 } from "~/server/db/schema";
 import {
-  type SystemPart,
   publicInsertDeviceSchema,
   publicInsertSystemSchema,
   selectHardwareSchema,
@@ -36,7 +35,6 @@ import {
 import { selectMeasurementSchema } from "~/types/measurement";
 import { selectTestSchema } from "~/types/test";
 import { workspaceAccessMiddleware } from "./workspace";
-import { selectModelBaseSchema } from "~/types/model";
 
 export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
