@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Icons } from "~/components/icons";
 import TermsAndPrivacy from "~/components/terms-and-privacy";
 import { Button } from "~/components/ui/button";
-import EmailPassFields from "~/components/emailPassFields";
+import EmailPassFields from "~/components/email-pass-field";
 
 export default async function LogIn() {
   return (
