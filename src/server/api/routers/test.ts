@@ -5,7 +5,11 @@ import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { project, test } from "~/server/db/schema";
 import { selectHardwareBaseSchema } from "~/types/hardware";
 import { selectMeasurementSchema } from "~/types/measurement";
-import { publicInsertTestSchema, selectTestSchema } from "~/types/test";
+import {
+  publicInsertTestSchema,
+  publicUpdateTestSchema,
+  selectTestSchema,
+} from "~/types/test";
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
 import { type db } from "~/server/db";
 import { projectAccessMiddleware } from "./project";
@@ -143,7 +147,51 @@ export const testRouter = createTRPCRouter({
       });
     }),
 
-  // TODO: Update Test
+  updateTest: workspaceProcedure
+    .meta({
+      openapi: { method: "PATCH", path: "/v1/tests/{testId}", tags: ["test"] },
+    })
+    .input(publicUpdateTestSchema.extend({ testId: z.string() }))
+    .output(publicUpdateTestSchema)
+    .use(testAccessMiddleware)
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.transaction(async (tx) => {
+        const [testUpdateResult] = await tx
+          .update(test)
+          .set({ name: input.name })
+          .where(eq(test.id, input.testId))
+          .returning();
+        if (!testUpdateResult) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to update test",
+          });
+        }
+        return testUpdateResult;
+      });
+    }),
 
-  // TODO: Delete Test
+  deleteTest: workspaceProcedure
+    .meta({
+      openapi: { method: "DELETE", path: "/v1/tests/{testId}", tags: ["test"] },
+    })
+    .input(z.object({ testId: z.string() }))
+    .output(selectTestSchema)
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.transaction(async (tx) => {
+        const [testDeleteResult] = await tx
+          .delete(test)
+          .where(eq(test.id, input.testId))
+          .returning();
+
+        if (!testDeleteResult) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to delete test",
+          });
+        }
+
+        return testDeleteResult;
+      });
+    }),
 });
