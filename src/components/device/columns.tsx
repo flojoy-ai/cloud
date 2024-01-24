@@ -57,6 +57,9 @@ export const deviceColumns: ColumnDef<SelectDevice>[] = [
   {
     accessorKey: "name",
     header: "Device Name",
+    cell: ({ row }) => {
+      return <Badge variant="secondary">{row.original.name}</Badge>;
+    },
   },
   {
     accessorKey: "model",
@@ -67,6 +70,7 @@ export const deviceColumns: ColumnDef<SelectDevice>[] = [
   },
   {
     id: "actions",
+    header: "Actions",
     cell: ({ row }) => <Actions elem={row.original} />,
   },
 ];
@@ -75,6 +79,9 @@ export const systemColumns: ColumnDef<SelectSystem>[] = [
   {
     accessorKey: "name",
     header: "System Name",
+    cell: ({ row }) => {
+      return <Badge variant="secondary">{row.original.name}</Badge>;
+    },
   },
   {
     accessorKey: "model",
@@ -92,11 +99,15 @@ export const systemColumns: ColumnDef<SelectSystem>[] = [
       return (
         <div className="flex flex-col gap-2">
           {Object.entries(byModel).map(([modelName, devices]) => (
-            <div>
-              <Badge className="mb-1">{modelName}</Badge>
-              {devices.map((d) => (
-                <div key={d.id}>{d.name}</div>
-              ))}
+            <div className="flex items-start gap-1">
+              <Badge className="">{modelName}</Badge>
+              <div className="flex flex-col gap-1">
+                {devices.map((d) => (
+                  <Badge variant="secondary" key={d.id}>
+                    {d.name}
+                  </Badge>
+                ))}
+              </div>
             </div>
           ))}
         </div>
@@ -105,6 +116,7 @@ export const systemColumns: ColumnDef<SelectSystem>[] = [
   },
   {
     id: "actions",
+    header: "Actions",
     cell: ({ row }) => <Actions elem={row.original} />,
   },
 ];
@@ -119,6 +131,7 @@ export const deviceModelColumns: ColumnDef<SelectDeviceModel>[] = [
   },
   {
     id: "actions",
+    header: "Actions",
     cell: ({ row }) => <Actions elem={row.original} />,
   },
 ];
@@ -149,6 +162,7 @@ export const systemModelColumns: ColumnDef<SelectSystemModel>[] = [
   },
   {
     id: "actions",
+    header: "Actions",
     cell: ({ row }) => <Actions elem={row.original} />,
   },
 ];
