@@ -16,7 +16,7 @@ import { type SelectProject } from "~/types/project";
 import { Badge } from "~/components/ui/badge";
 
 type Props = {
-  hardwares: (SelectHardware & { model: SelectModel })[];
+  hardwares: SelectHardware[];
   workspaceId: string;
   namespace: string;
   project: SelectProject & { model: SelectModel };
