@@ -15,7 +15,7 @@ export const project = pgTable(
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
     modelId: text("model_id")
-      .references(() => model.id, { onDelete: "cascade" })
+      .references(() => model.id, { onDelete: "restrict" })
       .notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at"),

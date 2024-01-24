@@ -47,7 +47,9 @@ export const systemModelDeviceModel = pgTable(
       .references(() => systemModel.id, { onDelete: "cascade" }),
     deviceModelId: text("device_model_id")
       .notNull()
-      .references(() => deviceModel.id, { onDelete: "cascade" }),
+      .references(() => deviceModel.id, {
+        onDelete: "restrict", // cannot delete a device model if it is in a system model
+      }),
     count: integer("count").notNull(),
   },
   (table) => ({

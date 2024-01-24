@@ -19,7 +19,7 @@ export const hardware = pgTable(
       .references(() => workspace.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
     modelId: text("model_id")
-      .references(() => model.id, { onDelete: "cascade" })
+      .references(() => model.id, { onDelete: "restrict" })
       .notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at"),
@@ -50,7 +50,9 @@ export const system_device = pgTable(
       .references(() => system.id, { onDelete: "cascade" }),
     deviceId: text("device_id")
       .notNull()
-      .references(() => device.id, { onDelete: "cascade" }),
+      .references(() => device.id, {
+        onDelete: "restrict",
+      }),
   },
   (table) => ({
     pk: primaryKey({ columns: [table.systemId, table.deviceId] }),

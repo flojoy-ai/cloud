@@ -188,7 +188,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "cloud_hardware" ADD CONSTRAINT "cloud_hardware_model_id_cloud_model_id_fk" FOREIGN KEY ("model_id") REFERENCES "cloud_model"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "cloud_hardware" ADD CONSTRAINT "cloud_hardware_model_id_cloud_model_id_fk" FOREIGN KEY ("model_id") REFERENCES "cloud_model"("id") ON DELETE restrict ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -206,7 +206,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "cloud_system_device" ADD CONSTRAINT "cloud_system_device_device_id_cloud_device_id_fk" FOREIGN KEY ("device_id") REFERENCES "cloud_device"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "cloud_system_device" ADD CONSTRAINT "cloud_system_device_device_id_cloud_device_id_fk" FOREIGN KEY ("device_id") REFERENCES "cloud_device"("id") ON DELETE restrict ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -248,7 +248,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "cloud_system_model_device_model" ADD CONSTRAINT "cloud_system_model_device_model_device_model_id_cloud_device_model_id_fk" FOREIGN KEY ("device_model_id") REFERENCES "cloud_device_model"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "cloud_system_model_device_model" ADD CONSTRAINT "cloud_system_model_device_model_device_model_id_cloud_device_model_id_fk" FOREIGN KEY ("device_model_id") REFERENCES "cloud_device_model"("id") ON DELETE restrict ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -260,7 +260,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "cloud_project" ADD CONSTRAINT "cloud_project_model_id_cloud_model_id_fk" FOREIGN KEY ("model_id") REFERENCES "cloud_model"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "cloud_project" ADD CONSTRAINT "cloud_project_model_id_cloud_model_id_fk" FOREIGN KEY ("model_id") REFERENCES "cloud_model"("id") ON DELETE restrict ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
