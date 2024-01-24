@@ -63,8 +63,6 @@ cat <<EOF >/root/startup.sh
 
 systemctl start nginx
 
-. /.nvm/nvm.sh
-
 export PATH="\$PWD/node_modules/.bin:$PATH"
 
 check_env_file() {
