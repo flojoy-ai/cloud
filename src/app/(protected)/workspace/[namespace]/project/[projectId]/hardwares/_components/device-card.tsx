@@ -18,7 +18,7 @@ import { type SelectHardware } from "~/types/hardware";
 import { type SelectModel } from "~/types/model";
 
 type Props = {
-  hardware: SelectHardware & { model: SelectModel };
+  hardware: SelectHardware;
   namespace: string;
 };
 
