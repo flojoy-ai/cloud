@@ -7,7 +7,7 @@ export type SelectMeasurement = typeof measurement.$inferSelect;
 
 export type InsertMeasurement = typeof measurement.$inferSelect;
 
-export type MeasurementWithHardwareAndTest = SelectMeasurement & {
+export type MeasurementWithHardware = SelectMeasurement & {
   hardware: SelectHardwareBase;
 };
 

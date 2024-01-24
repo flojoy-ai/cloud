@@ -1,7 +1,7 @@
 "use client";
 
 import { type ColumnDef } from "@tanstack/react-table";
-import { type MeasurementWithHardwareAndTest } from "~/types/measurement";
+import { type MeasurementWithHardware } from "~/types/measurement";
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 
-export const columns: ColumnDef<MeasurementWithHardwareAndTest>[] = [
+export const columns: ColumnDef<MeasurementWithHardware>[] = [
   {
     accessorKey: "name",
     header: "Name",
@@ -85,7 +85,8 @@ export const columns: ColumnDef<MeasurementWithHardwareAndTest>[] = [
                   id: measurement.id,
                   name: measurement.name,
                   data: measurement.data,
-                  hardwareId: measurement.hardware.id,
+                  hardwareId: measurement.hardwareId,
+                  testId: measurement.testId,
                   createdAt: measurement.createdAt,
                 };
                 const data = JSON.stringify(json);
