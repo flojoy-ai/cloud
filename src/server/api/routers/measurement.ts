@@ -13,6 +13,7 @@ import { type db } from "~/server/db";
 import { hardwareAccessMiddleware } from "./hardware";
 import { testAccessMiddleware } from "./test";
 import { checkWorkspaceAccess } from "~/lib/auth";
+import { selectModelSchema } from "~/types/model";
 
 export const measurementAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -119,7 +120,9 @@ export const measurementRouter = createTRPCRouter({
     .output(
       z.array(
         selectMeasurementSchema.merge(
-          z.object({ hardware: selectHardwareSchema }),
+          z.object({
+            hardware: selectHardwareSchema,
+          }),
         ),
       ),
     )
@@ -136,7 +139,11 @@ export const measurementRouter = createTRPCRouter({
       const result = await ctx.db.query.measurement.findMany({
         where: (_, { and }) => and(...where),
         with: {
-          hardware: true,
+          hardware: {
+            with: {
+              model: true,
+            },
+          },
         },
       });
       return result;
@@ -165,7 +172,7 @@ export const measurementRouter = createTRPCRouter({
       const result = await ctx.db.query.measurement.findFirst({
         where: () => eq(measurement.id, input.measurementId),
         with: {
-          hardware: true,
+          hardware: { with: { model: true } },
         },
       });
 
