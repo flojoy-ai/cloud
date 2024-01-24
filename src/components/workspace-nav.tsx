@@ -19,7 +19,7 @@ export const WorkspaceNav = ({ workspaces }: Props) => {
   const currentWorkspace = workspaces.find((ws) => ws.namespace === namespace);
 
   return (
-    <div className="border-b border-border/40 py-4 text-sm font-medium">
+    <header className="sticky top-14 z-50 flex h-14 w-full items-center border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       {isWorkspaceRoute && currentWorkspace && (
         <div className="container flex max-w-screen-2xl gap-x-6">
           <Link
@@ -58,6 +58,6 @@ export const WorkspaceNav = ({ workspaces }: Props) => {
           </Link>
         </div>
       )}
-    </div>
+    </header>
   );
 };

@@ -61,12 +61,14 @@ const DevicesView = async ({
 
       <div className="py-2"></div>
 
-      <AllHardwares
-        hardwares={hardwares}
-        workspaceId={workspaceId}
-        project={project}
-        namespace={params.namespace}
-      />
+      <div className="min-h-screen">
+        <AllHardwares
+          hardwares={hardwares}
+          workspaceId={workspaceId}
+          project={project}
+          namespace={params.namespace}
+        />
+      </div>
 
       {/* <div className="py-8" /> */}
       {/* <div> */}
