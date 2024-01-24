@@ -111,7 +111,6 @@ export const testRouter = createTRPCRouter({
         with: {
           measurements: {
             with: {
-              test: true,
               hardware: {
                 with: {
                   model: true,
@@ -143,4 +142,8 @@ export const testRouter = createTRPCRouter({
         where: (test, { eq }) => eq(test.projectId, input.projectId),
       });
     }),
+
+  // TODO: Update Test
+
+  // TODO: Delete Test
 });

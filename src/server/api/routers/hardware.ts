@@ -400,6 +400,8 @@ export const hardwareRouter = createTRPCRouter({
     .query(async ({ input, ctx }) => {
       await ctx.db.delete(hardware).where(eq(hardware.id, input.hardwareId));
     }),
+
+  // TODO: Update Hardware
 });
 
 async function getAllDevices(

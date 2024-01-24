@@ -216,6 +216,8 @@ export const modelRouter = createTRPCRouter({
     .query(async ({ input }) => {
       return await getSystemModels(input.workspaceId);
     }),
+
+  // TODO: Delete Model
 });
 
 async function getDeviceModels(workspaceId: string) {
