@@ -1,17 +1,12 @@
 import {
-  deviceColumns,
-  deviceModelColumns,
-  systemColumns,
-  systemModelColumns,
-} from "~/components/device/columns";
-import { DataTable } from "~/components/device/data-table";
-import {
   PageHeader,
   PageHeaderDescription,
   PageHeaderHeading,
 } from "~/components/small-header";
 import { api } from "~/trpc/server";
 import CreateModel from "./_components/create-model";
+import HardwareInstances from "./_components/hardware-instances";
+import HardwareModels from "./_components/hardware-models";
 
 export default async function HardwareInventory({
   params,
@@ -52,34 +47,17 @@ export default async function HardwareInventory({
       <CreateModel workspaceId={workspaceId} deviceModels={deviceModels} />
       <div className="py-4" />
 
-      <div className="grid grid-cols-3 items-start gap-4">
-        <div className="col-span-1 grid">
-          <h1 className="text-lg font-bold text-muted-foreground">
-            Device Models
-          </h1>
-          <div className="py-2" />
-          <DataTable columns={deviceModelColumns} data={deviceModels} />
-          <div className="py-4" />
-        </div>
-        <div className="col-span-2 grid">
-          <h1 className="text-lg font-bold text-muted-foreground">
-            System Models
-          </h1>
-          <div className="py-2" />
-          <DataTable columns={systemModelColumns} data={systemModels} />
-          <div className="py-4" />
-        </div>
-      </div>
+      <HardwareModels
+        deviceModels={deviceModels}
+        systemModels={systemModels}
+        workspaceId={workspaceId}
+      />
 
-      <h1 className="text-2xl font-bold">Hardware Instances</h1>
-      <div className="py-1" />
-      <h1 className="text-lg font-bold text-muted-foreground">Devices</h1>
-      <div className="py-2" />
-      <DataTable columns={deviceColumns} data={devices} />
-      <div className="py-4" />
-      <h1 className="text-lg font-bold text-muted-foreground">Systems</h1>
-      <div className="py-2" />
-      <DataTable columns={systemColumns} data={systems} />
+      <HardwareInstances
+        devices={devices}
+        systems={systems}
+        workspaceId={workspaceId}
+      />
       <div className="py-4" />
     </div>
   );

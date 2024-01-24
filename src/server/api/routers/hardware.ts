@@ -395,7 +395,7 @@ export const hardwareRouter = createTRPCRouter({
     .input(z.object({ hardwareId: z.string() }))
     .use(hardwareAccessMiddleware)
     .output(z.void())
-    .query(async ({ input, ctx }) => {
+    .mutation(async ({ input, ctx }) => {
       await ctx.db.delete(hardware).where(eq(hardware.id, input.hardwareId));
     }),
 

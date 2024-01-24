@@ -217,7 +217,91 @@ export const modelRouter = createTRPCRouter({
       return await getSystemModels(input.workspaceId);
     }),
 
-  // TODO: Delete Model
+  deleteDeviceModel: workspaceProcedure
+    .meta({
+      openapi: {
+        method: "DELETE",
+        path: "/v1/models/device/{modelId}",
+        tags: ["model"],
+      },
+    })
+    .input(
+      z.object({
+        modelId: z.string(),
+      }),
+    )
+    .output(selectModelSchema)
+    .use(modelAccessMiddlware)
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.transaction(async (tx) => {
+        const [modelDeleteResult] = await tx
+          .delete(model)
+          .where(eq(model.id, input.modelId))
+          .returning();
+
+        if (!modelDeleteResult) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to delete model",
+          });
+        }
+
+        await tx
+          .delete(deviceModel)
+          .where(eq(deviceModel.id, input.modelId))
+          .returning();
+
+        // await tx
+        //   .update(workspace)
+        //   .set({ updatedAt: new Date() })
+        //   .where(eq(workspace.id, ctx.workspaceId));
+
+        return modelDeleteResult;
+      });
+    }),
+
+  deleteSystemModel: workspaceProcedure
+    .meta({
+      openapi: {
+        method: "DELETE",
+        path: "/v1/models/system/{modelId}",
+        tags: ["model"],
+      },
+    })
+    .input(
+      z.object({
+        modelId: z.string(),
+      }),
+    )
+    .output(selectModelSchema)
+    .use(modelAccessMiddlware)
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.transaction(async (tx) => {
+        const [modelDeleteResult] = await tx
+          .delete(model)
+          .where(eq(model.id, input.modelId))
+          .returning();
+
+        if (!modelDeleteResult) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to delete model",
+          });
+        }
+
+        await tx
+          .delete(systemModel)
+          .where(eq(systemModel.id, input.modelId))
+          .returning();
+
+        // await tx
+        //   .update(workspace)
+        //   .set({ updatedAt: new Date() })
+        //   .where(eq(workspace.id, ctx.workspaceId));
+
+        return modelDeleteResult;
+      });
+    }),
 });
 
 async function getDeviceModels(workspaceId: string) {
