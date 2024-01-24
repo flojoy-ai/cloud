@@ -24,12 +24,7 @@ export const columns: ColumnDef<MeasurementWithHardwareAndTest>[] = [
     accessorFn: (data) => data.hardware.name,
   },
   {
-    accessorKey: "testId",
-    header: "Test",
-    accessorFn: (data) => data.test.name,
-  },
-  {
-    accessorKey: "measurementType",
+    accessorKey: "data.type",
     header: "Type",
   },
   {

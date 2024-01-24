@@ -3,7 +3,10 @@ import { z } from "zod";
 
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { project, test } from "~/server/db/schema";
-import { selectHardwareSchema } from "~/types/hardware";
+import {
+  selectHardwareBaseSchema,
+  selectHardwareSchema,
+} from "~/types/hardware";
 import { selectMeasurementSchema } from "~/types/measurement";
 import { publicInsertTestSchema, selectTestSchema } from "~/types/test";
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
@@ -98,8 +101,7 @@ export const testRouter = createTRPCRouter({
           measurements: z.array(
             selectMeasurementSchema.merge(
               z.object({
-                test: selectTestSchema,
-                hardware: selectHardwareSchema,
+                hardware: selectHardwareBaseSchema,
               }),
             ),
           ),
@@ -112,8 +114,12 @@ export const testRouter = createTRPCRouter({
         with: {
           measurements: {
             with: {
-              hardware: true,
               test: true,
+              hardware: {
+                with: {
+                  model: true,
+                },
+              },
             },
           },
         },

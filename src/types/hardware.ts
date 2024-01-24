@@ -57,4 +57,5 @@ export const selectHardwareSchema = z.union([
 export type SelectSystem = z.infer<typeof selectSystemSchema>;
 export type SelectDevice = z.infer<typeof selectDeviceSchema>;
 export type SelectHardware = z.infer<typeof selectHardwareSchema>;
+export type SelectHardwareBase = z.infer<typeof selectHardwareBaseSchema>;
 export type SystemPart = z.infer<typeof systemPartSchema>;
