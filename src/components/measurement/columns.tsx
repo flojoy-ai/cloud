@@ -86,7 +86,6 @@ export const columns: ColumnDef<MeasurementWithHardwareAndTest>[] = [
                   name: measurement.name,
                   data: measurement.data,
                   hardwareId: measurement.hardware.id,
-                  testId: measurement.test.id,
                   createdAt: measurement.createdAt,
                 };
                 const data = JSON.stringify(json);
