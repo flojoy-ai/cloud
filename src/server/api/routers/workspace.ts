@@ -296,18 +296,10 @@ export const workspaceRouter = createTRPCRouter({
     }),
 
   updateWorkspace: workspaceProcedure
-    .meta({
-      openapi: {
-        method: "PATCH",
-        path: "/v1/workspaces/{workspaceId}",
-        tags: ["workspace"],
-      },
-    })
     .input(
       publicInsertWorkspaceSchema.merge(z.object({ workspaceId: z.string() })),
     )
     .output(selectWorkspaceSchema)
-    .use(workspaceAccessMiddleware)
     .mutation(async ({ ctx, input }) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { workspaceId, ...updatedWorkspace } = input;
@@ -327,24 +319,13 @@ export const workspaceRouter = createTRPCRouter({
     }),
 
   deleteWorkspaceById: workspaceProcedure
-    .meta({
-      openapi: {
-        method: "DELETE",
-        path: "/v1/workspaces/{workspaceId}",
-        tags: ["workspace"],
-      },
-    })
     .input(z.object({ workspaceId: z.string() }))
-    .use(workspaceAccessMiddleware)
     .output(z.void())
     .mutation(async ({ ctx, input }) => {
       await ctx.db.delete(workspace).where(eq(workspace.id, input.workspaceId));
     }),
 
   getWorkspaces: protectedProcedure
-    .meta({
-      openapi: { method: "GET", path: "/v1/workspaces/", tags: ["workspace"] },
-    })
     .input(z.void())
     .output(
       z.array(
@@ -371,15 +352,7 @@ export const workspaceRouter = createTRPCRouter({
     }),
 
   getWorkspaceById: workspaceProcedure
-    .meta({
-      openapi: {
-        method: "GET",
-        path: "/v1/workspaces/{workspaceId}",
-        tags: ["workspace"],
-      },
-    })
     .input(z.object({ workspaceId: z.string() }))
-    .use(workspaceAccessMiddleware)
     .output(selectWorkspaceSchema)
     .query(async ({ input }) => {
       const result = await db.query.workspace.findFirst({
