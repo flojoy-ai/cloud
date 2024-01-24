@@ -95,8 +95,8 @@ export default function NewProjectButton({ workspace, models }: Props) {
           <DialogHeader>
             <DialogTitle>Create your new project</DialogTitle>
             <DialogDescription>
-              A project is a collection of device instances that share a common
-              set of tests.
+              A project is a collection of hardware instances that share the
+              same hardware model and a common set of tests.
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>

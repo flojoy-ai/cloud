@@ -3,10 +3,7 @@ import { z } from "zod";
 
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { project, test } from "~/server/db/schema";
-import {
-  selectHardwareBaseSchema,
-  selectHardwareSchema,
-} from "~/types/hardware";
+import { selectHardwareBaseSchema } from "~/types/hardware";
 import { selectMeasurementSchema } from "~/types/measurement";
 import { publicInsertTestSchema, selectTestSchema } from "~/types/test";
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
