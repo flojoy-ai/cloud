@@ -169,7 +169,6 @@ export const projectRouter = createTRPCRouter({
       });
     }),
 
-  // TODO: Extra system logic
   addHardwareToProject: workspaceProcedure
     .meta({
       openapi: {
