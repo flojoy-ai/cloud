@@ -62,6 +62,17 @@ export const projectRouter = createTRPCRouter({
     .output(selectProjectSchema)
     .use(workspaceAccessMiddleware)
     .mutation(async ({ ctx, input }) => {
+      const model = await ctx.db.query.model.findFirst({
+        where: (model, { eq }) => eq(model.id, input.modelId),
+      });
+
+      if (model === undefined) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Model not found",
+        });
+      }
+
       return await ctx.db.transaction(async (tx) => {
         const [projectCreateResult] = await tx
           .insert(project)
@@ -172,6 +183,35 @@ export const projectRouter = createTRPCRouter({
     .use(hardwareAccessMiddleware)
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
+      const project = await ctx.db.query.project.findFirst({
+        where: (project, { eq }) => eq(project.id, input.projectId),
+      });
+
+      if (project === undefined) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Project not found",
+        });
+      }
+
+      const hardware = await ctx.db.query.hardware.findFirst({
+        where: (hardware, { eq }) => eq(hardware.id, input.hardwareId),
+      });
+
+      if (hardware === undefined) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Hardware not found",
+        });
+      }
+
+      if (hardware.modelId !== project.modelId) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Hardware model does not match project model",
+        });
+      }
+
       await ctx.db.insert(project_hardware).values({
         hardwareId: input.hardwareId,
         projectId: input.projectId,
