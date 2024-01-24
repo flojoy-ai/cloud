@@ -3,7 +3,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
 import {
@@ -46,12 +45,6 @@ const PasswordResetFields = ({ token }: PasswordResetFieldsProps) => {
       body: formData,
       redirect: "manual",
     });
-
-    if (response.ok) {
-      toast.message("A reset link has been sent to your email");
-      form.reset();
-      return;
-    }
 
     if (response.status === 0) {
       // redirected
