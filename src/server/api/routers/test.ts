@@ -152,23 +152,13 @@ export const testRouter = createTRPCRouter({
       openapi: { method: "PATCH", path: "/v1/tests/{testId}", tags: ["test"] },
     })
     .input(publicUpdateTestSchema.extend({ testId: z.string() }))
-    .output(publicUpdateTestSchema)
+    .output(z.void())
     .use(testAccessMiddleware)
     .mutation(async ({ ctx, input }) => {
-      return await ctx.db.transaction(async (tx) => {
-        const [testUpdateResult] = await tx
-          .update(test)
-          .set({ name: input.name })
-          .where(eq(test.id, input.testId))
-          .returning();
-        if (!testUpdateResult) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to update test",
-          });
-        }
-        return testUpdateResult;
-      });
+      await ctx.db
+        .update(test)
+        .set({ name: input.name })
+        .where(eq(test.id, input.testId));
     }),
 
   deleteTest: workspaceProcedure
@@ -176,22 +166,8 @@ export const testRouter = createTRPCRouter({
       openapi: { method: "DELETE", path: "/v1/tests/{testId}", tags: ["test"] },
     })
     .input(z.object({ testId: z.string() }))
-    .output(selectTestSchema)
+    .output(z.void())
     .mutation(async ({ ctx, input }) => {
-      return await ctx.db.transaction(async (tx) => {
-        const [testDeleteResult] = await tx
-          .delete(test)
-          .where(eq(test.id, input.testId))
-          .returning();
-
-        if (!testDeleteResult) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to delete test",
-          });
-        }
-
-        return testDeleteResult;
-      });
+      await ctx.db.delete(test).where(eq(test.id, input.testId));
     }),
 });
