@@ -31,8 +31,7 @@ import {
   selectDeviceSchema,
   selectSystemSchema,
   selectHardwareBaseSchema,
-  publicUpdateDeviceSchema,
-  publicUpdateSystemSchema,
+  publicUpdateHardwareSchema,
 } from "~/types/hardware";
 import { selectMeasurementSchema } from "~/types/measurement";
 import { workspaceAccessMiddleware } from "./workspace";
@@ -400,15 +399,15 @@ export const hardwareRouter = createTRPCRouter({
       await ctx.db.delete(hardware).where(eq(hardware.id, input.hardwareId));
     }),
 
-  updateDeviceById: workspaceProcedure
+  updateHardwareById: workspaceProcedure
     .meta({
       openapi: {
         method: "PATCH",
-        path: "/v1/hardware/device/{hardwareId}",
+        path: "/v1/hardware/{hardwareId}",
         tags: ["hardware"],
       },
     })
-    .input(publicUpdateDeviceSchema)
+    .input(publicUpdateHardwareSchema)
     .use(hardwareAccessMiddleware)
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
@@ -419,38 +418,6 @@ export const hardwareRouter = createTRPCRouter({
           .where(eq(hardware.id, input.hardwareId))
           .returning();
 
-        if (!hardwareUpdateResult) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to update device",
-          });
-        }
-
-        // await tx
-        //   .update(workspace)
-        //   .set({ updatedAt: new Date() })
-        //   .where(eq(workspace.id, input.workspaceId));
-      });
-    }),
-
-  updateSystemById: workspaceProcedure
-    .meta({
-      openapi: {
-        method: "PATCH",
-        path: "/v1/hardware/system/{hardwareId}",
-        tags: ["hardware"],
-      },
-    })
-    .input(publicUpdateSystemSchema)
-    .use(hardwareAccessMiddleware)
-    .output(z.void())
-    .mutation(async ({ input, ctx }) => {
-      return await ctx.db.transaction(async (tx) => {
-        const [hardwareUpdateResult] = await tx
-          .update(hardware)
-          .set({ name: input.name })
-          .where(eq(hardware.id, input.hardwareId))
-          .returning();
         if (!hardwareUpdateResult) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
