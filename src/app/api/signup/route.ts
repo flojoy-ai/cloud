@@ -61,7 +61,7 @@ export const POST = async (request: NextRequest) => {
 
     const token = await generateEmailVerificationToken(user.userId);
 
-    const verificationLink = env.URL_ORIGIN + "/api/email/" + token;
+    const verificationLink = env.NEXT_PUBLIC_URL_ORIGIN + "/api/email/" + token;
     await sendEmailVerificationLink(session.user.email, verificationLink);
 
     const sessionCookie = auth.createSessionCookie(session);

@@ -41,9 +41,6 @@ export const env = createEnv({
       .transform((v) => +v)
       .optional()
       .default("0"),
-    // We're using nginx to reverse proxy and running app on localhost for AWS AMI
-    // As a result we need to set origin explicitly from env
-    URL_ORIGIN: z.string().url().default("http://localhost:3000"),
   },
 
   /**
@@ -52,7 +49,9 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
-    // NEXT_PUBLIC_CLIENTVAR: z.string(),
+    // We're using nginx to reverse proxy and running app on localhost for AWS AMI
+    // As a result we need to set origin explicitly from env
+    NEXT_PUBLIC_URL_ORIGIN: z.string().url().default("http://localhost:3000"),
   },
 
   /**
@@ -82,7 +81,7 @@ export const env = createEnv({
 
     JWT_SECRET: process.env.JWT_SECRET,
     AWS_AMI: process.env.AWS_AMI,
-    URL_ORIGIN: process.env.URL_ORIGIN,
+    NEXT_PUBLIC_URL_ORIGIN: process.env.URL_ORIGIN,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
