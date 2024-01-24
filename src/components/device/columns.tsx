@@ -23,7 +23,11 @@ import {
 import { type ColumnDef } from "@tanstack/react-table";
 import { type SelectSystem, type SelectDevice } from "~/types/hardware";
 import { toast } from "sonner";
-import { type SelectSystemModel, type SelectDeviceModel } from "~/types/model";
+import {
+  type SelectSystemModel,
+  type SelectDeviceModel,
+  type SelectModel,
+} from "~/types/model";
 import { Badge } from "../ui/badge";
 import _ from "lodash";
 import { useState } from "react";
@@ -238,6 +242,68 @@ export const systemColumns: ColumnDef<SelectSystem>[] = [
   },
 ];
 
+type DeleteDialogProps = {
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+  model: SelectModel;
+  onSuccess: () => void;
+};
+
+const DeleteDialog = ({
+  isOpen,
+  setIsOpen,
+  model,
+  onSuccess,
+}: DeleteDialogProps) => {
+  const deleteModel = api.model.deleteModel.useMutation();
+  return (
+    <AlertDialog open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete your
+            model and remove your data from our servers. <br /> This model can
+            only be deleted if there are:
+            <ul className="list-inside list-disc">
+              <li>no hardware instances of this model. </li>
+              <li>no projects using this model.</li>
+              <li>no system models using this device model. </li>
+            </ul>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogContent>
+          {/* TODO: Show a list of devices or systems that use this model */}
+        </AlertDialogContent>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() =>
+              toast.promise(
+                deleteModel.mutateAsync(
+                  {
+                    modelId: model.id,
+                  },
+                  {
+                    onSuccess,
+                  },
+                ),
+                {
+                  loading: "Deleting your model...",
+                  success: "Your model has been deleted.",
+                  error: "Something went wrong :(",
+                },
+              )
+            }
+          >
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+};
+
 export const deviceModelColumns: ColumnDef<SelectDeviceModel>[] = [
   {
     accessorKey: "name",
@@ -252,55 +318,14 @@ export const deviceModelColumns: ColumnDef<SelectDeviceModel>[] = [
     cell: ({ row }) => {
       const [isOpen, setIsOpen] = useState(false);
       const utils = api.useUtils();
-      const deleteDeviceModel = api.model.deleteDeviceModel.useMutation();
       return (
         <>
-          <AlertDialog open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete
-                  your model and remove your data from our servers. <br /> This
-                  model can only be deleted if there are:
-                  <ul className="list-inside list-disc">
-                    <li>no hardware instances of this model. </li>
-                    <li>no projects using this model.</li>
-                    <li>no system models using this device model. </li>
-                  </ul>
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogContent>
-                {/* TODO: Show a list of devices or systems that use this model */}
-              </AlertDialogContent>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() =>
-                    toast.promise(
-                      deleteDeviceModel.mutateAsync(
-                        {
-                          modelId: row.original.id,
-                        },
-                        {
-                          onSuccess: () => {
-                            void utils.model.getAllSystemModels.invalidate();
-                          },
-                        },
-                      ),
-                      {
-                        loading: "Deleting your model...",
-                        success: "Your model has been deleted.",
-                        error: "Something went wrong :(",
-                      },
-                    )
-                  }
-                >
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <DeleteDialog
+            isOpen={isOpen}
+            setIsOpen={setIsOpen}
+            model={row.original}
+            onSuccess={() => void utils.model.getAllDeviceModels.invalidate()}
+          />
           <Actions elem={row.original}>
             <DropdownMenuItem onClick={() => setIsOpen(true)}>
               Delete
@@ -341,55 +366,15 @@ export const systemModelColumns: ColumnDef<SelectSystemModel>[] = [
     header: "Actions",
     cell: ({ row }) => {
       const [isOpen, setIsOpen] = useState(false);
-      const deleteSystemModel = api.model.deleteSystemModel.useMutation();
       const utils = api.useUtils();
       return (
         <>
-          <AlertDialog open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete
-                  your model and remove your data from our servers. <br /> This
-                  model can only be deleted if there are:
-                  <ul className="list-inside list-disc">
-                    <li>no hardware instances of this model. </li>
-                    <li>no projects using this model.</li>
-                  </ul>
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogContent>
-                {/* TODO: Show a list of devices or systems that use this model */}
-              </AlertDialogContent>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() =>
-                    toast.promise(
-                      deleteSystemModel.mutateAsync(
-                        {
-                          modelId: row.original.id,
-                        },
-                        {
-                          onSuccess: () => {
-                            void utils.model.getAllSystemModels.invalidate();
-                          },
-                        },
-                      ),
-                      {
-                        loading: "Deleting your model...",
-                        success: "Your model has been deleted.",
-                        error: "Something went wrong :(",
-                      },
-                    )
-                  }
-                >
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <DeleteDialog
+            isOpen={isOpen}
+            setIsOpen={setIsOpen}
+            model={row.original}
+            onSuccess={() => void utils.model.getAllSystemModels.invalidate()}
+          />
           <Actions elem={row.original}>
             <DropdownMenuItem onClick={() => setIsOpen(true)}>
               Delete

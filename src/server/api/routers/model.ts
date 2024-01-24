@@ -46,7 +46,7 @@ export const modelAccessMiddlware = experimental_standaloneMiddleware<{
   if (!workspaceUser) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
-      message: "You do not have access to this measurement",
+      message: "You do not have access to this model",
     });
   }
 
@@ -217,11 +217,11 @@ export const modelRouter = createTRPCRouter({
       return await getSystemModels(input.workspaceId);
     }),
 
-  deleteDeviceModel: workspaceProcedure
+  deleteModel: workspaceProcedure
     .meta({
       openapi: {
         method: "DELETE",
-        path: "/v1/models/device/{modelId}",
+        path: "/v1/models/{modelId}",
         tags: ["model"],
       },
     })
@@ -230,77 +230,10 @@ export const modelRouter = createTRPCRouter({
         modelId: z.string(),
       }),
     )
-    .output(selectModelSchema)
+    .output(z.void())
     .use(modelAccessMiddlware)
     .mutation(async ({ ctx, input }) => {
-      return await ctx.db.transaction(async (tx) => {
-        const [modelDeleteResult] = await tx
-          .delete(model)
-          .where(eq(model.id, input.modelId))
-          .returning();
-
-        if (!modelDeleteResult) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to delete model",
-          });
-        }
-
-        await tx
-          .delete(deviceModel)
-          .where(eq(deviceModel.id, input.modelId))
-          .returning();
-
-        // await tx
-        //   .update(workspace)
-        //   .set({ updatedAt: new Date() })
-        //   .where(eq(workspace.id, ctx.workspaceId));
-
-        return modelDeleteResult;
-      });
-    }),
-
-  deleteSystemModel: workspaceProcedure
-    .meta({
-      openapi: {
-        method: "DELETE",
-        path: "/v1/models/system/{modelId}",
-        tags: ["model"],
-      },
-    })
-    .input(
-      z.object({
-        modelId: z.string(),
-      }),
-    )
-    .output(selectModelSchema)
-    .use(modelAccessMiddlware)
-    .mutation(async ({ ctx, input }) => {
-      return await ctx.db.transaction(async (tx) => {
-        const [modelDeleteResult] = await tx
-          .delete(model)
-          .where(eq(model.id, input.modelId))
-          .returning();
-
-        if (!modelDeleteResult) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to delete model",
-          });
-        }
-
-        await tx
-          .delete(systemModel)
-          .where(eq(systemModel.id, input.modelId))
-          .returning();
-
-        // await tx
-        //   .update(workspace)
-        //   .set({ updatedAt: new Date() })
-        //   .where(eq(workspace.id, ctx.workspaceId));
-
-        return modelDeleteResult;
-      });
+      await ctx.db.delete(model).where(eq(model.id, input.modelId));
     }),
 });
 

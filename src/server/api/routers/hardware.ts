@@ -411,24 +411,10 @@ export const hardwareRouter = createTRPCRouter({
     .use(hardwareAccessMiddleware)
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
-      return await ctx.db.transaction(async (tx) => {
-        const [hardwareUpdateResult] = await tx
-          .update(hardware)
-          .set({ name: input.name })
-          .where(eq(hardware.id, input.hardwareId))
-          .returning();
-
-        if (!hardwareUpdateResult) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to update device",
-          });
-        }
-        // await tx
-        //   .update(workspace)
-        //   .set({ updatedAt: new Date() })
-        //   .where(eq(workspace.id, input.workspaceId));
-      });
+      await ctx.db
+        .update(hardware)
+        .set({ name: input.name })
+        .where(eq(hardware.id, input.hardwareId));
     }),
 
   // TODO: Add update remove system components
