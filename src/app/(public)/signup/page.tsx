@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Icons } from "~/components/icons";
 import TermsAndPrivacy from "~/components/terms-and-privacy";
 import { Button } from "~/components/ui/button";
-import EmailPassFields from "~/components/email-pass-field";
+import EmailPassFields from "~/components/email-pass-fields";
 
 export default async function SignUp() {
   return (
