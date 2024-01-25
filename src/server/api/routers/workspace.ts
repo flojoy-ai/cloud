@@ -132,13 +132,19 @@ export const workspaceRouter = createTRPCRouter({
         await tx
           .delete(project)
           .where(eq(project.workspaceId, input.workspaceId));
+
+        await tx.execute(
+          sql`DELETE FROM cloud_system AS cs USING cloud_hardware as ch WHERE ch.workspace_id = ${input.workspaceId} AND cs.id = ch.id`,
+        );
+
         await tx
           .delete(hardware)
           .where(eq(hardware.workspaceId, input.workspaceId));
 
         await tx.execute(
-          sql`DELETE FROM cloud_model as cm WHERE cm.id IN (SELECT id FROM cloud_system_model) AND cm.workspace_id = ${input.workspaceId}`,
+          sql`DELETE FROM cloud_model AS cm USING cloud_system_model as csm WHERE cm.workspace_id = ${input.workspaceId} AND cm.id = csm.id`,
         );
+
         await tx.delete(workspace).where(eq(workspace.id, input.workspaceId));
       });
     }),
