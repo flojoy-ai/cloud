@@ -343,7 +343,7 @@ export const hardwareRouter = createTRPCRouter({
     .meta({
       openapi: {
         method: "GET",
-        path: "/v1/hardware/devices",
+        path: "/v1/hardware/all/devices",
         tags: ["hardware"],
       },
     })
@@ -368,7 +368,7 @@ export const hardwareRouter = createTRPCRouter({
     .meta({
       openapi: {
         method: "GET",
-        path: "/v1/hardware/systems",
+        path: "/v1/hardware/all/systems",
         tags: ["hardware"],
       },
     })
@@ -423,7 +423,7 @@ export const hardwareRouter = createTRPCRouter({
 async function getAllDevices(
   workspaceId: string,
   projectId?: string,
-  onlyAvailable = false,
+  onlyAvailable?: boolean,
 ) {
   const conditions = [eq(hardware.workspaceId, workspaceId)];
   if (onlyAvailable) {
