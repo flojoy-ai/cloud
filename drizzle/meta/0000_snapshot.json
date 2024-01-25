@@ -1,5 +1,5 @@
 {
-  "id": "733558b0-debd-4384-b3f4-80498622cbd5",
+  "id": "bce9de1e-4ce0-4ed4-bb9b-6ea4ff08fe28",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -157,12 +157,13 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "cloud_hardware_workspace_id_name_unique": {
-          "name": "cloud_hardware_workspace_id_name_unique",
+        "cloud_hardware_workspace_id_name_model_id_unique": {
+          "name": "cloud_hardware_workspace_id_name_model_id_unique",
           "nullsNotDistinct": false,
           "columns": [
             "workspace_id",
-            "name"
+            "name",
+            "model_id"
           ]
         }
       }

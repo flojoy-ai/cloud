@@ -26,7 +26,7 @@ export const hardware = pgTable(
   },
   (table) => ({
     hardwareNameIndex: index().on(table.name),
-    unq: unique().on(table.workspaceId, table.name),
+    unq: unique().on(table.workspaceId, table.name, table.modelId),
   }),
 );
 

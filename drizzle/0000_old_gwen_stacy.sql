@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS "cloud_hardware" (
 	"model_id" text NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp,
-	CONSTRAINT "cloud_hardware_workspace_id_name_unique" UNIQUE("workspace_id","name")
+	CONSTRAINT "cloud_hardware_workspace_id_name_model_id_unique" UNIQUE("workspace_id","name","model_id")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_system" (
