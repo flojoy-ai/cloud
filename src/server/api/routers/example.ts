@@ -10,15 +10,16 @@ import {
   model,
   hardware,
   deviceModel,
+  systemModel,
 } from "~/server/db/schema";
 
 import _ from "lodash";
 
 import { eq } from "drizzle-orm";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
-import { workspace } from "~/server/db/schema";
 
 import { TRPCError } from "@trpc/server";
+import { api } from "~/trpc/server";
 
 const generateRandomNumbers = () => {
   const randomNumbers = [];
@@ -38,60 +39,40 @@ export const exampleRouter = createTRPCRouter({
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
       return await ctx.db.transaction(async (tx) => {
-        const [newModel] = await tx
-          .insert(model)
-          .values({
-            name: "HL1234",
-            workspaceId: input.workspaceId,
-          })
-          .returning();
-
-        if (!newModel) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create model",
-          });
-        }
-
-        await tx.insert(deviceModel).values({
-          id: newModel.id,
+        const newDeviceModel1 = await api.model.createDeviceModel.mutate({
+          name: "HL1234",
+          workspaceId: input.workspaceId,
         });
 
-        const [newProject] = await tx
-          .insert(project)
-          .values({
-            name: "HL1234 Testing Project",
-            modelId: newModel.id,
-            workspaceId: input.workspaceId,
-          })
-          .returning();
+        const newDeviceModel2 = await api.model.createDeviceModel.mutate({
+          name: "HL2345",
+          workspaceId: input.workspaceId,
+        });
 
-        if (!newProject) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create project",
-          });
-        }
+        const newSystemModel = await api.model.createSystemModel.mutate({
+          name: "HL9876",
+          workspaceId: input.workspaceId,
+          parts: [
+            { modelId: newDeviceModel1.id, count: 2 },
+            { modelId: newDeviceModel2.id, count: 2 },
+          ],
+        });
 
-        const [booleanTest] = await tx
-          .insert(test)
-          .values({
-            name: "Pass/Fail Test",
-            projectId: newProject.id,
-            measurementType: "boolean",
-          })
-          .returning();
+        const newDeviceProject = await api.project.createProject.mutate({
+          name: "HL1234 Testing Project",
+          modelId: newDeviceModel1.id,
+          workspaceId: input.workspaceId,
+        });
 
-        if (!booleanTest) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create test",
-          });
-        }
+        const booleanTest = await api.test.createTest.mutate({
+          name: "Pass/Fail Test",
+          projectId: newDeviceProject.id,
+          measurementType: "boolean",
+        });
 
         const insertDevices = _.times(9, (i) => ({
           name: `SN000${i + 1}`,
-          modelId: newModel.id,
+          modelId: newDeviceModel1.id,
           workspaceId: input.workspaceId,
         }));
 
@@ -126,7 +107,7 @@ export const exampleRouter = createTRPCRouter({
         for (const device of devices) {
           await tx.insert(project_hardware).values({
             hardwareId: device.id,
-            projectId: newProject.id,
+            projectId: newDeviceProject.id,
           });
         }
 
@@ -167,7 +148,7 @@ export const exampleRouter = createTRPCRouter({
           .insert(test)
           .values({
             name: "Expected vs Measured",
-            projectId: newProject.id,
+            projectId: newDeviceProject.id,
             measurementType: "dataframe",
           })
           .returning();
@@ -217,11 +198,6 @@ export const exampleRouter = createTRPCRouter({
               .where(eq(test.id, testId));
           }),
         );
-
-        await tx
-          .update(workspace)
-          .set({ updatedAt: new Date() })
-          .where(eq(workspace.id, input.workspaceId));
       });
     }),
 });
