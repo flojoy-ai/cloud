@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import {
   createTRPCRouter,
@@ -13,6 +13,7 @@ import {
   project,
   hardware,
   systemModel,
+  model,
 } from "~/server/db/schema";
 import {
   publicInsertWorkspaceSchema,
@@ -135,7 +136,9 @@ export const workspaceRouter = createTRPCRouter({
           .delete(hardware)
           .where(eq(hardware.workspaceId, input.workspaceId));
 
-        // FIXME: delete system models and then everything can be deleted
+        await tx.execute(
+          sql`DELETE FROM cloud_model as cm WHERE cm.id IN (SELECT id FROM cloud_system_model) AND cm.workspace_id = ${input.workspaceId}`,
+        );
         await tx.delete(workspace).where(eq(workspace.id, input.workspaceId));
       });
     }),
