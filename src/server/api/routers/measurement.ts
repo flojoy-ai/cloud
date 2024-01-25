@@ -183,4 +183,25 @@ export const measurementRouter = createTRPCRouter({
       }
       return result;
     }),
+
+  deleteMeasurementById: workspaceProcedure
+    .meta({
+      openapi: {
+        method: "DELETE",
+        path: "/v1/measurements/{measurementId}",
+        tags: ["measurement"],
+      },
+    })
+    .input(
+      z.object({
+        measurementId: z.string(),
+      }),
+    )
+    .use(measurementAccessMiddleware)
+    .output(z.void())
+    .query(async ({ ctx, input }) => {
+      await ctx.db
+        .delete(measurement)
+        .where(eq(measurement.id, input.measurementId));
+    }),
 });
