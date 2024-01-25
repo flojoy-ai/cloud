@@ -32,7 +32,7 @@ export default async function Page({
 client = FlojoyCloud(workspace_secret="YOUR_WORKSPACE_SECRET")
 
 # Create a project
-project = client.create_project("PROJECT_NAME", "${workspace.id}")
+project = client.create_project("PROJECT_NAME", "MODEL_ID", "${workspace.id}")
 
 # Get an existing project
 project = client.get_project_by_id("PROJECT_ID")

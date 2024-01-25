@@ -1,8 +1,8 @@
 import { api } from "~/trpc/server";
 import AllHardwares from "./_components/all-hardwares";
 import { Separator } from "~/components/ui/separator";
-// import CodeBlock from "~/components/code-block";
-// import { WorkspaceSecretReminder } from "~/components/workspace-secret-reminder";
+import CodeBlock from "~/components/code-block";
+import { WorkspaceSecretReminder } from "~/components/workspace-secret-reminder";
 
 const DevicesView = async ({
   params,
@@ -22,29 +22,29 @@ const DevicesView = async ({
     projectId: project.id,
   });
 
-  //   const code = `from flojoy.cloud import FlojoyCloud
-  //
-  // # Create a device
-  // device = client.create_device("DEVICE_NAME", "${workspaceId}")
-  //
-  // # Get an existing device
-  // device = client.get_device_by_id("DEVICE_ID")
-  //
-  // # Get all devices from this workspace
-  // devices = client.get_all_devices("${workspaceId}")
-  //
-  // # Get all devices from this project
-  // devices = client.get_all_devices("${workspaceId}", "${params.projectId}")
-  //
-  // # Add device to this project
-  // client.add_device_to_project("DEVICE_ID", "${params.projectId}")
-  //
-  // # Remove device from this project
-  // client.remove_device_from_project("DEVICE_ID", "${params.projectId}")
-  //
-  // # Delete a device
-  // client.delete_device_by_id("DEVICE_ID")
-  // `;
+  const code = `from flojoy.cloud import FlojoyCloud
+
+# Create a device
+device = client.create_device("${workspaceId}", "DEVICE_NAME", "MODEL_ID", "PROJECT_ID")
+
+# Get an existing device
+device = client.get_device_by_id("DEVICE_ID")
+
+# Get all devices from this workspace
+devices = client.get_all_devices("${workspaceId}")
+
+# Get all devices from this project
+devices = client.get_all_devices("${workspaceId}", "${params.projectId}")
+
+# Add device to this project
+client.add_device_to_project("DEVICE_ID", "${params.projectId}")
+
+# Remove device from this project
+client.remove_device_from_project("DEVICE_ID", "${params.projectId}")
+
+# Delete a device
+client.delete_device_by_id("DEVICE_ID")
+  `;
 
   return (
     <div>
@@ -61,7 +61,7 @@ const DevicesView = async ({
 
       <div className="py-2"></div>
 
-      <div className="min-h-screen">
+      <div className="">
         <AllHardwares
           hardwares={hardwares}
           workspaceId={workspaceId}
@@ -70,17 +70,17 @@ const DevicesView = async ({
         />
       </div>
 
-      {/* <div className="py-8" /> */}
-      {/* <div> */}
-      {/*   <h3 className="text-lg font-medium">Python Client</h3> */}
-      {/*   <p className="text-sm text-muted-foreground"> */}
-      {/*     Create devices with Flojoy Cloud's Python client */}
-      {/*   </p> */}
-      {/* </div> */}
-      {/* <div> */}
-      {/*   <CodeBlock code={code} /> */}
-      {/*   <WorkspaceSecretReminder namespace={params.namespace} /> */}
-      {/* </div> */}
+      <div className="py-8" />
+      <div>
+        <h3 className="text-lg font-medium">Python Client</h3>
+        <p className="text-sm text-muted-foreground">
+          Create hardware instances with Flojoy Cloud's Python client
+        </p>
+      </div>
+      <div>
+        <CodeBlock code={code} />
+        <WorkspaceSecretReminder namespace={params.namespace} />
+      </div>
       <div className="py-8" />
     </div>
   );
