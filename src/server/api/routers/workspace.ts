@@ -58,7 +58,7 @@ export const workspaceRouter = createTRPCRouter({
     .input(publicInsertWorkspaceSchema)
     .output(selectWorkspaceSchema)
     .mutation(async ({ ctx, input }) => {
-      return await ctx.db.transaction(async (tx) => {
+      const newWorkspace = await ctx.db.transaction(async (tx) => {
         const [newWorkspace] = await tx
           .insert(workspace)
           .values({ planType: "enterprise", ...input })
@@ -83,11 +83,14 @@ export const workspaceRouter = createTRPCRouter({
           return newWorkspace;
         }
 
-        await api.example.populateExample.mutate({
-          workspaceId: newWorkspace.id,
-        });
         return newWorkspace;
       });
+
+      await api.example.populateExample.mutate({
+        workspaceId: newWorkspace.id,
+      });
+
+      return newWorkspace;
     }),
 
   updateWorkspace: workspaceProcedure
