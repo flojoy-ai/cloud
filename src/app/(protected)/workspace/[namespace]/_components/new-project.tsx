@@ -43,6 +43,7 @@ import {
 } from "~/components/ui/select";
 import { type SelectModel } from "~/types/model";
 import Link from "next/link";
+import { Badge } from "~/components/ui/badge";
 
 type Props = {
   workspace: SelectWorkspace;
@@ -133,13 +134,16 @@ export default function NewProjectButton({ workspace, models }: Props) {
                           value={field.value}
                           onValueChange={field.onChange}
                         >
-                          <SelectTrigger className="w-[180px]">
+                          <SelectTrigger className="w-[200px]">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
                             {models.map((model) => (
                               <SelectItem value={model.id} key={model.id}>
                                 {model.name}
+                                <Badge className="ml-2" variant="outline">
+                                  {model.type}
+                                </Badge>
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -157,7 +161,7 @@ export default function NewProjectButton({ workspace, models }: Props) {
                       )}
                     </FormControl>
                     <FormDescription>
-                      What hardware model is this project testing? <br /> Don't
+                      Which hardware model is this project testing? <br /> Don't
                       have a hardware model yet?{" "}
                       <Link
                         href="/workspace"
