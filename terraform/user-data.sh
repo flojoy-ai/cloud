@@ -73,6 +73,15 @@ check_env_file() {
   fi
 }
 
+git stash
+
+git pull
+
+db_push_needed=true
+if [ -d "/root/cloud/node_modules" ]; then
+  db_push_needed=false
+fi
+
 pnpm install
 
 for i in {1..8}; do
@@ -83,8 +92,15 @@ for i in {1..8}; do
 done
 
 if ! check_env_file; then
+  # delete node_modules
+  rm -rf /root/cloud/node_modules
   echo "Error: .env file not found after multiple attempts."
   exit 1
+fi
+
+if \$db_push_needed; then
+  pnpm db:generate
+  pnpm db:push
 fi
 
 pnpm build
@@ -117,3 +133,5 @@ echo "Created database and user: $?"
 su - postgres -c "psql -c \"ALTER USER flojoy WITH ENCRYPTED PASSWORD 'Hk5pQw9rJz2X';\""
 
 su - postgres -c "psql -c \"GRANT ALL PRIVILEGES ON DATABASE flojoy_cloud TO flojoy;\""
+
+git clone https://github.com/flojoy-ai/cloud.git /root/cloud
