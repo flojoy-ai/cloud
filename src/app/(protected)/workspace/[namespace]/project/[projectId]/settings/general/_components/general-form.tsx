@@ -57,8 +57,8 @@ const GeneralForm = ({ projectId }: Props) => {
         ...values,
       }),
       {
-        loading: "Updating your workspace...",
-        success: "Your workspace is updated.",
+        loading: "Updating your project...",
+        success: "Your project is updated.",
         error: "Something went wrong :(",
       },
     );

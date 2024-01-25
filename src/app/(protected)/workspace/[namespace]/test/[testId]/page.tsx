@@ -1,6 +1,5 @@
 import CodeBlock from "~/components/code-block";
-import { columns } from "~/components/measurement/columns";
-import { DataTable } from "~/components/measurement/data-table";
+import { MeasurementsDataTable } from "~/components/measurements-data-table";
 import {
   PageHeader,
   PageHeaderDescription,
@@ -36,7 +35,10 @@ measurements = client.get_all_measurements_by_test_id("${params.testId}")
 
       <div className="py-4"></div>
 
-      <DataTable columns={columns} data={test.measurements} />
+      <MeasurementsDataTable
+        measurements={test.measurements}
+        namespace={params.namespace}
+      />
 
       <div className="py-2" />
       <div>

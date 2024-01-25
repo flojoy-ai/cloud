@@ -2,7 +2,6 @@
 import { type SelectProject } from "~/types/project";
 
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
 
@@ -18,7 +17,6 @@ import {
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { insertDeviceSchema } from "~/types/device";
 
 import {
   Dialog,
@@ -34,38 +32,42 @@ import {
 import { Input } from "~/components/ui/input";
 import { api } from "~/trpc/react";
 import { type z } from "zod";
+import { publicInsertDeviceSchema } from "~/types/hardware";
+
+type FormSchema = z.infer<typeof publicInsertDeviceSchema>;
 
 type Props = {
   project: SelectProject;
 };
 
 const CreateDevice = ({ project }: Props) => {
-  const router = useRouter();
-
+  const utils = api.useUtils();
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
-  const createDevice = api.device.createDevice.useMutation({
+  const createHardware = api.hardware.createDevice.useMutation({
     onSuccess: () => {
-      router.refresh();
+      void utils.hardware.getAllHardware.invalidate();
       setIsDialogOpen(false);
     },
   });
 
-  const form = useForm<z.infer<typeof insertDeviceSchema>>({
-    resolver: zodResolver(insertDeviceSchema),
+  const form = useForm<FormSchema>({
+    resolver: zodResolver(publicInsertDeviceSchema),
     defaultValues: {
       workspaceId: project.workspaceId,
+      modelId: project.modelId,
+      projectId: project.id,
     },
   });
 
-  function onSubmit(values: z.infer<typeof insertDeviceSchema>) {
+  function onSubmit(values: FormSchema) {
     toast.promise(
-      createDevice.mutateAsync({
+      createHardware.mutateAsync({
         ...values,
       }),
       {
-        loading: "Creating your device...",
-        success: "Your device is ready.",
+        loading: "Creating your device instance...",
+        success: "Your device instance is ready.",
         error: "Something went wrong :(",
       },
     );
@@ -75,14 +77,14 @@ const CreateDevice = ({ project }: Props) => {
     <Dialog open={isDialogOpen} onOpenChange={(open) => setIsDialogOpen(open)}>
       <DialogTrigger asChild>
         <Button variant="default" size="sm">
-          Register Device
+          Register Device Instance
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Register a new device</DialogTitle>
           <DialogDescription>
-            Which hardware device of yours do you want to register?
+            Which device instance of yours do you want to register?
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -92,16 +94,17 @@ const CreateDevice = ({ project }: Props) => {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Device Identifier</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Circuit Board #1"
+                      placeholder="e.g. SN1234"
                       {...field}
                       data-1p-ignore
                     />
                   </FormControl>
                   <FormDescription>
-                    What is the name of your device?
+                    How do you identity this device instance? This is usually a
+                    serial number like SN1234.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Card,
   CardContent,
@@ -6,7 +8,6 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import LinePlot from "~/components/visualization/plot/line-plot";
-import { type SelectTest } from "~/types/test";
 import { type SelectMeasurement } from "~/types/measurement";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,28 +25,46 @@ import {
 } from "~/components/ui/form";
 
 import { type z } from "zod";
-import { explorerConfig } from "~/types/data";
+import { type DataframeData, explorerConfig } from "~/types/data";
 import { Input } from "../ui/input";
 import { Checkbox } from "../ui/checkbox";
 import { Button } from "../ui/button";
 import { useState } from "react";
-import { type SelectDevice } from "~/types/device";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "~/components/ui/select";
+import { type SelectHardware } from "~/types/hardware";
+import _ from "lodash";
 
 type Props = {
-  measurements: (SelectMeasurement & { device: SelectDevice })[];
-  selectedTest: SelectTest;
-  everythingSelected: boolean;
+  measurements: (SelectMeasurement & { hardware: SelectHardware })[];
+  title: string;
   workspaceId: string;
+};
+
+const getValidColumns = (dataframes: DataframeData[]): [string[], string[]] => {
+  const validXKeys = [];
+  const validYKeys = [];
+
+  for (const df of dataframes) {
+    for (const [k, v] of Object.entries(df.dataframe)) {
+      if (typeof v[0] === "number") {
+        validYKeys.push(k);
+      }
+      validXKeys.push(k);
+    }
+  }
+
+  return [_.uniq(validXKeys), _.uniq(validYKeys)];
 };
 
 type FormSchema = z.infer<typeof explorerConfig.dataframe>;
 
-const DataFrameViz = ({
-  measurements,
-  selectedTest,
-  everythingSelected,
-  workspaceId,
-}: Props) => {
+const DataFrameViz = ({ measurements, title, workspaceId }: Props) => {
   const form = useForm<FormSchema>({
     resolver: zodResolver(explorerConfig.dataframe),
   });
@@ -53,6 +72,12 @@ const DataFrameViz = ({
   const router = useRouter();
 
   const [config, setConfig] = useState<FormSchema>(form.getValues());
+
+  const data = measurements
+    .map((m) => m.data)
+    .filter((data) => data.type === "dataframe") as DataframeData[];
+
+  const [xCols, yCols] = getValidColumns(data);
 
   const onSubmit: SubmitHandler<FormSchema> = (vals) => {
     setConfig(vals);
@@ -68,6 +93,56 @@ const DataFrameViz = ({
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardContent>
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                <FormField
+                  control={form.control}
+                  name="xAxisColumn"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>X Axis</FormLabel>
+                      <FormControl>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <SelectTrigger className="w-[180px]">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {xCols.map((col) => (
+                              <SelectItem value={col}>{col}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="yAxisColumn"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Y Axis</FormLabel>
+                      <FormControl>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <SelectTrigger className="w-[180px]">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {yCols.map((col) => (
+                              <SelectItem value={col}>{col}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="upperControlLimit"
@@ -211,16 +286,18 @@ const DataFrameViz = ({
         </Form>
       </Card>
 
-      {everythingSelected && measurements && (
+      {measurements && (
         <LinePlot
-          title={selectedTest?.name ?? "Untitled Test"}
+          title={title ?? "Untitled Test"}
           lines={
             measurements.map((measurement) => {
-              if (measurement.data.type === "dataframe") {
+              const xCol = form.watch("xAxisColumn");
+              const yCol = form.watch("yAxisColumn");
+              if (measurement.data.type === "dataframe" && xCol && yCol) {
                 return {
-                  x: measurement.data.dataframe.x ?? [],
-                  y: measurement.data.dataframe.y ?? [],
-                  name: measurement.device.name,
+                  x: measurement.data.dataframe[xCol] ?? [],
+                  y: (measurement.data.dataframe[yCol] ?? []) as number[],
+                  name: measurement.hardware.name,
                 };
               }
               return { x: [], y: [], name: "" };
@@ -237,7 +314,7 @@ const DataFrameViz = ({
               return;
             }
             router.push(
-              `/workspace/${workspaceId}/device/${measurement.deviceId}`,
+              `/workspace/${workspaceId}/device/${measurement.hardwareId}`,
             );
           }}
         />

@@ -55,11 +55,9 @@ const ExplorerVisualization = ({ tests, workspaceId, namespace }: Props) => {
   const measurements = onlyShowLatest
     ? _.uniqBy(
         _.orderBy(data, (m) => m.createdAt, "desc"),
-        (m) => m.deviceId,
+        (m) => m.hardwareId,
       )
     : data;
-
-  const everythingSelected = selectedTest !== undefined;
 
   const code = `from flojoy.cloud import FlojoyCloud
 
@@ -125,15 +123,13 @@ measurements = client.get_all_measurements_by_test_id("${
       {selectedTest?.measurementType === "boolean" ? (
         <BooleanViz
           measurements={measurements ?? []}
-          selectedTest={selectedTest}
-          everythingSelected={everythingSelected}
+          title={selectedTest?.name}
           workspaceId={workspaceId}
         />
       ) : selectedTest?.measurementType === "dataframe" ? (
         <DataFrameViz
           measurements={measurements ?? []}
-          selectedTest={selectedTest}
-          everythingSelected={everythingSelected}
+          title={selectedTest?.name}
           workspaceId={workspaceId}
         />
       ) : null}

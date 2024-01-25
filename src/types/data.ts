@@ -7,17 +7,21 @@ export const allMeasurementDataTypes = ["boolean", "dataframe"] as const;
 export type MeasurementDataType = (typeof allMeasurementDataTypes)[number];
 
 // Step 2: Create a schema for the newly added measurement type
-const booleanDataSchema = {
+const booleanDataSchema = z.object({
   passed: z.boolean(),
-};
+});
 
-const dataframeDataSchema = {
+export type BooleanData = z.infer<typeof booleanDataSchema>;
+
+const dataframeDataSchema = z.object({
   dataframe: z.record(
     z.string(),
     // TODO: technically the array can also contain nulls
-    z.number().array(),
+    z.union([z.number().array(), z.string().array()]),
   ),
-};
+});
+
+export type DataframeData = z.infer<typeof dataframeDataSchema>;
 
 // Step 3: Add to this config object
 export const measurementConfig = {
@@ -36,7 +40,7 @@ export const measurementDataSchema = z.discriminatedUnion("type", [
         }),
       }),
     })
-    .extend(measurementConfig.boolean),
+    .merge(measurementConfig.boolean),
   z
     .object({
       type: z.literal("dataframe", {
@@ -46,7 +50,7 @@ export const measurementDataSchema = z.discriminatedUnion("type", [
         }),
       }),
     })
-    .extend(measurementConfig.dataframe),
+    .merge(measurementConfig.dataframe),
 ]);
 
 export type MeasurementData = z.infer<typeof measurementDataSchema>;
@@ -78,25 +82,31 @@ const exprValidator = (varName: string) => (expr: string | undefined) => {
   return valid;
 };
 
-const dataframeExplorerSchema = z.object({
-  upperControlLimit: z.number().optional(),
-  lowerControlLimit: z.number().optional(),
-  yTransform: z
-    .string()
-    .optional()
-    .refine(exprValidator("y"), "Expression must be a function of y"),
-  upperControlLimitTransform: z
-    .string()
-    .optional()
-    .refine(exprValidator("x"), "Expression must be a function of x"),
-  lowerControlLimitTransform: z
-    .string()
-    .optional()
-    .refine(exprValidator("x"), "Expression must be a function of x"),
-  logScaleYAxis: z.boolean().optional(),
-  errorBars: z.boolean().optional(),
-  errorPercentage: z.number().min(0).optional(),
-});
+const dataframeExplorerSchema = z
+  .object({
+    xAxisColumn: z.string().optional(),
+    yAxisColumn: z.string().optional(),
+    upperControlLimit: z.number().optional(),
+    lowerControlLimit: z.number().optional(),
+    yTransform: z
+      .string()
+      .optional()
+      .refine(exprValidator("y"), "Expression must be a function of y"),
+    upperControlLimitTransform: z
+      .string()
+      .optional()
+      .refine(exprValidator("x"), "Expression must be a function of x"),
+    lowerControlLimitTransform: z
+      .string()
+      .optional()
+      .refine(exprValidator("x"), "Expression must be a function of x"),
+    logScaleYAxis: z.boolean().optional(),
+    errorBars: z.boolean().optional(),
+    errorPercentage: z.number().min(0).optional(),
+  })
+  .refine((schema) => {
+    return schema.xAxisColumn !== schema.yAxisColumn;
+  }, "X Axis and Y Axis must be different");
 
 export const explorerConfig = {
   boolean: booleanExplorerSchema,

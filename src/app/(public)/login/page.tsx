@@ -2,7 +2,8 @@ import Link from "next/link";
 import { Icons } from "~/components/icons";
 import TermsAndPrivacy from "~/components/terms-and-privacy";
 import { Button } from "~/components/ui/button";
-import EmailPassFields from "~/components/email-pass-fields";
+import LoginForm from "./login-form";
+import { Separator } from "~/components/ui/separator";
 
 export default async function LogIn() {
   return (
@@ -14,8 +15,12 @@ export default async function LogIn() {
               Log in to your account
             </h1>
           </div>
-          <EmailPassFields login />
-          <Button asChild>
+
+          <LoginForm />
+
+          <Separator />
+
+          <Button asChild variant="secondary">
             <Link href="/login/google" className="flex gap-2">
               <Icons.google className="h-4 w-4" />
               Continue with Google

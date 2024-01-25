@@ -23,6 +23,9 @@ export default async function Page({
   const projects = await api.project.getAllProjectsByWorkspaceId.query({
     workspaceId: workspace.id,
   });
+  const models = await api.model.getAllModels.query({
+    workspaceId: workspace.id,
+  });
 
   const code = `from flojoy.cloud import FlojoyCloud
 
@@ -43,16 +46,14 @@ project = client.get_all_projects_by_workspace_id("${workspace.id}")
       <PageHeader>
         <PageHeaderHeading className="">Projects</PageHeaderHeading>
         <PageHeaderDescription>
-          Here you can find all the projects in the {workspace.name} workspace.{" "}
-          <br />
-          Each project should host a single type of board with all its hardware
-          instances.
+          A project is a collection of hardware instances that share the same
+          hardware model and a common set of tests.
         </PageHeaderDescription>
       </PageHeader>
       <div className="py-4"></div>
 
       <div className="space-x-2">
-        <NewProject workspace={workspace} />
+        <NewProject workspace={workspace} models={models} />
       </div>
 
       <div className="py-2"></div>
@@ -67,6 +68,7 @@ project = client.get_all_projects_by_workspace_id("${workspace.id}")
             <ProjectCard
               key={project.id}
               project={project}
+              models={models}
               workspace={workspace}
             />
           ))}

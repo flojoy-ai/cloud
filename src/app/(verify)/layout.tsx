@@ -16,7 +16,7 @@ export default async function ProtectedLayout({
   }
 
   if (session.user.emailVerified) {
-    redirect("/workspace");
+    redirect("/setup");
   }
 
   return (

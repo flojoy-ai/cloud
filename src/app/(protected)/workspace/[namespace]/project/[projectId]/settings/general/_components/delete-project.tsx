@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useWorkspace } from "~/app/(protected)/workspace/[namespace]/workspace-provider";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,9 +23,10 @@ type Props = {
 
 const DeleteProject = ({ projectId }: Props) => {
   const router = useRouter();
+  const workspace = useWorkspace();
   const deleteProject = api.project.deleteProjectById.useMutation({
     onSuccess: () => {
-      router.push("/workspace");
+      router.push(`/workspace/${workspace}`);
       router.refresh();
     },
   });

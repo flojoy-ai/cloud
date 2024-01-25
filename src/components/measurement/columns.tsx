@@ -1,9 +1,7 @@
 "use client";
 
 import { type ColumnDef } from "@tanstack/react-table";
-import { type SelectDevice } from "~/types/device";
-import { type SelectMeasurement } from "~/types/measurement";
-import { type SelectTest } from "~/types/test";
+import { type MeasurementWithHardware } from "~/types/measurement";
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
@@ -15,9 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 
-export const columns: ColumnDef<
-  SelectMeasurement & { test: SelectTest; device: SelectDevice }
->[] = [
+export const columns: ColumnDef<MeasurementWithHardware>[] = [
   {
     accessorKey: "name",
     header: "Name",
@@ -25,15 +21,10 @@ export const columns: ColumnDef<
   {
     accessorKey: "deviceId",
     header: "Device",
-    accessorFn: (data) => data.device.name,
+    accessorFn: (data) => data.hardware.name,
   },
   {
-    accessorKey: "testId",
-    header: "Test",
-    accessorFn: (data) => data.test.name,
-  },
-  {
-    accessorKey: "measurementType",
+    accessorKey: "data.type",
     header: "Type",
   },
   {
@@ -56,7 +47,7 @@ export const columns: ColumnDef<
       return JSON.stringify(data.data).slice(0, 10);
     },
     cell: ({ row }) => {
-      switch (row.original.measurementType) {
+      switch (row.original.data.type) {
         case "boolean":
           if (row.getValue("data") === "Passed") {
             return <div className="text-green-500">{row.getValue("data")}</div>;
@@ -92,11 +83,10 @@ export const columns: ColumnDef<
               onClick={() => {
                 const json = {
                   id: measurement.id,
-                  type: measurement.measurementType,
                   name: measurement.name,
                   data: measurement.data,
-                  deviceId: measurement.device.id,
-                  testId: measurement.test.id,
+                  hardwareId: measurement.hardwareId,
+                  testId: measurement.testId,
                   createdAt: measurement.createdAt,
                 };
                 const data = JSON.stringify(json);
