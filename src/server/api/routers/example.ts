@@ -2,20 +2,14 @@ import { z } from "zod";
 import { workspaceAccessMiddleware } from "./workspace";
 
 import {
-  project,
-  test,
   device,
   project_hardware,
   measurement,
-  model,
   hardware,
-  deviceModel,
-  systemModel,
 } from "~/server/db/schema";
 
 import _ from "lodash";
 
-import { eq } from "drizzle-orm";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 
 import { TRPCError } from "@trpc/server";
@@ -68,6 +62,12 @@ export const exampleRouter = createTRPCRouter({
           name: "Pass/Fail Test",
           projectId: newDeviceProject.id,
           measurementType: "boolean",
+        });
+
+        const dataframeTest = await api.test.createTest.mutate({
+          name: "Expected vs Measured",
+          projectId: newDeviceProject.id,
+          measurementType: "dataframe",
         });
 
         const insertDevices = _.times(9, (i) => ({
@@ -133,33 +133,6 @@ export const exampleRouter = createTRPCRouter({
           });
         }
 
-        await Promise.all(
-          _.uniq(
-            boolMeasCreateResult.map((measurement) => measurement.testId),
-          ).map(async (testId) => {
-            await ctx.db
-              .update(test)
-              .set({ updatedAt: new Date() })
-              .where(eq(test.id, testId));
-          }),
-        );
-
-        const [dataframeTest] = await tx
-          .insert(test)
-          .values({
-            name: "Expected vs Measured",
-            projectId: newDeviceProject.id,
-            measurementType: "dataframe",
-          })
-          .returning();
-
-        if (!dataframeTest) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create test",
-          });
-        }
-
         const dataframeMeas = devices.map((device, i) => ({
           name: "Data Point",
           hardwareId: device.id,
@@ -187,17 +160,6 @@ export const exampleRouter = createTRPCRouter({
             message: "Failed to create measurements",
           });
         }
-
-        await Promise.all(
-          _.uniq(
-            dataframeMeasCreateResult.map((measurement) => measurement.testId),
-          ).map(async (testId) => {
-            await ctx.db
-              .update(test)
-              .set({ updatedAt: new Date() })
-              .where(eq(test.id, testId));
-          }),
-        );
       });
     }),
 });
