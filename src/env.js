@@ -76,7 +76,7 @@ export const env = createEnv({
 
     JWT_SECRET: process.env.JWT_SECRET,
     AWS_AMI: process.env.AWS_AMI,
-    NEXT_PUBLIC_URL_ORIGIN: process.env.URL_ORIGIN,
+    NEXT_PUBLIC_URL_ORIGIN: process.env.NEXT_PUBLIC_URL_ORIGIN,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

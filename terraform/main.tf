@@ -30,3 +30,14 @@ output "public_ip_linux" {
 output "instance_id_linux" {
   value = aws_instance.fj_cloud_instance.id
 }
+
+resource "time_sleep" "wait_for_user_data_execution" {
+  depends_on      = [aws_instance.fj_cloud_instance]
+  create_duration = "10m"
+}
+
+resource "aws_ami_from_instance" "fj_cloud_ami" {
+  name               = "Flojoy-Cloud-AMI"
+  source_instance_id = aws_instance.fj_cloud_instance.id
+  depends_on         = [time_sleep.wait_for_user_data_execution]
+}
