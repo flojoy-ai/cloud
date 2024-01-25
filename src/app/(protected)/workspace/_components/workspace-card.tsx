@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import { getPrettyTime } from "~/lib/time";
+// import { getPrettyTime } from "~/lib/time";
 import { type SelectWorkspace } from "~/types/workspace";
 import {
   ContextMenu,
@@ -37,12 +37,12 @@ export default function WorkspaceCard({ workspace }: Props) {
               <Badge>{workspace.planType}</Badge>
             </CardContent>
             <CardFooter>
-              <div>
-                Last updated:{" "}
-                {workspace.updatedAt
-                  ? getPrettyTime(workspace.updatedAt)
-                  : "Never"}
-              </div>
+              {/* <div> */}
+              {/*   Last updated:{" "} */}
+              {/*   {workspace.updatedAt */}
+              {/*     ? getPrettyTime(workspace.updatedAt) */}
+              {/*     : "Never"} */}
+              {/* </div> */}
             </CardFooter>
           </Card>
         </Link>

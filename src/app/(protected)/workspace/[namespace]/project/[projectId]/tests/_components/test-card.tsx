@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import { getPrettyTime } from "~/lib/time";
+// import { getPrettyTime } from "~/lib/time";
 import { Badge } from "~/components/ui/badge";
 import {
   ContextMenu,
@@ -37,10 +37,10 @@ const TestCard = ({ test, namespace }: Props) => {
               <Badge>{test.measurementType}</Badge>
             </CardContent>
             <CardFooter>
-              <div>
-                Last updated:{" "}
-                {test.updatedAt ? getPrettyTime(test.updatedAt) : "Never"}
-              </div>
+              {/* <div> */}
+              {/*   Last updated:{" "} */}
+              {/*   {test.updatedAt ? getPrettyTime(test.updatedAt) : "Never"} */}
+              {/* </div> */}
             </CardFooter>
           </Card>
         </Link>
