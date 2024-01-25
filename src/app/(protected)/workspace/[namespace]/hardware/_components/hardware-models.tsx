@@ -33,6 +33,7 @@ export default function HardwareModels(props: Props) {
         <h1 className="text-lg font-bold text-muted-foreground">
           Device Models
         </h1>
+        <div className="text-muted-foreground">This is a standalone model.</div>
         <div className="py-2" />
         <DataTable columns={deviceModelColumns} data={deviceModels} />
         <div className="py-4" />
@@ -41,6 +42,9 @@ export default function HardwareModels(props: Props) {
         <h1 className="text-lg font-bold text-muted-foreground">
           System Models
         </h1>
+        <div className="text-muted-foreground">
+          A system model is composed of multiple device models.
+        </div>
         <div className="py-2" />
         <DataTable columns={systemModelColumns} data={systemModels} />
         <div className="py-4" />
