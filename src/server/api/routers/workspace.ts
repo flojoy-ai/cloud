@@ -6,7 +6,14 @@ import {
   workspaceProcedure,
 } from "~/server/api/trpc";
 import { db } from "~/server/db";
-import { workspace, user, workspace_user } from "~/server/db/schema";
+import {
+  workspace,
+  user,
+  workspace_user,
+  project,
+  hardware,
+  systemModel,
+} from "~/server/db/schema";
 import {
   publicInsertWorkspaceSchema,
   selectWorkspaceSchema,
@@ -120,7 +127,17 @@ export const workspaceRouter = createTRPCRouter({
     .input(z.object({ workspaceId: z.string() }))
     .output(z.void())
     .mutation(async ({ ctx, input }) => {
-      await ctx.db.delete(workspace).where(eq(workspace.id, input.workspaceId));
+      return await ctx.db.transaction(async (tx) => {
+        await tx
+          .delete(project)
+          .where(eq(project.workspaceId, input.workspaceId));
+        await tx
+          .delete(hardware)
+          .where(eq(hardware.workspaceId, input.workspaceId));
+
+        // FIXME: delete system models and then everything can be deleted
+        await tx.delete(workspace).where(eq(workspace.id, input.workspaceId));
+      });
     }),
 
   getWorkspaces: protectedProcedure
@@ -165,6 +182,7 @@ export const workspaceRouter = createTRPCRouter({
       }
       return result;
     }),
+
   getWorkspaceIdByNamespace: protectedProcedure
     .input(z.object({ namespace: z.string() }))
     .output(z.string())
