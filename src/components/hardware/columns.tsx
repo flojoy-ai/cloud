@@ -185,7 +185,17 @@ export const systemColumns: ColumnDef<
     accessorKey: "project",
     header: "Project",
     cell: ({ row }) => {
-      return <Badge variant="outline">{row.original.projects[0].name}</Badge>;
+      const projects = row.original.projects;
+
+      return (
+        <div>
+          {projects.map((p) => (
+            <Badge key={p.id} variant="outline">
+              {p.name}
+            </Badge>
+          ))}
+        </div>
+      );
     },
   },
   {
