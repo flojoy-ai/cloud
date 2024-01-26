@@ -54,7 +54,8 @@ export default async function Measurement({
   }
 
   return (
-    <div className="h-screen p-8">
+    <div className="container max-w-screen-2xl">
+      <div className="py-4"></div>
       <h1 className="text-3xl font-bold">{measurement.name}</h1>
       <div className="text-base text-muted-foreground">
         {params.measurementId}
