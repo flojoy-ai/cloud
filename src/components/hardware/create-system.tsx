@@ -55,6 +55,9 @@ type Props = {
   children?: React.ReactNode;
 };
 
+const getSystemPartModels = (model: SelectSystemModel) =>
+  model.parts.flatMap((m) => new Array<string>(m.count).fill(m.modelId));
+
 const CreateSystem = ({
   children,
   workspaceId,
@@ -65,7 +68,7 @@ const CreateSystem = ({
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const utils = api.useUtils();
   const [deviceModels, setDeviceModels] = useState<string[] | undefined>(
-    model?.parts.flatMap((m) => new Array<string>(m.count).fill(m.modelId)),
+    model ? getSystemPartModels(model) : undefined,
   );
 
   const createSystem = api.hardware.createSystem.useMutation({
@@ -95,6 +98,12 @@ const CreateSystem = ({
   });
 
   useEffect(() => {
+    if (isDialogOpen) {
+      form.reset();
+    }
+  }, [isDialogOpen]);
+
+  useEffect(() => {
     if (model !== undefined || form.watch("modelId") === undefined) {
       return;
     }
@@ -110,9 +119,7 @@ const CreateSystem = ({
       throw new Error("System model not found, this shouldn't happen");
     }
 
-    const deviceModels = m.parts.flatMap((p) =>
-      Array<string>(p.count).fill(p.modelId),
-    );
+    const deviceModels = getSystemPartModels(m);
 
     form.setValue(
       "deviceIds",
@@ -212,7 +219,7 @@ const CreateSystem = ({
               />
             )}
 
-            {deviceModels !== undefined && (
+            {form.watch("modelId") && deviceModels !== undefined && (
               <div>
                 <FormLabel>Parts</FormLabel>
                 <FormDescription>

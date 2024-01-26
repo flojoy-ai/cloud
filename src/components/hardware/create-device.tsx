@@ -1,6 +1,6 @@
 "use client";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
 
 import {
@@ -75,6 +75,12 @@ const CreateDevice = ({
       projectId,
     },
   });
+
+  useEffect(() => {
+    if (isDialogOpen) {
+      form.reset();
+    }
+  }, [isDialogOpen]);
 
   function onSubmit(values: FormSchema) {
     toast.promise(
