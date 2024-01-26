@@ -67,7 +67,7 @@ const Actions = ({ elem, children }: ActionsProps) => {
 };
 
 export const deviceColumns: ColumnDef<
-  SelectDevice & { project: SelectProject }
+  SelectDevice & { projects: SelectProject[] }
 >[] = [
   {
     accessorKey: "name",
@@ -88,7 +88,17 @@ export const deviceColumns: ColumnDef<
     accessorKey: "project",
     header: "Project",
     cell: ({ row }) => {
-      return <Badge variant="outline">{row.original.project.name}</Badge>;
+      const projects = row.original.projects;
+
+      return (
+        <div>
+          {projects.map((p) => (
+            <Badge key={p.id} variant="outline">
+              {p.name}
+            </Badge>
+          ))}
+        </div>
+      );
     },
   },
   {
@@ -154,7 +164,7 @@ export const deviceColumns: ColumnDef<
 ];
 
 export const systemColumns: ColumnDef<
-  SelectSystem & { project: SelectProject }
+  SelectSystem & { projects: SelectProject[] }
 >[] = [
   {
     accessorKey: "name",
@@ -175,7 +185,7 @@ export const systemColumns: ColumnDef<
     accessorKey: "project",
     header: "Project",
     cell: ({ row }) => {
-      return <Badge variant="outline">{row.original.project.name}</Badge>;
+      return <Badge variant="outline">{row.original.projects[0].name}</Badge>;
     },
   },
   {

@@ -8,8 +8,8 @@ import { type SelectSystem, type SelectDevice } from "~/types/hardware";
 import { type SelectProject } from "~/types/project";
 
 type Props = {
-  devices: (SelectDevice & { project: SelectProject })[];
-  systems: (SelectSystem & { project: SelectProject })[];
+  devices: (SelectDevice & { projects: SelectProject[] })[];
+  systems: (SelectSystem & { projects: SelectProject[] })[];
   workspaceId: string;
 };
 

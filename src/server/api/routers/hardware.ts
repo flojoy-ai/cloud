@@ -33,10 +33,11 @@ import {
   selectSystemSchema,
   selectHardwareBaseSchema,
   publicUpdateHardwareSchema,
+  type SelectDevice,
 } from "~/types/hardware";
 import { selectMeasurementSchema } from "~/types/measurement";
 import { workspaceAccessMiddleware } from "./workspace";
-import { selectProjectSchema } from "~/types/project";
+import { type SelectProject, selectProjectSchema } from "~/types/project";
 
 export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -358,14 +359,33 @@ export const hardwareRouter = createTRPCRouter({
     )
     .use(workspaceAccessMiddleware)
     .output(
-      z.array(selectDeviceSchema.extend({ project: selectProjectSchema })),
+      z.array(
+        selectDeviceSchema.extend({ projects: selectProjectSchema.array() }),
+      ),
     )
     .query(async ({ input }) => {
-      return await getAllDevices(
+      const devices = await getAllDevices(
         input.workspaceId,
         input.projectId,
         input.onlyAvailable,
       );
+
+      // What is going on here?
+      // Basically if a device is used in multiple projects, the getAllDevices will
+      // return multiple entries for that device, one entry for each project it is in
+      // This piece of code below basically merges those entries into one, with
+      // a field called `projects` that contains a list of projects a given device is in
+      const merged = _.values(_.groupBy(devices, (x) => x.id))
+        .map((v) => {
+          if (v[0]) {
+            return {
+              ...v[0],
+              projects: _.map(v, "project"),
+            };
+          }
+        })
+        .flatMap((x) => (x ? [x] : []));
+      return merged;
     }),
 
   getAllSystems: workspaceProcedure
@@ -384,10 +404,29 @@ export const hardwareRouter = createTRPCRouter({
     )
     .use(workspaceAccessMiddleware)
     .output(
-      z.array(selectSystemSchema.extend({ project: selectProjectSchema })),
+      z.array(
+        selectSystemSchema.extend({ projects: selectProjectSchema.array() }),
+      ),
     )
     .query(async ({ input }) => {
-      return await getAllSystems(input.workspaceId, input.projectId);
+      const systems = await getAllSystems(input.workspaceId, input.projectId);
+
+      // What is going on here?
+      // Basically if a system is used in multiple projects, the getAllSystems will
+      // return multiple entries for that system, one entry for each project it is in
+      // This piece of code below basically merges those entries into one, with
+      // a field called `projects` that contains a list of projects a given system is in
+      const merged = _.values(_.groupBy(systems, (x) => x.id))
+        .map((v) => {
+          if (v[0]) {
+            return {
+              ...v[0],
+              projects: _.map(v, "project"),
+            };
+          }
+        })
+        .flatMap((x) => (x ? [x] : []));
+      return merged;
     }),
 
   deleteHardwareById: workspaceProcedure
