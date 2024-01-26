@@ -1,7 +1,7 @@
 "use client";
 
 import { deviceColumns, systemColumns } from "~/components/hardware/columns";
-import { DataTable } from "~/components/hardware/data-table";
+import { DataTable } from "~/components/ui/data-table";
 import { api } from "~/trpc/react";
 
 import { type SelectSystem, type SelectDevice } from "~/types/hardware";
