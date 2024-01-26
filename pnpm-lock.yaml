@@ -16,6 +16,9 @@ dependencies:
   '@aws-sdk/client-ses':
     specifier: ^3.499.0
     version: 3.499.0
+  '@aws-sdk/lib-storage':
+    specifier: ^3.499.0
+    version: 3.499.0(@aws-sdk/client-s3@3.499.0)
   '@hookform/resolvers':
     specifier: ^3.3.4
     version: 3.3.4(react-hook-form@7.49.3)
@@ -690,6 +693,22 @@ packages:
       '@aws-sdk/types': 3.496.0
       '@smithy/property-provider': 2.1.1
       '@smithy/types': 2.9.1
+      tslib: 2.6.2
+    dev: false
+
+  /@aws-sdk/lib-storage@3.499.0(@aws-sdk/client-s3@3.499.0):
+    resolution: {integrity: sha512-rL++Re7Oed8uwkMSafpeG6ryB1vzW0dQLi5L3IWPhllWaokrXiEJ1lT1sg8vtyoMaZ4HNGE9jeyxMCRIa52Enw==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      '@aws-sdk/client-s3': ^3.0.0
+    dependencies:
+      '@aws-sdk/client-s3': 3.499.0
+      '@smithy/abort-controller': 2.1.1
+      '@smithy/middleware-endpoint': 2.4.1
+      '@smithy/smithy-client': 2.3.1
+      buffer: 5.6.0
+      events: 3.3.0
+      stream-browserify: 3.0.0
       tslib: 2.6.2
     dev: false
 
@@ -4547,6 +4566,7 @@ packages:
 
   /@swagger-api/apidom-ns-json-schema-draft-4@0.93.0:
     resolution: {integrity: sha512-dBY7LHrWZ+ydsgD00fQtRq/wOAZjdUh2+PE7/Xe3tYPeD1tv3DZ4F1tcVQeiyGBskF7vReUxUwnQo4uPJipPzA==}
+    requiresBuild: true
     dependencies:
       '@babel/runtime-corejs3': 7.23.8
       '@swagger-api/apidom-ast': 0.93.0
@@ -6230,6 +6250,13 @@ packages:
   /buffer-writer@2.0.0:
     resolution: {integrity: sha512-a7ZpuTZU1TRtnwyCNW3I5dc0wWNC3VR9S++Ewyk2HHZdrO3CQJqSpd+95Us590V6AL7JqUAH2IwZ/398PmNFgw==}
     engines: {node: '>=4'}
+    dev: false
+
+  /buffer@5.6.0:
+    resolution: {integrity: sha512-/gDYp/UtU0eA1ys8bOs9J6a+E/KWIY+DZ+Q2WESNUA0jFRsJOc0SNUO6xJ5SGA1xueg3NL65W6s+NY5l9cunuw==}
+    dependencies:
+      base64-js: 1.5.1
+      ieee754: 1.2.1
     dev: false
 
   /buffer@5.7.1:
@@ -11742,6 +11769,13 @@ packages:
   /statuses@2.0.1:
     resolution: {integrity: sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==}
     engines: {node: '>= 0.8'}
+    dev: false
+
+  /stream-browserify@3.0.0:
+    resolution: {integrity: sha512-H73RAHsVBapbim0tU2JwwOiXUj+fikfiaoYAKHF3VJfA0pe2BCzkhAHBlLG6REzE+2WNZcxOXjK7lkso+9euLA==}
+    dependencies:
+      inherits: 2.0.4
+      readable-stream: 3.6.2
     dev: false
 
   /stream-parser@0.3.1:

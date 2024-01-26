@@ -29,8 +29,8 @@ export const env = createEnv({
 
     AWS_ACCESS_KEY_ID: z.string(),
     AWS_SECRET_ACCESS_KEY: z.string(),
-    // AWS_BUCKET_NAME: z.string(),
-    // AWS_REGION: z.string(),
+    AWS_BUCKET_NAME: z.string(),
+    AWS_REGION: z.string(),
 
     JWT_SECRET: z.string(),
   },
@@ -66,8 +66,8 @@ export const env = createEnv({
 
     AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
-    // AWS_BUCKET_NAME: process.env.AWS_BUCKET_NAME,
-    // AWS_REGION: process.env.AWS_REGION,
+    AWS_BUCKET_NAME: process.env.AWS_BUCKET_NAME,
+    AWS_REGION: process.env.AWS_REGION,
 
     JWT_SECRET: process.env.JWT_SECRET,
   },
