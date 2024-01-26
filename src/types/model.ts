@@ -2,7 +2,9 @@ import { model } from "~/server/db/schema";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const insertModelSchema = createInsertSchema(model);
+export const insertModelSchema = createInsertSchema(model, {
+  name: z.string().min(1),
+});
 
 export const publicInsertDeviceModelSchema = insertModelSchema.pick({
   name: true,

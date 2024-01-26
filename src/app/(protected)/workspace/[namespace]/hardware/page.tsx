@@ -56,6 +56,8 @@ export default async function HardwareInventory({
       <HardwareInstances
         devices={devices}
         systems={systems}
+        deviceModels={deviceModels}
+        systemModels={systemModels}
         workspaceId={workspaceId}
       />
       <div className="py-4" />

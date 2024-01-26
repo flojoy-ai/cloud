@@ -12,8 +12,6 @@ import {
   workspace_user,
   project,
   hardware,
-  systemModel,
-  model,
 } from "~/server/db/schema";
 import {
   publicInsertWorkspaceSchema,
