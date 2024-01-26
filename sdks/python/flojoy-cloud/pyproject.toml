@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "flojoy-cloud"
+version = "0.1.0"
+description = ""
+authors = ["Joey Yu <joey@flojoy.io>", "Jeff Zhang <jeff@flojoy.io>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+httpx = "^0.26.0"
+numpy = "^1.26.3"
+pydantic = "^2.5.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
