@@ -5,9 +5,24 @@ from typing import Callable, Literal, Optional, ParamSpec, TypeVar, Union, overl
 
 import httpx
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
-from pydantic.alias_generators import to_camel
+from pydantic import BaseModel, Field, TypeAdapter
 from typing_extensions import Annotated
+
+from flojoy_cloud.dtypes import (
+    Device,
+    DeviceModel,
+    Hardware,
+    HardwareWithMeasurements,
+    MeasurementWithHardware,
+    Project,
+    ProjectWithModel,
+    System,
+    SystemModel,
+    SystemModelPart,
+    Test,
+    TestWithMeasurements,
+)
+from flojoy_cloud.mtypes import MeasurementData, MeasurementType
 
 
 class NumpyEncoder(json.JSONEncoder):
@@ -23,111 +38,7 @@ class NumpyEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, o)
 
 
-MeasurementType = Literal["boolean", "dataframe"]
-
-
-class Boolean(BaseModel):
-    type: Literal["boolean"] = "boolean"
-    passed: bool
-
-
-class Dataframe(BaseModel):
-    type: Literal["dataframe"] = "dataframe"
-    dataframe: dict
-
-
-MeasurementData = Boolean | Dataframe
-
-
-class CloudModel(BaseModel):
-    model_config = ConfigDict(alias_generator=to_camel, protected_namespaces=())
-    id: str
-    created_at: datetime.datetime
-
-
-class SystemModelPart(BaseModel):
-    modelId: str
-    count: int
-    name: str = Field(default="")
-
-
-class Model(CloudModel):
-    name: str
-    workspace_id: str
-
-
-class DeviceModel(Model):
-    type: Literal["device"]
-
-
-class SystemModel(Model):
-    type: Literal["system"]
-    parts: list[SystemModelPart]
-
-
-class SystemPart(BaseModel):
-    id: str
-    name: str
-    model: Model
-
-
-class Hardware(CloudModel):
-    name: str
-    updated_at: Optional[datetime.datetime]
-    workspace_id: str
-    model_id: str
-    model: Model
-
-
-class Device(Hardware):
-    type: Literal["device"]
-
-
-class System(Hardware):
-    type: Literal["system"]
-    parts: list[SystemPart]
-
-
 StorageProvider = Literal["s3", "postgres"]
-
-
-class Measurement(CloudModel):
-    name: str
-    hardware_id: str
-    test_id: str
-    storage_provider: StorageProvider
-    data: dict
-    is_deleted: bool
-
-
-class MeasurementWithHardware(Measurement):
-    hardware: Hardware
-
-
-class HardwareWithMeasurements(Hardware):
-    measurements: list[MeasurementWithHardware]
-
-
-class Test(CloudModel):
-    name: str
-    updated_at: Optional[datetime.datetime]
-    measurement_type: MeasurementType
-    project_id: str
-
-
-class TestWithMeasurements(Test):
-    measurements: list[MeasurementWithHardware]
-
-
-class Project(CloudModel):
-    name: str
-    updated_at: Optional[datetime.datetime]
-    workspace_id: str
-    model_id: str
-
-
-class ProjectWithModel(Project):
-    model: Model
 
 
 class FlojoyCloudException(Exception):

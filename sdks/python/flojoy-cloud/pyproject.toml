@@ -4,6 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["Joey Yu <joey@flojoy.io>", "Jeff Zhang <jeff@flojoy.io>"]
 readme = "README.md"
+packages = [{ include = "flojoy_cloud" }]
 
 [tool.poetry.dependencies]
 python = "^3.11"
