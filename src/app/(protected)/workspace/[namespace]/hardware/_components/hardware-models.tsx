@@ -2,8 +2,8 @@
 import {
   deviceModelColumns,
   systemModelColumns,
-} from "~/components/device/columns";
-import { DataTable } from "~/components/device/data-table";
+} from "~/components/hardware/columns";
+import { DataTable } from "~/components/hardware/data-table";
 import { api } from "~/trpc/react";
 import { type SelectDeviceModel, type SelectSystemModel } from "~/types/model";
 

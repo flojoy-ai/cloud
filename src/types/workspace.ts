@@ -4,7 +4,9 @@ import { z } from "zod";
 
 export type SelectWorkspace = typeof workspace.$inferSelect;
 
-export const insertWorkspaceSchema = createInsertSchema(workspace);
+export const insertWorkspaceSchema = createInsertSchema(workspace, {
+  name: z.string().min(1),
+});
 export const publicInsertWorkspaceSchema = insertWorkspaceSchema
   .pick({
     name: true,
