@@ -491,7 +491,7 @@ async function getAllDevices(
 async function getAllSystems(workspaceId: string, projectId?: string) {
   // FIXME: Can't use subqueries for this query to do it all at once...
   // drizzle bug complains about ambiguous columns
-  // see: https://github.com/drizzle-team/drizzle-orm/issues/1242jk
+  // see: https://github.com/drizzle-team/drizzle-orm/issues/1242
 
   // const sq = db
   //   .select({
