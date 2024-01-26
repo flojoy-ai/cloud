@@ -32,6 +32,7 @@ import { Badge } from "../ui/badge";
 import _ from "lodash";
 import { useState } from "react";
 import { api } from "~/trpc/react";
+import { type SelectProject } from "~/types/project";
 
 type ActionsProps = {
   elem: { id: string };
@@ -65,7 +66,9 @@ const Actions = ({ elem, children }: ActionsProps) => {
   );
 };
 
-export const deviceColumns: ColumnDef<SelectDevice>[] = [
+export const deviceColumns: ColumnDef<
+  SelectDevice & { project: SelectProject }
+>[] = [
   {
     accessorKey: "name",
     header: "Device Name",
@@ -78,6 +81,14 @@ export const deviceColumns: ColumnDef<SelectDevice>[] = [
     header: "Model",
     cell: ({ row }) => {
       return <Badge>{row.original.model.name}</Badge>;
+    },
+  },
+
+  {
+    accessorKey: "project",
+    header: "Project",
+    cell: ({ row }) => {
+      return <Badge>{row.original.project.name}</Badge>;
     },
   },
   {
@@ -142,7 +153,9 @@ export const deviceColumns: ColumnDef<SelectDevice>[] = [
   },
 ];
 
-export const systemColumns: ColumnDef<SelectSystem>[] = [
+export const systemColumns: ColumnDef<
+  SelectSystem & { project: SelectProject }
+>[] = [
   {
     accessorKey: "name",
     header: "System Name",
@@ -155,6 +168,14 @@ export const systemColumns: ColumnDef<SelectSystem>[] = [
     header: "Model",
     cell: ({ row }) => {
       return <Badge>{row.original.model.name}</Badge>;
+    },
+  },
+
+  {
+    accessorKey: "project",
+    header: "Project",
+    cell: ({ row }) => {
+      return <Badge>{row.original.project.name}</Badge>;
     },
   },
   {

@@ -5,10 +5,11 @@ import { DataTable } from "~/components/device/data-table";
 import { api } from "~/trpc/react";
 
 import { type SelectSystem, type SelectDevice } from "~/types/hardware";
+import { type SelectProject } from "~/types/project";
 
 type Props = {
-  devices: SelectDevice[];
-  systems: SelectSystem[];
+  devices: (SelectDevice & { project: SelectProject })[];
+  systems: (SelectSystem & { project: SelectProject })[];
   workspaceId: string;
 };
 

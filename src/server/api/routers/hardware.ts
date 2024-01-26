@@ -19,6 +19,7 @@ import {
   device,
   hardware,
   model,
+  project,
   project_hardware,
   system,
   system_device,
@@ -35,6 +36,7 @@ import {
 } from "~/types/hardware";
 import { selectMeasurementSchema } from "~/types/measurement";
 import { workspaceAccessMiddleware } from "./workspace";
+import { selectProjectSchema } from "~/types/project";
 
 export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -355,7 +357,9 @@ export const hardwareRouter = createTRPCRouter({
       }),
     )
     .use(workspaceAccessMiddleware)
-    .output(z.array(selectDeviceSchema))
+    .output(
+      z.array(selectDeviceSchema.extend({ project: selectProjectSchema })),
+    )
     .query(async ({ input }) => {
       return await getAllDevices(
         input.workspaceId,
@@ -379,7 +383,9 @@ export const hardwareRouter = createTRPCRouter({
       }),
     )
     .use(workspaceAccessMiddleware)
-    .output(z.array(selectSystemSchema))
+    .output(
+      z.array(selectSystemSchema.extend({ project: selectProjectSchema })),
+    )
     .query(async ({ input }) => {
       return await getAllSystems(input.workspaceId, input.projectId);
     }),
@@ -455,6 +461,7 @@ async function getAllDevices(
       modelId: temp.modelId,
       id: temp.id,
       model: getTableColumns(model),
+      project: getTableColumns(project),
     })
     .from(temp);
 
@@ -465,10 +472,18 @@ async function getAllDevices(
       .where(eq(project_hardware.projectId, projectId))
       .as("projects_hardwares");
 
-    void query.innerJoin(
-      projects_hardwares,
-      eq(temp.id, projects_hardwares.hardwareId),
-    );
+    void query
+      .innerJoin(projects_hardwares, eq(temp.id, projects_hardwares.hardwareId))
+      .innerJoin(project, eq(project.id, projects_hardwares.projectId));
+  } else {
+    const projects_hardwares = db
+      .select()
+      .from(project_hardware)
+      .as("projects_hardwares");
+
+    void query
+      .innerJoin(projects_hardwares, eq(temp.id, projects_hardwares.hardwareId))
+      .innerJoin(project, eq(project.id, projects_hardwares.projectId));
   }
   return await query.innerJoin(model, eq(model.id, temp.modelId));
 }
@@ -500,6 +515,7 @@ async function getAllSystems(workspaceId: string, projectId?: string) {
       updatedAt: hardware.updatedAt,
       modelId: hardware.modelId,
       model: getTableColumns(model),
+      project: getTableColumns(project),
       // parts: sql<
       //   SystemPart[]
       // >`json_agg(json_build_object('modelId', ${sq.id}, 'name', ${sq.name}))`,
@@ -515,10 +531,24 @@ async function getAllSystems(workspaceId: string, projectId?: string) {
       .where(eq(project_hardware.projectId, projectId))
       .as("projects_hardwares");
 
-    void query.innerJoin(
-      projects_hardwares,
-      eq(hardware.id, projects_hardwares.hardwareId),
-    );
+    void query
+      .innerJoin(
+        projects_hardwares,
+        eq(hardware.id, projects_hardwares.hardwareId),
+      )
+      .innerJoin(project, eq(project.id, projects_hardwares.projectId));
+  } else {
+    const projects_hardwares = db
+      .select()
+      .from(project_hardware)
+      .as("projects_hardwares");
+
+    void query
+      .innerJoin(
+        projects_hardwares,
+        eq(hardware.id, projects_hardwares.hardwareId),
+      )
+      .innerJoin(project, eq(project.id, projects_hardwares.projectId));
   }
 
   const systems = await query.innerJoin(model, eq(model.id, hardware.modelId));
