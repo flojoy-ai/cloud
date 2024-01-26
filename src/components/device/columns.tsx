@@ -88,7 +88,7 @@ export const deviceColumns: ColumnDef<
     accessorKey: "project",
     header: "Project",
     cell: ({ row }) => {
-      return <Badge>{row.original.project.name}</Badge>;
+      return <Badge variant="outline">{row.original.project.name}</Badge>;
     },
   },
   {
@@ -175,7 +175,7 @@ export const systemColumns: ColumnDef<
     accessorKey: "project",
     header: "Project",
     cell: ({ row }) => {
-      return <Badge>{row.original.project.name}</Badge>;
+      return <Badge variant="outline">{row.original.project.name}</Badge>;
     },
   },
   {
