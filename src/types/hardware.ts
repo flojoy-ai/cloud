@@ -3,7 +3,9 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { selectModelBaseSchema } from "./model";
 
-export const insertHardwareSchema = createInsertSchema(hardware);
+export const insertHardwareSchema = createInsertSchema(hardware, {
+  name: z.string().min(1),
+});
 
 export const publicInsertDeviceSchema = insertHardwareSchema
   .pick({

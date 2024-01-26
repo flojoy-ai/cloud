@@ -1,12 +1,8 @@
 "use client";
 
-import CreateDevice from "./create-device";
-import CreateSystem from "./create-system";
-import {
-  type SelectSystemModel,
-  type SelectModel,
-  type SelectDeviceModel,
-} from "~/types/model";
+import CreateDevice from "~/components/hardware/create-device";
+import CreateSystem from "~/components/hardware/create-system";
+import { type SelectModel } from "~/types/model";
 import DeviceCard from "./device-card";
 import { type SelectHardware } from "~/types/hardware";
 import { api } from "~/trpc/react";
@@ -22,20 +18,19 @@ type Props = {
   project: SelectProject & { model: SelectModel };
 };
 
-const isSystemProject = (
-  project: SelectProject & { model: SelectSystemModel | SelectDeviceModel },
-): project is SelectProject & { model: SelectSystemModel } => {
-  return project.model.type === "system";
-};
-
-const AllHardwares = (props: Props) => {
+const AllHardwares = ({
+  workspaceId,
+  hardwares: initialHardwares,
+  namespace,
+  project,
+}: Props) => {
   const { data: hardwares } = api.hardware.getAllHardware.useQuery(
     {
-      workspaceId: props.workspaceId,
-      projectId: props.project.id,
+      workspaceId,
+      projectId: project.id,
     },
     {
-      initialData: props.hardwares,
+      initialData: initialHardwares,
     },
   );
 
@@ -44,14 +39,26 @@ const AllHardwares = (props: Props) => {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-2">
-        {isSystemProject(props.project) ? (
-          <CreateSystem project={props.project} />
+        {project.model.type === "system" ? (
+          <CreateSystem
+            workspaceId={workspaceId}
+            model={project.model}
+            projectId={project.id}
+          >
+            Register System Instance
+          </CreateSystem>
         ) : (
-          <CreateDevice project={props.project} />
+          <CreateDevice
+            workspaceId={workspaceId}
+            model={project.model}
+            projectId={project.id}
+          >
+            Register Device Instance
+          </CreateDevice>
         )}
         <div>
-          You can only register instances of{" "}
-          <Badge>{props.project.model.name}</Badge> to this project.
+          You can only register instances of <Badge>{project.model.name}</Badge>{" "}
+          to this project.
         </div>
         <div className="grow"></div>
         <Input
@@ -78,7 +85,7 @@ const AllHardwares = (props: Props) => {
             <DeviceCard
               hardware={hardware}
               key={hardware.id}
-              namespace={props.namespace}
+              namespace={namespace}
             />
           ))}
       </div>
