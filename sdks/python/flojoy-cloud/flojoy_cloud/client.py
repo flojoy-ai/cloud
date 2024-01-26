@@ -1,7 +1,7 @@
 import datetime
 import json
 import os
-from typing import Callable, Literal, Optional, ParamSpec, TypeVar, Union, overload
+from typing import Callable, Optional, ParamSpec, TypeVar, Union, overload
 
 import httpx
 import numpy as np
@@ -36,9 +36,6 @@ class NumpyEncoder(json.JSONEncoder):
         elif isinstance(o, np.ndarray):
             return o.tolist()
         return json.JSONEncoder.default(self, o)
-
-
-StorageProvider = Literal["s3", "postgres"]
 
 
 class FlojoyCloudException(Exception):
