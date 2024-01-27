@@ -3,9 +3,13 @@ import { z } from "zod";
 
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { project, test } from "~/server/db/schema";
-import { selectDeviceSchema } from "~/types/device";
+import { selectHardwareBaseSchema } from "~/types/hardware";
 import { selectMeasurementSchema } from "~/types/measurement";
-import { publicInsertTestSchema, selectTestSchema } from "~/types/test";
+import {
+  publicInsertTestSchema,
+  publicUpdateTestSchema,
+  selectTestSchema,
+} from "~/types/test";
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
 import { type db } from "~/server/db";
 import { projectAccessMiddleware } from "./project";
@@ -97,7 +101,9 @@ export const testRouter = createTRPCRouter({
         z.object({
           measurements: z.array(
             selectMeasurementSchema.merge(
-              z.object({ test: selectTestSchema, device: selectDeviceSchema }),
+              z.object({
+                hardware: selectHardwareBaseSchema,
+              }),
             ),
           ),
         }),
@@ -109,8 +115,11 @@ export const testRouter = createTRPCRouter({
         with: {
           measurements: {
             with: {
-              device: true,
-              test: true,
+              hardware: {
+                with: {
+                  model: true,
+                },
+              },
             },
           },
         },
@@ -136,5 +145,29 @@ export const testRouter = createTRPCRouter({
       return await ctx.db.query.test.findMany({
         where: (test, { eq }) => eq(test.projectId, input.projectId),
       });
+    }),
+
+  updateTest: workspaceProcedure
+    .meta({
+      openapi: { method: "PATCH", path: "/v1/tests/{testId}", tags: ["test"] },
+    })
+    .input(publicUpdateTestSchema.extend({ testId: z.string() }))
+    .output(z.void())
+    .use(testAccessMiddleware)
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db
+        .update(test)
+        .set({ name: input.name })
+        .where(eq(test.id, input.testId));
+    }),
+
+  deleteTest: workspaceProcedure
+    .meta({
+      openapi: { method: "DELETE", path: "/v1/tests/{testId}", tags: ["test"] },
+    })
+    .input(z.object({ testId: z.string() }))
+    .output(z.void())
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.delete(test).where(eq(test.id, input.testId));
     }),
 });

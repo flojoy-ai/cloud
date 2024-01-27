@@ -20,9 +20,9 @@ export const test = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at"),
   },
-  (test) => ({
-    testNameIndex: index().on(test.name),
-    unq: unique().on(test.projectId, test.name),
+  (table) => ({
+    testNameIndex: index().on(table.name),
+    unq: unique().on(table.projectId, table.name),
   }),
 );
 

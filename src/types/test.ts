@@ -10,4 +10,9 @@ export const publicInsertTestSchema = insertTestSchema.pick({
   projectId: true,
   measurementType: true,
 });
+
+export const publicUpdateTestSchema = insertTestSchema.pick({
+  name: true,
+});
+
 export const selectTestSchema = createSelectSchema(test);

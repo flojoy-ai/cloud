@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import {
   PageHeader,
   PageHeaderDescription,
@@ -11,6 +12,10 @@ import Link from "next/link";
 export default async function Dashboard() {
   const workspaces = await api.workspace.getWorkspaces.query();
 
+  if (workspaces.length === 0) {
+    redirect("/setup");
+  }
+
   return (
     <div className="container max-w-screen-2xl">
       <PageHeader>
@@ -18,8 +23,7 @@ export default async function Dashboard() {
           Welcome to Flojoy Cloud
         </PageHeaderHeading>
         <PageHeaderDescription>
-          Select a workspace to get started! <br />
-          Don't have one yet? You can create a new workspace here.
+          Select a workspace to get started!
         </PageHeaderDescription>
       </PageHeader>
 
@@ -31,17 +35,6 @@ export default async function Dashboard() {
 
       <div className="py-2"></div>
 
-      {workspaces.length === 0 && (
-        <>
-          <div className="py-2"></div>
-          <div className="text-center">
-            Welcome to Flojoy Cloud! <br />
-            To get started, you need to create a workspace. <br />
-            Don't know what to do yet? <br /> Press the 'Create a Sample
-            Workspace' button to populate your account with a demo.
-          </div>
-        </>
-      )}
       <AllWorkspaces workspaces={workspaces} />
 
       <div className="py-4"></div>

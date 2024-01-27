@@ -6,7 +6,6 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import ScatterPlot from "~/components/visualization/plot/scatter-plot";
-import { type SelectTest } from "~/types/test";
 import { type SelectMeasurement } from "~/types/measurement";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,25 +23,19 @@ import {
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Button } from "../ui/button";
 import { useCallback, useState } from "react";
-import { type SelectDevice } from "~/types/device";
+import { type SelectHardware } from "~/types/hardware";
 import { type PlotMouseEvent } from "plotly.js";
 import { useRouter } from "next/navigation";
 
 type Props = {
-  measurements: (SelectMeasurement & { device: SelectDevice })[];
-  selectedTest: SelectTest;
-  everythingSelected: boolean;
+  measurements: (SelectMeasurement & { hardware: SelectHardware })[];
+  title?: string;
   workspaceId: string;
 };
 
 type FormSchema = z.infer<typeof explorerConfig.boolean>;
 
-const BooleanViz = ({
-  measurements,
-  selectedTest,
-  everythingSelected,
-  workspaceId,
-}: Props) => {
+const BooleanViz = ({ measurements, title, workspaceId }: Props) => {
   const form = useForm<z.infer<typeof explorerConfig.boolean>>({
     resolver: zodResolver(explorerConfig.boolean),
     defaultValues: {
@@ -67,7 +60,7 @@ const BooleanViz = ({
       if (!measurement) {
         return;
       }
-      router.push(`/workspace/${workspaceId}/device/${measurement.deviceId}`);
+      router.push(`/workspace/${workspaceId}/device/${measurement.hardwareId}`);
     },
     [measurements, router],
   );
@@ -125,12 +118,12 @@ const BooleanViz = ({
       </Card>
 
       <Card className="p-2">
-        {everythingSelected && measurements && (
+        {measurements && (
           <ScatterPlot
-            title={selectedTest?.name ?? "Untitled Test"}
+            title={title ?? "Untitled Test"}
             x={measurements.map(
               form.watch("xAxis") === "device_id"
-                ? (measurement) => measurement.device.name
+                ? (measurement) => measurement.hardware.name
                 : (measurement) => measurement.createdAt.toISOString(),
             )}
             y={measurements.map((measurement) => {

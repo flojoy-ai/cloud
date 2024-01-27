@@ -14,7 +14,7 @@ import _ from "lodash";
 import { usePlotLayout } from "~/hooks/use-plot-layout";
 
 type Line = {
-  x: number[];
+  x: number[] | string[];
   y: number[];
   name: string;
 };
@@ -90,11 +90,11 @@ const LinePlot = ({ lines, title, config, onTraceClick }: Props) => {
 
     lines.forEach((line, i) => {
       const min = line.x[0];
-      if (min !== undefined) {
+      if (min !== undefined && typeof min === "number") {
         minX = Math.min(min, minX);
       }
       const max = line.x[line.x.length - 1];
-      if (max !== undefined) {
+      if (max !== undefined && typeof max === "number") {
         maxX = Math.max(max, maxX);
       }
 

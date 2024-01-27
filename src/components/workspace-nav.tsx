@@ -19,7 +19,7 @@ export const WorkspaceNav = ({ workspaces }: Props) => {
   const currentWorkspace = workspaces.find((ws) => ws.namespace === namespace);
 
   return (
-    <div className="border-b border-border/40 py-4 text-sm font-medium">
+    <header className="sticky top-14 z-50 flex h-14 w-full items-center border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       {isWorkspaceRoute && currentWorkspace && (
         <div className="container flex max-w-screen-2xl gap-x-6">
           <Link
@@ -34,15 +34,15 @@ export const WorkspaceNav = ({ workspaces }: Props) => {
             Projects
           </Link>
           <Link
-            href={`/workspace/${namespace}/device`}
+            href={`/workspace/${namespace}/hardware`}
             className={cn(
               "transition-colors hover:text-foreground/80",
-              pathname === `/workspace/${namespace}/device`
+              pathname === `/workspace/${namespace}/hardware`
                 ? "text-foreground underline underline-offset-8"
                 : "text-foreground/60",
             )}
           >
-            Device Inventory
+            Hardware Inventory
           </Link>
 
           <Link
@@ -58,6 +58,6 @@ export const WorkspaceNav = ({ workspaces }: Props) => {
           </Link>
         </div>
       )}
-    </div>
+    </header>
   );
 };

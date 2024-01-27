@@ -1,0 +1,96 @@
+"use client";
+
+import CreateDevice from "~/components/hardware/create-device";
+import CreateSystem from "~/components/hardware/create-system";
+import { type SelectModel } from "~/types/model";
+import DeviceCard from "./device-card";
+import { type SelectHardware } from "~/types/hardware";
+import { api } from "~/trpc/react";
+import { Input } from "~/components/ui/input";
+import { useState } from "react";
+import { type SelectProject } from "~/types/project";
+import { Badge } from "~/components/ui/badge";
+
+type Props = {
+  hardwares: SelectHardware[];
+  workspaceId: string;
+  namespace: string;
+  project: SelectProject & { model: SelectModel };
+};
+
+const AllHardwares = ({
+  workspaceId,
+  hardwares: initialHardwares,
+  namespace,
+  project,
+}: Props) => {
+  const { data: hardwares } = api.hardware.getAllHardware.useQuery(
+    {
+      workspaceId,
+      projectId: project.id,
+    },
+    {
+      initialData: initialHardwares,
+    },
+  );
+
+  const [searchTerm, setSearchTerm] = useState("");
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center gap-2">
+        {project.model.type === "system" ? (
+          <CreateSystem
+            workspaceId={workspaceId}
+            model={project.model}
+            projectId={project.id}
+          >
+            Register System Instance
+          </CreateSystem>
+        ) : (
+          <CreateDevice
+            workspaceId={workspaceId}
+            model={project.model}
+            projectId={project.id}
+          >
+            Register Device Instance
+          </CreateDevice>
+        )}
+        <div>
+          You can only register instances of <Badge>{project.model.name}</Badge>{" "}
+          to this project.
+        </div>
+        <div className="grow"></div>
+        <Input
+          placeholder="Search hardware instance"
+          className="max-w-lg"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+      {hardwares.length === 0 && (
+        <div className="">
+          No hardare instance found, get started by registering your hardware
+          instance.
+        </div>
+      )}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {hardwares
+          .filter(
+            (h) =>
+              !searchTerm ||
+              h.name.toLowerCase().includes(searchTerm.toLowerCase()),
+          )
+          .map((hardware) => (
+            <DeviceCard
+              hardware={hardware}
+              key={hardware.id}
+              namespace={namespace}
+            />
+          ))}
+      </div>
+    </div>
+  );
+};
+
+export default AllHardwares;

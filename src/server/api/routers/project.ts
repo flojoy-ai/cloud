@@ -1,18 +1,20 @@
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 
-import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
-import { project, project_device, workspace } from "~/server/db/schema";
+import { checkWorkspaceAccess } from "~/lib/auth";
+import { getSystemModelParts } from "~/lib/query";
+import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
+import { type db } from "~/server/db";
+import { project, project_hardware, workspace } from "~/server/db/schema";
+import { selectModelSchema } from "~/types/model";
 import {
   publicInsertProjectSchema,
   publicUpdateProjectSchema,
   selectProjectSchema,
 } from "~/types/project";
-import { type db } from "~/server/db";
+import { hardwareAccessMiddleware } from "./hardware";
 import { workspaceAccessMiddleware } from "./workspace";
-import { checkWorkspaceAccess } from "~/lib/auth";
-import { deviceAccessMiddleware } from "./devices";
 
 export const projectAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -60,6 +62,17 @@ export const projectRouter = createTRPCRouter({
     .output(selectProjectSchema)
     .use(workspaceAccessMiddleware)
     .mutation(async ({ ctx, input }) => {
+      const model = await ctx.db.query.model.findFirst({
+        where: (model, { eq }) => eq(model.id, input.modelId),
+      });
+
+      if (model === undefined) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Model not found",
+        });
+      }
+
       return await ctx.db.transaction(async (tx) => {
         const [projectCreateResult] = await tx
           .insert(project)
@@ -91,18 +104,56 @@ export const projectRouter = createTRPCRouter({
     })
     .input(z.object({ projectId: z.string() }))
     .use(projectAccessMiddleware)
-    .output(selectProjectSchema)
+    .output(
+      selectProjectSchema.extend({
+        model: selectModelSchema,
+      }),
+    )
     .query(async ({ input, ctx }) => {
-      const result = await ctx.db.query.project.findFirst({
+      const project = await ctx.db.query.project.findFirst({
         where: (project, { eq }) => eq(project.id, input.projectId),
+        with: { model: true },
       });
-      if (!result) {
+      if (!project) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "Project not found",
         });
       }
-      return result;
+
+      // TODO: Is there a clean way to just attach this to the above query somehow?
+      const isDeviceModel =
+        (await ctx.db.query.deviceModel.findFirst({
+          where: (deviceModel, { eq }) => eq(deviceModel.id, project.modelId),
+        })) !== undefined;
+
+      if (isDeviceModel) {
+        return {
+          ...project,
+          model: {
+            ...project.model,
+            type: "device",
+          },
+        };
+      }
+
+      const deviceParts = await getSystemModelParts(project.modelId);
+
+      if (!deviceParts) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "An error occured when trying to fetch system model",
+        });
+      }
+
+      return {
+        ...project,
+        model: {
+          ...project.model,
+          type: "system",
+          parts: deviceParts,
+        },
+      };
     }),
 
   getAllProjectsByWorkspaceId: workspaceProcedure
@@ -118,44 +169,73 @@ export const projectRouter = createTRPCRouter({
       });
     }),
 
-  addDeviceToProject: workspaceProcedure
+  addHardwareToProject: workspaceProcedure
     .meta({
       openapi: {
         method: "PUT",
-        path: "/v1/projects/{projectId}/devices/{deviceId}",
-        tags: ["project", "device"],
+        path: "/v1/projects/{projectId}/hardware/{hardwareId}",
+        tags: ["project", "hardware"],
       },
     })
-    .input(z.object({ projectId: z.string(), deviceId: z.string() }))
+    .input(z.object({ projectId: z.string(), hardwareId: z.string() }))
     .use(projectAccessMiddleware)
-    .use(deviceAccessMiddleware)
+    .use(hardwareAccessMiddleware)
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
-      await ctx.db.insert(project_device).values({
-        deviceId: input.deviceId,
+      const project = await ctx.db.query.project.findFirst({
+        where: (project, { eq }) => eq(project.id, input.projectId),
+      });
+
+      if (project === undefined) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Project not found",
+        });
+      }
+
+      const hardware = await ctx.db.query.hardware.findFirst({
+        where: (hardware, { eq }) => eq(hardware.id, input.hardwareId),
+      });
+
+      if (hardware === undefined) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Hardware not found",
+        });
+      }
+
+      if (hardware.modelId !== project.modelId) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Hardware model does not match project model",
+        });
+      }
+
+      await ctx.db.insert(project_hardware).values({
+        hardwareId: input.hardwareId,
         projectId: input.projectId,
       });
     }),
 
-  removeDeviceFromProject: workspaceProcedure
+  removeHardwareFromProject: workspaceProcedure
     .meta({
       openapi: {
         method: "DELETE",
-        path: "/v1/projects/{projectId}/devices/{deviceId}",
-        tags: ["project", "device"],
+        path: "/v1/projects/{projectId}/hardware/{hardwareId}",
+        tags: ["project", "hardware"],
       },
     })
-    .input(z.object({ projectId: z.string(), deviceId: z.string() }))
+    .input(z.object({ projectId: z.string(), hardwareId: z.string() }))
     .use(projectAccessMiddleware)
-    .use(deviceAccessMiddleware)
+    .use(hardwareAccessMiddleware)
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
       await ctx.db
-        .delete(project_device)
+        .delete(project_hardware)
         .where(
           and(
-            eq(project_device.deviceId, input.deviceId),
-            eq(project_device.projectId, input.projectId),
+            eq(project_hardware.hardwareId, input.hardwareId),
+            eq(project_hardware.projectId, input.projectId),
           ),
         );
     }),

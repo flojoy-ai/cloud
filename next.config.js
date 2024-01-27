@@ -12,6 +12,8 @@ const bundleAnalyzer = withBundleAnalyzer({
 });
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+  logging: { fetches: { fullUrl: true } },
+};
 
 export default bundleAnalyzer(config);

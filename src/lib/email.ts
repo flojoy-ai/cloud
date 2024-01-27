@@ -44,7 +44,7 @@ const sendEmailWithSES = async ({
   subject,
 }: SendEmailWithSESProps) => {
   const params = {
-    Source: "joey@flojoy.io",
+    Source: '"Flojoy Cloud" <joey@flojoy.io>',
     Destination: {
       ToAddresses: recipients,
     },

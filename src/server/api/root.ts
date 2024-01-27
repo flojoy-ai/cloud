@@ -1,10 +1,12 @@
 import { createTRPCRouter } from "~/server/api/trpc";
-import { workspaceRouter } from "./routers/workspace";
-import { projectRouter } from "./routers/project";
-import { testRouter } from "./routers/test";
-import { deviceRouter } from "./routers/devices";
+import { exampleRouter } from "./routers/example";
+import { hardwareRouter } from "./routers/hardware";
 import { measurementRouter } from "./routers/measurement";
+import { modelRouter } from "./routers/model";
+import { projectRouter } from "./routers/project";
 import { secretRouter } from "./routers/secret";
+import { testRouter } from "./routers/test";
+import { workspaceRouter } from "./routers/workspace";
 
 /**
  * This is the primary router for your server.
@@ -15,9 +17,11 @@ export const appRouter = createTRPCRouter({
   workspace: workspaceRouter,
   project: projectRouter,
   test: testRouter,
-  device: deviceRouter,
+  hardware: hardwareRouter,
   measurement: measurementRouter,
   secret: secretRouter,
+  model: modelRouter,
+  example: exampleRouter,
 });
 
 // export type definition of API
