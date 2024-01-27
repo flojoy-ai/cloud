@@ -22,7 +22,7 @@ export const measurement = pgTable(
     storageProvider: text("storage_provider", {
       enum: ["s3", "postgres"],
     }).notNull(),
-    images: jsonb("images").$type<string[]>().default([]),
+    image: text("image").default(""),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     isDeleted: boolean("is_deleted").default(false),
   },

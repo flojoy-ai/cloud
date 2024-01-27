@@ -1,7 +1,7 @@
 import datetime
 import json
 import os
-from typing import Callable, Optional, ParamSpec, TypeVar, Union, overload
+from typing import Callable, Optional, ParamSpec, TypeVar, Union, overload, BinaryIO
 
 import httpx
 import numpy as np
@@ -299,6 +299,7 @@ class FlojoyCloud:
         hardware_id: str,
         name: str | None = None,
         created_at: datetime.datetime | None = None,
+        image: BinaryIO | None = None,
     ):
         body = {
             "testId": test_id,
@@ -312,6 +313,7 @@ class FlojoyCloud:
 
         return self.client.post(
             "/measurements",
+            files={"file": image} if image else None,
             content=json.dumps(body, cls=NumpyEncoder),
             headers={
                 "Content-Type": "application/json",

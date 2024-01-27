@@ -15,7 +15,7 @@ export const uploadToS3 = async (file: File) => {
       client: s3Client,
       params: {
         Bucket: env.AWS_BUCKET_NAME,
-        Key: file.name,
+        Key: `${file.name}_${Date.now()}`,
         Body: file,
       },
     });
