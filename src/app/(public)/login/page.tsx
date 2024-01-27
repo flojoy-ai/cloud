@@ -20,6 +20,7 @@ export default async function LogIn() {
           </div>
 
           <LoginForm />
+          <a href="/password-reset">Forgot password?</a>
 
           <Separator />
 
