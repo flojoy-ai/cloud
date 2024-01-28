@@ -14,9 +14,6 @@ export default async function SignUp() {
             <h1 className="text-2xl font-semibold tracking-tight">
               Let's get started!
             </h1>
-            {/* <p className="text-muted-foreground text-sm"> */}
-            {/*   Enter your email below to create your account */}
-            {/* </p> */}
           </div>
 
           <SignupForm />
