@@ -76,7 +76,7 @@ export const POST = async (request: NextRequest) => {
     }
     return NextResponse.json(
       {
-        error: "An unknown error occurred",
+        error: "An unknown error occurred: " + String(e),
       },
       {
         status: 500,

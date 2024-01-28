@@ -1,6 +1,8 @@
+import { env } from "~/env";
+
 export const siteConfig = {
   name: "Flojoy Cloud",
-  url: "https://cloud.flojoy.ai",
+  url: env.NEXT_PUBLIC_URL_ORIGIN,
   description: "Flojoy Cloud",
   links: {
     login: "/login",
