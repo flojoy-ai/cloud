@@ -36,3 +36,11 @@ export const user_key = pgTable("user_key", {
     .references(() => user.id),
   hashedPassword: text("hashed_password"),
 });
+
+export const password_reset_token = pgTable("password_reset_token", {
+  id: text("id").notNull().primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id),
+  expires: bigint("expires", { mode: "number" }).notNull(),
+});

@@ -42,7 +42,6 @@ yarn-error.log*
 *.tsbuildinfo
 
 .react-email
-terraform/.*
 .env*
-terraform/terraform.tfstate.backup
-terraform/terraform.tfstate
+terraform/.**
+terraform/terraform.tfstate*
