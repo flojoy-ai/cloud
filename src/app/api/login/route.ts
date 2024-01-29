@@ -89,7 +89,12 @@ export const POST = async (request: NextRequest) => {
       sessionCookie.value,
       sessionCookie.attributes,
     );
-    return redirect("/");
+    return new Response(null, {
+      headers: {
+        Location: "/workspace",
+      },
+      status: 302,
+    });
   } catch (e) {
     return NextResponse.json(
       {
