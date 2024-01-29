@@ -38,7 +38,7 @@ project = client.create_project("PROJECT_NAME", "MODEL_ID", "${workspace.id}")
 project = client.get_project_by_id("PROJECT_ID")
 
 # Get every project in your workspace
-project = client.get_all_projects_by_workspace_id("${workspace.id}")
+project = client.get_all_projects("${workspace.id}")
 `;
 
   return (
