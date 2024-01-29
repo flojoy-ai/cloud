@@ -277,19 +277,19 @@ export const projectRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       await ctx.db.transaction(async (tx) => {
         await tx
-          .delete(project_hardware)
-          .where(eq(project_hardware.projectId, input.projectId));
+          .delete(projectHardwareTable)
+          .where(eq(projectHardwareTable.projectId, input.projectId));
 
         if (input.hardwareIds.length === 0) {
           return;
         }
 
-        const hardwares = await tx.query.hardware.findMany({
+        const hardwares = await tx.query.hardwareTable.findMany({
           where: (hardware, { inArray }) =>
             inArray(hardware.id, input.hardwareIds),
         });
 
-        const project = await tx.query.project.findFirst({
+        const project = await tx.query.projectTable.findFirst({
           where: (project, { eq }) => eq(project.id, input.projectId),
         });
 
@@ -314,7 +314,7 @@ export const projectRouter = createTRPCRouter({
           });
         }
 
-        await tx.insert(project_hardware).values(
+        await tx.insert(projectHardwareTable).values(
           input.hardwareIds.map((hardwareId) => ({
             hardwareId,
             projectId: input.projectId,

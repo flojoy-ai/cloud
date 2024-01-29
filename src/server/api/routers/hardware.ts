@@ -581,7 +581,10 @@ async function getAllDevices(options: DeviceQueryOptions) {
 
     void query
       .innerJoin(projects_hardwares, eq(temp.id, projects_hardwares.hardwareId))
-      .innerJoin(projectTable, eq(projectTable.id, projects_hardwares.projectId));
+      .innerJoin(
+        projectTable,
+        eq(projectTable.id, projects_hardwares.projectId),
+      );
   }
   return await query.innerJoin(modelTable, eq(modelTable.id, temp.modelId));
 }
