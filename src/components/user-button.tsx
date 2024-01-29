@@ -56,16 +56,9 @@ function UserButton({ user }: Props) {
         <DropdownMenuItem
           className="cursor-pointer"
           onSelect={async () => {
-            const response = await fetch("/api/logout", {
+            await fetch("/api/logout", {
               method: "POST",
-              redirect: "manual",
             });
-
-            if (response.status === 0) {
-              // redirected
-              // when using `redirect: "manual"`, response status 0 is returned
-              return router.push("/");
-            }
           }}
         >
           Logout
