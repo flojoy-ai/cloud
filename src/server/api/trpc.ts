@@ -19,6 +19,7 @@ import * as jose from "jose";
 import { env } from "~/env";
 import { secret } from "../db/schema";
 import { and, eq } from "drizzle-orm";
+import { tryCatch } from "~/types/result";
 
 /**
  * 1. CONTEXT
@@ -158,11 +159,27 @@ export const workspaceProcedure = t.procedure.use(async ({ ctx, next }) => {
     }
     workspaceId = workspace.id;
   } else if (workspaceSecret) {
-    const { payload } = await jose.jwtVerify(
-      workspaceSecret.slice("Bearer ".length),
-      new TextEncoder().encode(env.JWT_SECRET),
-      {},
+    const res = tryCatch(
+      async () => {
+        const { payload } = await jose.jwtVerify(
+          workspaceSecret.slice("Bearer ".length),
+          new TextEncoder().encode(env.JWT_SECRET),
+          {},
+        );
+        return payload;
+      },
+      () =>
+        new TRPCError({
+          code: "UNAUTHORIZED",
+          message:
+            "Failed to validate JWT, did you specify the correct workspace secret? You can get your workspace secret from the 'Secret' tab under your workspace settings",
+        }),
     );
+
+    if (!res.ok) {
+      throw res.error;
+    }
+    const payload = await res.value;
 
     const parsed = z
       .object({
@@ -174,7 +191,7 @@ export const workspaceProcedure = t.procedure.use(async ({ ctx, next }) => {
     if (!parsed.success) {
       throw new TRPCError({
         code: "UNAUTHORIZED",
-        message: "the given JWT token is invalid, parsing failed",
+        message: "the given JWT is invalid, parsing failed",
       });
     }
 
