@@ -38,16 +38,20 @@ import { workspaceAccessMiddleware } from "./workspace";
 
 export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
-  input: { hardwareId: string };
+  input: { hardwareId: string | string[] };
 }>().create(async (opts) => {
-  const hardware = await opts.ctx.db.query.hardware.findFirst({
-    where: (hardware, { eq }) => eq(hardware.id, opts.input.hardwareId),
+  const ids = Array.isArray(opts.input.hardwareId)
+    ? opts.input.hardwareId
+    : [opts.input.hardwareId];
+
+  const hardwares = await opts.ctx.db.query.hardware.findMany({
+    where: (hardware, { inArray }) => inArray(hardware.id, ids),
     with: {
       workspace: true,
     },
   });
 
-  if (!hardware) {
+  if (hardwares.length !== ids.length) {
     throw new TRPCError({
       code: "BAD_REQUEST",
       message: "Device not found",
@@ -56,20 +60,37 @@ export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
 
   const workspaceUser = await checkWorkspaceAccess(
     opts.ctx,
-    hardware.workspace.id,
+    hardwares[0]!.workspace.id, // We know that hardwares must have at least 1 element here
   );
 
   if (!workspaceUser) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
-      message: "You do not have access to this device",
+      message: "You do not have access to all of these devices",
     });
+  }
+
+  for (const hardware of _.drop(hardwares, 1)) {
+    const user = await checkWorkspaceAccess(opts.ctx, hardware.workspace.id);
+
+    if (
+      workspaceUser.userId !== user?.userId ||
+      workspaceUser.workspaceId !== user?.workspaceId
+    ) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "You do not have access to all of these devices",
+      });
+    }
   }
 
   return opts.next({
     // this infers the `workspaceId` in ctx to be non-null
     // and also adds the respective resource id as well for use
-    ctx: { workspaceId: workspaceUser.workspaceId, hardwareId: hardware.id },
+    ctx: {
+      workspaceId: workspaceUser.workspaceId,
+      hardwareId: opts.input.hardwareId,
+    },
   });
 });
 

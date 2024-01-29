@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
@@ -177,7 +177,12 @@ export const projectRouter = createTRPCRouter({
         tags: ["project", "hardware"],
       },
     })
-    .input(z.object({ projectId: z.string(), hardwareId: z.string() }))
+    .input(
+      z.object({
+        projectId: z.string(),
+        hardwareId: z.union([z.string(), z.string().array().min(1)]),
+      }),
+    )
     .use(projectAccessMiddleware)
     .use(hardwareAccessMiddleware)
     .output(z.void())
@@ -193,28 +198,34 @@ export const projectRouter = createTRPCRouter({
         });
       }
 
-      const hardware = await ctx.db.query.hardware.findFirst({
-        where: (hardware, { eq }) => eq(hardware.id, input.hardwareId),
+      const ids = Array.isArray(input.hardwareId)
+        ? input.hardwareId
+        : [input.hardwareId];
+
+      const hardware = await ctx.db.query.hardware.findMany({
+        where: (hardware, { inArray }) => inArray(hardware.id, ids),
       });
 
-      if (hardware === undefined) {
+      if (hardware.length !== ids.length) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "Hardware not found",
         });
       }
 
-      if (hardware.modelId !== project.modelId) {
+      if (hardware.some((h) => h.modelId !== project.modelId)) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "Hardware model does not match project model",
         });
       }
 
-      await ctx.db.insert(project_hardware).values({
-        hardwareId: input.hardwareId,
-        projectId: input.projectId,
-      });
+      await ctx.db.insert(project_hardware).values(
+        ids.map((id) => ({
+          hardwareId: id,
+          projectId: input.projectId,
+        })),
+      );
     }),
 
   removeHardwareFromProject: workspaceProcedure
@@ -225,16 +236,25 @@ export const projectRouter = createTRPCRouter({
         tags: ["project", "hardware"],
       },
     })
-    .input(z.object({ projectId: z.string(), hardwareId: z.string() }))
+    .input(
+      z.object({
+        projectId: z.string(),
+        hardwareId: z.union([z.string(), z.string().array().min(1)]),
+      }),
+    )
     .use(projectAccessMiddleware)
     .use(hardwareAccessMiddleware)
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
+      const ids = Array.isArray(input.hardwareId)
+        ? input.hardwareId
+        : [input.hardwareId];
+
       await ctx.db
         .delete(project_hardware)
         .where(
           and(
-            eq(project_hardware.hardwareId, input.hardwareId),
+            inArray(project_hardware.hardwareId, ids),
             eq(project_hardware.projectId, input.projectId),
           ),
         );
