@@ -12,7 +12,6 @@ import { createId } from "@paralleldrive/cuid2";
 import { db } from "~/server/db";
 import { userTable } from "~/server/db/schema";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 
 export const POST = async (request: NextRequest) => {
   const formData = await request.formData();

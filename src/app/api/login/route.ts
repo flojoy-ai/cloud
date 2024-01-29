@@ -6,7 +6,6 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
 import { db } from "~/server/db";
-import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 
 export const POST = async (request: NextRequest) => {
