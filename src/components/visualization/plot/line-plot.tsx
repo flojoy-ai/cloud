@@ -12,6 +12,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import * as math from "mathjs";
 import _ from "lodash";
 import { usePlotLayout } from "~/hooks/use-plot-layout";
+import { useTheme } from "next-themes";
 
 type Line = {
   x: number[] | string[];
@@ -32,6 +33,7 @@ const traceOfX = (
   minX: number,
   maxX: number,
   name: string,
+  theme: string | undefined,
 ): Partial<PlotData> | undefined => {
   if (!expr) {
     return undefined;
@@ -49,11 +51,11 @@ const traceOfX = (
     x,
     y,
     name,
-    line: { color: "black", width: 2 },
+    line: { color: theme === "light" ? "black" : "white", width: 2 },
   };
 };
 
-const hline = (y: number): Partial<Shape> => {
+const hline = (y: number, theme: string | undefined): Partial<Shape> => {
   return {
     type: "line",
     xref: "paper",
@@ -61,7 +63,7 @@ const hline = (y: number): Partial<Shape> => {
     x1: 1,
     y0: y,
     y1: y,
-    line: { color: "black", width: 2 },
+    line: { color: theme === "light" ? "black" : "white", width: 2 },
   };
 };
 
@@ -77,6 +79,7 @@ const LinePlot = ({ lines, title, config, onTraceClick }: Props) => {
     number | null
   >(null);
   const layoutBase = usePlotLayout();
+  const { resolvedTheme } = useTheme();
 
   const computeTraces = useCallback((): ComputedTraces => {
     const yTransform = config.yTransform
@@ -113,7 +116,7 @@ const LinePlot = ({ lines, title, config, onTraceClick }: Props) => {
         line:
           i === highlightedTraceIndex
             ? { color: "#7B61FF", width: 2 }
-            : { color: "rgba(160,160,160,0.75)", width: 0.5 },
+            : { color: "rgba(160,160,160,0.75)", width: 1 },
       });
     });
 
@@ -142,12 +145,26 @@ const LinePlot = ({ lines, title, config, onTraceClick }: Props) => {
   }, [computeTraces]);
 
   const uclTrace = useMemo(
-    () => traceOfX(config.upperControlLimitTransform, minX, maxX, "UCL"),
+    () =>
+      traceOfX(
+        config.upperControlLimitTransform,
+        minX,
+        maxX,
+        "UCL",
+        resolvedTheme,
+      ),
     [config.upperControlLimitTransform, minX, maxX],
   );
 
   const lclTrace = useMemo(
-    () => traceOfX(config.lowerControlLimitTransform, minX, maxX, "LCL"),
+    () =>
+      traceOfX(
+        config.lowerControlLimitTransform,
+        minX,
+        maxX,
+        "LCL",
+        resolvedTheme,
+      ),
     [config.lowerControlLimitTransform, minX, maxX],
   );
 
@@ -171,10 +188,10 @@ const LinePlot = ({ lines, title, config, onTraceClick }: Props) => {
   const layout: Partial<Layout> = useMemo(() => {
     const shapes: Partial<Shape>[] = [];
     if (config.lowerControlLimit !== undefined) {
-      shapes.push(hline(config.lowerControlLimit));
+      shapes.push(hline(config.lowerControlLimit, resolvedTheme));
     }
     if (config.upperControlLimit !== undefined) {
-      shapes.push(hline(config.upperControlLimit));
+      shapes.push(hline(config.upperControlLimit, resolvedTheme));
     }
 
     return _.merge(layoutBase, {
