@@ -36,13 +36,13 @@ export async function createPasswordResetToken(
     .delete(passwordResetTokenTable)
     .where(eq(passwordResetTokenTable.userId, userId));
 
-  const code = generateRandomString(40, alphabet("0-9"));
+  const token = generateRandomString(40, alphabet("0-9"));
 
   await db.insert(passwordResetTokenTable).values({
     userId,
-    code,
+    token,
     expiresAt: createDate(new TimeSpan(5, "m")),
   });
 
-  return code;
+  return token;
 }
