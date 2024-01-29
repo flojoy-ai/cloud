@@ -6,20 +6,20 @@ import {
   unique,
 } from "drizzle-orm/pg-core";
 import { baseModal, pgTable } from "./table";
-import { workspace } from "./workspace";
+import { workspaceTable } from "./workspace";
 import { relations } from "drizzle-orm";
-import { measurement, model } from ".";
+import { measurementTable, modelTable } from ".";
 
-export const hardware = pgTable(
+export const hardwareTable = pgTable(
   "hardware",
   {
     ...baseModal("hardware"),
     workspaceId: text("workspace_id")
       .notNull()
-      .references(() => workspace.id, { onDelete: "cascade" }),
+      .references(() => workspaceTable.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
     modelId: text("model_id")
-      .references(() => model.id, { onDelete: "restrict" })
+      .references(() => modelTable.id, { onDelete: "restrict" })
       .notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at"),
@@ -30,27 +30,27 @@ export const hardware = pgTable(
   }),
 );
 
-export const device = pgTable("device", {
+export const deviceTable = pgTable("device", {
   id: text("id")
     .primaryKey()
-    .references(() => hardware.id, { onDelete: "cascade" }),
+    .references(() => hardwareTable.id, { onDelete: "cascade" }),
 });
 
-export const system = pgTable("system", {
+export const systemTable = pgTable("system", {
   id: text("id")
     .primaryKey()
-    .references(() => hardware.id, { onDelete: "cascade" }),
+    .references(() => hardwareTable.id, { onDelete: "cascade" }),
 });
 
-export const system_device = pgTable(
+export const systemDeviceTable = pgTable(
   "system_device",
   {
     systemId: text("system_id")
       .notNull()
-      .references(() => system.id, { onDelete: "cascade" }),
+      .references(() => systemTable.id, { onDelete: "cascade" }),
     deviceId: text("device_id")
       .notNull()
-      .references(() => device.id, {
+      .references(() => deviceTable.id, {
         onDelete: "restrict",
       }),
   },
@@ -59,14 +59,14 @@ export const system_device = pgTable(
   }),
 );
 
-export const hardwareRelation = relations(hardware, ({ one, many }) => ({
-  measurements: many(measurement),
-  workspace: one(workspace, {
-    fields: [hardware.workspaceId],
-    references: [workspace.id],
+export const hardwareRelation = relations(hardwareTable, ({ one, many }) => ({
+  measurements: many(measurementTable),
+  workspace: one(workspaceTable, {
+    fields: [hardwareTable.workspaceId],
+    references: [workspaceTable.id],
   }),
-  model: one(model, {
-    fields: [hardware.modelId],
-    references: [model.id],
+  model: one(modelTable, {
+    fields: [hardwareTable.modelId],
+    references: [modelTable.id],
   }),
 }));

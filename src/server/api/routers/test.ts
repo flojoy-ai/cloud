@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
-import { project, test } from "~/server/db/schema";
+import { projectTable, testTable } from "~/server/db/schema";
 import { selectHardwareBaseSchema } from "~/types/hardware";
 import { selectMeasurementSchema } from "~/types/measurement";
 import {
@@ -19,7 +19,7 @@ export const testAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
   input: { testId: string };
 }>().create(async (opts) => {
-  const test = await opts.ctx.db.query.test.findFirst({
+  const test = await opts.ctx.db.query.testTable.findFirst({
     where: (test, { eq }) => eq(test.id, opts.input.testId),
     with: {
       project: {
@@ -66,7 +66,7 @@ export const testRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.transaction(async (tx) => {
         const [testCreateResult] = await tx
-          .insert(test)
+          .insert(testTable)
           .values({
             name: input.name,
             projectId: input.projectId,
@@ -82,9 +82,9 @@ export const testRouter = createTRPCRouter({
         }
 
         await tx
-          .update(project)
+          .update(projectTable)
           .set({ updatedAt: new Date() })
-          .where(eq(project.id, input.projectId));
+          .where(eq(projectTable.id, input.projectId));
 
         return testCreateResult;
       });
@@ -110,7 +110,7 @@ export const testRouter = createTRPCRouter({
       ),
     )
     .query(async ({ input, ctx }) => {
-      const result = await ctx.db.query.test.findFirst({
+      const result = await ctx.db.query.testTable.findFirst({
         where: (test, { eq }) => eq(test.id, input.testId),
         with: {
           measurements: {
@@ -142,7 +142,7 @@ export const testRouter = createTRPCRouter({
     .use(projectAccessMiddleware)
     .output(z.array(selectTestSchema))
     .query(async ({ input, ctx }) => {
-      return await ctx.db.query.test.findMany({
+      return await ctx.db.query.testTable.findMany({
         where: (test, { eq }) => eq(test.projectId, input.projectId),
       });
     }),
@@ -156,9 +156,9 @@ export const testRouter = createTRPCRouter({
     .use(testAccessMiddleware)
     .mutation(async ({ ctx, input }) => {
       await ctx.db
-        .update(test)
+        .update(testTable)
         .set({ name: input.name })
-        .where(eq(test.id, input.testId));
+        .where(eq(testTable.id, input.testId));
     }),
 
   deleteTest: workspaceProcedure
@@ -168,6 +168,6 @@ export const testRouter = createTRPCRouter({
     .input(z.object({ testId: z.string() }))
     .output(z.void())
     .mutation(async ({ ctx, input }) => {
-      await ctx.db.delete(test).where(eq(test.id, input.testId));
+      await ctx.db.delete(testTable).where(eq(testTable.id, input.testId));
     }),
 });

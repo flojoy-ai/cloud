@@ -1,5 +1,6 @@
-import { auth } from "~/auth/lucia";
+import { lucia } from "~/auth/lucia";
 import { NextResponse } from "next/server";
+import { Argon2id } from "oslo/password";
 
 import type { NextRequest } from "next/server";
 import { z } from "zod";
@@ -7,6 +8,10 @@ import { type DatabaseError } from "@neondatabase/serverless";
 import { generateEmailVerificationToken } from "~/lib/token";
 import { sendEmailVerificationLink } from "~/lib/email";
 import { env } from "~/env";
+import { createId } from "@paralleldrive/cuid2";
+import { db } from "~/server/db";
+import { userTable } from "~/server/db/schema";
+import { cookies } from "next/headers";
 
 export const POST = async (request: NextRequest) => {
   const formData = await request.formData();
@@ -41,37 +46,40 @@ export const POST = async (request: NextRequest) => {
   }
 
   try {
-    const user = await auth.createUser({
-      key: {
-        providerId: "email", // auth method
-        providerUserId: parsedEmail.data.toLowerCase(), // unique id when using "username" auth method
-        password, // hashed by Lucia
-      },
-      attributes: {
-        email: parsedEmail.data.toLowerCase(),
-        email_verified: false,
-      },
-    });
-    const session = await auth.createSession({
-      userId: user.userId,
-      attributes: {
-        auth_provider: "email",
-      },
+    const userId = "user_" + createId();
+    const hashedPassword = await new Argon2id().hash(password);
+
+    // TODO: check if the user already exists
+    await db.insert(userTable).values({
+      id: userId,
+      email: parsedEmail.data,
+      hashedPassword,
+      emailVerified: false,
     });
 
-    const token = await generateEmailVerificationToken(user.userId);
+    const token = await generateEmailVerificationToken(
+      userId,
+      parsedEmail.data,
+    );
+    const verificationLink =
+      env.NEXT_PUBLIC_URL_ORIGIN + "/api/email-verification/" + token;
+    await sendEmailVerificationLink(parsedEmail.data, verificationLink);
 
-    const verificationLink = env.NEXT_PUBLIC_URL_ORIGIN + "/api/email/" + token;
-    await sendEmailVerificationLink(session.user.email, verificationLink);
+    const session = await lucia.createSession(userId, {});
+    const sessionCookie = lucia.createSessionCookie(session.id);
+    cookies().set(
+      sessionCookie.name,
+      sessionCookie.value,
+      sessionCookie.attributes,
+    );
 
-    const sessionCookie = auth.createSessionCookie(session);
     return new Response(null, {
       headers: {
-        Location: "/", // profile page
-        "Set-Cookie": sessionCookie.serialize(), // store session cookie
+        Location: "/verify", // verify page
       },
       status: 302,
     });
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     // this part depends on the database you're using

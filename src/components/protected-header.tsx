@@ -5,15 +5,13 @@ import { cn } from "~/lib/utils";
 import { Icons } from "~/components/icons";
 import { ModeToggle } from "~/components/mode-toggle";
 import { Button, buttonVariants } from "~/components/ui/button";
-import { auth } from "~/auth/lucia";
-import * as context from "next/headers";
+import { validateRequest } from "~/auth/lucia";
 import { ProtectedNav } from "./protected-nav";
 import { api } from "~/trpc/server";
 import UserButton from "./user-button";
 
 export async function ProtectedHeader() {
-  const authRequest = auth.handleRequest("GET", context);
-  const session = await authRequest.validate();
+  const { user } = await validateRequest();
 
   const workspaces = await api.workspace.getWorkspaces.query();
 
@@ -23,7 +21,7 @@ export async function ProtectedHeader() {
         <ProtectedNav workspaces={workspaces} />
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <nav className="flex items-center">
-            {!session ? (
+            {!user ? (
               <>
                 <Button size="sm" variant="outline" asChild>
                   <Link href={siteConfig.links.login}>Log In</Link>
@@ -39,7 +37,7 @@ export async function ProtectedHeader() {
               </>
             ) : (
               <>
-                <UserButton session={session} />
+                <UserButton user={user} />
                 <div className="px-1" />
               </>
             )}

@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1706203199248,
-      "tag": "0000_old_gwen_stacy",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1706129686375,
-      "tag": "0001_sleepy_shocker",
+      "when": 1706560385025,
+      "tag": "0000_luxuriant_sue_storm",
       "breakpoints": true
     }
   ]

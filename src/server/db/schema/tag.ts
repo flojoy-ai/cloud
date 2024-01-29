@@ -1,15 +1,15 @@
 import { baseModal, pgTable } from "./table";
 import { index, text, timestamp, unique } from "drizzle-orm/pg-core";
-import { measurement } from "./measurement";
+import { measurementTable } from "./measurement";
 
-export const tag = pgTable(
+export const tagTable = pgTable(
   "tag",
   {
     ...baseModal("tag"),
     name: text("name").notNull(),
     measurementId: text("measurement_id")
       .notNull()
-      .references(() => measurement.id, { onDelete: "cascade" }),
+      .references(() => measurementTable.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (tags) => ({

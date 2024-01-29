@@ -1,21 +1,20 @@
 import { index, text, timestamp, unique } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { baseModal, pgTable } from "./table";
-import { workspace } from "./workspace";
-import { test } from "./test";
-import { model } from ".";
+import { workspaceTable } from "./workspace";
+import { testTable } from "./test";
+import { modelTable } from ".";
 
-// This table should be self-explanatory.
-export const project = pgTable(
+export const projectTable = pgTable(
   "project",
   {
     ...baseModal("project"),
     name: text("name").notNull(),
     workspaceId: text("workspace_id")
       .notNull()
-      .references(() => workspace.id, { onDelete: "cascade" }),
+      .references(() => workspaceTable.id, { onDelete: "cascade" }),
     modelId: text("model_id")
-      .references(() => model.id, { onDelete: "restrict" })
+      .references(() => modelTable.id, { onDelete: "restrict" })
       .notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at"),
@@ -26,14 +25,14 @@ export const project = pgTable(
   }),
 );
 
-export const projectRelation = relations(project, ({ many, one }) => ({
-  tests: many(test),
-  workspace: one(workspace, {
-    fields: [project.workspaceId],
-    references: [workspace.id],
+export const projectRelation = relations(projectTable, ({ many, one }) => ({
+  tests: many(testTable),
+  workspace: one(workspaceTable, {
+    fields: [projectTable.workspaceId],
+    references: [workspaceTable.id],
   }),
-  model: one(model, {
-    fields: [project.modelId],
-    references: [model.id],
+  model: one(modelTable, {
+    fields: [projectTable.modelId],
+    references: [modelTable.id],
   }),
 }));

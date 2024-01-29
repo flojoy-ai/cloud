@@ -17,6 +17,7 @@ import { Input } from "~/components/ui/input";
 type PasswordResetFieldsProps = {
   token: string;
 };
+
 const formSchema = z
   .object({
     password: z.string().min(8, "Password must be at least 8 characters"),
@@ -26,6 +27,7 @@ const formSchema = z
     message: "Passwords do not match",
     path: ["confirmPassword"],
   });
+
 const defaultValues: z.infer<typeof formSchema> = {
   password: "",
   confirmPassword: "",

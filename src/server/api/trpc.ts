@@ -12,12 +12,12 @@ import { z, ZodError } from "zod";
 
 import { db } from "~/server/db";
 
-import { auth } from "~/auth/lucia";
+import { validateRequest } from "~/auth/lucia";
 import * as context from "next/headers";
 import { type OpenApiMeta } from "trpc-openapi";
 import * as jose from "jose";
 import { env } from "~/env";
-import { secret } from "../db/schema";
+import { secretTable } from "../db/schema";
 import { and, eq } from "drizzle-orm";
 import { tryCatch } from "~/types/result";
 
@@ -34,13 +34,12 @@ import { tryCatch } from "~/types/result";
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
-  const authRequest = auth.handleRequest("GET", context);
-  const session = await authRequest.validate();
+  const { user } = await validateRequest();
 
   const workspaceId = opts.headers.get("flojoy-cloud-workspace-id");
   return {
     db,
-    session,
+    user,
     workspaceId,
     ...opts,
   };
@@ -102,13 +101,13 @@ export const publicProcedure = t.procedure;
  * @see https://trpc.io/docs/procedures
  */
 export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
-  if (!ctx.session || !ctx.session.user) {
+  if (!ctx.user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
   return next({
     ctx: {
-      // infers the `session` as non-nullable
-      session: { ...ctx.session, user: ctx.session.user },
+      // infers the `user` as non-nullable
+      user: ctx.user,
     },
   });
 });
@@ -133,8 +132,8 @@ export const workspaceProcedure = t.procedure.use(async ({ ctx, next }) => {
   let userId;
   let workspaceId = ctx.workspaceId;
 
-  if (ctx.session && ctx.session.user) {
-    userId = ctx.session.user.userId;
+  if (ctx.user) {
+    userId = ctx.user.id;
 
     const scopeCookie = context.cookies().get("scope");
     if (!scopeCookie) {
@@ -144,7 +143,7 @@ export const workspaceProcedure = t.procedure.use(async ({ ctx, next }) => {
       });
     }
 
-    const workspace = await ctx.db.query.workspace.findFirst({
+    const workspace = await ctx.db.query.workspaceTable.findFirst({
       columns: {
         id: true,
       },
@@ -199,10 +198,13 @@ export const workspaceProcedure = t.procedure.use(async ({ ctx, next }) => {
     workspaceId = parsed.data.workspaceId;
 
     await ctx.db
-      .update(secret)
+      .update(secretTable)
       .set({ lastUsedAt: new Date() })
       .where(
-        and(eq(secret.userId, userId), eq(secret.workspaceId, workspaceId)),
+        and(
+          eq(secretTable.userId, userId),
+          eq(secretTable.workspaceId, workspaceId),
+        ),
       );
   } else {
     throw new TRPCError({

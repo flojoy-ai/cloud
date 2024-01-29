@@ -2,10 +2,10 @@ import { sql, type Column, eq } from "drizzle-orm";
 import { type SystemModelPart } from "~/types/model";
 import { db } from "~/server/db";
 import {
-  deviceModel,
-  systemModelDeviceModel,
-  model,
-  systemModel,
+  deviceModelTable,
+  systemModelDeviceModelTable,
+  modelTable,
+  systemModelTable,
 } from "~/server/db/schema";
 
 export function partsFrom(modelId: Column, name: Column, count: Column) {
@@ -16,28 +16,32 @@ export function partsFrom(modelId: Column, name: Column, count: Column) {
 
 export async function getSystemModelParts(modelId: string) {
   const sq = db
-    .select({ id: model.id, name: model.name })
-    .from(model)
-    .innerJoin(deviceModel, eq(deviceModel.id, model.id))
+    .select({ id: modelTable.id, name: modelTable.name })
+    .from(modelTable)
+    .innerJoin(deviceModelTable, eq(deviceModelTable.id, modelTable.id))
     .as("sq");
 
   const [parts] = await db
     .select({
-      parts: partsFrom(deviceModel.id, sq.name, systemModelDeviceModel.count),
+      parts: partsFrom(
+        deviceModelTable.id,
+        sq.name,
+        systemModelDeviceModelTable.count,
+      ),
     })
-    .from(model)
-    .innerJoin(systemModel, eq(systemModel.id, model.id))
+    .from(modelTable)
+    .innerJoin(systemModelTable, eq(systemModelTable.id, modelTable.id))
     .innerJoin(
-      systemModelDeviceModel,
-      eq(systemModel.id, systemModelDeviceModel.systemModelId),
+      systemModelDeviceModelTable,
+      eq(systemModelTable.id, systemModelDeviceModelTable.systemModelId),
     )
     .innerJoin(
-      deviceModel,
-      eq(deviceModel.id, systemModelDeviceModel.deviceModelId),
+      deviceModelTable,
+      eq(deviceModelTable.id, systemModelDeviceModelTable.deviceModelId),
     )
-    .innerJoin(sq, eq(sq.id, deviceModel.id))
-    .groupBy(systemModel.id)
-    .where(eq(model.id, modelId));
+    .innerJoin(sq, eq(sq.id, deviceModelTable.id))
+    .groupBy(systemModelTable.id)
+    .where(eq(modelTable.id, modelId));
 
   return parts?.parts;
 }

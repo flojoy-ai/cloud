@@ -13,12 +13,13 @@ import { type Session } from "lucia";
 import { useRouter } from "next/navigation";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
+import type { User } from "lucia";
 
 type Props = {
-  session: Session;
+  user: User;
 };
 
-function UserButton({ session }: Props) {
+function UserButton({ user }: Props) {
   const router = useRouter();
   return (
     <DropdownMenu>
@@ -31,13 +32,13 @@ function UserButton({ session }: Props) {
         >
           <Avatar className="h-5 w-5">
             <AvatarImage
-              src={`https://avatar.vercel.sh/${session.user.email}.png`}
-              alt={session.user.email}
+              src={`https://avatar.vercel.sh/${user.email}.png`}
+              alt={user.email}
               className="grayscale"
             />
             <AvatarFallback>SC</AvatarFallback>
           </Avatar>
-          <div>{session.user.email}</div>
+          <div>{user.email}</div>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
@@ -55,16 +56,9 @@ function UserButton({ session }: Props) {
         <DropdownMenuItem
           className="cursor-pointer"
           onSelect={async () => {
-            const response = await fetch("/api/logout", {
+            await fetch("/api/logout", {
               method: "POST",
-              redirect: "manual",
             });
-
-            if (response.status === 0) {
-              // redirected
-              // when using `redirect: "manual"`, response status 0 is returned
-              return router.push("/");
-            }
           }}
         >
           Logout

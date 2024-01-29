@@ -1,9 +1,9 @@
-import { test } from "~/server/db/schema";
+import { testTable } from "~/server/db/schema";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
-export type SelectTest = typeof test.$inferSelect;
+export type SelectTest = typeof testTable.$inferSelect;
 
-export const insertTestSchema = createInsertSchema(test);
+export const insertTestSchema = createInsertSchema(testTable);
 
 export const publicInsertTestSchema = insertTestSchema.pick({
   name: true,
@@ -15,4 +15,4 @@ export const publicUpdateTestSchema = insertTestSchema.pick({
   name: true,
 });
 
-export const selectTestSchema = createSelectSchema(test);
+export const selectTestSchema = createSelectSchema(testTable);

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "~/server/db";
-import { generatePasswordResetToken } from "~/lib/token";
+import { createPasswordResetToken } from "~/lib/token";
 import { sendPasswordResetLink } from "~/lib/email";
 
 export const POST = async (request: NextRequest) => {
@@ -18,8 +18,9 @@ export const POST = async (request: NextRequest) => {
       },
     );
   }
+
   try {
-    const storedUser = await db.query.user.findFirst({
+    const storedUser = await db.query.userTable.findFirst({
       where: (u, { eq }) => eq(u.email, parsedEmail.data),
     });
 
@@ -34,10 +35,10 @@ export const POST = async (request: NextRequest) => {
       );
     }
 
-    const token = await generatePasswordResetToken(storedUser.id);
+    const token = await createPasswordResetToken(storedUser.id);
     const resetLink = `${request.nextUrl.origin}/password-reset/${token}`;
     await sendPasswordResetLink(storedUser.email, resetLink);
-    return new Response();
+    return new Response(null, { status: 200 });
   } catch (e) {
     return NextResponse.json(
       {

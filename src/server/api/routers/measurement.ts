@@ -2,7 +2,7 @@ import { type SQL, eq, lte, gte } from "drizzle-orm";
 import { z } from "zod";
 
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
-import { measurement, hardware, test } from "~/server/db/schema";
+import { measurementTable, hardwareTable, testTable } from "~/server/db/schema";
 import { selectHardwareSchema } from "~/types/hardware";
 import {
   publicInsertMeasurementSchema,
@@ -18,7 +18,7 @@ export const measurementAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
   input: { measurementId: string };
 }>().create(async (opts) => {
-  const measurement = await opts.ctx.db.query.measurement.findFirst({
+  const measurement = await opts.ctx.db.query.measurementTable.findFirst({
     where: (measurement, { eq }) =>
       eq(measurement.id, opts.input.measurementId),
     with: {
@@ -74,7 +74,7 @@ export const measurementRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.transaction(async (tx) => {
         const [measurementCreateResult] = await tx
-          .insert(measurement)
+          .insert(measurementTable)
           .values({
             ...input,
             storageProvider: "postgres", // TODO: make this configurable
@@ -89,14 +89,14 @@ export const measurementRouter = createTRPCRouter({
         }
 
         await tx
-          .update(test)
+          .update(testTable)
           .set({ updatedAt: new Date() })
-          .where(eq(test.id, input.testId));
+          .where(eq(testTable.id, input.testId));
 
         await tx
-          .update(hardware)
+          .update(hardwareTable)
           .set({ updatedAt: new Date() })
-          .where(eq(hardware.id, input.hardwareId));
+          .where(eq(hardwareTable.id, input.hardwareId));
       });
     }),
 
@@ -126,16 +126,16 @@ export const measurementRouter = createTRPCRouter({
       ),
     )
     .query(async ({ ctx, input }) => {
-      const where: SQL[] = [eq(measurement.testId, input.testId)];
+      const where: SQL[] = [eq(measurementTable.testId, input.testId)];
 
       if (input.startDate) {
-        where.push(gte(measurement.createdAt, input.startDate));
+        where.push(gte(measurementTable.createdAt, input.startDate));
       }
       if (input.endDate) {
-        where.push(lte(measurement.createdAt, input.endDate));
+        where.push(lte(measurementTable.createdAt, input.endDate));
       }
 
-      const result = await ctx.db.query.measurement.findMany({
+      const result = await ctx.db.query.measurementTable.findMany({
         where: (_, { and }) => and(...where),
         with: {
           hardware: {
@@ -168,8 +168,8 @@ export const measurementRouter = createTRPCRouter({
       ),
     )
     .query(async ({ ctx, input }) => {
-      const result = await ctx.db.query.measurement.findFirst({
-        where: () => eq(measurement.id, input.measurementId),
+      const result = await ctx.db.query.measurementTable.findFirst({
+        where: () => eq(measurementTable.id, input.measurementId),
         with: {
           hardware: { with: { model: true } },
         },
@@ -201,7 +201,7 @@ export const measurementRouter = createTRPCRouter({
     .output(z.void())
     .query(async ({ ctx, input }) => {
       await ctx.db
-        .delete(measurement)
-        .where(eq(measurement.id, input.measurementId));
+        .delete(measurementTable)
+        .where(eq(measurementTable.id, input.measurementId));
     }),
 });
