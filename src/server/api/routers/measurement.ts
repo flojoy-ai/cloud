@@ -18,7 +18,7 @@ export const measurementAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
   input: { measurementId: string };
 }>().create(async (opts) => {
-  const measurement = await opts.ctx.db.query.measurement.findFirst({
+  const measurement = await opts.ctx.db.query.measurementTable.findFirst({
     where: (measurement, { eq }) =>
       eq(measurement.id, opts.input.measurementId),
     with: {
@@ -135,7 +135,7 @@ export const measurementRouter = createTRPCRouter({
         where.push(lte(measurementTable.createdAt, input.endDate));
       }
 
-      const result = await ctx.db.query.measurement.findMany({
+      const result = await ctx.db.query.measurementTable.findMany({
         where: (_, { and }) => and(...where),
         with: {
           hardware: {
@@ -168,7 +168,7 @@ export const measurementRouter = createTRPCRouter({
       ),
     )
     .query(async ({ ctx, input }) => {
-      const result = await ctx.db.query.measurement.findFirst({
+      const result = await ctx.db.query.measurementTable.findFirst({
         where: () => eq(measurementTable.id, input.measurementId),
         with: {
           hardware: { with: { model: true } },

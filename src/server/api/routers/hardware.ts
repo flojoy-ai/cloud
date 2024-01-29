@@ -40,7 +40,7 @@ export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
   input: { hardwareId: string };
 }>().create(async (opts) => {
-  const hardware = await opts.ctx.db.query.hardware.findFirst({
+  const hardware = await opts.ctx.db.query.hardwareTable.findFirst({
     where: (hardware, { eq }) => eq(hardware.id, opts.input.hardwareId),
     with: {
       workspace: true,
@@ -86,7 +86,7 @@ export const hardwareRouter = createTRPCRouter({
     .use(workspaceAccessMiddleware)
     .output(selectHardwareSchema)
     .mutation(async ({ ctx, input }) => {
-      const model = await db.query.model.findFirst({
+      const model = await db.query.modelTable.findFirst({
         where: (model, { eq }) => eq(model.id, input.modelId),
       });
 
@@ -247,7 +247,7 @@ export const hardwareRouter = createTRPCRouter({
           .set({ updatedAt: new Date() })
           .where(eq(workspaceTable.id, input.workspaceId));
 
-        const model = await tx.query.model.findFirst({
+        const model = await tx.query.modelTable.findFirst({
           where: (model, { eq }) => eq(model.id, input.modelId),
         });
 
@@ -289,7 +289,7 @@ export const hardwareRouter = createTRPCRouter({
       ),
     )
     .query(async ({ input, ctx }) => {
-      const result = await ctx.db.query.hardware.findFirst({
+      const result = await ctx.db.query.hardwareTable.findFirst({
         where: (hardware, { eq }) => eq(hardware.id, input.hardwareId),
         with: {
           model: true,

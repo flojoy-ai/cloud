@@ -142,7 +142,7 @@ export const workspaceProcedure = t.procedure.use(async ({ ctx, next }) => {
       });
     }
 
-    const workspace = await ctx.db.query.workspace.findFirst({
+    const workspace = await ctx.db.query.workspaceTable.findFirst({
       columns: {
         id: true,
       },

@@ -28,7 +28,7 @@ export const workspaceAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
   input: { workspaceId: string };
 }>().create(async (opts) => {
-  const workspace = await opts.ctx.db.query.workspace.findFirst({
+  const workspace = await opts.ctx.db.query.workspaceTable.findFirst({
     where: (workspace, { eq }) => eq(workspace.id, opts.input.workspaceId),
   });
 
@@ -182,7 +182,7 @@ export const workspaceRouter = createTRPCRouter({
     .input(z.object({ workspaceId: z.string() }))
     .output(selectWorkspaceSchema)
     .query(async ({ input }) => {
-      const result = await db.query.workspace.findFirst({
+      const result = await db.query.workspaceTable.findFirst({
         where: (workspace, { eq }) => eq(workspace.id, input.workspaceId),
       });
 
@@ -199,7 +199,7 @@ export const workspaceRouter = createTRPCRouter({
     .input(z.object({ namespace: z.string() }))
     .output(z.string())
     .query(async ({ input, ctx }) => {
-      const result = await ctx.db.query.workspace.findFirst({
+      const result = await ctx.db.query.workspaceTable.findFirst({
         where: (workspace, { eq }) => eq(workspace.namespace, input.namespace),
       });
       if (!result) {

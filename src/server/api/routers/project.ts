@@ -24,7 +24,7 @@ export const projectAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
   input: { projectId: string };
 }>().create(async (opts) => {
-  const project = await opts.ctx.db.query.project.findFirst({
+  const project = await opts.ctx.db.query.projectTable.findFirst({
     where: (project, { eq }) => eq(project.id, opts.input.projectId),
     with: { workspace: true },
   });
@@ -66,7 +66,7 @@ export const projectRouter = createTRPCRouter({
     .output(selectProjectSchema)
     .use(workspaceAccessMiddleware)
     .mutation(async ({ ctx, input }) => {
-      const model = await ctx.db.query.model.findFirst({
+      const model = await ctx.db.query.modelTable.findFirst({
         where: (model, { eq }) => eq(model.id, input.modelId),
       });
 
@@ -114,7 +114,7 @@ export const projectRouter = createTRPCRouter({
       }),
     )
     .query(async ({ input, ctx }) => {
-      const project = await ctx.db.query.project.findFirst({
+      const project = await ctx.db.query.projectTable.findFirst({
         where: (project, { eq }) => eq(project.id, input.projectId),
         with: { model: true },
       });
@@ -127,7 +127,7 @@ export const projectRouter = createTRPCRouter({
 
       // TODO: Is there a clean way to just attach this to the above query somehow?
       const isDeviceModel =
-        (await ctx.db.query.deviceModel.findFirst({
+        (await ctx.db.query.deviceModelTable.findFirst({
           where: (deviceModel, { eq }) => eq(deviceModel.id, project.modelId),
         })) !== undefined;
 
@@ -168,7 +168,7 @@ export const projectRouter = createTRPCRouter({
     .use(workspaceAccessMiddleware)
     .output(z.array(selectProjectSchema))
     .query(async ({ ctx, input }) => {
-      return await ctx.db.query.project.findMany({
+      return await ctx.db.query.projectTable.findMany({
         where: (project, { eq }) => eq(project.workspaceId, input.workspaceId),
       });
     }),
@@ -186,7 +186,7 @@ export const projectRouter = createTRPCRouter({
     .use(hardwareAccessMiddleware)
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
-      const project = await ctx.db.query.project.findFirst({
+      const project = await ctx.db.query.projectTable.findFirst({
         where: (project, { eq }) => eq(project.id, input.projectId),
       });
 
@@ -197,7 +197,7 @@ export const projectRouter = createTRPCRouter({
         });
       }
 
-      const hardware = await ctx.db.query.hardware.findFirst({
+      const hardware = await ctx.db.query.hardwareTable.findFirst({
         where: (hardware, { eq }) => eq(hardware.id, input.hardwareId),
       });
 

@@ -66,7 +66,7 @@ export const secretRouter = createTRPCRouter({
     .use(workspaceAccessMiddleware)
     .output(z.optional(selectSecretSchema))
     .query(async ({ ctx, input }) => {
-      return await ctx.db.query.secret.findFirst({
+      return await ctx.db.query.secretTable.findFirst({
         where: (secret, { eq, and }) =>
           and(
             eq(secret.workspaceId, input.workspaceId),

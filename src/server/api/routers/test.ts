@@ -19,7 +19,7 @@ export const testAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
   input: { testId: string };
 }>().create(async (opts) => {
-  const test = await opts.ctx.db.query.test.findFirst({
+  const test = await opts.ctx.db.query.testTable.findFirst({
     where: (test, { eq }) => eq(test.id, opts.input.testId),
     with: {
       project: {
@@ -110,7 +110,7 @@ export const testRouter = createTRPCRouter({
       ),
     )
     .query(async ({ input, ctx }) => {
-      const result = await ctx.db.query.test.findFirst({
+      const result = await ctx.db.query.testTable.findFirst({
         where: (test, { eq }) => eq(test.id, input.testId),
         with: {
           measurements: {
@@ -142,7 +142,7 @@ export const testRouter = createTRPCRouter({
     .use(projectAccessMiddleware)
     .output(z.array(selectTestSchema))
     .query(async ({ input, ctx }) => {
-      return await ctx.db.query.test.findMany({
+      return await ctx.db.query.testTable.findMany({
         where: (test, { eq }) => eq(test.projectId, input.projectId),
       });
     }),

@@ -25,7 +25,7 @@ export const modelAccessMiddlware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
   input: { modelId: string };
 }>().create(async (opts) => {
-  const model = await opts.ctx.db.query.model.findFirst({
+  const model = await opts.ctx.db.query.modelTable.findFirst({
     where: (model, { eq }) => eq(model.id, opts.input.modelId),
     with: {
       workspace: true,
