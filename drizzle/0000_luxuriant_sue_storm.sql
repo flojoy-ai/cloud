@@ -4,12 +4,6 @@ EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "cloud_email_verification" (
-	"id" text PRIMARY KEY NOT NULL,
-	"user_id" text NOT NULL,
-	"expires" timestamp NOT NULL
-);
---> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_device" (
 	"id" text PRIMARY KEY NOT NULL
 );
@@ -112,6 +106,14 @@ CREATE TABLE IF NOT EXISTS "cloud_test" (
 	CONSTRAINT "cloud_test_project_id_name_unique" UNIQUE("project_id","name")
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "cloud_email_verification" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"code" text NOT NULL,
+	"user_id" text NOT NULL,
+	"email" text NOT NULL,
+	"expiresAt" timestamp NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_oauth_account" (
 	"provider_id" text NOT NULL,
 	"provider_user_id" text NOT NULL,
@@ -120,9 +122,10 @@ CREATE TABLE IF NOT EXISTS "cloud_oauth_account" (
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_password_reset_token" (
-	"id" text PRIMARY KEY NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" text NOT NULL,
-	"expires" bigint NOT NULL
+	"token" text NOT NULL,
+	"expires_at" timestamp NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_user_session" (
@@ -135,6 +138,7 @@ CREATE TABLE IF NOT EXISTS "cloud_user" (
 	"id" text PRIMARY KEY NOT NULL,
 	"email_verified" boolean DEFAULT false,
 	"email" text NOT NULL,
+	"hashed_password" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp,
 	CONSTRAINT "cloud_user_email_unique" UNIQUE("email")
@@ -168,12 +172,6 @@ CREATE INDEX IF NOT EXISTS "cloud_project_name_index" ON "cloud_project" ("name"
 CREATE INDEX IF NOT EXISTS "cloud_tag_name_measurement_id_index" ON "cloud_tag" ("name","measurement_id");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "cloud_test_name_index" ON "cloud_test" ("name");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "cloud_workspace_namespace_index" ON "cloud_workspace" ("namespace");--> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "cloud_email_verification" ADD CONSTRAINT "cloud_email_verification_user_id_cloud_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "cloud_user"("id") ON DELETE cascade ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "cloud_device" ADD CONSTRAINT "cloud_device_id_cloud_hardware_id_fk" FOREIGN KEY ("id") REFERENCES "cloud_hardware"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
@@ -296,6 +294,12 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "cloud_test" ADD CONSTRAINT "cloud_test_project_id_cloud_project_id_fk" FOREIGN KEY ("project_id") REFERENCES "cloud_project"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "cloud_email_verification" ADD CONSTRAINT "cloud_email_verification_user_id_cloud_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "cloud_user"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

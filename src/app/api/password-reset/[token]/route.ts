@@ -1,6 +1,10 @@
+import { eq } from "drizzle-orm";
 import { NextResponse, type NextRequest } from "next/server";
-import { auth } from "~/auth/lucia";
-import { validatePasswordResetToken } from "~/lib/token";
+import { isWithinExpirationDate } from "oslo";
+import { Argon2id } from "oslo/password";
+import { lucia } from "~/auth/lucia";
+import { db } from "~/server/db";
+import { userTable } from "~/server/db/schema";
 
 export const POST = async (
   request: NextRequest,
@@ -29,30 +33,38 @@ export const POST = async (
       },
     );
   }
+
   try {
-    const { token } = params;
-    const userId = await validatePasswordResetToken(token);
-    let user = await auth.getUser(userId);
-    await auth.invalidateAllUserSessions(user.userId);
-    await auth.updateKeyPassword("email", user.email, password);
-    if (!user.emailVerified) {
-      user = await auth.updateUserAttributes(user.userId, {
-        email_verified: true,
+    await db.transaction(async (tx) => {
+      const token = await tx.query.passwordResetTokenTable.findFirst({
+        where: (fields, { eq }) => eq(fields.token, params.token),
       });
-    }
-    const session = await auth.createSession({
-      userId: user.userId,
-      attributes: {
-        auth_provider: "email",
-      },
-    });
-    const sessionCookie = auth.createSessionCookie(session);
-    return new Response(null, {
-      status: 302,
-      headers: {
-        Location: "/",
-        "Set-Cookie": sessionCookie.serialize(),
-      },
+
+      if (!token || !isWithinExpirationDate(token.expiresAt)) {
+        return new Response(null, {
+          status: 400,
+        });
+      }
+
+      await lucia.invalidateUserSessions(token.userId);
+      const hashedPassword = await new Argon2id().hash(password);
+
+      await db
+        .update(userTable)
+        .set({
+          hashedPassword,
+        })
+        .where(eq(userTable.id, token.userId));
+
+      const session = await lucia.createSession(token.userId, {});
+      const sessionCookie = lucia.createSessionCookie(session.id);
+      return new Response(null, {
+        status: 302,
+        headers: {
+          Location: "/",
+          "Set-Cookie": sessionCookie.serialize(),
+        },
+      });
     });
   } catch {
     return NextResponse.json(

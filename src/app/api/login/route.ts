@@ -1,10 +1,13 @@
 // app/api/login/route.ts
-import { auth } from "~/auth/lucia";
+import { Argon2id } from "oslo/password";
+import { lucia } from "~/auth/lucia";
 import { NextResponse } from "next/server";
-import { LuciaError } from "lucia";
 
 import type { NextRequest } from "next/server";
 import { z } from "zod";
+import { db } from "~/server/db";
+import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
 export const POST = async (request: NextRequest) => {
   const formData = await request.formData();
@@ -37,43 +40,57 @@ export const POST = async (request: NextRequest) => {
     );
   }
   try {
-    // find user by key
-    // and validate password
-    const key = await auth.useKey(
-      "email",
-      parsedEmail.data.toLowerCase(),
-      password,
-    );
-    const session = await auth.createSession({
-      userId: key.userId,
-      attributes: {
-        auth_provider: "email",
-      },
+    const existingUser = await db.query.userTable.findFirst({
+      where: (user, { eq }) => eq(user.email, parsedEmail.data),
     });
-    const sessionCookie = auth.createSessionCookie(session);
-    return new Response(null, {
-      headers: {
-        Location: "/", // profile page
-        "Set-Cookie": sessionCookie.serialize(), // store session cookie
-      },
-      status: 302,
-    });
-  } catch (e) {
-    if (
-      e instanceof LuciaError &&
-      (e.message === "AUTH_INVALID_KEY_ID" ||
-        e.message === "AUTH_INVALID_PASSWORD")
-    ) {
-      // user does not exist or invalid password
+    if (!existingUser) {
       return NextResponse.json(
         {
-          error: "Incorrect email or password",
+          error: "User does not exist",
         },
         {
           status: 400,
         },
       );
     }
+
+    if (!existingUser.hashedPassword) {
+      return NextResponse.json(
+        {
+          error:
+            "User does not have a password, please login with another provider",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
+    const validPassword = await new Argon2id().verify(
+      existingUser.hashedPassword,
+      password,
+    );
+
+    if (!validPassword) {
+      return NextResponse.json(
+        {
+          error: "Invalid password",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
+    const session = await lucia.createSession(existingUser.id, {});
+    const sessionCookie = lucia.createSessionCookie(session.id);
+    cookies().set(
+      sessionCookie.name,
+      sessionCookie.value,
+      sessionCookie.attributes,
+    );
+    return redirect("/");
+  } catch (e) {
     return NextResponse.json(
       {
         error: "An unknown error occurred: " + String(e),

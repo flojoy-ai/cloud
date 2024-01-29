@@ -1,17 +1,16 @@
 import { type NextRequest } from "next/server";
-import { auth } from "~/auth/lucia";
+import { validateRequest } from "~/auth/lucia";
 import { sendEmailVerificationLink } from "~/lib/email";
 import { generateEmailVerificationToken } from "~/lib/token";
 
 export const POST = async (request: NextRequest) => {
-  const authRequest = auth.handleRequest(request);
-  const session = await authRequest.validate();
-  if (!session) {
+  const { user } = await validateRequest();
+  if (!user) {
     return new Response(null, {
       status: 401,
     });
   }
-  if (session.user.emailVerified) {
+  if (user.emailVerified) {
     // email already verified
     return new Response(null, {
       status: 422,
@@ -19,9 +18,9 @@ export const POST = async (request: NextRequest) => {
   }
 
   try {
-    const token = await generateEmailVerificationToken(session.user.userId);
+    const token = await generateEmailVerificationToken(user.id, user.email);
     const verificationLink = request.nextUrl.origin + "/api/email/" + token;
-    await sendEmailVerificationLink(session.user.email, verificationLink);
+    await sendEmailVerificationLink(user.email, verificationLink);
     return new Response();
   } catch {
     return new Response("An unknown error occurred", {

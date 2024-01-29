@@ -42,7 +42,6 @@ export const GET = async (request: NextRequest) => {
       },
     );
     const user = (await response.json()) as GoogleUser;
-    console.log(user);
     const existingUser = await db.query.oauthAccountTable.findFirst({
       where: (table, { eq, and }) =>
         and(eq(table.providerUserId, user.sub), eq(table.providerId, "google")),

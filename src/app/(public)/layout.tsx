@@ -12,7 +12,6 @@ export default async function PublicLayout({
   const { user } = await validateRequest();
 
   if (user) {
-    console.log(user);
     if (!user.emailVerified) {
       redirect("/verify");
     }

@@ -1,4 +1,5 @@
 import {
+  serial,
   text,
   timestamp,
   primaryKey,
@@ -18,6 +19,7 @@ export const userTable = pgTable("user", {
   ...baseModal("user"),
   emailVerified: boolean("email_verified").default(false),
   email: text("email").notNull().unique(),
+  hashedPassword: text("hashed_password"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at"),
 });
@@ -51,9 +53,22 @@ export const oauthAccountTable = pgTable(
 );
 
 export const passwordResetTokenTable = pgTable("password_reset_token", {
-  id: text("id").notNull().primaryKey(),
+  id: serial("id").notNull().primaryKey(),
   userId: text("user_id")
     .notNull()
     .references(() => userTable.id),
-  expires: bigint("expires", { mode: "number" }).notNull(),
+  token: text("token").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+});
+
+export const emailVerificationTable = pgTable("email_verification", {
+  id: serial("id").notNull().primaryKey(),
+  code: text("code").notNull(),
+  userId: text("user_id")
+    .references(() => userTable.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
+  email: text("email").notNull(),
+  expiresAt: timestamp("expiresAt").notNull(),
 });
