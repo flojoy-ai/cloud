@@ -74,14 +74,14 @@ client.delete_device_by_id("DEVICE_ID")
         projectHardware={hardwares}
       />
 
-      <div className="">
-        <AllHardwares
-          hardwares={hardwares}
-          workspaceId={workspaceId}
-          project={project}
-          namespace={params.namespace}
-        />
-      </div>
+      <div className="py-1"></div>
+
+      <AllHardwares
+        hardwares={hardwares}
+        workspaceId={workspaceId}
+        project={project}
+        namespace={params.namespace}
+      />
 
       <div className="py-8" />
       <div>

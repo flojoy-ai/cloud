@@ -17,6 +17,8 @@ import { hardwareColumns } from "./columns";
 import { api } from "~/trpc/react";
 import { type SelectProject } from "~/types/project";
 import { type SelectHardware } from "~/types/hardware";
+import { toast } from "sonner";
+import { ArchiveRestore, PlusCircle } from "lucide-react";
 
 type Props = {
   workspaceId: string;
@@ -52,17 +54,28 @@ const ImportHardware = ({
     [hardware, projectHardware],
   );
 
-  const handleSubmit = async () => {
-    for (const hardwareId of hardwareIds) {
-      await addHardware.mutateAsync({ projectId: project.id, hardwareId });
-    }
+  const handleSubmit = () => {
+    toast.promise(
+      addHardware.mutateAsync({
+        projectId: project.id,
+        hardwareId: hardwareIds,
+      }),
+      {
+        success: "Devices imported successfully.",
+        loading: "Importing...",
+        error: "Something went wrong :(",
+      },
+    );
   };
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={(open) => setIsDialogOpen(open)}>
       <DialogTrigger asChild>
         <Button variant="default" size="sm">
-          Import from inventory
+          <div className="flex items-center gap-2">
+            <ArchiveRestore size={20} />
+            <div>Import From Inventory</div>
+          </div>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-xl">
@@ -88,7 +101,13 @@ const ImportHardware = ({
               Close
             </Button>
           </DialogClose>
-          <Button size="default">Import</Button>
+          <Button
+            size="default"
+            disabled={hardwareIds.length === 0}
+            onClick={handleSubmit}
+          >
+            Import
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

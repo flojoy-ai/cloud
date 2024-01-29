@@ -10,6 +10,7 @@ import { Input } from "~/components/ui/input";
 import { useState } from "react";
 import { type SelectProject } from "~/types/project";
 import { Badge } from "~/components/ui/badge";
+import { PlusCircle } from "lucide-react";
 
 type Props = {
   hardwares: SelectHardware[];
@@ -45,7 +46,10 @@ const AllHardwares = ({
             model={project.model}
             projectId={project.id}
           >
-            Register System Instance
+            <div className="flex items-center gap-2">
+              <PlusCircle size={20} />
+              <div>Register System Instance</div>
+            </div>
           </CreateSystem>
         ) : (
           <CreateDevice
@@ -53,21 +57,23 @@ const AllHardwares = ({
             model={project.model}
             projectId={project.id}
           >
-            Register Device Instance
+            <div className="flex items-center gap-2">
+              <PlusCircle size={20} />
+              <div>Register Device Instance</div>
+            </div>
           </CreateDevice>
         )}
-        <div>
-          You can only register instances of <Badge>{project.model.name}</Badge>{" "}
-          to this project.
-        </div>
-        <div className="grow"></div>
-        <Input
-          placeholder="Search hardware instance"
-          className="max-w-lg"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
       </div>
+      <div className="text-muted-foreground">
+        You can only register instances of <Badge>{project.model.name}</Badge>{" "}
+        to this project.
+      </div>
+      <Input
+        placeholder="Search hardware..."
+        className="max-w-lg"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
       {hardwares.length === 0 && (
         <div className="">
           No hardare instance found, get started by registering your hardware
