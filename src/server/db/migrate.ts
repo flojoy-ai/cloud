@@ -6,7 +6,7 @@ import { drizzle as neonDrizzle } from "drizzle-orm/neon-http/driver";
 import { env } from "~/env";
 import postgres from "postgres";
 
-if (env.AWS_AMI === 1) {
+if (env.AWS_AMI) {
   const pg = postgres(env.DATABASE_URL);
   const db = drizzle(pg);
   await migrate(db, { migrationsFolder: "./drizzle" });

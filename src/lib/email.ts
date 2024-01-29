@@ -33,11 +33,13 @@ export const sendPasswordResetLink = async (email: string, link: string) => {
     subject: "Flojoy Cloud - Password Reset",
   });
 };
+
 type SendEmailWithSESProps = {
   recipients: string[];
   emailHtml: string;
   subject: string;
 };
+
 const sendEmailWithSES = async ({
   recipients,
   emailHtml,
@@ -62,12 +64,14 @@ const sendEmailWithSES = async ({
     },
   };
   const ses = new SES({
-    region: "us-east-2",
-    credentials: {
-      accessKeyId: env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
-    },
+    region: env.AWS_REGION,
+    credentials:
+      env.AWS_ACCESS_KEY_ID && env.AWS_SECRET_ACCESS_KEY
+        ? {
+            accessKeyId: env.AWS_ACCESS_KEY_ID,
+            secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
+          }
+        : undefined,
   });
-
   await ses.sendEmail(params);
 };
