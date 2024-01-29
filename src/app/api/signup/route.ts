@@ -73,7 +73,13 @@ export const POST = async (request: NextRequest) => {
       sessionCookie.value,
       sessionCookie.attributes,
     );
-    return redirect("/");
+
+    return new Response(null, {
+      headers: {
+        Location: "/verify", // verify page
+      },
+      status: 302,
+    });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
