@@ -62,7 +62,8 @@ export const POST = async (request: NextRequest) => {
       userId,
       parsedEmail.data,
     );
-    const verificationLink = env.NEXT_PUBLIC_URL_ORIGIN + "/api/email/" + token;
+    const verificationLink =
+      env.NEXT_PUBLIC_URL_ORIGIN + "/api/email-verification/" + token;
     await sendEmailVerificationLink(parsedEmail.data, verificationLink);
 
     const session = await lucia.createSession(userId, {});

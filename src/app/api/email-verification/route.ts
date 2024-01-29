@@ -19,7 +19,8 @@ export const POST = async (request: NextRequest) => {
 
   try {
     const token = await generateEmailVerificationToken(user.id, user.email);
-    const verificationLink = request.nextUrl.origin + "/api/email/" + token;
+    const verificationLink =
+      request.nextUrl.origin + "/api/email-verification/" + token;
     await sendEmailVerificationLink(user.email, verificationLink);
     return new Response();
   } catch {

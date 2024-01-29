@@ -36,7 +36,7 @@ const Page = () => {
             variant="secondary"
             disabled={countdown > 0}
             onClick={async () => {
-              await fetch("/api/email", { method: "POST" });
+              await fetch("/api/email-verification", { method: "POST" });
               setCountdown(60);
             }}
           >
