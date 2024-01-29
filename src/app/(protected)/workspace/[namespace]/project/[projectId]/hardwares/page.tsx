@@ -3,7 +3,6 @@ import AllHardwares from "./_components/all-hardwares";
 import { Separator } from "~/components/ui/separator";
 import CodeBlock from "~/components/code-block";
 import { WorkspaceSecretReminder } from "~/components/workspace-secret-reminder";
-import ImportHardware from "./_components/import-hardware";
 
 const DevicesView = async ({
   params,
@@ -67,17 +66,9 @@ client.delete_device_by_id("DEVICE_ID")
 
       <div className="py-2"></div>
 
-      <ImportHardware
-        workspaceId={workspaceId}
-        project={project}
-        initialHardware={modelHardware}
-        projectHardware={hardwares}
-      />
-
-      <div className="py-1"></div>
-
       <AllHardwares
         hardwares={hardwares}
+        modelHardware={modelHardware}
         workspaceId={workspaceId}
         project={project}
         namespace={params.namespace}

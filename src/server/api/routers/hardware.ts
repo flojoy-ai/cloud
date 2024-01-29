@@ -38,11 +38,55 @@ import { workspaceAccessMiddleware } from "./workspace";
 
 export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
-  input: { hardwareId: string | string[] };
+  input: { hardwareId: string };
 }>().create(async (opts) => {
-  const ids = Array.isArray(opts.input.hardwareId)
-    ? opts.input.hardwareId
-    : [opts.input.hardwareId];
+  const hardware = await opts.ctx.db.query.hardware.findFirst({
+    where: (hardware, { eq }) => eq(hardware.id, opts.input.hardwareId),
+    with: {
+      workspace: true,
+    },
+  });
+
+  if (!hardware) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Device not found",
+    });
+  }
+
+  const workspaceUser = await checkWorkspaceAccess(
+    opts.ctx,
+    hardware.workspace.id,
+  );
+
+  if (!workspaceUser) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You do not have access to this device",
+    });
+  }
+
+  return opts.next({
+    // this infers the `workspaceId` in ctx to be non-null
+    // and also adds the respective resource id as well for use
+    ctx: { workspaceId: workspaceUser.workspaceId, hardwareId: hardware.id },
+  });
+});
+
+export const multiHardwareAccessMiddleware = experimental_standaloneMiddleware<{
+  ctx: { db: typeof db; userId: string; workspaceId: string | null };
+  input: { hardwareIds: string[] };
+}>().create(async (opts) => {
+  const ids = opts.input.hardwareIds;
+
+  if (ids.length === 0) {
+    return opts.next({
+      ctx: {
+        workspaceId: opts.ctx.workspaceId,
+        hardwareIds: ids,
+      },
+    });
+  }
 
   const hardwares = await opts.ctx.db.query.hardware.findMany({
     where: (hardware, { inArray }) => inArray(hardware.id, ids),
@@ -89,7 +133,7 @@ export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
     // and also adds the respective resource id as well for use
     ctx: {
       workspaceId: workspaceUser.workspaceId,
-      hardwareId: opts.input.hardwareId,
+      hardwareIds: ids,
     },
   });
 });

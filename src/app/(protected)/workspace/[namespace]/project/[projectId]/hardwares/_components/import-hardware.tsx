@@ -1,8 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
-import { DataTable } from "~/components/ui/data-table";
 import {
   Dialog,
   DialogClose,
@@ -18,7 +17,9 @@ import { api } from "~/trpc/react";
 import { type SelectProject } from "~/types/project";
 import { type SelectHardware } from "~/types/hardware";
 import { toast } from "sonner";
-import { ArchiveRestore, PlusCircle } from "lucide-react";
+import { ArchiveRestore } from "lucide-react";
+import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { ControlledDataTable } from "~/components/ui/controlled-data-table";
 
 type Props = {
   workspaceId: string;
@@ -27,6 +28,17 @@ type Props = {
   projectHardware: SelectHardware[];
 };
 
+const getSelectionState = (
+  hardware: SelectHardware[],
+  projectHardware: SelectHardware[],
+) =>
+  Object.fromEntries(
+    hardware.map((h, i) => [
+      i.toString(),
+      projectHardware.find((ph) => ph.id === h.id) !== undefined,
+    ]),
+  );
+
 const ImportHardware = ({
   workspaceId,
   project,
@@ -34,7 +46,7 @@ const ImportHardware = ({
   projectHardware,
 }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const [hardwareIds, setHardwareIds] = useState<string[]>([]);
+  const utils = api.useUtils();
 
   const { data: hardware } = api.hardware.getAllHardware.useQuery(
     {
@@ -44,25 +56,42 @@ const ImportHardware = ({
     { initialData: initialHardware },
   );
 
-  const addHardware = api.project.addHardwareToProject.useMutation();
+  const setProjectHardware = api.project.setProjectHardware.useMutation();
 
-  const tableData = useMemo(
-    () =>
-      hardware.filter(
-        (h) => projectHardware.find((x) => x.id === h.id) === undefined,
-      ),
-    [hardware, projectHardware],
-  );
+  const table = useReactTable({
+    data: hardware,
+    columns: hardwareColumns,
+    getCoreRowModel: getCoreRowModel(),
+    initialState: {
+      rowSelection: getSelectionState(hardware, projectHardware),
+    },
+  });
+
+  useEffect(() => {
+    table.setRowSelection(getSelectionState(hardware, projectHardware));
+  }, [hardware, projectHardware]);
 
   const handleSubmit = () => {
+    const hardwareIds = table
+      .getSelectedRowModel()
+      .rows.map((row) => row.original.id);
+
     toast.promise(
-      addHardware.mutateAsync({
-        projectId: project.id,
-        hardwareId: hardwareIds,
-      }),
+      setProjectHardware.mutateAsync(
+        {
+          projectId: project.id,
+          hardwareIds,
+        },
+        {
+          onSettled: () => {
+            setIsDialogOpen(false);
+            void utils.hardware.getAllHardware.invalidate();
+          },
+        },
+      ),
       {
-        success: "Devices imported successfully.",
-        loading: "Importing...",
+        success: "Project hardware updated.",
+        loading: "Updating...",
         error: "Something went wrong :(",
       },
     );
@@ -86,13 +115,7 @@ const ImportHardware = ({
           </DialogDescription>
         </DialogHeader>
         <div className="h-96 overflow-y-auto">
-          <DataTable
-            columns={hardwareColumns}
-            data={tableData}
-            onSelectionChange={(model) => {
-              setHardwareIds(model.rows.map((row) => hardware[row.index]!.id));
-            }}
-          />
+          <ControlledDataTable columns={hardwareColumns} table={table} />
         </div>
 
         <DialogFooter>
@@ -101,12 +124,8 @@ const ImportHardware = ({
               Close
             </Button>
           </DialogClose>
-          <Button
-            size="default"
-            disabled={hardwareIds.length === 0}
-            onClick={handleSubmit}
-          >
-            Import
+          <Button size="default" onClick={handleSubmit}>
+            Update
           </Button>
         </DialogFooter>
       </DialogContent>

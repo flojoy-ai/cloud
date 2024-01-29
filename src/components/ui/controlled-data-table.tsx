@@ -3,8 +3,7 @@
 import {
   type ColumnDef,
   flexRender,
-  getCoreRowModel,
-  useReactTable,
+  type Table as TableHookReturn,
 } from "@tanstack/react-table";
 
 import {
@@ -15,25 +14,16 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { cn } from "~/lib/utils";
 
-interface DataTableProps<TData, TValue> {
+interface ControlledDataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
-  data: TData[];
-  onRowClick?: (row: TData) => void;
+  table: TableHookReturn<TData>;
 }
 
-export function DataTable<TData, TValue>({
+export function ControlledDataTable<TData, TValue>({
   columns,
-  data,
-  onRowClick,
-}: DataTableProps<TData, TValue>) {
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
+  table,
+}: ControlledDataTableProps<TData, TValue>) {
   return (
     <div className="rounded-md border">
       <Table>
@@ -61,8 +51,6 @@ export function DataTable<TData, TValue>({
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
-                className={cn({ "cursor-pointer": onRowClick !== undefined })}
-                onClick={() => onRowClick?.(row.original)}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>

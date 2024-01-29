@@ -11,9 +11,11 @@ import { useState } from "react";
 import { type SelectProject } from "~/types/project";
 import { Badge } from "~/components/ui/badge";
 import { PlusCircle } from "lucide-react";
+import ImportHardware from "./import-hardware";
 
 type Props = {
   hardwares: SelectHardware[];
+  modelHardware: SelectHardware[];
   workspaceId: string;
   namespace: string;
   project: SelectProject & { model: SelectModel };
@@ -22,6 +24,7 @@ type Props = {
 const AllHardwares = ({
   workspaceId,
   hardwares: initialHardwares,
+  modelHardware,
   namespace,
   project,
 }: Props) => {
@@ -40,6 +43,12 @@ const AllHardwares = ({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-2">
+        <ImportHardware
+          workspaceId={workspaceId}
+          project={project}
+          initialHardware={modelHardware}
+          projectHardware={hardwares}
+        />
         {project.model.type === "system" ? (
           <CreateSystem
             workspaceId={workspaceId}
