@@ -33,11 +33,13 @@ export const sendPasswordResetLink = async (email: string, link: string) => {
     subject: "Flojoy Cloud - Password Reset",
   });
 };
+
 type SendEmailWithSESProps = {
   recipients: string[];
   emailHtml: string;
   subject: string;
 };
+
 const sendEmailWithSES = async ({
   recipients,
   emailHtml,
