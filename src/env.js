@@ -24,9 +24,11 @@ export const env = createEnv({
     GOOGLE_CLIENT_SECRET: z.string(),
     GOOGLE_REDIRECT_URI: z.string().url(),
 
+    // these 2 are NOT optional for public cloud deployment
+    // since those are only set automaticlaly on AWS AMI
     AWS_ACCESS_KEY_ID: z.string().optional(),
     AWS_SECRET_ACCESS_KEY: z.string().optional(),
-    // AWS_BUCKET_NAME: z.string(),
+
     AWS_REGION: z.string(),
     SENDER_EMAIL: z.string().email(),
 
