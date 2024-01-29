@@ -3,6 +3,7 @@ import AllHardwares from "./_components/all-hardwares";
 import { Separator } from "~/components/ui/separator";
 import CodeBlock from "~/components/code-block";
 import { WorkspaceSecretReminder } from "~/components/workspace-secret-reminder";
+import ImportHardware from "./_components/import-hardware";
 
 const DevicesView = async ({
   params,
@@ -20,6 +21,11 @@ const DevicesView = async ({
   const hardwares = await api.hardware.getAllHardware.query({
     workspaceId,
     projectId: project.id,
+  });
+
+  const modelHardware = await api.hardware.getAllHardware.query({
+    workspaceId,
+    modelId: project.modelId,
   });
 
   const code = `from flojoy.cloud import FlojoyCloud
@@ -60,6 +66,13 @@ client.delete_device_by_id("DEVICE_ID")
       <Separator className="my-6" />
 
       <div className="py-2"></div>
+
+      <ImportHardware
+        workspaceId={workspaceId}
+        project={project}
+        initialHardware={modelHardware}
+        projectHardware={hardwares}
+      />
 
       <div className="">
         <AllHardwares

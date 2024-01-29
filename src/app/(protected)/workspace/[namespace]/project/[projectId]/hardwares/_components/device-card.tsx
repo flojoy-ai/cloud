@@ -13,9 +13,7 @@ import {
   ContextMenuTrigger,
   ContextMenuContent,
 } from "~/components/ui/context-menu";
-// import { getPrettyTime } from "~/lib/time";
 import { type SelectHardware } from "~/types/hardware";
-import { type SelectModel } from "~/types/model";
 
 type Props = {
   hardware: SelectHardware;
@@ -32,7 +30,6 @@ const HardwareCard = ({ hardware, namespace }: Props) => {
               <CardTitle>{hardware.name}</CardTitle>
               <CardDescription>{hardware.id}</CardDescription>
             </CardHeader>
-            {/* <CardFooter></CardFooter> */}
           </Card>
         </Link>
       </ContextMenuTrigger>

@@ -5,7 +5,9 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
+  type RowModel,
 } from "@tanstack/react-table";
+import { useEffect } from "react";
 
 import {
   Table,
@@ -21,18 +23,26 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   onRowClick?: (row: TData) => void;
+  onSelectionChange?: (model: RowModel<TData>) => void;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   onRowClick,
+  onSelectionChange,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
+
+  useEffect(() => {
+    if (onSelectionChange) {
+      onSelectionChange(table.getSelectedRowModel());
+    }
+  }, [table.getSelectedRowModel()]);
 
   return (
     <div className="rounded-md border">
