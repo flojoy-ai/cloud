@@ -9,6 +9,6 @@ export default function Page({
 }) {
   const router = useRouter();
   router.replace(
-    `/workspace/${params.namespace}/project/${params.projectId}/devices`,
+    `/workspace/${params.namespace}/project/${params.projectId}/hardwares`,
   );
 }

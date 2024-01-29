@@ -3,8 +3,7 @@
 import {
   type ColumnDef,
   flexRender,
-  getCoreRowModel,
-  useReactTable,
+  type Table as TableHookReturn,
 } from "@tanstack/react-table";
 
 import {
@@ -16,21 +15,15 @@ import {
   TableRow,
 } from "~/components/ui/table";
 
-interface DataTableProps<TData, TValue> {
+interface ControlledDataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+  table: TableHookReturn<TData>;
 }
 
-export function DataTable<TData, TValue>({
+export function ControlledDataTable<TData, TValue>({
   columns,
-  data,
-}: DataTableProps<TData, TValue>) {
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
+  table,
+}: ControlledDataTableProps<TData, TValue>) {
   return (
     <div className="rounded-md border">
       <Table>

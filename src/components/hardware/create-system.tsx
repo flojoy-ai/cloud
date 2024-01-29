@@ -131,7 +131,11 @@ const CreateSystem = ({
   }, [form.watch("modelId")]);
 
   if (!devices || !models) {
-    return null;
+    return (
+      <Button variant="default" size="sm" disabled={true}>
+        {children}
+      </Button>
+    );
   }
 
   function onSubmit(values: FormSchema) {

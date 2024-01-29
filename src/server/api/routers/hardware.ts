@@ -19,6 +19,7 @@ import {
   device,
   hardware,
   model,
+  project,
   project_hardware,
   system,
   system_device,
@@ -35,6 +36,7 @@ import {
 } from "~/types/hardware";
 import { selectMeasurementSchema } from "~/types/measurement";
 import { workspaceAccessMiddleware } from "./workspace";
+import { selectProjectSchema } from "~/types/project";
 
 export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -72,6 +74,84 @@ export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
     ctx: { workspaceId: workspaceUser.workspaceId, hardwareId: hardware.id },
   });
 });
+
+export const multiHardwareAccessMiddleware = experimental_standaloneMiddleware<{
+  ctx: { db: typeof db; userId: string; workspaceId: string | null };
+  input: { hardwareIds: string[] };
+}>().create(async (opts) => {
+  const ids = opts.input.hardwareIds;
+
+  if (ids.length === 0) {
+    return opts.next({
+      ctx: {
+        workspaceId: opts.ctx.workspaceId,
+        hardwareIds: ids,
+      },
+    });
+  }
+
+  const hardwares = await opts.ctx.db.query.hardware.findMany({
+    where: (hardware, { inArray }) => inArray(hardware.id, ids),
+    with: {
+      workspace: true,
+    },
+  });
+
+  if (hardwares.length !== ids.length) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Device not found",
+    });
+  }
+
+  const workspaceUser = await checkWorkspaceAccess(
+    opts.ctx,
+    hardwares[0]!.workspace.id, // We know that hardwares must have at least 1 element here
+  );
+
+  if (!workspaceUser) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You do not have access to all of these devices",
+    });
+  }
+
+  for (const hardware of _.drop(hardwares, 1)) {
+    const user = await checkWorkspaceAccess(opts.ctx, hardware.workspace.id);
+
+    if (
+      workspaceUser.userId !== user?.userId ||
+      workspaceUser.workspaceId !== user?.workspaceId
+    ) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "You do not have access to all of these devices",
+      });
+    }
+  }
+
+  return opts.next({
+    // this infers the `workspaceId` in ctx to be non-null
+    // and also adds the respective resource id as well for use
+    ctx: {
+      workspaceId: workspaceUser.workspaceId,
+      hardwareIds: ids,
+    },
+  });
+});
+
+const hardwareQueryOptions = z.object({
+  workspaceId: z.string(),
+  projectId: z.string().optional(),
+  modelId: z.string().optional(),
+});
+
+const deviceQueryOptions = hardwareQueryOptions.extend({
+  onlyAvailable: z.boolean().optional(),
+});
+
+type HardwareQueryOptions = z.infer<typeof hardwareQueryOptions>;
+type DeviceQueryOptions = z.infer<typeof deviceQueryOptions>;
 
 export const hardwareRouter = createTRPCRouter({
   createDevice: workspaceProcedure
@@ -320,22 +400,12 @@ export const hardwareRouter = createTRPCRouter({
     .meta({
       openapi: { method: "GET", path: "/v1/hardware", tags: ["hardware"] },
     })
-    .input(
-      z.object({
-        workspaceId: z.string(),
-        projectId: z.string().optional(),
-        onlyAvailable: z.boolean().optional(),
-      }),
-    )
+    .input(deviceQueryOptions)
     .use(workspaceAccessMiddleware)
     .output(z.array(selectHardwareSchema))
     .query(async ({ input }) => {
-      const devices = await getAllDevices(
-        input.workspaceId,
-        input.projectId,
-        input.onlyAvailable,
-      );
-      const systems = await getAllSystems(input.workspaceId, input.projectId);
+      const devices = await getAllDevices(input);
+      const systems = await getAllSystems(input);
       return [...devices, ...systems];
     }),
 
@@ -347,21 +417,32 @@ export const hardwareRouter = createTRPCRouter({
         tags: ["hardware"],
       },
     })
-    .input(
-      z.object({
-        workspaceId: z.string(),
-        projectId: z.string().optional(),
-        onlyAvailable: z.boolean().optional(),
-      }),
-    )
+    .input(deviceQueryOptions)
     .use(workspaceAccessMiddleware)
-    .output(z.array(selectDeviceSchema))
+    .output(
+      z.array(
+        selectDeviceSchema.extend({ projects: selectProjectSchema.array() }),
+      ),
+    )
     .query(async ({ input }) => {
-      return await getAllDevices(
-        input.workspaceId,
-        input.projectId,
-        input.onlyAvailable,
-      );
+      const devices = await getAllDevices(input);
+
+      // What is going on here?
+      // Basically if a device is used in multiple projects, the getAllDevices will
+      // return multiple entries for that device, one entry for each project it is in
+      // This piece of code below basically merges those entries into one, with
+      // a field called `projects` that contains a list of projects a given device is in
+      const merged = _.values(_.groupBy(devices, (x) => x.id))
+        .map((v) => {
+          if (v[0]) {
+            return {
+              ...v[0],
+              projects: _.map(v, "project"),
+            };
+          }
+        })
+        .flatMap((x) => (x ? [x] : []));
+      return merged;
     }),
 
   getAllSystems: workspaceProcedure
@@ -372,16 +453,32 @@ export const hardwareRouter = createTRPCRouter({
         tags: ["hardware"],
       },
     })
-    .input(
-      z.object({
-        workspaceId: z.string(),
-        projectId: z.string().optional(),
-      }),
-    )
+    .input(hardwareQueryOptions)
     .use(workspaceAccessMiddleware)
-    .output(z.array(selectSystemSchema))
+    .output(
+      z.array(
+        selectSystemSchema.extend({ projects: selectProjectSchema.array() }),
+      ),
+    )
     .query(async ({ input }) => {
-      return await getAllSystems(input.workspaceId, input.projectId);
+      const systems = await getAllSystems(input);
+
+      // What is going on here?
+      // Basically if a system is used in multiple projects, the getAllSystems will
+      // return multiple entries for that system, one entry for each project it is in
+      // This piece of code below basically merges those entries into one, with
+      // a field called `projects` that contains a list of projects a given system is in
+      const merged = _.values(_.groupBy(systems, (x) => x.id))
+        .map((v) => {
+          if (v[0]) {
+            return {
+              ...v[0],
+              projects: _.map(v, "project"),
+            };
+          }
+        })
+        .flatMap((x) => (x ? [x] : []));
+      return merged;
     }),
 
   deleteHardwareById: workspaceProcedure
@@ -420,11 +517,9 @@ export const hardwareRouter = createTRPCRouter({
   // TODO: Add update remove system components
 });
 
-async function getAllDevices(
-  workspaceId: string,
-  projectId?: string,
-  onlyAvailable?: boolean,
-) {
+async function getAllDevices(options: DeviceQueryOptions) {
+  const { workspaceId, projectId, modelId, onlyAvailable } = options;
+
   const conditions = [eq(hardware.workspaceId, workspaceId)];
   if (onlyAvailable) {
     const notUsed = not(
@@ -436,6 +531,10 @@ async function getAllDevices(
       ),
     );
     conditions.push(notUsed);
+  }
+
+  if (modelId) {
+    conditions.push(eq(hardware.modelId, modelId));
   }
 
   const hardwares = db
@@ -455,6 +554,7 @@ async function getAllDevices(
       modelId: temp.modelId,
       id: temp.id,
       model: getTableColumns(model),
+      project: getTableColumns(project),
     })
     .from(temp);
 
@@ -465,18 +565,28 @@ async function getAllDevices(
       .where(eq(project_hardware.projectId, projectId))
       .as("projects_hardwares");
 
-    void query.innerJoin(
-      projects_hardwares,
-      eq(temp.id, projects_hardwares.hardwareId),
-    );
+    void query
+      .innerJoin(projects_hardwares, eq(temp.id, projects_hardwares.hardwareId))
+      .innerJoin(project, eq(project.id, projects_hardwares.projectId));
+  } else {
+    const projects_hardwares = db
+      .select()
+      .from(project_hardware)
+      .as("projects_hardwares");
+
+    void query
+      .innerJoin(projects_hardwares, eq(temp.id, projects_hardwares.hardwareId))
+      .innerJoin(project, eq(project.id, projects_hardwares.projectId));
   }
   return await query.innerJoin(model, eq(model.id, temp.modelId));
 }
 
-async function getAllSystems(workspaceId: string, projectId?: string) {
+async function getAllSystems(options: HardwareQueryOptions) {
+  const { workspaceId, projectId, modelId } = options;
+
   // FIXME: Can't use subqueries for this query to do it all at once...
   // drizzle bug complains about ambiguous columns
-  // see: https://github.com/drizzle-team/drizzle-orm/issues/1242jk
+  // see: https://github.com/drizzle-team/drizzle-orm/issues/1242
 
   // const sq = db
   //   .select({
@@ -490,6 +600,12 @@ async function getAllSystems(workspaceId: string, projectId?: string) {
   //   .where(eq(hardware.workspaceId, workspaceId))
   //   .as("sq");
 
+  const conditions = [eq(hardware.workspaceId, workspaceId)];
+
+  if (modelId) {
+    conditions.push(eq(hardware.modelId, modelId));
+  }
+
   const query = db
     .select({
       type: sql<"system">`'system'`.as("type"),
@@ -500,13 +616,14 @@ async function getAllSystems(workspaceId: string, projectId?: string) {
       updatedAt: hardware.updatedAt,
       modelId: hardware.modelId,
       model: getTableColumns(model),
+      project: getTableColumns(project),
       // parts: sql<
       //   SystemPart[]
       // >`json_agg(json_build_object('modelId', ${sq.id}, 'name', ${sq.name}))`,
     })
     .from(hardware)
     .innerJoin(system, eq(hardware.id, system.id))
-    .where(eq(hardware.workspaceId, workspaceId));
+    .where(and(...conditions));
 
   if (projectId) {
     const projects_hardwares = db
@@ -515,10 +632,24 @@ async function getAllSystems(workspaceId: string, projectId?: string) {
       .where(eq(project_hardware.projectId, projectId))
       .as("projects_hardwares");
 
-    void query.innerJoin(
-      projects_hardwares,
-      eq(hardware.id, projects_hardwares.hardwareId),
-    );
+    void query
+      .innerJoin(
+        projects_hardwares,
+        eq(hardware.id, projects_hardwares.hardwareId),
+      )
+      .innerJoin(project, eq(project.id, projects_hardwares.projectId));
+  } else {
+    const projects_hardwares = db
+      .select()
+      .from(project_hardware)
+      .as("projects_hardwares");
+
+    void query
+      .innerJoin(
+        projects_hardwares,
+        eq(hardware.id, projects_hardwares.hardwareId),
+      )
+      .innerJoin(project, eq(project.id, projects_hardwares.projectId));
   }
 
   const systems = await query.innerJoin(model, eq(model.id, hardware.modelId));
