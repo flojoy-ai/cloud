@@ -5,14 +5,15 @@ import { DataTable } from "~/components/ui/data-table";
 import { api } from "~/trpc/react";
 
 import { type SelectSystem, type SelectDevice } from "~/types/hardware";
-import CreateDevice from "../../../../../../components/hardware/create-device";
-import CreateSystem from "../../../../../../components/hardware/create-system";
+import { type SelectProject } from "~/types/project";
+import CreateDevice from "~/components/hardware/create-device";
+import CreateSystem from "~/components/hardware/create-system";
 import { type SelectDeviceModel, type SelectSystemModel } from "~/types/model";
 import { Plus } from "lucide-react";
 
 type Props = {
-  devices: SelectDevice[];
-  systems: SelectSystem[];
+  devices: (SelectDevice & { projects: SelectProject[] })[];
+  systems: (SelectSystem & { projects: SelectProject[] })[];
   deviceModels: SelectDeviceModel[];
   systemModels: SelectSystemModel[];
   workspaceId: string;

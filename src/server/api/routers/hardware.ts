@@ -19,6 +19,7 @@ import {
   device,
   hardware,
   model,
+  project,
   project_hardware,
   system,
   system_device,
@@ -35,6 +36,7 @@ import {
 } from "~/types/hardware";
 import { selectMeasurementSchema } from "~/types/measurement";
 import { workspaceAccessMiddleware } from "./workspace";
+import { selectProjectSchema } from "~/types/project";
 
 export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -417,9 +419,30 @@ export const hardwareRouter = createTRPCRouter({
     })
     .input(deviceQueryOptions)
     .use(workspaceAccessMiddleware)
-    .output(z.array(selectDeviceSchema))
+    .output(
+      z.array(
+        selectDeviceSchema.extend({ projects: selectProjectSchema.array() }),
+      ),
+    )
     .query(async ({ input }) => {
-      return await getAllDevices(input);
+      const devices = await getAllDevices(input);
+
+      // What is going on here?
+      // Basically if a device is used in multiple projects, the getAllDevices will
+      // return multiple entries for that device, one entry for each project it is in
+      // This piece of code below basically merges those entries into one, with
+      // a field called `projects` that contains a list of projects a given device is in
+      const merged = _.values(_.groupBy(devices, (x) => x.id))
+        .map((v) => {
+          if (v[0]) {
+            return {
+              ...v[0],
+              projects: _.map(v, "project"),
+            };
+          }
+        })
+        .flatMap((x) => (x ? [x] : []));
+      return merged;
     }),
 
   getAllSystems: workspaceProcedure
@@ -432,9 +455,30 @@ export const hardwareRouter = createTRPCRouter({
     })
     .input(hardwareQueryOptions)
     .use(workspaceAccessMiddleware)
-    .output(z.array(selectSystemSchema))
+    .output(
+      z.array(
+        selectSystemSchema.extend({ projects: selectProjectSchema.array() }),
+      ),
+    )
     .query(async ({ input }) => {
-      return await getAllSystems(input);
+      const systems = await getAllSystems(input);
+
+      // What is going on here?
+      // Basically if a system is used in multiple projects, the getAllSystems will
+      // return multiple entries for that system, one entry for each project it is in
+      // This piece of code below basically merges those entries into one, with
+      // a field called `projects` that contains a list of projects a given system is in
+      const merged = _.values(_.groupBy(systems, (x) => x.id))
+        .map((v) => {
+          if (v[0]) {
+            return {
+              ...v[0],
+              projects: _.map(v, "project"),
+            };
+          }
+        })
+        .flatMap((x) => (x ? [x] : []));
+      return merged;
     }),
 
   deleteHardwareById: workspaceProcedure
@@ -510,6 +554,7 @@ async function getAllDevices(options: DeviceQueryOptions) {
       modelId: temp.modelId,
       id: temp.id,
       model: getTableColumns(model),
+      project: getTableColumns(project),
     })
     .from(temp);
 
@@ -520,10 +565,18 @@ async function getAllDevices(options: DeviceQueryOptions) {
       .where(eq(project_hardware.projectId, projectId))
       .as("projects_hardwares");
 
-    void query.innerJoin(
-      projects_hardwares,
-      eq(temp.id, projects_hardwares.hardwareId),
-    );
+    void query
+      .innerJoin(projects_hardwares, eq(temp.id, projects_hardwares.hardwareId))
+      .innerJoin(project, eq(project.id, projects_hardwares.projectId));
+  } else {
+    const projects_hardwares = db
+      .select()
+      .from(project_hardware)
+      .as("projects_hardwares");
+
+    void query
+      .innerJoin(projects_hardwares, eq(temp.id, projects_hardwares.hardwareId))
+      .innerJoin(project, eq(project.id, projects_hardwares.projectId));
   }
   return await query.innerJoin(model, eq(model.id, temp.modelId));
 }
@@ -533,7 +586,7 @@ async function getAllSystems(options: HardwareQueryOptions) {
 
   // FIXME: Can't use subqueries for this query to do it all at once...
   // drizzle bug complains about ambiguous columns
-  // see: https://github.com/drizzle-team/drizzle-orm/issues/1242jk
+  // see: https://github.com/drizzle-team/drizzle-orm/issues/1242
 
   // const sq = db
   //   .select({
@@ -563,6 +616,7 @@ async function getAllSystems(options: HardwareQueryOptions) {
       updatedAt: hardware.updatedAt,
       modelId: hardware.modelId,
       model: getTableColumns(model),
+      project: getTableColumns(project),
       // parts: sql<
       //   SystemPart[]
       // >`json_agg(json_build_object('modelId', ${sq.id}, 'name', ${sq.name}))`,
@@ -578,10 +632,24 @@ async function getAllSystems(options: HardwareQueryOptions) {
       .where(eq(project_hardware.projectId, projectId))
       .as("projects_hardwares");
 
-    void query.innerJoin(
-      projects_hardwares,
-      eq(hardware.id, projects_hardwares.hardwareId),
-    );
+    void query
+      .innerJoin(
+        projects_hardwares,
+        eq(hardware.id, projects_hardwares.hardwareId),
+      )
+      .innerJoin(project, eq(project.id, projects_hardwares.projectId));
+  } else {
+    const projects_hardwares = db
+      .select()
+      .from(project_hardware)
+      .as("projects_hardwares");
+
+    void query
+      .innerJoin(
+        projects_hardwares,
+        eq(hardware.id, projects_hardwares.hardwareId),
+      )
+      .innerJoin(project, eq(project.id, projects_hardwares.projectId));
   }
 
   const systems = await query.innerJoin(model, eq(model.id, hardware.modelId));
