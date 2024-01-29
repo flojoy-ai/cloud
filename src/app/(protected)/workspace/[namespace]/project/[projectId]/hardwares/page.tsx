@@ -22,6 +22,11 @@ const DevicesView = async ({
     projectId: project.id,
   });
 
+  const modelHardware = await api.hardware.getAllHardware.query({
+    workspaceId,
+    modelId: project.modelId,
+  });
+
   const code = `from flojoy.cloud import FlojoyCloud
 
 # Create a device
@@ -61,14 +66,13 @@ client.delete_device_by_id("DEVICE_ID")
 
       <div className="py-2"></div>
 
-      <div className="">
-        <AllHardwares
-          hardwares={hardwares}
-          workspaceId={workspaceId}
-          project={project}
-          namespace={params.namespace}
-        />
-      </div>
+      <AllHardwares
+        hardwares={hardwares}
+        modelHardware={modelHardware}
+        workspaceId={workspaceId}
+        project={project}
+        namespace={params.namespace}
+      />
 
       <div className="py-8" />
       <div>
