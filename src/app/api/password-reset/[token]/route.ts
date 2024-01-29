@@ -41,15 +41,20 @@ export const POST = async (
       });
 
       if (!token || !isWithinExpirationDate(token.expiresAt)) {
-        return new Response(null, {
-          status: 400,
-        });
+        return NextResponse.json(
+          {
+            error: "Invalid or expired password reset link",
+          },
+          {
+            status: 400,
+          },
+        );
       }
 
       await lucia.invalidateUserSessions(token.userId);
       const hashedPassword = await new Argon2id().hash(password);
 
-      await db
+      await tx
         .update(userTable)
         .set({
           hashedPassword,
@@ -58,13 +63,16 @@ export const POST = async (
 
       const session = await lucia.createSession(token.userId, {});
       const sessionCookie = lucia.createSessionCookie(session.id);
-      return new Response(null, {
-        status: 302,
-        headers: {
-          Location: "/",
-          "Set-Cookie": sessionCookie.serialize(),
+      return NextResponse.json(
+        { success: true },
+        {
+          status: 302,
+          headers: {
+            Location: "/",
+            "Set-Cookie": sessionCookie.serialize(),
+          },
         },
-      });
+      );
     });
   } catch {
     return NextResponse.json(
