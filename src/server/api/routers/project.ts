@@ -280,6 +280,36 @@ export const projectRouter = createTRPCRouter({
           return;
         }
 
+        const hardwares = await tx.query.hardware.findMany({
+          where: (hardware, { inArray }) =>
+            inArray(hardware.id, input.hardwareIds),
+        });
+
+        const project = await tx.query.project.findFirst({
+          where: (project, { eq }) => eq(project.id, input.projectId),
+        });
+
+        if (project === undefined) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Project not found",
+          });
+        }
+
+        if (hardwares.length !== input.hardwareIds.length) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Not all hardware IDs valid",
+          });
+        }
+
+        if (hardwares.some((h) => h.modelId !== project.modelId)) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Not all hardware IDs match project model",
+          });
+        }
+
         await tx.insert(project_hardware).values(
           input.hardwareIds.map((hardwareId) => ({
             hardwareId,
