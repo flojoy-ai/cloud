@@ -1,67 +1,100 @@
-import { auth, googleAuth } from "~/auth/lucia";
-import { OAuthRequestError } from "@lucia-auth/oauth";
-import { cookies, headers } from "next/headers";
+import { lucia, google } from "~/auth/lucia";
+import { cookies } from "next/headers";
 import { createId } from "@paralleldrive/cuid2";
 
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { OAuth2RequestError } from "arctic";
+import { db } from "~/server/db";
+import { oauthAccountTable, userTable } from "~/server/db/schema";
 
 export const GET = async (request: NextRequest) => {
   const storedState = cookies().get("google_oauth_state")?.value;
+  const storedCodeVerifier = cookies().get("google_code_verifier")?.value;
   const url = new URL(request.url);
   const state = url.searchParams.get("state");
   const code = url.searchParams.get("code");
 
   // Validate state
-  if (!storedState || !state || storedState !== state || !code) {
+  if (
+    !storedState ||
+    !storedCodeVerifier ||
+    !state ||
+    storedState !== state ||
+    !code
+  ) {
     return new NextResponse(null, {
       status: 400,
     });
   }
 
   try {
-    const { getExistingUser, googleUser, createUser } =
-      await googleAuth.validateCallback(code);
+    const tokens = await google.validateAuthorizationCode(
+      code,
+      storedCodeVerifier,
+    );
+    const response = await fetch(
+      "https://openidconnect.googleapis.com/v1/userinfo",
+      {
+        headers: {
+          Authorization: `Bearer ${tokens.accessToken}`,
+        },
+      },
+    );
+    const user = (await response.json()) as GoogleUser;
+    console.log(user);
+    const existingUser = await db.query.oauthAccountTable.findFirst({
+      where: (table, { eq, and }) =>
+        and(eq(table.providerUserId, user.sub), eq(table.providerId, "google")),
+    });
 
-    const getUser = async () => {
-      const existingUser = await getExistingUser();
-      if (existingUser) return existingUser;
-
-      const user = await createUser({
-        userId: "user_" + createId(),
-        attributes: {
-          email_verified: true,
-          email: googleUser.email ?? "",
+    if (existingUser) {
+      const session = await lucia.createSession(existingUser.userId, {});
+      const sessionCookie = lucia.createSessionCookie(session.id);
+      cookies().set(
+        sessionCookie.name,
+        sessionCookie.value,
+        sessionCookie.attributes,
+      );
+      return new NextResponse(null, {
+        status: 302,
+        headers: {
+          Location: "/",
         },
       });
-      return user;
-    };
+    }
 
-    const user = await getUser();
-
-    const session = await auth.createSession({
-      userId: user.userId,
-      attributes: {
-        auth_provider: "google",
-      },
+    const userId = "user_" + createId();
+    await db.transaction(async (tx) => {
+      await tx.insert(userTable).values({
+        id: userId,
+        email: user.email,
+        emailVerified: user.email_verified,
+      });
+      await tx.insert(oauthAccountTable).values({
+        providerId: "google",
+        providerUserId: user.sub,
+        userId,
+      });
     });
 
-    const authRequest = auth.handleRequest(request.method, {
-      cookies,
-      headers,
-    });
-    authRequest.setSession(session);
-
+    const session = await lucia.createSession(userId, {});
+    const sessionCookie = lucia.createSessionCookie(session.id);
+    cookies().set(
+      sessionCookie.name,
+      sessionCookie.value,
+      sessionCookie.attributes,
+    );
     return new NextResponse(null, {
       status: 302,
       headers: {
-        Location: "/", // redirect to profile page
+        Location: "/",
       },
     });
   } catch (e) {
     console.error(e);
 
-    if (e instanceof OAuthRequestError) {
+    if (e instanceof OAuth2RequestError) {
       // invalid code
       return new NextResponse(null, {
         status: 400,
@@ -73,3 +106,10 @@ export const GET = async (request: NextRequest) => {
     });
   }
 };
+
+interface GoogleUser {
+  sub: string;
+  email: string;
+  email_verified: boolean;
+  picture: string;
+}

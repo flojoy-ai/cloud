@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
-import { project, test } from "~/server/db/schema";
+import { projectTable, testTable } from "~/server/db/schema";
 import { selectHardwareBaseSchema } from "~/types/hardware";
 import { selectMeasurementSchema } from "~/types/measurement";
 import {
@@ -66,7 +66,7 @@ export const testRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.transaction(async (tx) => {
         const [testCreateResult] = await tx
-          .insert(test)
+          .insert(testTable)
           .values({
             name: input.name,
             projectId: input.projectId,
@@ -82,9 +82,9 @@ export const testRouter = createTRPCRouter({
         }
 
         await tx
-          .update(project)
+          .update(projectTable)
           .set({ updatedAt: new Date() })
-          .where(eq(project.id, input.projectId));
+          .where(eq(projectTable.id, input.projectId));
 
         return testCreateResult;
       });
@@ -156,9 +156,9 @@ export const testRouter = createTRPCRouter({
     .use(testAccessMiddleware)
     .mutation(async ({ ctx, input }) => {
       await ctx.db
-        .update(test)
+        .update(testTable)
         .set({ name: input.name })
-        .where(eq(test.id, input.testId));
+        .where(eq(testTable.id, input.testId));
     }),
 
   deleteTest: workspaceProcedure
@@ -168,6 +168,6 @@ export const testRouter = createTRPCRouter({
     .input(z.object({ testId: z.string() }))
     .output(z.void())
     .mutation(async ({ ctx, input }) => {
-      await ctx.db.delete(test).where(eq(test.id, input.testId));
+      await ctx.db.delete(testTable).where(eq(testTable.id, input.testId));
     }),
 });

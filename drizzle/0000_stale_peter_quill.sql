@@ -1,10 +1,4 @@
 DO $$ BEGIN
- CREATE TYPE "plan_type" AS ENUM('hobby', 'pro', 'enterprise');
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
  CREATE TYPE "workspace_role" AS ENUM('owner', 'admin', 'member', 'pending');
 EXCEPTION
  WHEN duplicate_object THEN null;
@@ -30,14 +24,14 @@ CREATE TABLE IF NOT EXISTS "cloud_hardware" (
 	CONSTRAINT "cloud_hardware_workspace_id_name_model_id_unique" UNIQUE("workspace_id","name","model_id")
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "cloud_system" (
-	"id" text PRIMARY KEY NOT NULL
-);
---> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_system_device" (
 	"system_id" text NOT NULL,
 	"device_id" text NOT NULL,
 	CONSTRAINT "cloud_system_device_system_id_device_id_pk" PRIMARY KEY("system_id","device_id")
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "cloud_system" (
+	"id" text PRIMARY KEY NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_measurement" (
@@ -63,15 +57,15 @@ CREATE TABLE IF NOT EXISTS "cloud_model" (
 	CONSTRAINT "cloud_model_workspace_id_name_unique" UNIQUE("workspace_id","name")
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "cloud_system_model" (
-	"id" text PRIMARY KEY NOT NULL
-);
---> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_system_model_device_model" (
 	"system_model_id" text NOT NULL,
 	"device_model_id" text NOT NULL,
 	"count" integer NOT NULL,
 	CONSTRAINT "cloud_system_model_device_model_system_model_id_device_model_id_pk" PRIMARY KEY("system_model_id","device_model_id")
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "cloud_system_model" (
+	"id" text PRIMARY KEY NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_project" (
@@ -118,6 +112,25 @@ CREATE TABLE IF NOT EXISTS "cloud_test" (
 	CONSTRAINT "cloud_test_project_id_name_unique" UNIQUE("project_id","name")
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "cloud_oauth_account" (
+	"provider_id" text NOT NULL,
+	"provider_user_id" text NOT NULL,
+	"user_id" text NOT NULL,
+	CONSTRAINT "cloud_oauth_account_provider_id_provider_user_id_pk" PRIMARY KEY("provider_id","provider_user_id")
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "cloud_password_reset_token" (
+	"id" text PRIMARY KEY NOT NULL,
+	"user_id" text NOT NULL,
+	"expires" bigint NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "cloud_user_session" (
+	"id" text PRIMARY KEY NOT NULL,
+	"user_id" text NOT NULL,
+	"expires_at" timestamp with time zone NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_user" (
 	"id" text PRIMARY KEY NOT NULL,
 	"email_verified" boolean DEFAULT false,
@@ -127,25 +140,11 @@ CREATE TABLE IF NOT EXISTS "cloud_user" (
 	CONSTRAINT "cloud_user_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "cloud_user_key" (
-	"id" text PRIMARY KEY NOT NULL,
-	"user_id" text NOT NULL,
-	"hashed_password" text
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "cloud_user_session" (
-	"id" text PRIMARY KEY NOT NULL,
-	"user_id" text NOT NULL,
-	"auth_provider" text NOT NULL,
-	"active_expires" bigint NOT NULL,
-	"idle_expires" bigint NOT NULL
-);
---> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_workspace" (
 	"id" text PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"namespace" text NOT NULL,
-	"plan_type" "plan_type" NOT NULL,
+	"plan_type" text NOT NULL,
 	"total_seats" integer DEFAULT 1 NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp,
@@ -194,12 +193,6 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "cloud_system" ADD CONSTRAINT "cloud_system_id_cloud_hardware_id_fk" FOREIGN KEY ("id") REFERENCES "cloud_hardware"("id") ON DELETE cascade ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
  ALTER TABLE "cloud_system_device" ADD CONSTRAINT "cloud_system_device_system_id_cloud_system_id_fk" FOREIGN KEY ("system_id") REFERENCES "cloud_system"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
@@ -207,6 +200,12 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "cloud_system_device" ADD CONSTRAINT "cloud_system_device_device_id_cloud_device_id_fk" FOREIGN KEY ("device_id") REFERENCES "cloud_device"("id") ON DELETE restrict ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "cloud_system" ADD CONSTRAINT "cloud_system_id_cloud_hardware_id_fk" FOREIGN KEY ("id") REFERENCES "cloud_hardware"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -236,12 +235,6 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "cloud_system_model" ADD CONSTRAINT "cloud_system_model_id_cloud_model_id_fk" FOREIGN KEY ("id") REFERENCES "cloud_model"("id") ON DELETE cascade ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
  ALTER TABLE "cloud_system_model_device_model" ADD CONSTRAINT "cloud_system_model_device_model_system_model_id_cloud_system_model_id_fk" FOREIGN KEY ("system_model_id") REFERENCES "cloud_system_model"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
@@ -249,6 +242,12 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "cloud_system_model_device_model" ADD CONSTRAINT "cloud_system_model_device_model_device_model_id_cloud_device_model_id_fk" FOREIGN KEY ("device_model_id") REFERENCES "cloud_device_model"("id") ON DELETE restrict ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "cloud_system_model" ADD CONSTRAINT "cloud_system_model_id_cloud_model_id_fk" FOREIGN KEY ("id") REFERENCES "cloud_model"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -302,7 +301,13 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "cloud_user_key" ADD CONSTRAINT "cloud_user_key_user_id_cloud_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "cloud_user"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "cloud_oauth_account" ADD CONSTRAINT "cloud_oauth_account_user_id_cloud_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "cloud_user"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "cloud_password_reset_token" ADD CONSTRAINT "cloud_password_reset_token_user_id_cloud_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "cloud_user"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

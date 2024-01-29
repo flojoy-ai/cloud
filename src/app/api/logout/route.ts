@@ -1,14 +1,13 @@
-import { auth } from "~/auth/lucia";
-import * as context from "next/headers";
+import { lucia, validateRequest } from "~/auth/lucia";
 
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
-export const POST = async (request: NextRequest) => {
-  const authRequest = auth.handleRequest(request.method, context);
+export const POST = async (_: NextRequest) => {
+  const { session } = await validateRequest();
 
-  // check if user is authenticated
-  const session = await authRequest.validate();
   if (!session) {
     return new NextResponse(null, {
       status: 401,
@@ -16,12 +15,15 @@ export const POST = async (request: NextRequest) => {
   }
 
   // make sure to invalidate the current session!
-  await auth.invalidateSession(session.sessionId);
+  await lucia.invalidateSession(session.id);
 
-  // delete session cookie
-  authRequest.setSession(null);
+  const sessionCookie = lucia.createBlankSessionCookie();
 
-  return new NextResponse(null, {
-    status: 302,
-  });
+  cookies().set(
+    sessionCookie.name,
+    sessionCookie.value,
+    sessionCookie.attributes,
+  );
+
+  return redirect("/login");
 };

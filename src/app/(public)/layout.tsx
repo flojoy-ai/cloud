@@ -1,5 +1,5 @@
 import * as context from "next/headers";
-import { auth } from "~/auth/lucia";
+import { validateRequest } from "~/auth/lucia";
 import { redirect } from "next/navigation";
 import { api } from "~/trpc/server";
 import { SiteHeader } from "~/components/site-header";
@@ -9,11 +9,11 @@ export default async function PublicLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const authRequest = auth.handleRequest("GET", context);
-  const session = await authRequest.validate();
+  const { user } = await validateRequest();
 
-  if (session) {
-    if (!session.user.emailVerified) {
+  if (user) {
+    console.log(user);
+    if (!user.emailVerified) {
       redirect("/verify");
     }
 

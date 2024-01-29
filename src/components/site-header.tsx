@@ -6,21 +6,18 @@ import { Icons } from "~/components/icons";
 import { MainNav } from "~/components/main-nav";
 import { ModeToggle } from "~/components/mode-toggle";
 import { Button, buttonVariants } from "~/components/ui/button";
-import { auth } from "~/auth/lucia";
-import * as context from "next/headers";
+import { validateRequest } from "~/auth/lucia";
 import UserButton from "./user-button";
 
 export async function SiteHeader() {
-  const authRequest = auth.handleRequest("GET", context);
-  const session = await authRequest.validate();
-
+  const { user } = await validateRequest();
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
         <MainNav />
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <nav className="flex items-center">
-            {!session ? (
+            {!user ? (
               <>
                 <Button size="sm" variant="outline" asChild>
                   <Link href={siteConfig.links.login}>Log In</Link>
@@ -36,7 +33,7 @@ export async function SiteHeader() {
               </>
             ) : (
               <>
-                <UserButton session={session} />
+                <UserButton user={user} />
                 <div className="px-1" />
               </>
             )}

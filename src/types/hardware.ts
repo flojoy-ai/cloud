@@ -1,9 +1,9 @@
-import { hardware } from "~/server/db/schema";
+import { hardwareTable } from "~/server/db/schema";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { selectModelBaseSchema } from "./model";
 
-export const insertHardwareSchema = createInsertSchema(hardware, {
+export const insertHardwareSchema = createInsertSchema(hardwareTable, {
   name: z.string().min(1),
 });
 
@@ -46,7 +46,9 @@ export const systemPartSchema = z.object({
   model: selectModelBaseSchema,
 });
 
-export const selectHardwareBaseSchema = createSelectSchema(hardware).extend({
+export const selectHardwareBaseSchema = createSelectSchema(
+  hardwareTable,
+).extend({
   model: selectModelBaseSchema,
 });
 

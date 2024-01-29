@@ -2,10 +2,10 @@ import { z } from "zod";
 import { workspaceAccessMiddleware } from "./workspace";
 
 import {
-  device,
-  project_hardware,
-  measurement,
-  hardware,
+  deviceTable,
+  projectHardwareTable,
+  measurementTable,
+  hardwareTable,
 } from "~/server/db/schema";
 
 import _ from "lodash";
@@ -77,7 +77,7 @@ export const exampleRouter = createTRPCRouter({
         }));
 
         const hardwareEntries = await tx
-          .insert(hardware)
+          .insert(hardwareTable)
           .values([...insertDevices])
           .returning();
 
@@ -89,7 +89,7 @@ export const exampleRouter = createTRPCRouter({
         }
 
         const devices = await tx
-          .insert(device)
+          .insert(deviceTable)
           .values(
             hardwareEntries.map((h) => ({
               id: h.id,
@@ -105,7 +105,7 @@ export const exampleRouter = createTRPCRouter({
         }
 
         for (const device of devices) {
-          await tx.insert(project_hardware).values({
+          await tx.insert(projectHardwareTable).values({
             hardwareId: device.id,
             projectId: newDeviceProject.id,
           });
@@ -122,7 +122,7 @@ export const exampleRouter = createTRPCRouter({
         }));
 
         const boolMeasCreateResult = await tx
-          .insert(measurement)
+          .insert(measurementTable)
           .values([...boolMeas])
           .returning();
 
@@ -150,7 +150,7 @@ export const exampleRouter = createTRPCRouter({
         }));
 
         const dataframeMeasCreateResult = await tx
-          .insert(measurement)
+          .insert(measurementTable)
           .values([...dataframeMeas])
           .returning();
 

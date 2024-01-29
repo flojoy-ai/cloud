@@ -16,13 +16,13 @@ import { getSystemModelParts } from "~/lib/query";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
 import {
-  device,
-  hardware,
-  model,
-  project_hardware,
-  system,
-  system_device,
-  workspace,
+  deviceTable,
+  hardwareTable,
+  modelTable,
+  projectHardwareTable,
+  systemTable,
+  systemDeviceTable,
+  workspaceTable,
 } from "~/server/db/schema";
 import {
   publicInsertDeviceSchema,
@@ -99,7 +99,7 @@ export const hardwareRouter = createTRPCRouter({
 
       return await ctx.db.transaction(async (tx) => {
         const [hardwareCreateResult] = await tx
-          .insert(hardware)
+          .insert(hardwareTable)
           .values(input)
           .returning();
 
@@ -111,7 +111,7 @@ export const hardwareRouter = createTRPCRouter({
         }
 
         const [deviceCreateResult] = await tx
-          .insert(device)
+          .insert(deviceTable)
           .values({
             id: hardwareCreateResult.id,
           })
@@ -125,16 +125,16 @@ export const hardwareRouter = createTRPCRouter({
         }
 
         if (input.projectId) {
-          await tx.insert(project_hardware).values({
+          await tx.insert(projectHardwareTable).values({
             projectId: input.projectId,
             hardwareId: hardwareCreateResult.id,
           });
         }
 
         await tx
-          .update(workspace)
+          .update(workspaceTable)
           .set({ updatedAt: new Date() })
-          .where(eq(workspace.id, input.workspaceId));
+          .where(eq(workspaceTable.id, input.workspaceId));
 
         return {
           ...hardwareCreateResult,
@@ -169,16 +169,16 @@ export const hardwareRouter = createTRPCRouter({
         exists(
           db
             .select()
-            .from(system_device)
-            .where(inArray(system_device.deviceId, input.deviceIds)),
+            .from(systemDeviceTable)
+            .where(inArray(systemDeviceTable.deviceId, input.deviceIds)),
         ),
       );
 
       const selectResult = await ctx.db
         .select()
-        .from(device)
-        .innerJoin(hardware, eq(hardware.id, device.id))
-        .where(and(inArray(device.id, input.deviceIds), notUsed));
+        .from(deviceTable)
+        .innerJoin(hardwareTable, eq(hardwareTable.id, deviceTable.id))
+        .where(and(inArray(deviceTable.id, input.deviceIds), notUsed));
 
       if (selectResult.length !== input.deviceIds.length) {
         throw new TRPCError({
@@ -203,7 +203,7 @@ export const hardwareRouter = createTRPCRouter({
 
       return await ctx.db.transaction(async (tx) => {
         const [hardwareCreateResult] = await tx
-          .insert(hardware)
+          .insert(hardwareTable)
           .values(input)
           .returning();
 
@@ -215,7 +215,7 @@ export const hardwareRouter = createTRPCRouter({
         }
 
         const [systemCreateResult] = await tx
-          .insert(system)
+          .insert(systemTable)
           .values({
             id: hardwareCreateResult.id,
           })
@@ -229,13 +229,13 @@ export const hardwareRouter = createTRPCRouter({
         }
 
         if (input.projectId) {
-          await tx.insert(project_hardware).values({
+          await tx.insert(projectHardwareTable).values({
             projectId: input.projectId,
             hardwareId: hardwareCreateResult.id,
           });
         }
 
-        await tx.insert(system_device).values(
+        await tx.insert(systemDeviceTable).values(
           input.deviceIds.map((deviceId) => ({
             systemId: systemCreateResult.id,
             deviceId,
@@ -243,9 +243,9 @@ export const hardwareRouter = createTRPCRouter({
         );
 
         await tx
-          .update(workspace)
+          .update(workspaceTable)
           .set({ updatedAt: new Date() })
-          .where(eq(workspace.id, input.workspaceId));
+          .where(eq(workspaceTable.id, input.workspaceId));
 
         const model = await tx.query.model.findFirst({
           where: (model, { eq }) => eq(model.id, input.modelId),
@@ -396,7 +396,9 @@ export const hardwareRouter = createTRPCRouter({
     .use(hardwareAccessMiddleware)
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
-      await ctx.db.delete(hardware).where(eq(hardware.id, input.hardwareId));
+      await ctx.db
+        .delete(hardwareTable)
+        .where(eq(hardwareTable.id, input.hardwareId));
     }),
 
   updateHardwareById: workspaceProcedure
@@ -412,9 +414,9 @@ export const hardwareRouter = createTRPCRouter({
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
       await ctx.db
-        .update(hardware)
+        .update(hardwareTable)
         .set({ name: input.name })
-        .where(eq(hardware.id, input.hardwareId));
+        .where(eq(hardwareTable.id, input.hardwareId));
     }),
 
   // TODO: Add update remove system components
@@ -425,23 +427,23 @@ async function getAllDevices(
   projectId?: string,
   onlyAvailable?: boolean,
 ) {
-  const conditions = [eq(hardware.workspaceId, workspaceId)];
+  const conditions = [eq(hardwareTable.workspaceId, workspaceId)];
   if (onlyAvailable) {
     const notUsed = not(
       exists(
         db
           .select()
-          .from(system_device)
-          .where(eq(system_device.deviceId, device.id)),
+          .from(systemDeviceTable)
+          .where(eq(systemDeviceTable.deviceId, deviceTable.id)),
       ),
     );
     conditions.push(notUsed);
   }
 
   const hardwares = db
-    .select({ ...getTableColumns(hardware) })
-    .from(hardware)
-    .innerJoin(device, eq(hardware.id, device.id))
+    .select({ ...getTableColumns(hardwareTable) })
+    .from(hardwareTable)
+    .innerJoin(deviceTable, eq(hardwareTable.id, deviceTable.id))
     .where(and(...conditions));
   const temp = hardwares.as("hardwares");
 
@@ -454,15 +456,15 @@ async function getAllDevices(
       updatedAt: temp.updatedAt,
       modelId: temp.modelId,
       id: temp.id,
-      model: getTableColumns(model),
+      model: getTableColumns(modelTable),
     })
     .from(temp);
 
   if (projectId) {
     const projects_hardwares = db
       .select()
-      .from(project_hardware)
-      .where(eq(project_hardware.projectId, projectId))
+      .from(projectHardwareTable)
+      .where(eq(projectHardwareTable.projectId, projectId))
       .as("projects_hardwares");
 
     void query.innerJoin(
@@ -470,7 +472,7 @@ async function getAllDevices(
       eq(temp.id, projects_hardwares.hardwareId),
     );
   }
-  return await query.innerJoin(model, eq(model.id, temp.modelId));
+  return await query.innerJoin(modelTable, eq(modelTable.id, temp.modelId));
 }
 
 async function getAllSystems(workspaceId: string, projectId?: string) {
@@ -493,35 +495,38 @@ async function getAllSystems(workspaceId: string, projectId?: string) {
   const query = db
     .select({
       type: sql<"system">`'system'`.as("type"),
-      id: hardware.id,
-      name: hardware.name,
-      workspaceId: hardware.workspaceId,
-      createdAt: hardware.createdAt,
-      updatedAt: hardware.updatedAt,
-      modelId: hardware.modelId,
-      model: getTableColumns(model),
+      id: hardwareTable.id,
+      name: hardwareTable.name,
+      workspaceId: hardwareTable.workspaceId,
+      createdAt: hardwareTable.createdAt,
+      updatedAt: hardwareTable.updatedAt,
+      modelId: hardwareTable.modelId,
+      model: getTableColumns(modelTable),
       // parts: sql<
       //   SystemPart[]
       // >`json_agg(json_build_object('modelId', ${sq.id}, 'name', ${sq.name}))`,
     })
-    .from(hardware)
-    .innerJoin(system, eq(hardware.id, system.id))
-    .where(eq(hardware.workspaceId, workspaceId));
+    .from(hardwareTable)
+    .innerJoin(systemTable, eq(hardwareTable.id, systemTable.id))
+    .where(eq(hardwareTable.workspaceId, workspaceId));
 
   if (projectId) {
     const projects_hardwares = db
       .select()
-      .from(project_hardware)
-      .where(eq(project_hardware.projectId, projectId))
+      .from(projectHardwareTable)
+      .where(eq(projectHardwareTable.projectId, projectId))
       .as("projects_hardwares");
 
     void query.innerJoin(
       projects_hardwares,
-      eq(hardware.id, projects_hardwares.hardwareId),
+      eq(hardwareTable.id, projects_hardwares.hardwareId),
     );
   }
 
-  const systems = await query.innerJoin(model, eq(model.id, hardware.modelId));
+  const systems = await query.innerJoin(
+    modelTable,
+    eq(modelTable.id, hardwareTable.modelId),
+  );
   // .innerJoin(system_device, eq(hardware.id, system_device.systemId))
   // .innerJoin(device, eq(device.id, system_device.deviceId))
   // .innerJoin(sq, eq(sq.id, device.id))
@@ -531,19 +536,19 @@ async function getAllSystems(workspaceId: string, projectId?: string) {
     systems.map(async (sys) => {
       const sq = db
         .select()
-        .from(system_device)
-        .where(eq(system_device.systemId, sys.id))
+        .from(systemDeviceTable)
+        .where(eq(systemDeviceTable.systemId, sys.id))
         .as("sq");
 
       const parts = await db
         .select({
-          id: hardware.id,
-          name: hardware.name,
-          model: getTableColumns(model),
+          id: hardwareTable.id,
+          name: hardwareTable.name,
+          model: getTableColumns(modelTable),
         })
-        .from(hardware)
-        .innerJoin(sq, eq(hardware.id, sq.deviceId))
-        .innerJoin(model, eq(model.id, hardware.modelId));
+        .from(hardwareTable)
+        .innerJoin(sq, eq(hardwareTable.id, sq.deviceId))
+        .innerJoin(modelTable, eq(modelTable.id, hardwareTable.modelId));
 
       return {
         ...sys,

@@ -2,7 +2,10 @@
 import { eq } from "drizzle-orm";
 import { generateRandomString, isWithinExpiration } from "lucia/utils";
 import { db } from "~/server/db";
-import { email_verification, password_reset_token } from "~/server/db/schema";
+import {
+  emailVerificationTable,
+  passwordResetTokenTable,
+} from "~/server/db/schema";
 
 const EXPIRES_IN = 1000 * 60 * 60 * 2; // 2 hours
 
@@ -20,7 +23,7 @@ export const generateEmailVerificationToken = async (userId: string) => {
     if (reusableStoredToken) return reusableStoredToken.id;
   }
   const token = generateRandomString(63);
-  await db.insert(email_verification).values({
+  await db.insert(emailVerificationTable).values({
     id: token,
     expires: new Date(new Date().getTime() + EXPIRES_IN),
     userId: userId,
@@ -36,8 +39,8 @@ export const validateEmailVerificationToken = async (token: string) => {
     });
     if (!storedToken) throw new Error("Invalid token");
     await tx
-      .delete(email_verification)
-      .where(eq(email_verification.userId, storedToken.userId));
+      .delete(emailVerificationTable)
+      .where(eq(emailVerificationTable.userId, storedToken.userId));
     return storedToken;
   });
   const tokenExpires = Number(storedToken.expires); // bigint => number conversion
@@ -61,7 +64,7 @@ export const generatePasswordResetToken = async (userId: string) => {
     if (reusableStoredToken) return reusableStoredToken.id;
   }
   const token = generateRandomString(63);
-  await db.insert(password_reset_token).values({
+  await db.insert(passwordResetTokenTable).values({
     id: token,
     expires: new Date().getTime() + EXPIRES_IN,
     userId: userId,
@@ -77,8 +80,8 @@ export const validatePasswordResetToken = async (token: string) => {
     });
     if (!storedToken) throw new Error("Invalid token");
     await trx
-      .delete(password_reset_token)
-      .where(eq(password_reset_token.id, token));
+      .delete(passwordResetTokenTable)
+      .where(eq(passwordResetTokenTable.id, token));
     return storedToken;
   });
   const tokenExpires = Number(storedToken.expires); // bigint => number conversion

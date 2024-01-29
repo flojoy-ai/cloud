@@ -6,7 +6,11 @@ import { checkWorkspaceAccess } from "~/lib/auth";
 import { getSystemModelParts } from "~/lib/query";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { type db } from "~/server/db";
-import { project, project_hardware, workspace } from "~/server/db/schema";
+import {
+  projectTable,
+  projectHardwareTable,
+  workspaceTable,
+} from "~/server/db/schema";
 import { selectModelSchema } from "~/types/model";
 import {
   publicInsertProjectSchema,
@@ -75,7 +79,7 @@ export const projectRouter = createTRPCRouter({
 
       return await ctx.db.transaction(async (tx) => {
         const [projectCreateResult] = await tx
-          .insert(project)
+          .insert(projectTable)
           .values(input)
           .returning();
 
@@ -87,9 +91,9 @@ export const projectRouter = createTRPCRouter({
         }
 
         await tx
-          .update(workspace)
+          .update(workspaceTable)
           .set({ updatedAt: new Date() })
-          .where(eq(workspace.id, input.workspaceId));
+          .where(eq(workspaceTable.id, input.workspaceId));
         return projectCreateResult;
       });
     }),
@@ -211,7 +215,7 @@ export const projectRouter = createTRPCRouter({
         });
       }
 
-      await ctx.db.insert(project_hardware).values({
+      await ctx.db.insert(projectHardwareTable).values({
         hardwareId: input.hardwareId,
         projectId: input.projectId,
       });
@@ -231,11 +235,11 @@ export const projectRouter = createTRPCRouter({
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
       await ctx.db
-        .delete(project_hardware)
+        .delete(projectHardwareTable)
         .where(
           and(
-            eq(project_hardware.hardwareId, input.hardwareId),
-            eq(project_hardware.projectId, input.projectId),
+            eq(projectHardwareTable.hardwareId, input.hardwareId),
+            eq(projectHardwareTable.projectId, input.projectId),
           ),
         );
     }),
@@ -255,9 +259,9 @@ export const projectRouter = createTRPCRouter({
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { projectId, ...updatedProject } = input;
       await ctx.db
-        .update(project)
+        .update(projectTable)
         .set(updatedProject)
-        .where(eq(project.id, input.projectId));
+        .where(eq(projectTable.id, input.projectId));
     }),
 
   deleteProjectById: workspaceProcedure
@@ -272,6 +276,8 @@ export const projectRouter = createTRPCRouter({
     .use(projectAccessMiddleware)
     .output(z.void())
     .mutation(async ({ ctx, input }) => {
-      await ctx.db.delete(project).where(eq(project.id, input.projectId));
+      await ctx.db
+        .delete(projectTable)
+        .where(eq(projectTable.id, input.projectId));
     }),
 });
