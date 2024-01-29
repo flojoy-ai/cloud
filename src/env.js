@@ -7,12 +7,7 @@ export const env = createEnv({
    * isn't built with invalid env vars.
    */
   server: {
-    DATABASE_URL: z
-      .string()
-      .url()
-      .transform((val) =>
-        process.env.NODE_ENV === "development" ? val : val + "?sslmode=require",
-      ),
+    DATABASE_URL: z.string().url(),
 
     NODE_ENV: z
       .enum(["development", "test", "production"])
@@ -29,8 +24,8 @@ export const env = createEnv({
     GOOGLE_CLIENT_SECRET: z.string(),
     GOOGLE_REDIRECT_URI: z.string().url(),
 
-    AWS_ACCESS_KEY_ID: z.string(),
-    AWS_SECRET_ACCESS_KEY: z.string(),
+    AWS_ACCESS_KEY_ID: z.string().optional(),
+    AWS_SECRET_ACCESS_KEY: z.string().optional(),
     // AWS_BUCKET_NAME: z.string(),
     AWS_REGION: z.string(),
     SENDER_EMAIL: z.string().email(),

@@ -36,10 +36,11 @@ echo "$nginx_config" >/etc/nginx/conf.d/default.conf
 jwt_secret=$(head -c 32 /dev/urandom | base64)
 db_pass=$(LC_ALL=C tr </dev/urandom -dc 'A-Za-z0-9' | head -c 20)
 
+mkdir /etc/systemd/system/cloud_app.d
 cat <<EOF >/etc/systemd/system/cloud_app.d/Environment
 HOME=/root
-JWT_SECRET=${jwt_secret}
-DATABASE_URL=postgresql://flojoy:${db_pass}@localhost:5432/flojoy_cloud
+JWT_SECRET=$jwt_secret
+DATABASE_URL=postgresql://flojoy:$db_pass@localhost:5432/flojoy_cloud
 AWS_AMI=1
 NODE_TLS_REJECT_UNAUTHORIZED=0
 EOF
@@ -137,7 +138,7 @@ su - postgres -c "createdb flojoy_cloud"
 su - postgres -c "createuser flojoy"
 echo "Created database and user: $?"
 
-su - postgres -c "psql -c \"ALTER USER flojoy WITH ENCRYPTED PASSWORD '${db_pass}';\""
+su - postgres -c "psql -c \"ALTER USER flojoy WITH ENCRYPTED PASSWORD '$db_pass';\""
 
 su - postgres -c "psql -c \"GRANT ALL PRIVILEGES ON DATABASE flojoy_cloud TO flojoy;\""
 
