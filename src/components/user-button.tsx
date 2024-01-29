@@ -58,6 +58,7 @@ function UserButton({ user }: Props) {
           onSelect={async () => {
             await fetch("/api/logout", {
               method: "POST",
+              redirect: "follow",
             });
           }}
         >
