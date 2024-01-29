@@ -62,7 +62,7 @@ const sendEmailWithSES = async ({
     },
   };
   const ses = new SES({
-    region: "us-east-2",
+    region: env.AWS_REGION,
     credentials: {
       accessKeyId: env.AWS_ACCESS_KEY_ID,
       secretAccessKey: env.AWS_SECRET_ACCESS_KEY,

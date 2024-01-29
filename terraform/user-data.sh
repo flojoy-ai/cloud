@@ -33,6 +33,17 @@ echo "$defaut_server_config" >/etc/nginx/sites-enabled/default
 echo "$defaut_server_config" >/etc/nginx/sites-available/default
 echo "$nginx_config" >/etc/nginx/conf.d/default.conf
 
+jwt_secret=$(head -c 32 /dev/urandom | base64)
+db_pass=$(LC_ALL=C tr </dev/urandom -dc 'A-Za-z0-9' | head -c 20)
+
+cat <<EOF >/etc/systemd/system/cloud_app.d/Environment
+HOME=/root
+JWT_SECRET=${jwt_secret}
+DATABASE_URL=postgresql://flojoy:${db_pass}@localhost:5432/flojoy_cloud
+AWS_AMI=1
+NODE_TLS_REJECT_UNAUTHORIZED=0
+EOF
+
 # Create a systemd service file
 cat <<EOF >/etc/systemd/system/cloud_app.service
 [Unit]
@@ -47,11 +58,7 @@ Restart=on-failure
 RestartSec=3
 StartLimitInterval=60
 StartLimitBurst=1
-Environment="HOME=/root"
-Environment="DATABASE_URL=postgresql://flojoy:Hk5pQw9rJz2X@localhost:5432/flojoy_cloud"
-Environment="NODE_TLS_REJECT_UNAUTHORIZED=0"
-Environment="JWT_SECRET=7851158cc1c255e7d5dada55f5ff05a366d6f45ea6eb73bccd9d2670996a2b24"
-Environment="AWS_AMI=1"
+EnvironmentFile=/etc/systemd/system/cloud_app.d/Environment
 
 [Install]
 WantedBy=default.target
@@ -130,7 +137,7 @@ su - postgres -c "createdb flojoy_cloud"
 su - postgres -c "createuser flojoy"
 echo "Created database and user: $?"
 
-su - postgres -c "psql -c \"ALTER USER flojoy WITH ENCRYPTED PASSWORD 'Hk5pQw9rJz2X';\""
+su - postgres -c "psql -c \"ALTER USER flojoy WITH ENCRYPTED PASSWORD '${db_pass}';\""
 
 su - postgres -c "psql -c \"GRANT ALL PRIVILEGES ON DATABASE flojoy_cloud TO flojoy;\""
 
