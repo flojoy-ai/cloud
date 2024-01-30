@@ -39,7 +39,7 @@ const PasswordReset = () => {
       await axios.post("/api/password-reset", formData);
     },
 
-    onError(error, variables, context) {
+    onError(error) {
       if (!axios.isAxiosError(error)) {
         return;
       }

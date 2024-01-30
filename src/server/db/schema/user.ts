@@ -4,7 +4,6 @@ import {
   timestamp,
   primaryKey,
   boolean,
-  bigint,
 } from "drizzle-orm/pg-core";
 import { baseModal, pgTable } from "./table";
 

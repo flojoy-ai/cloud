@@ -14,11 +14,9 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
-import { type Result } from "~/types/result";
 import { toast } from "sonner";
 
 const formSchema = z
@@ -50,7 +48,7 @@ const SignupForm = () => {
       await axios.post("/api/signup", formData);
     },
 
-    onError(error, variables, context) {
+    onError(error) {
       if (!axios.isAxiosError(error)) {
         return;
       }
