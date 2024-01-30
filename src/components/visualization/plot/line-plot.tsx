@@ -103,7 +103,7 @@ const LinePlot = ({ lines, title, config, onTraceClick }: Props) => {
 
       traces.push({
         type: "scatter",
-        mode: "lines",
+        mode: config.mode,
         x: line.x,
         y: yTransform
           ? line.y.map((y) => yTransform.evaluate({ y }) as number)
@@ -196,7 +196,11 @@ const LinePlot = ({ lines, title, config, onTraceClick }: Props) => {
 
     return _.merge(layoutBase, {
       title,
+      xaxis: {
+        title: config.xAxisColumn,
+      },
       yaxis: {
+        title: config.yAxisColumn,
         type: config.logScaleYAxis ? "log" : "linear",
       },
       shapes,

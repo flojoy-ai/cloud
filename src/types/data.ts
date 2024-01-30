@@ -86,6 +86,7 @@ const dataframeExplorerSchema = z
   .object({
     xAxisColumn: z.string().optional(),
     yAxisColumn: z.string().optional(),
+    mode: z.union([z.literal("lines"), z.literal("markers")]),
     upperControlLimit: z.number().optional(),
     lowerControlLimit: z.number().optional(),
     yTransform: z

@@ -67,6 +67,9 @@ type FormSchema = z.infer<typeof explorerConfig.dataframe>;
 const DataFrameViz = ({ measurements, title, workspaceId }: Props) => {
   const form = useForm<FormSchema>({
     resolver: zodResolver(explorerConfig.dataframe),
+    defaultValues: {
+      mode: "lines",
+    },
   });
 
   const router = useRouter();
@@ -139,6 +142,30 @@ const DataFrameViz = ({ measurements, title, workspaceId }: Props) => {
                           </SelectContent>
                         </Select>
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="mode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mode</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Mode" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="lines">Line</SelectItem>
+                          <SelectItem value="markers">Scatter</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
