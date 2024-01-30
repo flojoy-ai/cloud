@@ -22,7 +22,7 @@ from flojoy_cloud.dtypes import (
     Test,
     TestWithMeasurements,
 )
-from flojoy_cloud.mtypes import MeasurementData, MeasurementType, make_payload
+from flojoy_cloud.measurement import MeasurementData, MeasurementType, make_payload
 
 
 class CloudEncoder(json.JSONEncoder):
