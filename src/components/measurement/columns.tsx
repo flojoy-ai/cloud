@@ -36,25 +36,27 @@ export const columns: ColumnDef<MeasurementWithHardware>[] = [
     header: "ID",
   },
   {
+    accessorKey: "pass",
+    header: "Pass",
+    cell: ({ row }) => {
+      const val = row.original.pass;
+      return val === null ? (
+        <div className="text-muted-foreground">Undecided</div>
+      ) : val ? (
+        <div className="text-green-500">Pass</div>
+      ) : (
+        <div className="text-red-500">Fail</div>
+      );
+    },
+  },
+  {
     accessorKey: "data",
     header: "Data",
     // TODO: implement a better looking preview here
     accessorFn: (data) => {
-      if (data.data.type === "boolean") {
-        return data.data.passed ? "Passed" : "Failed";
-      }
-
       return JSON.stringify(data.data).slice(0, 10);
     },
     cell: ({ row }) => {
-      switch (row.original.data.type) {
-        case "boolean":
-          if (row.getValue("data") === "Passed") {
-            return <div className="text-green-500">{row.getValue("data")}</div>;
-          } else if (row.getValue("data") === "Failed") {
-            return <div className="text-red-500">{row.getValue("data")}</div>;
-          }
-      }
       return <div>{row.getValue("data")}</div>;
     },
   },

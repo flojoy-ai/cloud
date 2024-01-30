@@ -4,6 +4,7 @@ import {
   PageHeaderDescription,
   PageHeaderHeading,
 } from "~/components/page-header";
+import { Checkbox } from "~/components/ui/checkbox";
 
 import { api } from "~/trpc/server";
 
@@ -15,6 +16,10 @@ export default async function Device({
   const device = await api.hardware.getHardwareById.query({
     hardwareId: params.deviceId,
   });
+  const deviceMeasurements =
+    await api.measurement.getAllMeasurementsByHardwareId.query({
+      hardwareId: params.deviceId,
+    });
 
   return (
     <div className="container max-w-screen-2xl">
@@ -28,7 +33,7 @@ export default async function Device({
       <div className="py-4"></div>
 
       <MeasurementsDataTable
-        measurements={device.measurements}
+        measurements={deviceMeasurements}
         namespace={params.namespace}
       />
     </div>

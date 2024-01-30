@@ -11,6 +11,7 @@ export const measurementTable = pgTable(
     ...baseModal("measurement"),
     name: text("name").default("Untitled"),
     data: jsonb("data").$type<MeasurementData>().notNull(),
+    pass: boolean("pass"),
     hardwareId: text("hardware_id")
       .references(() => hardwareTable.id, {
         onDelete: "cascade",

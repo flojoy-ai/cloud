@@ -16,6 +16,7 @@ export const insertMeasurementSchema = createInsertSchema(measurementTable, {
 });
 export const publicInsertMeasurementSchema = insertMeasurementSchema.pick({
   name: true,
+  pass: true,
   data: true,
   hardwareId: true,
   testId: true,
