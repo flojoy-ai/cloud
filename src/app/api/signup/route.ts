@@ -1,5 +1,4 @@
 import { lucia } from "~/auth/lucia";
-import { NextResponse } from "next/server";
 import { Argon2id } from "oslo/password";
 
 import type { NextRequest } from "next/server";
@@ -23,26 +22,16 @@ export const POST = async (request: NextRequest) => {
     password.length < 6 ||
     password.length > 255
   ) {
-    return NextResponse.json(
-      {
-        error: "Invalid password",
-      },
-      {
-        status: 400,
-      },
-    );
+    return new Response("Invalid password", {
+      status: 400,
+    });
   }
 
   const parsedEmail = z.string().email().safeParse(email);
   if (!parsedEmail.success) {
-    return NextResponse.json(
-      {
-        error: "Invalid email",
-      },
-      {
-        status: 400,
-      },
-    );
+    return new Response("Looks like this is not a valid email address.", {
+      status: 400,
+    });
   }
 
   try {
@@ -90,23 +79,14 @@ export const POST = async (request: NextRequest) => {
         "duplicate key value violates unique constraint",
       )
     ) {
-      return NextResponse.json(
-        {
-          error: "Email already taken",
-        },
-        {
-          status: 400,
-        },
+      return new Response(
+        "Seems like this email already exists! Try logging in :)",
+        { status: 400 },
       );
     }
 
-    return NextResponse.json(
-      {
-        error: "An unknown error occurred: " + String(e),
-      },
-      {
-        status: 500,
-      },
-    );
+    return new Response("An unknown error occurred: " + String(e), {
+      status: 500,
+    });
   }
 };
