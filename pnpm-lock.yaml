@@ -127,6 +127,9 @@ dependencies:
   arctic:
     specifier: ^1.1.0
     version: 1.1.0
+  axios:
+    specifier: ^1.6.7
+    version: 1.6.7
   class-variance-authority:
     specifier: ^0.7.0
     version: 0.7.0
@@ -249,6 +252,9 @@ devDependencies:
   '@next/eslint-plugin-next':
     specifier: ^14.1.0
     version: 14.1.0
+  '@total-typescript/ts-reset':
+    specifier: ^0.5.1
+    version: 0.5.1
   '@types/eslint':
     specifier: ^8.56.2
     version: 8.56.2
@@ -5713,6 +5719,10 @@ packages:
   /@tootallnate/once@2.0.0:
     resolution: {integrity: sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==}
     engines: {node: '>= 10'}
+    dev: true
+
+  /@total-typescript/ts-reset@0.5.1:
+    resolution: {integrity: sha512-AqlrT8YA1o7Ff5wPfMOL0pvL+1X+sw60NN6CcOCqs658emD6RfiXhF7Gu9QcfKBH7ELY2nInLhKSCWVoNL70MQ==}
     dev: true
 
   /@trpc/client@10.45.0(@trpc/server@10.45.0):
