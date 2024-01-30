@@ -1,5 +1,4 @@
-import { auth } from "~/auth/lucia";
-import * as context from "next/headers";
+import { validateRequest } from "~/auth/lucia";
 import { redirect } from "next/navigation";
 import { ProtectedHeader } from "~/components/protected-header";
 
@@ -8,14 +7,13 @@ export default async function ProtectedLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const authRequest = auth.handleRequest("GET", context);
-  const session = await authRequest.validate();
+  const { user } = await validateRequest();
 
-  if (!session) {
+  if (!user) {
     redirect("/login");
   }
 
-  if (!session.user.emailVerified) {
+  if (!user.emailVerified) {
     redirect("/verify");
   }
 

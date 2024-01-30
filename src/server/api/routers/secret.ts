@@ -2,7 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
-import { secret, workspace } from "~/server/db/schema";
+import { secretTable, workspaceTable } from "~/server/db/schema";
 import { selectSecretSchema } from "~/types/secret";
 
 import * as jose from "jose";
@@ -29,16 +29,16 @@ export const secretRouter = createTRPCRouter({
         .sign(jwtSecret);
 
       await ctx.db
-        .delete(secret)
+        .delete(secretTable)
         .where(
           and(
-            eq(secret.workspaceId, input.workspaceId),
-            eq(secret.userId, ctx.userId),
+            eq(secretTable.workspaceId, input.workspaceId),
+            eq(secretTable.userId, ctx.userId),
           ),
         );
 
       const [secretCreateResult] = await ctx.db
-        .insert(secret)
+        .insert(secretTable)
         .values({
           userId: ctx.userId,
           workspaceId: input.workspaceId,
@@ -54,9 +54,9 @@ export const secretRouter = createTRPCRouter({
       }
 
       await ctx.db
-        .update(workspace)
+        .update(workspaceTable)
         .set({ updatedAt: new Date() })
-        .where(eq(workspace.id, input.workspaceId));
+        .where(eq(workspaceTable.id, input.workspaceId));
 
       return secretCreateResult;
     }),
@@ -66,7 +66,7 @@ export const secretRouter = createTRPCRouter({
     .use(workspaceAccessMiddleware)
     .output(z.optional(selectSecretSchema))
     .query(async ({ ctx, input }) => {
-      return await ctx.db.query.secret.findFirst({
+      return await ctx.db.query.secretTable.findFirst({
         where: (secret, { eq, and }) =>
           and(
             eq(secret.workspaceId, input.workspaceId),

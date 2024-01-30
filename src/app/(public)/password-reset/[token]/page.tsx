@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-import { isValidPasswordResetToken } from "~/lib/token";
 import PasswordResetFields from "./pass-reset-fields";
 
 const Page = async ({
@@ -10,8 +8,6 @@ const Page = async ({
   };
 }) => {
   const { token } = params;
-  const validToken = await isValidPasswordResetToken(token);
-  if (!validToken) redirect("/password-reset");
   return <PasswordResetFields token={token} />;
 };
 

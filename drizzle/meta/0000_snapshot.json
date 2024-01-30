@@ -1,51 +1,9 @@
 {
-  "id": "bce9de1e-4ce0-4ed4-bb9b-6ea4ff08fe28",
+  "id": "9cf70287-5fac-4483-b26e-30bdcb7f8788",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
   "tables": {
-    "cloud_email_verification": {
-      "name": "cloud_email_verification",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "expires": {
-          "name": "expires",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "cloud_email_verification_user_id_cloud_user_id_fk": {
-          "name": "cloud_email_verification_user_id_cloud_user_id_fk",
-          "tableFrom": "cloud_email_verification",
-          "tableTo": "cloud_user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
     "cloud_device": {
       "name": "cloud_device",
       "schema": "",
@@ -168,36 +126,6 @@
         }
       }
     },
-    "cloud_system": {
-      "name": "cloud_system",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "cloud_system_id_cloud_hardware_id_fk": {
-          "name": "cloud_system_id_cloud_hardware_id_fk",
-          "tableFrom": "cloud_system",
-          "tableTo": "cloud_hardware",
-          "columnsFrom": [
-            "id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
     "cloud_system_device": {
       "name": "cloud_system_device",
       "schema": "",
@@ -253,6 +181,36 @@
           ]
         }
       },
+      "uniqueConstraints": {}
+    },
+    "cloud_system": {
+      "name": "cloud_system",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "cloud_system_id_cloud_hardware_id_fk": {
+          "name": "cloud_system_id_cloud_hardware_id_fk",
+          "tableFrom": "cloud_system",
+          "tableTo": "cloud_hardware",
+          "columnsFrom": [
+            "id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
     "cloud_measurement": {
@@ -461,36 +419,6 @@
         }
       }
     },
-    "cloud_system_model": {
-      "name": "cloud_system_model",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "cloud_system_model_id_cloud_model_id_fk": {
-          "name": "cloud_system_model_id_cloud_model_id_fk",
-          "tableFrom": "cloud_system_model",
-          "tableTo": "cloud_model",
-          "columnsFrom": [
-            "id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
     "cloud_system_model_device_model": {
       "name": "cloud_system_model_device_model",
       "schema": "",
@@ -552,6 +480,36 @@
           ]
         }
       },
+      "uniqueConstraints": {}
+    },
+    "cloud_system_model": {
+      "name": "cloud_system_model",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "cloud_system_model_id_cloud_model_id_fk": {
+          "name": "cloud_system_model_id_cloud_model_id_fk",
+          "tableFrom": "cloud_system_model",
+          "tableTo": "cloud_model",
+          "columnsFrom": [
+            "id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
     "cloud_project": {
@@ -930,22 +888,27 @@
         }
       }
     },
-    "cloud_user": {
-      "name": "cloud_user",
+    "cloud_email_verification": {
+      "name": "cloud_email_verification",
       "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "serial",
           "primaryKey": true,
           "notNull": true
         },
-        "email_verified": {
-          "name": "email_verified",
-          "type": "boolean",
+        "code": {
+          "name": "code",
+          "type": "text",
           "primaryKey": false,
-          "notNull": false,
-          "default": false
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
         },
         "email": {
           "name": "email",
@@ -953,40 +916,89 @@
           "primaryKey": false,
           "notNull": true
         },
-        "created_at": {
-          "name": "created_at",
+        "expiresAt": {
+          "name": "expiresAt",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
+          "notNull": true
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "cloud_email_verification_user_id_cloud_user_id_fk": {
+          "name": "cloud_email_verification_user_id_cloud_user_id_fk",
+          "tableFrom": "cloud_email_verification",
+          "tableTo": "cloud_user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "cloud_user_email_unique": {
-          "name": "cloud_user_email_unique",
-          "nullsNotDistinct": false,
+      "uniqueConstraints": {}
+    },
+    "cloud_oauth_account": {
+      "name": "cloud_oauth_account",
+      "schema": "",
+      "columns": {
+        "provider_id": {
+          "name": "provider_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "provider_user_id": {
+          "name": "provider_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "cloud_oauth_account_user_id_cloud_user_id_fk": {
+          "name": "cloud_oauth_account_user_id_cloud_user_id_fk",
+          "tableFrom": "cloud_oauth_account",
+          "tableTo": "cloud_user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "cloud_oauth_account_provider_id_provider_user_id_pk": {
+          "name": "cloud_oauth_account_provider_id_provider_user_id_pk",
           "columns": [
-            "email"
+            "provider_id",
+            "provider_user_id"
           ]
         }
-      }
+      },
+      "uniqueConstraints": {}
     },
-    "cloud_user_key": {
-      "name": "cloud_user_key",
+    "cloud_password_reset_token": {
+      "name": "cloud_password_reset_token",
       "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "serial",
           "primaryKey": true,
           "notNull": true
         },
@@ -996,18 +1008,24 @@
           "primaryKey": false,
           "notNull": true
         },
-        "hashed_password": {
-          "name": "hashed_password",
+        "token": {
+          "name": "token",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "cloud_user_key_user_id_cloud_user_id_fk": {
-          "name": "cloud_user_key_user_id_cloud_user_id_fk",
-          "tableFrom": "cloud_user_key",
+        "cloud_password_reset_token_user_id_cloud_user_id_fk": {
+          "name": "cloud_password_reset_token_user_id_cloud_user_id_fk",
+          "tableFrom": "cloud_password_reset_token",
           "tableTo": "cloud_user",
           "columnsFrom": [
             "user_id"
@@ -1038,21 +1056,9 @@
           "primaryKey": false,
           "notNull": true
         },
-        "auth_provider": {
-          "name": "auth_provider",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "active_expires": {
-          "name": "active_expires",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "idle_expires": {
-          "name": "idle_expires",
-          "type": "bigint",
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": true
         }
@@ -1075,6 +1081,62 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
+    },
+    "cloud_user": {
+      "name": "cloud_user",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "email_verified": {
+          "name": "email_verified",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hashed_password": {
+          "name": "hashed_password",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "cloud_user_email_unique": {
+          "name": "cloud_user_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      }
     },
     "cloud_workspace": {
       "name": "cloud_workspace",
@@ -1100,7 +1162,7 @@
         },
         "plan_type": {
           "name": "plan_type",
-          "type": "plan_type",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -1218,14 +1280,6 @@
     }
   },
   "enums": {
-    "plan_type": {
-      "name": "plan_type",
-      "values": {
-        "hobby": "hobby",
-        "pro": "pro",
-        "enterprise": "enterprise"
-      }
-    },
     "workspace_role": {
       "name": "workspace_role",
       "values": {

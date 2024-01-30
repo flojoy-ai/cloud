@@ -6,7 +6,11 @@ import { checkWorkspaceAccess } from "~/lib/auth";
 import { getSystemModelParts } from "~/lib/query";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { type db } from "~/server/db";
-import { project, project_hardware, workspace } from "~/server/db/schema";
+import {
+  projectTable,
+  projectHardwareTable,
+  workspaceTable,
+} from "~/server/db/schema";
 import { selectModelSchema } from "~/types/model";
 import {
   publicInsertProjectSchema,
@@ -23,7 +27,7 @@ export const projectAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
   input: { projectId: string };
 }>().create(async (opts) => {
-  const project = await opts.ctx.db.query.project.findFirst({
+  const project = await opts.ctx.db.query.projectTable.findFirst({
     where: (project, { eq }) => eq(project.id, opts.input.projectId),
     with: { workspace: true },
   });
@@ -65,7 +69,7 @@ export const projectRouter = createTRPCRouter({
     .output(selectProjectSchema)
     .use(workspaceAccessMiddleware)
     .mutation(async ({ ctx, input }) => {
-      const model = await ctx.db.query.model.findFirst({
+      const model = await ctx.db.query.modelTable.findFirst({
         where: (model, { eq }) => eq(model.id, input.modelId),
       });
 
@@ -78,7 +82,7 @@ export const projectRouter = createTRPCRouter({
 
       return await ctx.db.transaction(async (tx) => {
         const [projectCreateResult] = await tx
-          .insert(project)
+          .insert(projectTable)
           .values(input)
           .returning();
 
@@ -90,9 +94,9 @@ export const projectRouter = createTRPCRouter({
         }
 
         await tx
-          .update(workspace)
+          .update(workspaceTable)
           .set({ updatedAt: new Date() })
-          .where(eq(workspace.id, input.workspaceId));
+          .where(eq(workspaceTable.id, input.workspaceId));
         return projectCreateResult;
       });
     }),
@@ -113,7 +117,7 @@ export const projectRouter = createTRPCRouter({
       }),
     )
     .query(async ({ input, ctx }) => {
-      const project = await ctx.db.query.project.findFirst({
+      const project = await ctx.db.query.projectTable.findFirst({
         where: (project, { eq }) => eq(project.id, input.projectId),
         with: { model: true },
       });
@@ -126,7 +130,7 @@ export const projectRouter = createTRPCRouter({
 
       // TODO: Is there a clean way to just attach this to the above query somehow?
       const isDeviceModel =
-        (await ctx.db.query.deviceModel.findFirst({
+        (await ctx.db.query.deviceModelTable.findFirst({
           where: (deviceModel, { eq }) => eq(deviceModel.id, project.modelId),
         })) !== undefined;
 
@@ -167,7 +171,7 @@ export const projectRouter = createTRPCRouter({
     .use(workspaceAccessMiddleware)
     .output(z.array(selectProjectSchema))
     .query(async ({ ctx, input }) => {
-      return await ctx.db.query.project.findMany({
+      return await ctx.db.query.projectTable.findMany({
         where: (project, { eq }) => eq(project.workspaceId, input.workspaceId),
       });
     }),
@@ -190,7 +194,7 @@ export const projectRouter = createTRPCRouter({
     .use(hardwareAccessMiddleware)
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
-      const project = await ctx.db.query.project.findFirst({
+      const project = await ctx.db.query.projectTable.findFirst({
         where: (project, { eq }) => eq(project.id, input.projectId),
       });
 
@@ -201,7 +205,7 @@ export const projectRouter = createTRPCRouter({
         });
       }
 
-      const hardware = await ctx.db.query.hardware.findFirst({
+      const hardware = await ctx.db.query.hardwareTable.findFirst({
         where: (hardware, { eq }) => eq(hardware.id, input.hardwareId),
       });
 
@@ -219,7 +223,7 @@ export const projectRouter = createTRPCRouter({
         });
       }
 
-      await ctx.db.insert(project_hardware).values({
+      await ctx.db.insert(projectHardwareTable).values({
         hardwareId: input.hardwareId,
         projectId: input.projectId,
       });
@@ -244,11 +248,11 @@ export const projectRouter = createTRPCRouter({
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
       await ctx.db
-        .delete(project_hardware)
+        .delete(projectHardwareTable)
         .where(
           and(
-            eq(project_hardware.hardwareId, input.hardwareId),
-            eq(project_hardware.projectId, input.projectId),
+            eq(projectHardwareTable.hardwareId, input.hardwareId),
+            eq(projectHardwareTable.projectId, input.projectId),
           ),
         );
     }),
@@ -273,19 +277,19 @@ export const projectRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       await ctx.db.transaction(async (tx) => {
         await tx
-          .delete(project_hardware)
-          .where(eq(project_hardware.projectId, input.projectId));
+          .delete(projectHardwareTable)
+          .where(eq(projectHardwareTable.projectId, input.projectId));
 
         if (input.hardwareIds.length === 0) {
           return;
         }
 
-        const hardwares = await tx.query.hardware.findMany({
+        const hardwares = await tx.query.hardwareTable.findMany({
           where: (hardware, { inArray }) =>
             inArray(hardware.id, input.hardwareIds),
         });
 
-        const project = await tx.query.project.findFirst({
+        const project = await tx.query.projectTable.findFirst({
           where: (project, { eq }) => eq(project.id, input.projectId),
         });
 
@@ -310,7 +314,7 @@ export const projectRouter = createTRPCRouter({
           });
         }
 
-        await tx.insert(project_hardware).values(
+        await tx.insert(projectHardwareTable).values(
           input.hardwareIds.map((hardwareId) => ({
             hardwareId,
             projectId: input.projectId,
@@ -334,9 +338,9 @@ export const projectRouter = createTRPCRouter({
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { projectId, ...updatedProject } = input;
       await ctx.db
-        .update(project)
+        .update(projectTable)
         .set(updatedProject)
-        .where(eq(project.id, input.projectId));
+        .where(eq(projectTable.id, input.projectId));
     }),
 
   deleteProjectById: workspaceProcedure
@@ -351,6 +355,8 @@ export const projectRouter = createTRPCRouter({
     .use(projectAccessMiddleware)
     .output(z.void())
     .mutation(async ({ ctx, input }) => {
-      await ctx.db.delete(project).where(eq(project.id, input.projectId));
+      await ctx.db
+        .delete(projectTable)
+        .where(eq(projectTable.id, input.projectId));
     }),
 });

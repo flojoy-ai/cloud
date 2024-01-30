@@ -1,10 +1,10 @@
-import { workspace } from "~/server/db/schema";
+import { workspaceTable } from "~/server/db/schema";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export type SelectWorkspace = typeof workspace.$inferSelect;
+export type SelectWorkspace = typeof workspaceTable.$inferSelect;
 
-export const insertWorkspaceSchema = createInsertSchema(workspace, {
+export const insertWorkspaceSchema = createInsertSchema(workspaceTable, {
   name: z.string().min(1),
 });
 export const publicInsertWorkspaceSchema = insertWorkspaceSchema
@@ -25,4 +25,4 @@ export const publicUpdateWorkspaceSchema = insertWorkspaceSchema
     workspaceId: z.string(),
   });
 
-export const selectWorkspaceSchema = createSelectSchema(workspace);
+export const selectWorkspaceSchema = createSelectSchema(workspaceTable);

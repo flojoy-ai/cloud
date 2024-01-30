@@ -1,10 +1,10 @@
-import { project } from "~/server/db/schema";
+import { projectTable } from "~/server/db/schema";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export type SelectProject = typeof project.$inferSelect;
+export type SelectProject = typeof projectTable.$inferSelect;
 
-export const insertProjectSchema = createInsertSchema(project, {
+export const insertProjectSchema = createInsertSchema(projectTable, {
   name: z.string().min(1),
 });
 
@@ -22,7 +22,7 @@ export const publicUpdateProjectSchema = insertProjectSchema
     projectId: z.string(),
   });
 
-export const selectProjectSchema = createSelectSchema(project);
+export const selectProjectSchema = createSelectSchema(projectTable);
 
 export const projectConstraintSchema = z.discriminatedUnion("type", [
   z.object({

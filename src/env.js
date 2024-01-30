@@ -7,7 +7,10 @@ export const env = createEnv({
    * isn't built with invalid env vars.
    */
   server: {
-    DATABASE_URL: z.string().url(),
+    DATABASE_URL: z
+      .string()
+      .url()
+      .transform((s) => (s += "?sslmode=require")),
 
     NODE_ENV: z
       .enum(["development", "test", "production"])
@@ -35,9 +38,9 @@ export const env = createEnv({
     JWT_SECRET: z.string(),
     AWS_AMI: z
       .string()
+      .optional()
       // transform to boolean using preferred coercion logic
-      .transform((s) => s !== "false" && s !== "0")
-      .default("false"),
+      .transform((s) => s !== undefined && s !== "false" && s !== "0"),
   },
 
   /**

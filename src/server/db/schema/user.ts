@@ -1,4 +1,10 @@
-import { text, timestamp, boolean, bigint } from "drizzle-orm/pg-core";
+import {
+  serial,
+  text,
+  timestamp,
+  primaryKey,
+  boolean,
+} from "drizzle-orm/pg-core";
 import { baseModal, pgTable } from "./table";
 
 // After a user signs up with the auth provider, we will create a user
@@ -8,10 +14,11 @@ import { baseModal, pgTable } from "./table";
 // When the 'signupCompleted' field is false, we will redirect the user
 // to a signup wizard (which we can use to collect more info)
 // to complete the signup process.
-export const user = pgTable("user", {
+export const userTable = pgTable("user", {
   ...baseModal("user"),
   emailVerified: boolean("email_verified").default(false),
   email: text("email").notNull().unique(),
+  hashedPassword: text("hashed_password"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at"),
 });
@@ -19,28 +26,48 @@ export const user = pgTable("user", {
 // The user_session and user_key tables are internal to Lucia
 // Therefore, they do not have the baseModal fields (ID prefix).
 
-export const user_session = pgTable("user_session", {
+export const sessionTable = pgTable("user_session", {
   id: text("id").notNull().primaryKey(),
   userId: text("user_id")
     .notNull()
-    .references(() => user.id),
-  authProvider: text("auth_provider", { enum: ["google", "email"] }).notNull(),
-  activeExpires: bigint("active_expires", { mode: "number" }).notNull(),
-  idleExpires: bigint("idle_expires", { mode: "number" }).notNull(),
+    .references(() => userTable.id),
+  expiresAt: timestamp("expires_at", {
+    withTimezone: true,
+    mode: "date",
+  }).notNull(),
 });
 
-export const user_key = pgTable("user_key", {
-  id: text("id").notNull().primaryKey(),
+export const oauthAccountTable = pgTable(
+  "oauth_account",
+  {
+    providerId: text("provider_id").notNull(),
+    providerUserId: text("provider_user_id").notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.providerId, table.providerUserId] }),
+  }),
+);
+
+export const passwordResetTokenTable = pgTable("password_reset_token", {
+  id: serial("id").notNull().primaryKey(),
   userId: text("user_id")
     .notNull()
-    .references(() => user.id),
-  hashedPassword: text("hashed_password"),
+    .references(() => userTable.id),
+  token: text("token").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
 });
 
-export const password_reset_token = pgTable("password_reset_token", {
-  id: text("id").notNull().primaryKey(),
+export const emailVerificationTable = pgTable("email_verification", {
+  id: serial("id").notNull().primaryKey(),
+  code: text("code").notNull(),
   userId: text("user_id")
-    .notNull()
-    .references(() => user.id),
-  expires: bigint("expires", { mode: "number" }).notNull(),
+    .references(() => userTable.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
+  email: text("email").notNull(),
+  expiresAt: timestamp("expiresAt").notNull(),
 });

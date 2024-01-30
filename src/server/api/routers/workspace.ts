@@ -7,11 +7,11 @@ import {
 } from "~/server/api/trpc";
 import { db } from "~/server/db";
 import {
-  workspace,
-  user,
+  workspaceTable,
+  userTable,
   workspace_user,
-  project,
-  hardware,
+  projectTable,
+  hardwareTable,
 } from "~/server/db/schema";
 import {
   publicInsertWorkspaceSchema,
@@ -28,7 +28,7 @@ export const workspaceAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
   input: { workspaceId: string };
 }>().create(async (opts) => {
-  const workspace = await opts.ctx.db.query.workspace.findFirst({
+  const workspace = await opts.ctx.db.query.workspaceTable.findFirst({
     where: (workspace, { eq }) => eq(workspace.id, opts.input.workspaceId),
   });
 
@@ -66,7 +66,7 @@ export const workspaceRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const newWorkspace = await ctx.db.transaction(async (tx) => {
         const [newWorkspace] = await tx
-          .insert(workspace)
+          .insert(workspaceTable)
           .values({ planType: "enterprise", ...input })
           .returning();
 
@@ -79,18 +79,18 @@ export const workspaceRouter = createTRPCRouter({
 
         await tx.insert(workspace_user).values({
           workspaceId: newWorkspace.id,
-          userId: ctx.session.user.userId,
+          userId: ctx.user.id,
           workspaceRole: "owner",
         });
 
         cookies().set("scope", newWorkspace.namespace);
 
-        if (!input.populateData) {
-          return newWorkspace;
-        }
-
         return newWorkspace;
       });
+
+      if (!input.populateData) {
+        return newWorkspace;
+      }
 
       await api.example.populateExample.mutate({
         workspaceId: newWorkspace.id,
@@ -108,9 +108,9 @@ export const workspaceRouter = createTRPCRouter({
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { workspaceId, ...updatedWorkspace } = input;
       const [result] = await ctx.db
-        .update(workspace)
+        .update(workspaceTable)
         .set(updatedWorkspace)
-        .where(eq(workspace.id, ctx.workspaceId))
+        .where(eq(workspaceTable.id, ctx.workspaceId))
         .returning();
       if (!result) {
         throw new TRPCError({
@@ -128,22 +128,24 @@ export const workspaceRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.transaction(async (tx) => {
         await tx
-          .delete(project)
-          .where(eq(project.workspaceId, input.workspaceId));
+          .delete(projectTable)
+          .where(eq(projectTable.workspaceId, input.workspaceId));
 
         await tx.execute(
           sql`DELETE FROM cloud_system AS cs USING cloud_hardware as ch WHERE ch.workspace_id = ${input.workspaceId} AND cs.id = ch.id`,
         );
 
         await tx
-          .delete(hardware)
-          .where(eq(hardware.workspaceId, input.workspaceId));
+          .delete(hardwareTable)
+          .where(eq(hardwareTable.workspaceId, input.workspaceId));
 
         await tx.execute(
           sql`DELETE FROM cloud_model AS cm USING cloud_system_model as csm WHERE cm.workspace_id = ${input.workspaceId} AND cm.id = csm.id`,
         );
 
-        await tx.delete(workspace).where(eq(workspace.id, input.workspaceId));
+        await tx
+          .delete(workspaceTable)
+          .where(eq(workspaceTable.id, input.workspaceId));
       });
     }),
 
@@ -159,13 +161,16 @@ export const workspaceRouter = createTRPCRouter({
     .query(async ({ ctx }) => {
       const result = await ctx.db
         .select({
-          workspace: workspace,
+          workspace: workspaceTable,
           workspaceUser: workspace_user,
         })
         .from(workspace_user)
-        .innerJoin(workspace, eq(workspace_user.workspaceId, workspace.id))
-        .innerJoin(user, eq(workspace_user.userId, user.id))
-        .where(eq(user.id, ctx.session.user.userId));
+        .innerJoin(
+          workspaceTable,
+          eq(workspace_user.workspaceId, workspaceTable.id),
+        )
+        .innerJoin(userTable, eq(workspace_user.userId, userTable.id))
+        .where(eq(userTable.id, ctx.user.id));
 
       return result.map((w) => ({
         ...w.workspace,
@@ -177,7 +182,7 @@ export const workspaceRouter = createTRPCRouter({
     .input(z.object({ workspaceId: z.string() }))
     .output(selectWorkspaceSchema)
     .query(async ({ input }) => {
-      const result = await db.query.workspace.findFirst({
+      const result = await db.query.workspaceTable.findFirst({
         where: (workspace, { eq }) => eq(workspace.id, input.workspaceId),
       });
 
@@ -194,7 +199,7 @@ export const workspaceRouter = createTRPCRouter({
     .input(z.object({ namespace: z.string() }))
     .output(z.string())
     .query(async ({ input, ctx }) => {
-      const result = await ctx.db.query.workspace.findFirst({
+      const result = await ctx.db.query.workspaceTable.findFirst({
         where: (workspace, { eq }) => eq(workspace.namespace, input.namespace),
       });
       if (!result) {

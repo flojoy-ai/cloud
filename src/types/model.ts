@@ -1,8 +1,8 @@
-import { model } from "~/server/db/schema";
+import { modelTable } from "~/server/db/schema";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const insertModelSchema = createInsertSchema(model, {
+export const insertModelSchema = createInsertSchema(modelTable, {
   name: z.string().min(1),
 });
 
@@ -22,7 +22,7 @@ export const publicInsertSystemModelSchema =
     parts: z.array(systemModelPartSchema.omit({ name: true })),
   });
 
-export const selectModelBaseSchema = createSelectSchema(model);
+export const selectModelBaseSchema = createSelectSchema(modelTable);
 
 export const selectDeviceModelSchema = selectModelBaseSchema.extend({
   type: z.literal("device").default("device"),

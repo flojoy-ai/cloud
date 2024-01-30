@@ -14,6 +14,9 @@ const bundleAnalyzer = withBundleAnalyzer({
 /** @type {import("next").NextConfig} */
 const config = {
   logging: { fetches: { fullUrl: true } },
+  experimental: {
+    serverComponentsExternalPackages: ["oslo"],
+  },
 };
 
 export default bundleAnalyzer(config);

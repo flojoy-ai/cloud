@@ -1,51 +1,92 @@
-import { lucia } from "lucia";
-import { nextjs_future } from "lucia/middleware";
+import { Lucia } from "lucia";
 
-import { pg } from "@lucia-auth/adapter-postgresql";
-import { pool } from "~/server/db";
-import { google } from "@lucia-auth/oauth/providers";
+import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle";
+import { db } from "~/server/db";
 import { env } from "~/env";
-// import "lucia/polyfill/node"; // not needed for nodejs 20 or above
+import { userTable, sessionTable } from "~/server/db/schema";
+import { Google } from "arctic";
+import { cache } from "react";
+import { cookies } from "next/headers";
+import type { Session, User } from "lucia";
 
-export const auth = lucia({
-  env: env.NODE_ENV === "development" ? "DEV" : "PROD",
-  middleware: nextjs_future(),
+// import { webcrypto } from "crypto";
+// globalThis.crypto = webcrypto as Crypto;
+
+const adapter = new DrizzlePostgreSQLAdapter(db, sessionTable, userTable);
+
+export const lucia = new Lucia(adapter, {
   sessionCookie: {
     expires: false,
+    attributes: {
+      secure: env.NODE_ENV === "production",
+    },
   },
-  adapter: pg(pool, {
-    user: "cloud_user",
-    key: "cloud_user_key",
-    session: "cloud_user_session",
-  }),
 
   getUserAttributes: (user) => {
     return {
-      emailVerified: user.email_verified,
+      emailVerified: user.emailVerified,
       email: user.email,
     };
   },
-  getSessionAttributes: (session) => {
-    return {
-      authProvider: session.auth_provider,
-    };
+
+  getSessionAttributes: (_) => {
+    return {};
   },
 });
 
-export const googleAuth = google(auth, {
-  clientId: env.GOOGLE_CLIENT_ID,
-  clientSecret: env.GOOGLE_CLIENT_SECRET,
-  redirectUri: env.GOOGLE_REDIRECT_URI,
-  scope: ["openid", "email", "profile"],
-});
+export const google = new Google(
+  env.GOOGLE_CLIENT_ID,
+  env.GOOGLE_CLIENT_SECRET,
+  env.GOOGLE_REDIRECT_URI,
+);
 
-// export const auth0Auth = auth0(auth, {
-//   clientId: env.AUTH0_CLIENT_ID,
-//   clientSecret: env.AUTH0_CLIENT_SECRET,
-//   redirectUri:
-//     env.AUTH0_REDIRECT_URI ??
-//     "https://" + env.VERCEL_BRANCH_URL + "/login/auth0/callback",
-//   appDomain: env.AUTH0_APP_DOMAIN,
-// });
+export const validateRequest = cache(
+  async (): Promise<
+    { user: User; session: Session } | { user: null; session: null }
+  > => {
+    const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
+    if (!sessionId) {
+      return {
+        user: null,
+        session: null,
+      };
+    }
 
-export type Auth = typeof auth;
+    const result = await lucia.validateSession(sessionId);
+    // next.js throws when you attempt to set cookie when rendering page
+    try {
+      if (result.session && result.session.fresh) {
+        const sessionCookie = lucia.createSessionCookie(result.session.id);
+        cookies().set(
+          sessionCookie.name,
+          sessionCookie.value,
+          sessionCookie.attributes,
+        );
+      }
+      if (!result.session) {
+        const sessionCookie = lucia.createBlankSessionCookie();
+        cookies().set(
+          sessionCookie.name,
+          sessionCookie.value,
+          sessionCookie.attributes,
+        );
+      }
+    } catch {}
+    return result;
+  },
+);
+
+declare module "lucia" {
+  interface Register {
+    Lucia: typeof lucia;
+    DatabaseSessionAttributes: DatabaseSessionAttributes;
+    DatabaseUserAttributes: DatabaseUserAttributes;
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface DatabaseSessionAttributes {}
+interface DatabaseUserAttributes {
+  emailVerified: boolean;
+  email: string;
+}

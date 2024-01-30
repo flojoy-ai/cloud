@@ -2,23 +2,23 @@ import { index, text, timestamp, boolean, jsonb } from "drizzle-orm/pg-core";
 import { type MeasurementData } from "~/types/data";
 import { relations } from "drizzle-orm";
 import { baseModal, pgTable } from "./table";
-import { test } from "./test";
-import { hardware } from "./hardware";
+import { testTable } from "./test";
+import { hardwareTable } from "./hardware";
 
-export const measurement = pgTable(
+export const measurementTable = pgTable(
   "measurement",
   {
     ...baseModal("measurement"),
     name: text("name").default("Untitled"),
     data: jsonb("data").$type<MeasurementData>().notNull(),
     hardwareId: text("hardware_id")
-      .references(() => hardware.id, {
+      .references(() => hardwareTable.id, {
         onDelete: "cascade",
       })
       .notNull(),
     testId: text("test_id")
       .notNull()
-      .references(() => test.id, { onDelete: "cascade" }),
+      .references(() => testTable.id, { onDelete: "cascade" }),
     storageProvider: text("storage_provider", {
       enum: ["s3", "postgres"],
     }).notNull(),
@@ -32,13 +32,13 @@ export const measurement = pgTable(
   }),
 );
 
-export const measurementRelation = relations(measurement, ({ one }) => ({
-  test: one(test, {
-    fields: [measurement.testId],
-    references: [test.id],
+export const measurementRelation = relations(measurementTable, ({ one }) => ({
+  test: one(testTable, {
+    fields: [measurementTable.testId],
+    references: [testTable.id],
   }),
-  hardware: one(hardware, {
-    fields: [measurement.hardwareId],
-    references: [hardware.id],
+  hardware: one(hardwareTable, {
+    fields: [measurementTable.hardwareId],
+    references: [hardwareTable.id],
   }),
 }));

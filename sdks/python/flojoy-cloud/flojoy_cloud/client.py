@@ -22,12 +22,10 @@ from flojoy_cloud.dtypes import (
     Test,
     TestWithMeasurements,
 )
-from flojoy_cloud.mtypes import MeasurementData, MeasurementType
+from flojoy_cloud.mtypes import MeasurementData, MeasurementType, make_payload
 
 
-class NumpyEncoder(json.JSONEncoder):
-    """json encoder for numpy types."""
-
+class CloudEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, np.integer):
             return int(o)
@@ -35,6 +33,8 @@ class NumpyEncoder(json.JSONEncoder):
             return float(o)
         elif isinstance(o, np.ndarray):
             return o.tolist()
+        elif isinstance(o, datetime.datetime):
+            return o.isoformat()
         return json.JSONEncoder.default(self, o)
 
 
@@ -303,7 +303,7 @@ class FlojoyCloud:
         body = {
             "testId": test_id,
             "hardwareId": hardware_id,
-            "data": data.model_dump(),
+            "data": make_payload(data),
         }
         if name is not None:
             body["name"] = name
@@ -312,7 +312,7 @@ class FlojoyCloud:
 
         return self.client.post(
             "/measurements",
-            content=json.dumps(body, cls=NumpyEncoder),
+            content=json.dumps(body, cls=CloudEncoder),
             headers={
                 "Content-Type": "application/json",
             },

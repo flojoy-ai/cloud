@@ -6,11 +6,11 @@ import { partsFrom } from "~/lib/query";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
 import {
-  deviceModel,
-  model,
-  systemModel,
-  systemModelDeviceModel,
-  workspace,
+  deviceModelTable,
+  modelTable,
+  systemModelTable,
+  systemModelDeviceModelTable,
+  workspaceTable,
 } from "~/server/db/schema";
 import {
   publicInsertDeviceModelSchema,
@@ -25,7 +25,7 @@ export const modelAccessMiddlware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
   input: { modelId: string };
 }>().create(async (opts) => {
-  const model = await opts.ctx.db.query.model.findFirst({
+  const model = await opts.ctx.db.query.modelTable.findFirst({
     where: (model, { eq }) => eq(model.id, opts.input.modelId),
     with: {
       workspace: true,
@@ -71,7 +71,7 @@ export const modelRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.transaction(async (tx) => {
         const [modelCreateResult] = await tx
-          .insert(model)
+          .insert(modelTable)
           .values(input)
           .returning();
 
@@ -83,14 +83,14 @@ export const modelRouter = createTRPCRouter({
         }
 
         await tx
-          .insert(deviceModel)
+          .insert(deviceModelTable)
           .values({ id: modelCreateResult.id })
           .returning();
 
         await tx
-          .update(workspace)
+          .update(workspaceTable)
           .set({ updatedAt: new Date() })
-          .where(eq(workspace.id, input.workspaceId));
+          .where(eq(workspaceTable.id, input.workspaceId));
 
         return modelCreateResult;
       });
@@ -108,12 +108,12 @@ export const modelRouter = createTRPCRouter({
 
       const res = await ctx.db
         .select()
-        .from(deviceModel)
-        .innerJoin(model, eq(model.id, deviceModel.id))
+        .from(deviceModelTable)
+        .innerJoin(modelTable, eq(modelTable.id, deviceModelTable.id))
         .where(
           and(
-            eq(model.workspaceId, input.workspaceId),
-            inArray(model.id, partIds),
+            eq(modelTable.workspaceId, input.workspaceId),
+            inArray(modelTable.id, partIds),
           ),
         );
 
@@ -130,7 +130,7 @@ export const modelRouter = createTRPCRouter({
 
       return await ctx.db.transaction(async (tx) => {
         const [modelCreateResult] = await tx
-          .insert(model)
+          .insert(modelTable)
           .values(input)
           .returning();
 
@@ -142,11 +142,11 @@ export const modelRouter = createTRPCRouter({
         }
 
         await tx
-          .insert(systemModel)
+          .insert(systemModelTable)
           .values({ id: modelCreateResult.id })
           .returning();
 
-        await tx.insert(systemModelDeviceModel).values(
+        await tx.insert(systemModelDeviceModelTable).values(
           input.parts.map(({ modelId, count }) => ({
             systemModelId: modelCreateResult.id,
             deviceModelId: modelId,
@@ -155,9 +155,9 @@ export const modelRouter = createTRPCRouter({
         );
 
         await tx
-          .update(workspace)
+          .update(workspaceTable)
           .set({ updatedAt: new Date() })
-          .where(eq(workspace.id, input.workspaceId));
+          .where(eq(workspaceTable.id, input.workspaceId));
 
         return {
           ...modelCreateResult,
@@ -233,7 +233,7 @@ export const modelRouter = createTRPCRouter({
     .output(z.void())
     .use(modelAccessMiddlware)
     .mutation(async ({ ctx, input }) => {
-      await ctx.db.delete(model).where(eq(model.id, input.modelId));
+      await ctx.db.delete(modelTable).where(eq(modelTable.id, input.modelId));
     }),
 });
 
@@ -241,38 +241,42 @@ async function getDeviceModels(workspaceId: string) {
   return await db
     .select({
       type: sql<"device">`'device'`.as("type"),
-      ...getTableColumns(model),
+      ...getTableColumns(modelTable),
     })
-    .from(model)
-    .innerJoin(deviceModel, eq(deviceModel.id, model.id))
-    .where(eq(model.workspaceId, workspaceId));
+    .from(modelTable)
+    .innerJoin(deviceModelTable, eq(deviceModelTable.id, modelTable.id))
+    .where(eq(modelTable.workspaceId, workspaceId));
 }
 
 async function getSystemModels(workspaceId: string) {
   const sq = db
-    .select({ id: model.id, name: model.name })
-    .from(model)
-    .innerJoin(deviceModel, eq(deviceModel.id, model.id))
-    .where(eq(model.workspaceId, workspaceId))
+    .select({ id: modelTable.id, name: modelTable.name })
+    .from(modelTable)
+    .innerJoin(deviceModelTable, eq(deviceModelTable.id, modelTable.id))
+    .where(eq(modelTable.workspaceId, workspaceId))
     .as("sq");
 
   return await db
     .select({
-      ...getTableColumns(model),
+      ...getTableColumns(modelTable),
       type: sql<"system">`'system'`.as("type"),
-      parts: partsFrom(deviceModel.id, sq.name, systemModelDeviceModel.count),
+      parts: partsFrom(
+        deviceModelTable.id,
+        sq.name,
+        systemModelDeviceModelTable.count,
+      ),
     })
-    .from(model)
-    .innerJoin(systemModel, eq(systemModel.id, model.id))
+    .from(modelTable)
+    .innerJoin(systemModelTable, eq(systemModelTable.id, modelTable.id))
     .innerJoin(
-      systemModelDeviceModel,
-      eq(systemModel.id, systemModelDeviceModel.systemModelId),
+      systemModelDeviceModelTable,
+      eq(systemModelTable.id, systemModelDeviceModelTable.systemModelId),
     )
     .innerJoin(
-      deviceModel,
-      eq(deviceModel.id, systemModelDeviceModel.deviceModelId),
+      deviceModelTable,
+      eq(deviceModelTable.id, systemModelDeviceModelTable.deviceModelId),
     )
-    .leftJoin(sq, eq(sq.id, deviceModel.id))
-    .groupBy(model.id)
-    .where(eq(model.workspaceId, workspaceId));
+    .leftJoin(sq, eq(sq.id, deviceModelTable.id))
+    .groupBy(modelTable.id)
+    .where(eq(modelTable.workspaceId, workspaceId));
 }
