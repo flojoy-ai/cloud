@@ -104,7 +104,7 @@ export const measurementRouter = createTRPCRouter({
     .meta({
       openapi: {
         method: "GET",
-        path: "/v1/measurements/",
+        path: "/v1/measurements/test/{testId}",
         tags: ["measurement"],
       },
     })
@@ -127,6 +127,54 @@ export const measurementRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       const where: SQL[] = [eq(measurementTable.testId, input.testId)];
+
+      if (input.startDate) {
+        where.push(gte(measurementTable.createdAt, input.startDate));
+      }
+      if (input.endDate) {
+        where.push(lte(measurementTable.createdAt, input.endDate));
+      }
+
+      const result = await ctx.db.query.measurementTable.findMany({
+        where: (_, { and }) => and(...where),
+        with: {
+          hardware: {
+            with: {
+              model: true,
+            },
+          },
+        },
+      });
+      return result;
+    }),
+
+  getAllMeasurementsByHardwareId: workspaceProcedure
+    .meta({
+      openapi: {
+        method: "GET",
+        path: "/v1/measurements/hardware/{hardwareId}",
+        tags: ["measurement"],
+      },
+    })
+    .input(
+      z.object({
+        hardwareId: z.string(),
+        startDate: z.date().optional(),
+        endDate: z.date().optional(),
+      }),
+    )
+    .use(hardwareAccessMiddleware)
+    .output(
+      z.array(
+        selectMeasurementSchema.merge(
+          z.object({
+            hardware: selectHardwareSchema,
+          }),
+        ),
+      ),
+    )
+    .query(async ({ ctx, input }) => {
+      const where: SQL[] = [eq(measurementTable.hardwareId, input.hardwareId)];
 
       if (input.startDate) {
         where.push(gte(measurementTable.createdAt, input.startDate));
