@@ -1,5 +1,8 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -26,24 +29,36 @@ const PasswordReset = () => {
     },
   });
 
+  const router = useRouter();
+
+  const mutation = useMutation({
+    mutationFn: async (values: z.infer<typeof formSchema>) => {
+      const formData = new FormData();
+      formData.append("email", values.email);
+
+      await axios.post("/api/password-reset", formData);
+    },
+
+    onError(error, variables, context) {
+      if (!axios.isAxiosError(error)) {
+        return;
+      }
+      if (error.response?.data && typeof error.response?.data === "string") {
+        toast.error(error.response.data);
+      } else {
+        toast.error(
+          "Password reset is currently not available, please try again later :)",
+        );
+      }
+    },
+
+    onSuccess: () => {
+      router.refresh();
+    },
+  });
+
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    const formData = new FormData();
-    formData.append("email", data.email);
-    const response = await fetch("/api/password-reset", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (response.ok) {
-      toast.message("A reset link has been sent to your email");
-      form.reset();
-      return;
-    }
-    const resJson = (await response.json()) as Record<string, string>;
-
-    form.setError("email", {
-      message: resJson.error ?? "Something went wrong",
-    });
+    mutation.mutate(data);
   };
 
   return (
