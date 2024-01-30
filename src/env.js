@@ -35,8 +35,9 @@ export const env = createEnv({
     JWT_SECRET: z.string(),
     AWS_AMI: z
       .string()
+      .optional()
       // transform to boolean using preferred coercion logic
-      .transform((s) => s !== "false" && s !== "0"),
+      .transform((s) => s !== undefined && s !== "false" && s !== "0"),
   },
 
   /**
