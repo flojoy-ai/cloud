@@ -437,7 +437,7 @@ export const hardwareRouter = createTRPCRouter({
           if (v[0]) {
             return {
               ...v[0],
-              projects: _.map(v, "project"),
+              projects: _.map(v, "project").filter((p) => p !== null),
             };
           }
         })
@@ -473,7 +473,7 @@ export const hardwareRouter = createTRPCRouter({
           if (v[0]) {
             return {
               ...v[0],
-              projects: _.map(v, "project"),
+              projects: _.map(v, "project").filter((p) => p !== null),
             };
           }
         })
@@ -580,8 +580,8 @@ async function getAllDevices(options: DeviceQueryOptions) {
       .as("projects_hardwares");
 
     void query
-      .innerJoin(projects_hardwares, eq(temp.id, projects_hardwares.hardwareId))
-      .innerJoin(
+      .leftJoin(projects_hardwares, eq(temp.id, projects_hardwares.hardwareId))
+      .leftJoin(
         projectTable,
         eq(projectTable.id, projects_hardwares.projectId),
       );
@@ -656,11 +656,11 @@ async function getAllSystems(options: HardwareQueryOptions) {
       .as("projects_hardwares");
 
     void query
-      .innerJoin(
+      .leftJoin(
         projects_hardwares,
         eq(hardwareTable.id, projects_hardwares.hardwareId),
       )
-      .innerJoin(
+      .leftJoin(
         projectTable,
         eq(projectTable.id, projects_hardwares.projectId),
       );
