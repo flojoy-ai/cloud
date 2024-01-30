@@ -16,6 +16,10 @@ import {
 import { Input } from "~/components/ui/input";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
+import { type Result } from "~/types/result";
+import { toast } from "sonner";
 
 const formSchema = z
   .object({
@@ -31,34 +35,41 @@ const formSchema = z
   });
 
 const SignupForm = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {},
   });
+  const router = useRouter();
+
+  const mutation = useMutation({
+    mutationFn: async (values: z.infer<typeof formSchema>) => {
+      const formData = new FormData();
+      formData.append("email", values.email);
+      formData.append("password", values.password);
+
+      await axios.post("/api/signup", formData);
+    },
+
+    onError(error, variables, context) {
+      if (!axios.isAxiosError(error)) {
+        return;
+      }
+      if (error.response?.data && typeof error.response?.data === "string") {
+        toast.error(error.response.data);
+      } else {
+        toast.error(
+          "Signup is currently not available, please try again later :)",
+        );
+      }
+    },
+
+    onSuccess: () => {
+      router.refresh();
+    },
+  });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const formData = new FormData();
-    formData.append("email", values.email);
-    formData.append("password", values.password);
-
-    setIsLoading(true);
-    const result = await fetch("/api/signup", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (result.status !== 200) {
-      setIsLoading(false);
-      const resultJson = (await result.json()) as Record<string, string>;
-      form.setError("root", {
-        message:
-          resultJson.error ?? "Signup in is not available at the moment :(",
-      });
-    } else {
-      router.push(result.url);
-    }
+    mutation.mutate(values);
   }
 
   return (
@@ -104,11 +115,11 @@ const SignupForm = () => {
             </FormItem>
           )}
         />
-        <div className="text-sm font-medium text-destructive">
-          {form.formState.errors.root?.message}
-        </div>
-        <Button type="submit" disabled={isLoading} className="w-full">
-          {isLoading ? "Loading..." : "Create Account"}
+        {/* <div className="text-sm font-medium text-destructive"> */}
+        {/*   {mutation.error?.message?} */}
+        {/* </div> */}
+        <Button type="submit" disabled={mutation.isLoading} className="w-full">
+          {mutation.isLoading ? "Loading..." : "Create Account"}
         </Button>
       </form>
     </Form>

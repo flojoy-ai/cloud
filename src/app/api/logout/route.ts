@@ -1,7 +1,6 @@
 import { lucia, validateRequest } from "~/auth/lucia";
 
 import { NextResponse } from "next/server";
-import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 
 export const POST = async () => {
@@ -24,5 +23,10 @@ export const POST = async () => {
     sessionCookie.attributes,
   );
 
-  return redirect("/");
+  return new Response(null, {
+    status: 302,
+    headers: {
+      Location: "/",
+    },
+  });
 };

@@ -9,11 +9,12 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { type Session } from "lucia";
 import { useRouter } from "next/navigation";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
 import type { User } from "lucia";
+import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
 
 type Props = {
   user: User;
@@ -21,6 +22,14 @@ type Props = {
 
 function UserButton({ user }: Props) {
   const router = useRouter();
+  const logout = useMutation({
+    mutationFn: async () => {
+      await axios.post("/api/logout");
+    },
+    onSuccess: () => {
+      router.refresh();
+    },
+  });
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -56,10 +65,7 @@ function UserButton({ user }: Props) {
         <DropdownMenuItem
           className="cursor-pointer"
           onSelect={async () => {
-            await fetch("/api/logout", {
-              method: "POST",
-              redirect: "follow",
-            });
+            logout.mutate();
           }}
         >
           Logout
