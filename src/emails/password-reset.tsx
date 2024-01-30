@@ -11,13 +11,12 @@ import {
   Text,
 } from "@react-email/components";
 import * as React from "react";
-import { env } from "~/env";
 
 interface Props {
-  verificationLink: string;
+  resetLink: string;
 }
 
-export const EmailVerification = ({ verificationLink }: Props) => (
+export const PasswordResetHTML = ({ resetLink }: Props) => (
   <Tailwind
     config={{
       theme: {
@@ -34,7 +33,7 @@ export const EmailVerification = ({ verificationLink }: Props) => (
       <Body className="font-main bg-white">
         <Container>
           <div className="flex items-center gap-2">
-            <Link href={env.NEXT_PUBLIC_URL_ORIGIN}>
+            <Link href="https://cloud.flojoy.ai">
               <Img
                 src="https://cloud.flojoy.ai/logo.png"
                 alt="Flojoy Logo"
@@ -44,24 +43,22 @@ export const EmailVerification = ({ verificationLink }: Props) => (
               <Text className="text-xl font-bold">Flojoy Cloud</Text>
             </Link>
           </div>
-          <Heading>Confirm your email address</Heading>
-          <Text>
-            Hey there! We&apos;re so excited to have you on board. To get
-            started:
-          </Text>
+          <Heading>Reset your password</Heading>
+          <Text>To reset your password, please click the button below.:</Text>
           <Button
-            href={verificationLink}
+            href={resetLink}
             target="_blank"
             className="rounded-lg bg-black px-4 py-2 text-sm text-white"
           >
-            Click here to login
+            Click here to reset your password
           </Button>
           <Text>
-            If you didn&apos;t try to login, you can safely ignore this email.
+            If you didn&apos;t request a password reset, you can safely ignore
+            this email.
           </Text>
           <Text>
             <div className="flex items-center gap-2">
-              <Link href={env.NEXT_PUBLIC_URL_ORIGIN}>
+              <Link href="https://cloud.flojoy.ai">
                 <Img
                   src="https://cloud.flojoy.ai/logo.png"
                   alt="Flojoy Logo"
@@ -79,4 +76,4 @@ export const EmailVerification = ({ verificationLink }: Props) => (
   </Tailwind>
 );
 
-export default EmailVerification;
+export default PasswordResetHTML;

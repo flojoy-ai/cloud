@@ -8,7 +8,6 @@ import { Button } from "~/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -44,9 +43,9 @@ const LoginForm = () => {
 
     if (result.status !== 200) {
       setIsLoading(false);
-
+      const resultJson = (await result.json()) as Record<string, string>;
       form.setError("root", {
-        message: "Log in is not available at the moment :(",
+        message: resultJson.error ?? "Log in is not available at the moment :(",
       });
     } else {
       router.push(result.url);
@@ -63,9 +62,8 @@ const LoginForm = () => {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="" {...field} />
+                <Input {...field} />
               </FormControl>
-              <FormDescription></FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -78,9 +76,8 @@ const LoginForm = () => {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input placeholder="" type="password" {...field} />
+                <Input type="password" {...field} />
               </FormControl>
-              <FormDescription></FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -89,7 +86,7 @@ const LoginForm = () => {
           {form.formState.errors.root?.message}
         </div>
         <Button type="submit" disabled={isLoading} className="w-full">
-          {isLoading ? "Loading..." : "Submit"}
+          {isLoading ? "Loading..." : "Log in"}
         </Button>
       </form>
     </Form>

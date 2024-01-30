@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS "cloud_measurement" (
 	"hardware_id" text NOT NULL,
 	"test_id" text NOT NULL,
 	"storage_provider" text NOT NULL,
+	"image" text DEFAULT '',
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"is_deleted" boolean DEFAULT false
 );
@@ -116,6 +117,12 @@ CREATE TABLE IF NOT EXISTS "cloud_test" (
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp,
 	CONSTRAINT "cloud_test_project_id_name_unique" UNIQUE("project_id","name")
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "cloud_password_reset_token" (
+	"id" text PRIMARY KEY NOT NULL,
+	"user_id" text NOT NULL,
+	"expires" bigint NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_user" (
@@ -297,6 +304,12 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "cloud_test" ADD CONSTRAINT "cloud_test_project_id_cloud_project_id_fk" FOREIGN KEY ("project_id") REFERENCES "cloud_project"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "cloud_password_reset_token" ADD CONSTRAINT "cloud_password_reset_token_user_id_cloud_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "cloud_user"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

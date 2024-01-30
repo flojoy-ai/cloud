@@ -1,10 +1,16 @@
 import { env } from "~/env";
 import * as schema from "./schema";
+import { Pool as NeonPool } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/postgres-js";
+import { drizzle as neonDrizzle } from "drizzle-orm/neon-serverless";
+import pg from "pg";
+import postgres from "postgres";
+const { Pool } = pg;
 
-import { Pool } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-serverless";
-
-export const pool = new Pool({ connectionString: env.DATABASE_URL });
-
-// remember creates a singleton to fix too many db connection err with HMR
-export const db = drizzle(pool, { schema });
+export const pool = env.AWS_AMI
+  ? new Pool({ connectionString: env.DATABASE_URL })
+  : new NeonPool({ connectionString: env.DATABASE_URL });
+const sql = postgres(env.DATABASE_URL);
+export const db = env.AWS_AMI
+  ? drizzle(sql, { schema })
+  : neonDrizzle(pool as NeonPool, { schema });

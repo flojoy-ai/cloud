@@ -14,12 +14,10 @@ export default async function LogIn() {
             <h1 className="text-2xl font-semibold tracking-tight">
               Log in to your account
             </h1>
-            {/* <p className="text-muted-foreground text-sm"> */}
-            {/*   Enter your email below to create your account */}
-            {/* </p> */}
           </div>
 
           <LoginForm />
+          <a href="/password-reset">Forgot password?</a>
 
           <Separator />
 

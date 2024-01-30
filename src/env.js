@@ -7,10 +7,7 @@ export const env = createEnv({
    * isn't built with invalid env vars.
    */
   server: {
-    DATABASE_URL: z
-      .string()
-      .url()
-      .transform((val) => val + "?sslmode=require"),
+    DATABASE_URL: z.string().url(),
 
     NODE_ENV: z
       .enum(["development", "test", "production"])
@@ -27,12 +24,22 @@ export const env = createEnv({
     GOOGLE_CLIENT_SECRET: z.string(),
     GOOGLE_REDIRECT_URI: z.string().url(),
 
-    AWS_ACCESS_KEY_ID: z.string(),
-    AWS_SECRET_ACCESS_KEY: z.string(),
-    AWS_BUCKET_NAME: z.string(),
+    // these 2 are NOT optional for public cloud deployment
+    // since those are only set automaticlaly on AWS AMI
+    AWS_ACCESS_KEY_ID: z.string().optional(),
+    AWS_SECRET_ACCESS_KEY: z.string().optional(),
+
     AWS_REGION: z.string(),
 
+    AWS_BUCKET_NAME: z.string(),
+    SENDER_EMAIL: z.string().email(),
+
     JWT_SECRET: z.string(),
+    AWS_AMI: z
+      .string()
+      // transform to boolean using preferred coercion logic
+      .transform((s) => s !== "false" && s !== "0")
+      .default("false"),
   },
 
   /**
@@ -41,7 +48,9 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
-    // NEXT_PUBLIC_CLIENTVAR: z.string(),
+    // We're using nginx to reverse proxy and running app on localhost for AWS AMI
+    // As a result we need to set origin explicitly from env
+    NEXT_PUBLIC_URL_ORIGIN: z.string().url().default("http://localhost:3000"),
   },
 
   /**
@@ -50,7 +59,6 @@ export const env = createEnv({
    */
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
-
     NODE_ENV: process.env.NODE_ENV,
 
     // AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID,
@@ -68,8 +76,10 @@ export const env = createEnv({
     AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
     AWS_BUCKET_NAME: process.env.AWS_BUCKET_NAME,
     AWS_REGION: process.env.AWS_REGION,
-
+    SENDER_EMAIL: process.env.SENDER_EMAIL,
     JWT_SECRET: process.env.JWT_SECRET,
+    AWS_AMI: process.env.AWS_AMI,
+    NEXT_PUBLIC_URL_ORIGIN: process.env.NEXT_PUBLIC_URL_ORIGIN,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

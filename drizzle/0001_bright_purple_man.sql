@@ -1,1 +1,0 @@
-ALTER TABLE "cloud_measurement" ADD COLUMN "image" text DEFAULT '';

@@ -8,7 +8,6 @@ import { Button } from "~/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -18,12 +17,18 @@ import { Input } from "~/components/ui/input";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const formSchema = z.object({
-  email: z.string().email(),
-  password: z
-    .string()
-    .min(8, { message: "Password must be at least 8 characters long." }),
-});
+const formSchema = z
+  .object({
+    email: z.string().email(),
+    password: z
+      .string()
+      .min(8, { message: "Password must be at least 8 characters long." }),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match.",
+    path: ["confirmPassword"],
+  });
 
 const SignupForm = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -46,9 +51,10 @@ const SignupForm = () => {
 
     if (result.status !== 200) {
       setIsLoading(false);
-
+      const resultJson = (await result.json()) as Record<string, string>;
       form.setError("root", {
-        message: "Log in is not available at the moment :(",
+        message:
+          resultJson.error ?? "Signup in is not available at the moment :(",
       });
     } else {
       router.push(result.url);
@@ -65,9 +71,8 @@ const SignupForm = () => {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="" {...field} />
+                <Input type="email" {...field} />
               </FormControl>
-              <FormDescription></FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -80,9 +85,21 @@ const SignupForm = () => {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input placeholder="" type="password" {...field} />
+                <Input type="password" {...field} />
               </FormControl>
-              <FormDescription></FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="confirmPassword"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Confirm Password</FormLabel>
+              <FormControl>
+                <Input type="password" {...field} />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
@@ -91,7 +108,7 @@ const SignupForm = () => {
           {form.formState.errors.root?.message}
         </div>
         <Button type="submit" disabled={isLoading} className="w-full">
-          {isLoading ? "Loading..." : "Submit"}
+          {isLoading ? "Loading..." : "Create Account"}
         </Button>
       </form>
     </Form>

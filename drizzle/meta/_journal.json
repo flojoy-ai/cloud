@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1706203199248,
-      "tag": "0000_old_gwen_stacy",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1706308571253,
-      "tag": "0001_bright_purple_man",
+      "when": 1706637554179,
+      "tag": "0000_brave_morbius",
       "breakpoints": true
     }
   ]

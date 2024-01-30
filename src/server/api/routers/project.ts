@@ -13,7 +13,10 @@ import {
   publicUpdateProjectSchema,
   selectProjectSchema,
 } from "~/types/project";
-import { hardwareAccessMiddleware } from "./hardware";
+import {
+  hardwareAccessMiddleware,
+  multiHardwareAccessMiddleware,
+} from "./hardware";
 import { workspaceAccessMiddleware } from "./workspace";
 
 export const projectAccessMiddleware = experimental_standaloneMiddleware<{
@@ -177,7 +180,12 @@ export const projectRouter = createTRPCRouter({
         tags: ["project", "hardware"],
       },
     })
-    .input(z.object({ projectId: z.string(), hardwareId: z.string() }))
+    .input(
+      z.object({
+        projectId: z.string(),
+        hardwareId: z.string(),
+      }),
+    )
     .use(projectAccessMiddleware)
     .use(hardwareAccessMiddleware)
     .output(z.void())
@@ -225,7 +233,12 @@ export const projectRouter = createTRPCRouter({
         tags: ["project", "hardware"],
       },
     })
-    .input(z.object({ projectId: z.string(), hardwareId: z.string() }))
+    .input(
+      z.object({
+        projectId: z.string(),
+        hardwareId: z.string(),
+      }),
+    )
     .use(projectAccessMiddleware)
     .use(hardwareAccessMiddleware)
     .output(z.void())
@@ -238,6 +251,72 @@ export const projectRouter = createTRPCRouter({
             eq(project_hardware.projectId, input.projectId),
           ),
         );
+    }),
+
+  setProjectHardware: workspaceProcedure
+    .meta({
+      openapi: {
+        method: "PUT",
+        path: "/v1/projects/{projectId}/hardware",
+        tags: ["project", "hardware"],
+      },
+    })
+    .input(
+      z.object({
+        projectId: z.string(),
+        hardwareIds: z.string().array(),
+      }),
+    )
+    .use(multiHardwareAccessMiddleware)
+    .use(projectAccessMiddleware)
+    .output(z.void())
+    .mutation(async ({ input, ctx }) => {
+      await ctx.db.transaction(async (tx) => {
+        await tx
+          .delete(project_hardware)
+          .where(eq(project_hardware.projectId, input.projectId));
+
+        if (input.hardwareIds.length === 0) {
+          return;
+        }
+
+        const hardwares = await tx.query.hardware.findMany({
+          where: (hardware, { inArray }) =>
+            inArray(hardware.id, input.hardwareIds),
+        });
+
+        const project = await tx.query.project.findFirst({
+          where: (project, { eq }) => eq(project.id, input.projectId),
+        });
+
+        if (project === undefined) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Project not found",
+          });
+        }
+
+        if (hardwares.length !== input.hardwareIds.length) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Not all hardware IDs valid",
+          });
+        }
+
+        if (hardwares.some((h) => h.modelId !== project.modelId)) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Not all hardware IDs match project model",
+          });
+        }
+
+        await tx.insert(project_hardware).values(
+          input.hardwareIds.map((hardwareId) => ({
+            hardwareId,
+            projectId: input.projectId,
+          })),
+        );
+      });
     }),
 
   updateProject: workspaceProcedure
