@@ -1,25 +1,25 @@
 from typing import Tuple
 
 import pytest
+import pandas as pd
 
 from flojoy_cloud.client import FlojoyCloud
 from flojoy_cloud.dtypes import SystemModelPart
-from flojoy_cloud.mtypes import Boolean, Dataframe
 
 WorkspaceInfo = Tuple[FlojoyCloud, str]
 
 # Set all of these variables to run the tests
 # This should be run in a completely fresh/empty workspace.
-WORKSPACE_ID = ""
+WORKSPACE_SECRET = ""
 API_URL = ""
 WORKSPACE_ID = ""
 
-runnable = WORKSPACE_ID != "" and API_URL != "" and WORKSPACE_ID != ""
+runnable = WORKSPACE_SECRET != "" and API_URL != "" and WORKSPACE_ID != ""
 
 
 @pytest.fixture
 def workspace():
-    client = FlojoyCloud(workspace_secret=WORKSPACE_ID, api_url=API_URL)
+    client = FlojoyCloud(workspace_secret=WORKSPACE_SECRET, api_url=API_URL)
     return client, WORKSPACE_ID
 
 
@@ -353,16 +353,14 @@ def test_measurement_routes(workspace: WorkspaceInfo, measurement_setup):
     bool_test, df_test, device = measurement_setup
 
     client.upload(
-        data=Boolean(passed=True),
+        data=True,
         test_id=bool_test.id,
         hardware_id=device.id,
         name="bool",
     )
 
     client.upload(
-        data=Dataframe(
-            dataframe={"col1": [1, 2, 3], "col2": [4, 5, 6], "col3": [7, 8, 9]}
-        ),
+        data=pd.DataFrame({"col1": [1, 2, 3], "col2": [4, 5, 6], "col3": [7, 8, 9]}),
         test_id=df_test.id,
         hardware_id=device.id,
         name="df",

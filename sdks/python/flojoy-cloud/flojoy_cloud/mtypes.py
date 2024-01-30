@@ -1,18 +1,19 @@
 from typing import Literal
 
-from pydantic import BaseModel
+import pandas as pd
 
-
-class Boolean(BaseModel):
-    type: Literal["boolean"] = "boolean"
-    passed: bool
-
-
-class Dataframe(BaseModel):
-    type: Literal["dataframe"] = "dataframe"
-    dataframe: dict
-
-
+MeasurementData = bool | pd.DataFrame
 MeasurementType = Literal["boolean", "dataframe"]
 
-MeasurementData = Boolean | Dataframe
+
+def make_payload(data: MeasurementData):
+    match data:
+        case bool():
+            return {"type": "boolean", "passed": data}
+        case pd.DataFrame():
+            return {
+                "type": "dataframe",
+                "dataframe": data.to_dict("list"),
+            }
+        case _:
+            raise TypeError(f"Unsupported data type: {type(data)}")
