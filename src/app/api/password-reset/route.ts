@@ -1,8 +1,9 @@
 import { z } from "zod";
-import { type NextRequest, NextResponse } from "next/server";
+import { type NextRequest } from "next/server";
 import { db } from "~/server/db";
 import { createPasswordResetToken } from "~/lib/token";
 import { sendPasswordResetLink } from "~/lib/email";
+import { env } from "~/env";
 
 export const POST = async (request: NextRequest) => {
   const formData = await request.formData();
@@ -26,7 +27,7 @@ export const POST = async (request: NextRequest) => {
     }
 
     const token = await createPasswordResetToken(storedUser.id);
-    const resetLink = `${request.nextUrl.origin}/password-reset/${token}`;
+    const resetLink = `${env.NEXT_PUBLIC_URL_ORIGIN}/password-reset/${token}`;
     await sendPasswordResetLink(storedUser.email, resetLink);
 
     return new Response(null, { status: 200 });
