@@ -53,6 +53,7 @@ const PasswordReset = () => {
     },
 
     onSuccess: () => {
+      toast("Password reset email sent!");
       router.refresh();
     },
   });

@@ -15,50 +15,33 @@ export const POST = async (request: NextRequest) => {
 
   const parsedEmail = z.string().email().safeParse(email);
   if (!parsedEmail.success) {
-    return NextResponse.json(
-      {
-        error: "Invalid email",
-      },
-      {
-        status: 400,
-      },
-    );
+    return new Response("Invalid email!", {
+      status: 400,
+    });
   }
   if (
     typeof password !== "string" ||
     password.length < 1 ||
     password.length > 255
   ) {
-    return NextResponse.json(
-      {
-        error: "Invalid password",
-      },
-      {
-        status: 400,
-      },
-    );
+    return new Response("Invalid password!", {
+      status: 400,
+    });
   }
+
   try {
     const existingUser = await db.query.userTable.findFirst({
       where: (user, { eq }) => eq(user.email, parsedEmail.data),
     });
     if (!existingUser) {
-      return NextResponse.json(
-        {
-          error: "User does not exist",
-        },
-        {
-          status: 400,
-        },
-      );
+      return new Response("This user does not exist :(", {
+        status: 400,
+      });
     }
 
     if (!existingUser.hashedPassword) {
-      return NextResponse.json(
-        {
-          error:
-            "User does not have a password, please login with another provider",
-        },
+      return new Response(
+        "This user does not have a password set, please try logging in with another provider.",
         {
           status: 400,
         },
@@ -71,14 +54,9 @@ export const POST = async (request: NextRequest) => {
     );
 
     if (!validPassword) {
-      return NextResponse.json(
-        {
-          error: "Invalid password",
-        },
-        {
-          status: 400,
-        },
-      );
+      return new Response("Wrong password!", {
+        status: 400,
+      });
     }
 
     const session = await lucia.createSession(existingUser.id, {});
@@ -95,13 +73,8 @@ export const POST = async (request: NextRequest) => {
       status: 302,
     });
   } catch (e) {
-    return NextResponse.json(
-      {
-        error: "An unknown error occurred: " + String(e),
-      },
-      {
-        status: 500,
-      },
-    );
+    return new Response("Internal server error", {
+      status: 500,
+    });
   }
 };

@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { NextResponse, type NextRequest } from "next/server";
+import { type NextRequest } from "next/server";
 import { isWithinExpirationDate } from "oslo";
 import { Argon2id } from "oslo/password";
 import { lucia } from "~/auth/lucia";
@@ -24,64 +24,44 @@ export const POST = async (
     password.length < 8 ||
     password.length > 255
   ) {
-    return NextResponse.json(
-      {
-        error: "Invalid password",
-      },
-      {
-        status: 400,
-      },
-    );
+    return new Response("Invalid password!", {
+      status: 400,
+    });
   }
 
   try {
-    await db.transaction(async (tx) => {
-      const token = await tx.query.passwordResetTokenTable.findFirst({
-        where: (fields, { eq }) => eq(fields.token, params.token),
-      });
-
-      if (!token || !isWithinExpirationDate(token.expiresAt)) {
-        return NextResponse.json(
-          {
-            error: "Invalid or expired password reset link",
-          },
-          {
-            status: 400,
-          },
-        );
-      }
-
-      await lucia.invalidateUserSessions(token.userId);
-      const hashedPassword = await new Argon2id().hash(password);
-
-      await tx
-        .update(userTable)
-        .set({
-          hashedPassword,
-        })
-        .where(eq(userTable.id, token.userId));
-
-      const session = await lucia.createSession(token.userId, {});
-      const sessionCookie = lucia.createSessionCookie(session.id);
-      return NextResponse.json(
-        { success: true },
-        {
-          status: 302,
-          headers: {
-            Location: "/",
-            "Set-Cookie": sessionCookie.serialize(),
-          },
-        },
-      );
+    const token = await db.query.passwordResetTokenTable.findFirst({
+      where: (fields, { eq }) => eq(fields.token, params.token),
     });
-  } catch {
-    return NextResponse.json(
-      {
-        error: "Invalid or expired password reset link",
-      },
-      {
+
+    if (!token || !isWithinExpirationDate(token.expiresAt)) {
+      return new Response("Invalid or expired password reset link", {
         status: 400,
+      });
+    }
+
+    await lucia.invalidateUserSessions(token.userId);
+    const hashedPassword = await new Argon2id().hash(password);
+
+    await db
+      .update(userTable)
+      .set({
+        hashedPassword,
+      })
+      .where(eq(userTable.id, token.userId));
+
+    const session = await lucia.createSession(token.userId, {});
+    const sessionCookie = lucia.createSessionCookie(session.id);
+    return new Response(null, {
+      status: 302,
+      headers: {
+        Location: "/",
+        "Set-Cookie": sessionCookie.serialize(),
       },
-    );
+    });
+  } catch (e) {
+    return new Response(String(e), {
+      status: 400,
+    });
   }
 };

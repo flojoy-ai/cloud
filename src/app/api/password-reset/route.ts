@@ -9,14 +9,9 @@ export const POST = async (request: NextRequest) => {
   const email = formData.get("email");
   const parsedEmail = z.string().email().safeParse(email);
   if (!parsedEmail.success) {
-    return NextResponse.json(
-      {
-        error: "Invalid email",
-      },
-      {
-        status: 400,
-      },
-    );
+    return new Response("Invalid email!", {
+      status: 400,
+    });
   }
 
   try {
@@ -25,28 +20,19 @@ export const POST = async (request: NextRequest) => {
     });
 
     if (!storedUser) {
-      return NextResponse.json(
-        {
-          error: "User does not exist",
-        },
-        {
-          status: 400,
-        },
-      );
+      return new Response("User does not exist!", {
+        status: 400,
+      });
     }
 
     const token = await createPasswordResetToken(storedUser.id);
     const resetLink = `${request.nextUrl.origin}/password-reset/${token}`;
     await sendPasswordResetLink(storedUser.email, resetLink);
+
     return new Response(null, { status: 200 });
   } catch (e) {
-    return NextResponse.json(
-      {
-        error: "An unknown error occurred: " + String(e),
-      },
-      {
-        status: 500,
-      },
-    );
+    return new Response(String(e), {
+      status: 400,
+    });
   }
 };
