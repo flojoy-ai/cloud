@@ -85,12 +85,12 @@ export const workspaceRouter = createTRPCRouter({
 
         cookies().set("scope", newWorkspace.namespace);
 
-        if (!input.populateData) {
-          return newWorkspace;
-        }
-
         return newWorkspace;
       });
+
+      if (!input.populateData) {
+        return newWorkspace;
+      }
 
       await api.example.populateExample.mutate({
         workspaceId: newWorkspace.id,
