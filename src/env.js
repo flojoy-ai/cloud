@@ -36,7 +36,8 @@ export const env = createEnv({
     AWS_AMI: z
       .string()
       // transform to boolean using preferred coercion logic
-      .transform((s) => s !== "false" && s !== "0"),
+      .transform((s) => s !== "false" && s !== "0")
+      .default("false"),
   },
 
   /**
