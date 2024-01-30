@@ -374,7 +374,7 @@ def test_measurement_routes(workspace: WorkspaceInfo, measurement_setup):
 
     bool_meas = client.get_measurement_by_id(bool_measurements[0].id)
     assert bool_meas.name == "bool"
-    assert bool_meas.data["passed"]
+    assert bool_meas.data["value"]
     assert bool_meas.id == bool_measurements[0].id
 
     df_meas = client.get_measurement_by_id(df_measurements[0].id)
