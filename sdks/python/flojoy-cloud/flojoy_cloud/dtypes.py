@@ -4,7 +4,7 @@ from typing import Literal, Optional
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
-from flojoy_cloud.mtypes import MeasurementType
+from flojoy_cloud.measurement import MeasurementType
 
 
 class CloudModel(BaseModel):

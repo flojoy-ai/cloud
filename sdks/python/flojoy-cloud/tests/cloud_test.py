@@ -3,16 +3,16 @@ from typing import Tuple
 import pytest
 import pandas as pd
 
-from flojoy_cloud.client import FlojoyCloud
-from flojoy_cloud.dtypes import SystemModelPart
+from flojoy_cloud import FlojoyCloud
+from flojoy_cloud import SystemModelPart
 
 WorkspaceInfo = Tuple[FlojoyCloud, str]
 
 # Set all of these variables to run the tests
 # This should be run in a completely fresh/empty workspace.
-WORKSPACE_SECRET = ""
-API_URL = ""
-WORKSPACE_ID = ""
+WORKSPACE_SECRET = "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiJ1c2VyX3dzdzVub2Q0cGo5d2U0anM0Zm1wcjl0NiIsIndvcmtzcGFjZUlkIjoid29ya3NwYWNlX3Rqd2V4eWlqcnYwODExNDd4ZmNwZ3hnOCIsImlhdCI6MTcwNjY0Nzk2M30.BeWKe9NxPAwNCHd2FP4Vtd0jTtAYx1BON_IlPpeTSV8"
+API_URL = "http://localhost:3000/api/v1"
+WORKSPACE_ID = "workspace_tjwexyijrv081147xfcpgxg8"
 
 runnable = WORKSPACE_SECRET != "" and API_URL != "" and WORKSPACE_ID != ""
 
