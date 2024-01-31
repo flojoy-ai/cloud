@@ -60,7 +60,9 @@ const BooleanViz = ({ measurements, title, workspaceId }: Props) => {
       if (!measurement) {
         return;
       }
-      router.push(`/workspace/${workspaceId}/device/${measurement.hardwareId}`);
+      router.push(
+        `/workspace/${workspaceId}/hardware/${measurement.hardwareId}`,
+      );
     },
     [measurements, router],
   );
@@ -128,7 +130,7 @@ const BooleanViz = ({ measurements, title, workspaceId }: Props) => {
             )}
             y={measurements.map((measurement) => {
               if (measurement.data.type === "boolean") {
-                return measurement.data.passed ? "passed" : "failed";
+                return measurement.data.value ? "true" : "false";
               }
               return "";
             })}

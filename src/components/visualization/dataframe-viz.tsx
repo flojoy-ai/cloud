@@ -40,6 +40,7 @@ import {
 import { type SelectHardware } from "~/types/hardware";
 import _ from "lodash";
 import { X } from "lucide-react";
+import { Combobox } from "../combobox";
 
 type Props = {
   measurements: (SelectMeasurement & { hardware: SelectHardware })[];
@@ -47,23 +48,41 @@ type Props = {
   workspaceId: string;
 };
 
-const getValidColumns = (dataframes: DataframeData[]): [string[], string[]] => {
-  const validXKeys = [];
-  const validYKeys = [];
+type FormSchema = z.infer<typeof explorerConfig.dataframe>;
 
-  for (const df of dataframes) {
-    for (const [k, v] of Object.entries(df.value)) {
-      if (typeof v[0] === "number") {
-        validYKeys.push(k);
-      }
-      validXKeys.push(k);
-    }
-  }
+type DataframeValueType = "string" | "number";
 
-  return [_.uniq(validXKeys), _.uniq(validYKeys)];
+const getDfColType = (df: DataframeData, col: string) => {
+  return typeof df.value[col]?.[0] as DataframeValueType | undefined;
 };
 
-type FormSchema = z.infer<typeof explorerConfig.dataframe>;
+const getValidColumns = (
+  dataframes: DataframeData[],
+  traces: FormSchema["traces"],
+): [string[], string[]] => {
+  const firstXCol = traces[0]?.xAxisColumn;
+  const firstDf = dataframes[0];
+  const lockX =
+    firstXCol && firstDf ? getDfColType(firstDf, firstXCol) : undefined;
+
+  const xKeys = [];
+  const yKeys = [];
+
+  for (const df of dataframes) {
+    let xs = Object.keys(df.value);
+    if (lockX !== undefined) {
+      xs = xs.filter((col) => getDfColType(df, col) === lockX);
+    }
+    const ys = Object.keys(df.value).filter(
+      (col) => getDfColType(df, col) === "number",
+    );
+
+    xKeys.push(xs);
+    yKeys.push(ys);
+  }
+
+  return [_.intersection(...xKeys), _.intersection(...yKeys)];
+};
 
 const DataFrameViz = ({ measurements, title, workspaceId }: Props) => {
   const form = useForm<FormSchema>({
@@ -73,6 +92,7 @@ const DataFrameViz = ({ measurements, title, workspaceId }: Props) => {
         { xAxisColumn: undefined, yAxisColumn: undefined, mode: "lines" },
       ],
     },
+    mode: "onBlur",
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -88,7 +108,7 @@ const DataFrameViz = ({ measurements, title, workspaceId }: Props) => {
     .map((m) => m.data)
     .filter((data) => data.type === "dataframe") as DataframeData[];
 
-  const [xCols, yCols] = getValidColumns(data);
+  const [xCols, yCols] = getValidColumns(data, form.watch("traces"));
 
   const onSubmit: SubmitHandler<FormSchema> = (vals) => {
     setConfig(vals);
@@ -353,9 +373,9 @@ const DataFrameViz = ({ measurements, title, workspaceId }: Props) => {
       {measurements && (
         <LinePlot
           title={title ?? "Untitled Test"}
-          lines={
-            measurements.flatMap((measurement) => {
-              const traces = form.watch("traces");
+          lineGroups={
+            measurements.map((measurement) => {
+              const traces = form.getValues("traces");
               const lines = [];
               for (const trace of traces) {
                 if (
@@ -368,6 +388,7 @@ const DataFrameViz = ({ measurements, title, workspaceId }: Props) => {
                     y: (measurement.data.value[trace.yAxisColumn] ??
                       []) as number[],
                     name: measurement.hardware.name,
+                    group: trace.yAxisColumn,
                     mode: trace.mode,
                   });
                 }
