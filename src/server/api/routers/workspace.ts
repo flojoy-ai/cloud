@@ -55,6 +55,7 @@ export const workspaceAccessMiddleware = experimental_standaloneMiddleware<{
     // and also adds the respective resource id as well for use
     ctx: {
       workspace,
+      workspaceUser,
     },
   });
 });
@@ -81,7 +82,6 @@ export const workspaceRouter = createTRPCRouter({
           workspaceId: newWorkspace.id,
           userId: ctx.user.id,
           role: "owner" as const,
-          isPending: false,
         });
 
         cookies().set("scope", newWorkspace.namespace);
@@ -125,8 +125,15 @@ export const workspaceRouter = createTRPCRouter({
 
   deleteWorkspaceById: workspaceProcedure
     .input(z.object({ workspaceId: z.string() }))
+    .use(workspaceAccessMiddleware)
     .output(z.void())
     .mutation(async ({ ctx, input }) => {
+      if (ctx.workspaceUser.role !== "owner") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You do not have permission to delete this workspace",
+        });
+      }
       return await ctx.db.transaction(async (tx) => {
         await tx
           .delete(projectTable)

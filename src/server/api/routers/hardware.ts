@@ -34,12 +34,11 @@ import {
   selectHardwareBaseSchema,
   publicUpdateHardwareSchema,
 } from "~/types/hardware";
-import { selectMeasurementSchema } from "~/types/measurement";
 import { workspaceAccessMiddleware } from "./workspace";
 import { selectProjectSchema } from "~/types/project";
 
 export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
-  ctx: { db: typeof db; userId: string; workspaceId: string | null };
+  ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
   input: { hardwareId: string };
 }>().create(async (opts) => {
   const hardware = await opts.ctx.db.query.hardwareTable.findFirst({
@@ -71,12 +70,12 @@ export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
   return opts.next({
     // this infers the `workspaceId` in ctx to be non-null
     // and also adds the respective resource id as well for use
-    ctx: { workspaceId: workspaceUser.workspaceId, hardwareId: hardware.id },
+    ctx: { workspaceUser, hardware },
   });
 });
 
 export const multiHardwareAccessMiddleware = experimental_standaloneMiddleware<{
-  ctx: { db: typeof db; userId: string; workspaceId: string | null };
+  ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
   input: { hardwareIds: string[] };
 }>().create(async (opts) => {
   const ids = opts.input.hardwareIds;
@@ -134,8 +133,8 @@ export const multiHardwareAccessMiddleware = experimental_standaloneMiddleware<{
     // this infers the `workspaceId` in ctx to be non-null
     // and also adds the respective resource id as well for use
     ctx: {
-      workspaceId: workspaceUser.workspaceId,
-      hardwareIds: ids,
+      workspaceUser,
+      hardwares,
     },
   });
 });
@@ -471,6 +470,13 @@ export const hardwareRouter = createTRPCRouter({
     .use(hardwareAccessMiddleware)
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
+      if (ctx.workspaceUser.role !== "owner") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You do not have permission to delete this workspace",
+        });
+      }
+
       await ctx.db
         .delete(hardwareTable)
         .where(eq(hardwareTable.id, input.hardwareId));

@@ -21,7 +21,7 @@ import { checkWorkspaceAccess } from "~/lib/auth";
 import _ from "lodash";
 
 export const measurementAccessMiddleware = experimental_standaloneMiddleware<{
-  ctx: { db: typeof db; userId: string; workspaceId: string | null };
+  ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
   input: { measurementId: string };
 }>().create(async (opts) => {
   const measurement = await opts.ctx.db.query.measurementTable.findFirst({
@@ -58,8 +58,8 @@ export const measurementAccessMiddleware = experimental_standaloneMiddleware<{
     // this infers the `workspaceId` in ctx to be non-null
     // and also adds the respective resource id as well for use
     ctx: {
-      workspaceId: workspaceUser.workspaceId,
-      measurementId: measurement.id,
+      workspaceUser,
+      measurement,
     },
   });
 });
@@ -263,6 +263,13 @@ export const measurementRouter = createTRPCRouter({
     .use(measurementAccessMiddleware)
     .output(z.void())
     .query(async ({ ctx, input }) => {
+      if (ctx.workspaceUser.role !== "owner") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You do not have permission to delete this workspace",
+        });
+      }
+
       await ctx.db
         .delete(measurementTable)
         .where(eq(measurementTable.id, input.measurementId));
