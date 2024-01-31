@@ -5,6 +5,7 @@ from typing import Callable, Optional, ParamSpec, TypeVar, Union, overload
 
 import httpx
 import numpy as np
+import pandas as pd
 from pydantic import BaseModel, Field, TypeAdapter
 from typing_extensions import Annotated
 
@@ -27,14 +28,18 @@ from flojoy_cloud.measurement import MeasurementData, MeasurementType, make_payl
 
 class CloudEncoder(json.JSONEncoder):
     def default(self, o):
-        if isinstance(o, np.integer):
+        if isinstance(o, datetime.datetime) or isinstance(o, pd.Timestamp):
+            return o.isoformat()
+        elif isinstance(o, np.datetime64):
+            timestamp = o.astype("datetime64[s]").astype(int)
+            dt = datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
+            return dt.isoformat()
+        elif isinstance(o, np.integer):
             return int(o)
         elif isinstance(o, np.floating):
             return float(o)
         elif isinstance(o, np.ndarray):
             return o.tolist()
-        elif isinstance(o, datetime.datetime):
-            return o.isoformat()
         return json.JSONEncoder.default(self, o)
 
 
