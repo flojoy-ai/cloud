@@ -12,7 +12,7 @@ export const workspaceRoleEnum = pgEnum("workspace_role", [
   "pending", // An invite has sent but the user has not accepted it yet
 ]);
 
-export const workspace_user = pgTable(
+export const workspaceUserTable = pgTable(
   "workspace_user",
   {
     userId: text("user_id")

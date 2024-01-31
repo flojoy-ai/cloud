@@ -1,6 +1,15 @@
 import { Separator } from "~/components/ui/separator";
+import { api } from "~/trpc/server";
+import { userColumns } from "./columns";
+import { DataTable } from "~/components/ui/data-table";
 
-function UserPage() {
+async function UserPage({ params }: { params: { namespace: string } }) {
+  const workspaceId = await api.workspace.getWorkspaceIdByNamespace.query({
+    namespace: params.namespace,
+  });
+
+  const data = await api.user.getUsersInWorkspace.query({ workspaceId });
+
   return (
     <div className="space-y-6">
       <div>
@@ -10,7 +19,8 @@ function UserPage() {
         </p>
       </div>
       <Separator />
-      <div>We are still working on this functionality, coming soon!</div>
+
+      <DataTable columns={userColumns} data={data} />
     </div>
   );
 }
