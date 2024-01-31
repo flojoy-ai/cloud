@@ -34,7 +34,7 @@ export const userColumns: ColumnDef<{
     accessorKey: "workspace_user",
     header: "Role",
     cell: ({ row }) => {
-      return <div>{row.original.workspace_user.workspaceRole}</div>;
+      return <div>{row.original.workspace_user.role}</div>;
     },
   },
   {
@@ -63,7 +63,7 @@ export const userColumns: ColumnDef<{
             >
               Copy email
             </DropdownMenuItem>
-            {row.original.workspace_user.workspaceRole !== "owner" && (
+            {row.original.workspace_user.role !== "owner" && (
               <>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>Update role</DropdownMenuItem>

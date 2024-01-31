@@ -37,58 +37,58 @@ export const userRouter = createTRPCRouter({
       return result;
     }),
 
-  addUserToWorkspace: workspaceProcedure
-    .input(z.object({ workspaceId: z.string(), userId: z.string() }))
-    .use(workspaceAccessMiddleware)
-    .output(z.object({ success: z.boolean() }))
-    .mutation(async ({ ctx, input }) => {
-      // await ctx.db.workspace_user.create({
-      //   data: {
-      //     userId: input.userId,
-      //     workspaceId: input.workspaceId,
-      //   },
-      // });
-      // return { success: true };
-    }),
+  // addUserToWorkspace: workspaceProcedure
+  //   .input(z.object({ workspaceId: z.string(), userId: z.string() }))
+  //   .use(workspaceAccessMiddleware)
+  //   .output(z.object({ success: z.boolean() }))
+  //   .mutation(async ({ ctx, input }) => {
+  //     await ctx.db.workspace_user.create({
+  //       data: {
+  //         userId: input.userId,
+  //         workspaceId: input.workspaceId,
+  //       },
+  //     });
+  //     return { success: true };
+  //   }),
 
-  removeUserFromWorkspace: workspaceProcedure
-    .input(z.object({ workspaceId: z.string(), userId: z.string() }))
-    .use(workspaceAccessMiddleware)
-    .output(z.object({ success: z.boolean() }))
-    .mutation(async ({ ctx, input }) => {
-      // await ctx.db.workspace_user.delete({
-      //   where: {
-      //     userId_workspaceId: {
-      //       userId: input.userId,
-      //       workspaceId: input.workspaceId,
-      //     },
-      //   },
-      // });
-      // return { success: true };
-    }),
+  // removeUserFromWorkspace: workspaceProcedure
+  //   .input(z.object({ workspaceId: z.string(), userId: z.string() }))
+  //   .use(workspaceAccessMiddleware)
+  //   .output(z.object({ success: z.boolean() }))
+  //   .mutation(async ({ ctx, input }) => {
+  //     await ctx.db.workspace_user.delete({
+  //       where: {
+  //         userId_workspaceId: {
+  //           userId: input.userId,
+  //           workspaceId: input.workspaceId,
+  //         },
+  //       },
+  //     });
+  //     return { success: true };
+  //   }),
 
-  updateRoleInWorkspace: workspaceProcedure
-    .input(
-      z.object({
-        workspaceId: z.string(),
-        userId: z.string(),
-        role: z.enum(["ADMIN", "USER"]),
-      }),
-    )
-    .use(workspaceAccessMiddleware)
-    .output(z.object({ success: z.boolean() }))
-    .mutation(async ({ ctx, input }) => {
-      // await ctx.db.workspace_user.update({
-      //   where: {
-      //     userId_workspaceId: {
-      //       userId: input.userId,
-      //       workspaceId: input.workspaceId,
-      //     },
-      //   },
-      //   data: {
-      //     role: input.role,
-      //   },
-      // });
-      // return { success: true };
-    }),
+  // updateRoleInWorkspace: workspaceProcedure
+  //   .input(
+  //     z.object({
+  //       workspaceId: z.string(),
+  //       userId: z.string(),
+  //       role: z.enum(["ADMIN", "USER"]),
+  //     }),
+  //   )
+  //   .use(workspaceAccessMiddleware)
+  //   .output(z.object({ success: z.boolean() }))
+  //   .mutation(async ({ ctx, input }) => {
+  //     await ctx.db.workspace_user.update({
+  //       where: {
+  //         userId_workspaceId: {
+  //           userId: input.userId,
+  //           workspaceId: input.workspaceId,
+  //         },
+  //       },
+  //       data: {
+  //         role: input.role,
+  //       },
+  //     });
+  //     return { success: true };
+  //   }),
 });

@@ -2,6 +2,7 @@ import { Separator } from "~/components/ui/separator";
 import { api } from "~/trpc/server";
 import { userColumns } from "./columns";
 import { DataTable } from "~/components/ui/data-table";
+import InviteUser from "./_components/invite-user";
 
 async function UserPage({ params }: { params: { namespace: string } }) {
   const workspaceId = await api.workspace.getWorkspaceIdByNamespace.query({
@@ -19,6 +20,8 @@ async function UserPage({ params }: { params: { namespace: string } }) {
         </p>
       </div>
       <Separator />
+
+      <InviteUser workspaceId={workspaceId} />
 
       <DataTable columns={userColumns} data={data} />
     </div>

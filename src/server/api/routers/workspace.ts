@@ -80,7 +80,8 @@ export const workspaceRouter = createTRPCRouter({
         await tx.insert(workspaceUserTable).values({
           workspaceId: newWorkspace.id,
           userId: ctx.user.id,
-          workspaceRole: "owner",
+          role: "owner" as const,
+          isPending: false,
         });
 
         cookies().set("scope", newWorkspace.namespace);
@@ -154,7 +155,7 @@ export const workspaceRouter = createTRPCRouter({
     .output(
       z.array(
         selectWorkspaceSchema.merge(
-          selectWorkspaceUserSchema.pick({ workspaceRole: true }),
+          selectWorkspaceUserSchema.pick({ role: true }),
         ),
       ),
     )
@@ -174,7 +175,7 @@ export const workspaceRouter = createTRPCRouter({
 
       return result.map((w) => ({
         ...w.workspace,
-        workspaceRole: w.workspaceUser.workspaceRole,
+        role: w.workspaceUser.role,
       }));
     }),
 

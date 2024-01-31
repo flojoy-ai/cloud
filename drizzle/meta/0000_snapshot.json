@@ -1,5 +1,5 @@
 {
-  "id": "2d120df3-a67d-47f2-ab7f-65b6ed24f994",
+  "id": "114ac5d7-6b77-47ba-a12d-16ab315eaa74",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -1230,9 +1230,15 @@
           "primaryKey": false,
           "notNull": true
         },
-        "workspace_role": {
-          "name": "workspace_role",
-          "type": "workspace_role",
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_pending": {
+          "name": "is_pending",
+          "type": "boolean",
           "primaryKey": false,
           "notNull": true
         },
@@ -1285,17 +1291,7 @@
       "uniqueConstraints": {}
     }
   },
-  "enums": {
-    "workspace_role": {
-      "name": "workspace_role",
-      "values": {
-        "owner": "owner",
-        "admin": "admin",
-        "member": "member",
-        "pending": "pending"
-      }
-    }
-  },
+  "enums": {},
   "schemas": {},
   "_meta": {
     "columns": {},

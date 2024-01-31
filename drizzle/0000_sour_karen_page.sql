@@ -1,9 +1,3 @@
-DO $$ BEGIN
- CREATE TYPE "workspace_role" AS ENUM('owner', 'admin', 'member', 'pending');
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_device" (
 	"id" text PRIMARY KEY NOT NULL
 );
@@ -159,7 +153,8 @@ CREATE TABLE IF NOT EXISTS "cloud_workspace" (
 CREATE TABLE IF NOT EXISTS "cloud_workspace_user" (
 	"user_id" text NOT NULL,
 	"workspace_id" text NOT NULL,
-	"workspace_role" "workspace_role" NOT NULL,
+	"role" text NOT NULL,
+	"is_pending" boolean NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "cloud_workspace_user_workspace_id_user_id_pk" PRIMARY KEY("workspace_id","user_id")
 );
