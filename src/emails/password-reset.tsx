@@ -32,17 +32,17 @@ export const PasswordResetHTML = ({ resetLink }: Props) => (
       <Preview>Welcome to Flojoy Cloud!</Preview>
       <Body className="font-main bg-white">
         <Container>
-          <div className="flex items-center gap-2">
-            <Link href="https://cloud.flojoy.ai">
-              <Img
-                src="https://cloud.flojoy.ai/logo.png"
-                alt="Flojoy Logo"
-                width="40"
-                height="40"
-              />
-              <Text className="text-xl font-bold">Flojoy Cloud</Text>
-            </Link>
-          </div>
+          {/* <div className="flex items-center gap-2"> */}
+          {/*   <Link href="https://cloud.flojoy.ai"> */}
+          {/*     <Img */}
+          {/*       src="https://cloud.flojoy.ai/logo.png" */}
+          {/*       alt="Flojoy Logo" */}
+          {/*       width="40" */}
+          {/*       height="40" */}
+          {/*     /> */}
+          {/*     <Text className="text-xl font-bold">Flojoy Cloud</Text> */}
+          {/*   </Link> */}
+          {/* </div> */}
           <Heading>Reset your password</Heading>
           <Text>To reset your password, please click the button below.:</Text>
           <Button

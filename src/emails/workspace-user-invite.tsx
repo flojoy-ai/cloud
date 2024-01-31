@@ -39,17 +39,17 @@ export const WorkspaceUserInvite = ({
       <Preview>Invite to Flojoy Cloud!</Preview>
       <Body className="font-main bg-white">
         <Container>
-          <div className="flex items-center gap-2">
-            <Link href={env.NEXT_PUBLIC_URL_ORIGIN}>
-              <Img
-                src="https://cloud.flojoy.ai/logo.png"
-                alt="Flojoy Logo"
-                width="40"
-                height="40"
-              />
-              <Text className="text-xl font-bold">Flojoy Cloud</Text>
-            </Link>
-          </div>
+          {/* <div className="flex items-center gap-2"> */}
+          {/*   <Link href={env.NEXT_PUBLIC_URL_ORIGIN}> */}
+          {/*     <Img */}
+          {/*       src="https://cloud.flojoy.ai/logo.png" */}
+          {/*       alt="Flojoy Logo" */}
+          {/*       width="40" */}
+          {/*       height="40" */}
+          {/*     /> */}
+          {/*     <Text className="text-xl font-bold">Flojoy Cloud</Text> */}
+          {/*   </Link> */}
+          {/* </div> */}
           <Heading>Invite to join workspace</Heading>
           <Text>
             Hey there! {fromEmail} just sent you an invite to join the "

@@ -103,7 +103,7 @@ export const userRouter = createTRPCRouter({
       await sendEmailWithSES({
         recipients: [input.email],
         emailHtml,
-        subject: "Flojoy Cloud - Workspace Invite",
+        subject: "Flojoy Cloud - Invite to join workspace",
       });
     }),
 
