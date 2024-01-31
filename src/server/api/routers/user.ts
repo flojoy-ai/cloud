@@ -13,7 +13,11 @@ import {
   workspaceUserTable,
 } from "~/server/db/schema";
 import { and, eq } from "drizzle-orm";
-import { insertUserInviteSchema, selectUserSchema } from "~/types/user";
+import {
+  insertUserInviteSchema,
+  selectUserInviteSchema,
+  selectUserSchema,
+} from "~/types/user";
 import { selectWorkspaceSchema } from "~/types/workspace";
 import { render } from "@react-email/render";
 import { WorkspaceUserInvite } from "~/emails/workspace-user-invite";
@@ -138,6 +142,14 @@ export const userRouter = createTRPCRouter({
             eq(workspaceUserTable.workspaceId, input.workspaceId),
           ),
         );
+    }),
+
+  getAllWorkspaceInvites: protectedProcedure
+    .output(z.array(selectUserInviteSchema))
+    .query(async ({ ctx }) => {
+      return ctx.db.query.userInviteTable.findMany({
+        where: (ui) => eq(ui.email, ctx.user.email),
+      });
     }),
 
   // updateRoleInWorkspace: workspaceProcedure
