@@ -79,7 +79,11 @@ const InviteUser = ({ workspaceId }: Props) => {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="joey@flojoy.io" {...field} />
+                        <Input
+                          placeholder="joey@flojoy.io"
+                          {...field}
+                          data-1p-ignore
+                        />
                       </FormControl>
                       <FormDescription>
                         An email will be sent shortly to this address.
