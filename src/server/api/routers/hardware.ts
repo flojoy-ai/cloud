@@ -355,34 +355,12 @@ export const hardwareRouter = createTRPCRouter({
     })
     .input(z.object({ hardwareId: z.string() }))
     .use(hardwareAccessMiddleware)
-    .output(
-      selectHardwareBaseSchema.merge(
-        z.object({
-          measurements: z.array(
-            selectMeasurementSchema.merge(
-              z.object({
-                hardware: selectHardwareSchema,
-              }),
-            ),
-          ),
-        }),
-      ),
-    )
+    .output(selectHardwareBaseSchema)
     .query(async ({ input, ctx }) => {
       const result = await ctx.db.query.hardwareTable.findFirst({
         where: (hardware, { eq }) => eq(hardware.id, input.hardwareId),
         with: {
           model: true,
-          measurements: {
-            with: {
-              test: true,
-              hardware: {
-                with: {
-                  model: true,
-                },
-              },
-            },
-          },
         },
       });
 

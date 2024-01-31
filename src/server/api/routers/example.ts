@@ -111,15 +111,19 @@ export const exampleRouter = createTRPCRouter({
           });
         }
 
-        const boolMeas = devices.map((device, i) => ({
-          name: "Did Power On",
-          hardwareId: device.id,
-          testId: booleanTest.id,
-          measurementType: "boolean" as const,
-          createdAt: new Date(new Date().getTime() + i * 20000),
-          data: { type: "boolean" as const, passed: Math.random() < 0.8 },
-          storageProvider: "postgres" as const, // TODO: make this configurable
-        }));
+        const boolMeas = devices.map((device, i) => {
+          const val = Math.random() < 0.8;
+          return {
+            name: "Did Power On",
+            hardwareId: device.id,
+            testId: booleanTest.id,
+            measurementType: "boolean" as const,
+            createdAt: new Date(new Date().getTime() + i * 20000),
+            data: { type: "boolean" as const, value: val },
+            pass: val,
+            storageProvider: "postgres" as const, // TODO: make this configurable
+          };
+        });
 
         const boolMeasCreateResult = await tx
           .insert(measurementTable)
@@ -141,11 +145,12 @@ export const exampleRouter = createTRPCRouter({
           createdAt: new Date(new Date().getTime() + i * 20000),
           data: {
             type: "dataframe" as const,
-            dataframe: {
+            value: {
               x: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
               y: generateRandomNumbers(),
             },
           },
+          pass: Math.random() < 0.7 ? true : null,
           storageProvider: "postgres" as const, // TODO: make this configurable
         }));
 

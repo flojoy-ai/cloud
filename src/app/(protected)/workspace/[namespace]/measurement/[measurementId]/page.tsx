@@ -14,11 +14,11 @@ const BooleanViz = ({ data }: BooleanVizProps) => {
     <Card className="w-fit p-4">
       <div
         className={cn(
-          data.passed ? "text-green-500" : "text-red-500",
+          data.value ? "text-green-500" : "text-red-500",
           "text-xl",
         )}
       >
-        {data.passed ? "Passed" : "Failed"}
+        {data.value.toString()}
       </div>
     </Card>
   );

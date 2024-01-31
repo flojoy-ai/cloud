@@ -116,6 +116,7 @@ class FlojoyCloud:
             headers={
                 "Authorization": f"Bearer {workspace_secret}",
             },
+            timeout=10,
         )
 
     """Test Endpoints"""
@@ -298,6 +299,7 @@ class FlojoyCloud:
         test_id: str,
         hardware_id: str,
         name: str | None = None,
+        passed: bool | None = None,
         created_at: datetime.datetime | None = None,
     ):
         body = {
@@ -309,6 +311,8 @@ class FlojoyCloud:
             body["name"] = name
         if created_at is not None:
             body["createdAt"] = created_at.isoformat()
+        if passed is not None:
+            body["pass"] = passed
 
         return self.client.post(
             "/measurements",
