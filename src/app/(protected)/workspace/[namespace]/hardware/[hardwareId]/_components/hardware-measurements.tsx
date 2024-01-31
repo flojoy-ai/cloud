@@ -22,13 +22,13 @@ const computePassingStatus = (measurements: MeasurementWithHardware[]) => {
     (meas) => meas[0]!,
   );
 
-  let undecidedCount = 0;
+  let unevaluatedCount = 0;
   let passCount = 0;
   let failCount = 0;
 
   for (const meas of latest) {
     if (meas.pass === null) {
-      undecidedCount++;
+      unevaluatedCount++;
     } else if (meas.pass) {
       passCount++;
     } else {
@@ -36,12 +36,12 @@ const computePassingStatus = (measurements: MeasurementWithHardware[]) => {
     }
   }
 
-  const passing = failCount > 0 ? false : passCount > 0 ? true : null;
+  const passing = failCount > 0 ? false : unevaluatedCount > 0 ? null : true;
 
   return {
     passing,
     passCount,
-    unevaluatedCount: undecidedCount,
+    unevaluatedCount: unevaluatedCount,
     failCount,
   };
 };
@@ -90,12 +90,7 @@ export default function HardwareMeasurements({
             ),
           )}
         >
-          {pickTernary(
-            status.passing,
-            "Passing" + (status.unevaluatedCount > 0 ? "*" : ""),
-            "Failing",
-            "Unevaluated",
-          )}
+          {pickTernary(status.passing, "Passing", "Failing", "Unevaluated")}
           {pickTernary(status.passing, <Check />, <X />, <></>)}
         </div>
         <div className="py-2" />
