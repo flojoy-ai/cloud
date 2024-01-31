@@ -75,7 +75,10 @@ export const columns: ColumnDef<MeasurementWithHardware>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(measurement.id)}
+              onClick={async (e) => {
+                e.stopPropagation();
+                await navigator.clipboard.writeText(measurement.id);
+              }}
             >
               Copy measurement ID
             </DropdownMenuItem>
