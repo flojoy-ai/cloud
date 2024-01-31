@@ -82,17 +82,13 @@ const exprValidator = (varName: string) => (expr: string | undefined) => {
   return valid;
 };
 
-const traceSchema = z
-  .object({
-    xAxisColumn: z.string().optional(),
-    yAxisColumn: z.string().optional(),
-    mode: z.union([z.literal("lines"), z.literal("markers")]),
-  })
-  .refine((schema) => {
-    return schema.xAxisColumn !== schema.yAxisColumn;
-  }, "X Axis and Y Axis must be different");
+const traceSchema = z.object({
+  yAxisColumn: z.string().optional(),
+  mode: z.union([z.literal("lines"), z.literal("markers")]),
+});
 
 const dataframeExplorerSchema = z.object({
+  xAxisColumn: z.string(),
   traces: z.array(traceSchema),
   upperControlLimit: z.number().optional(),
   lowerControlLimit: z.number().optional(),

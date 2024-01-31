@@ -40,7 +40,6 @@ import {
 import { type SelectHardware } from "~/types/hardware";
 import _ from "lodash";
 import { X } from "lucide-react";
-import { Combobox } from "../combobox";
 
 type Props = {
   measurements: (SelectMeasurement & { hardware: SelectHardware })[];
@@ -56,23 +55,12 @@ const getDfColType = (df: DataframeData, col: string) => {
   return typeof df.value[col]?.[0] as DataframeValueType | undefined;
 };
 
-const getValidColumns = (
-  dataframes: DataframeData[],
-  traces: FormSchema["traces"],
-): [string[], string[]] => {
-  const firstXCol = traces[0]?.xAxisColumn;
-  const firstDf = dataframes[0];
-  const lockX =
-    firstXCol && firstDf ? getDfColType(firstDf, firstXCol) : undefined;
-
+const getValidColumns = (dataframes: DataframeData[]): [string[], string[]] => {
   const xKeys = [];
   const yKeys = [];
 
   for (const df of dataframes) {
-    let xs = Object.keys(df.value);
-    if (lockX !== undefined) {
-      xs = xs.filter((col) => getDfColType(df, col) === lockX);
-    }
+    const xs = Object.keys(df.value);
     const ys = Object.keys(df.value).filter(
       (col) => getDfColType(df, col) === "number",
     );
@@ -85,14 +73,17 @@ const getValidColumns = (
 };
 
 const DataFrameViz = ({ measurements, title, workspaceId }: Props) => {
+  const data = measurements
+    .map((m) => m.data)
+    .filter((data) => data.type === "dataframe") as DataframeData[];
+
+  const [xCols, yCols] = getValidColumns(data);
+
   const form = useForm<FormSchema>({
     resolver: zodResolver(explorerConfig.dataframe),
     defaultValues: {
-      traces: [
-        { xAxisColumn: undefined, yAxisColumn: undefined, mode: "lines" },
-      ],
+      traces: [{ yAxisColumn: undefined, mode: "lines" }],
     },
-    mode: "onBlur",
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -103,12 +94,6 @@ const DataFrameViz = ({ measurements, title, workspaceId }: Props) => {
   const router = useRouter();
 
   const [config, setConfig] = useState<FormSchema>(form.getValues());
-
-  const data = measurements
-    .map((m) => m.data)
-    .filter((data) => data.type === "dataframe") as DataframeData[];
-
-  const [xCols, yCols] = getValidColumns(data, form.watch("traces"));
 
   const onSubmit: SubmitHandler<FormSchema> = (vals) => {
     setConfig(vals);
@@ -131,33 +116,34 @@ const DataFrameViz = ({ measurements, title, workspaceId }: Props) => {
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardContent>
               <div>
+                <FormField
+                  control={form.control}
+                  name="xAxisColumn"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>X Axis</FormLabel>
+                      <FormControl>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <SelectTrigger className="w-[180px]">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {xCols.map((col) => (
+                              <SelectItem value={col}>{col}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="py-2" />
                 {fields.map((field, index) => (
                   <div className="mb-2 flex items-end gap-2">
-                    <FormField
-                      control={form.control}
-                      name={`traces.${index}.xAxisColumn` as const}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>X Axis</FormLabel>
-                          <FormControl>
-                            <Select
-                              value={field.value}
-                              onValueChange={field.onChange}
-                            >
-                              <SelectTrigger className="w-[180px]">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {xCols.map((col) => (
-                                  <SelectItem value={col}>{col}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
                     <FormField
                       control={form.control}
                       name={`traces.${index}.yAxisColumn` as const}
@@ -216,7 +202,6 @@ const DataFrameViz = ({ measurements, title, workspaceId }: Props) => {
                 <Button
                   onClick={() =>
                     append({
-                      xAxisColumn: "",
                       yAxisColumn: "",
                       mode: "lines",
                     })
@@ -375,16 +360,15 @@ const DataFrameViz = ({ measurements, title, workspaceId }: Props) => {
           title={title ?? "Untitled Test"}
           lineGroups={
             measurements.map((measurement) => {
-              const traces = form.getValues("traces");
+              const traces = config.traces;
               const lines = [];
               for (const trace of traces) {
                 if (
                   measurement.data.type === "dataframe" &&
-                  trace.xAxisColumn &&
                   trace.yAxisColumn
                 ) {
                   lines.push({
-                    x: measurement.data.value[trace.xAxisColumn] ?? [],
+                    x: measurement.data.value[config.xAxisColumn] ?? [],
                     y: (measurement.data.value[trace.yAxisColumn] ??
                       []) as number[],
                     name: measurement.hardware.name,

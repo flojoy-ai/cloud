@@ -211,7 +211,7 @@ const LinePlot = ({ lineGroups, title, config, onTraceClick }: Props) => {
     return _.merge(layoutBase, {
       title,
       xaxis: {
-        title: config.traces[0]?.xAxisColumn,
+        title: config.xAxisColumn,
       },
       yaxis: {
         title:
