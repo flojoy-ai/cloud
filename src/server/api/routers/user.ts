@@ -7,7 +7,7 @@ import {
   workspaceTable,
   workspaceUserTable,
 } from "~/server/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { selectUserSchema } from "~/types/user";
 import { selectWorkspaceSchema } from "~/types/workspace";
 
@@ -37,35 +37,67 @@ export const userRouter = createTRPCRouter({
       return result;
     }),
 
-  // addUserToWorkspace: workspaceProcedure
-  //   .input(z.object({ workspaceId: z.string(), userId: z.string() }))
-  //   .use(workspaceAccessMiddleware)
-  //   .output(z.object({ success: z.boolean() }))
-  //   .mutation(async ({ ctx, input }) => {
-  //     await ctx.db.workspace_user.create({
-  //       data: {
-  //         userId: input.userId,
-  //         workspaceId: input.workspaceId,
-  //       },
-  //     });
-  //     return { success: true };
-  //   }),
+  addUserToWorkspace: workspaceProcedure
+    .input(selectWorkspaceUserSchema)
+    .use(workspaceAccessMiddleware)
+    .output(z.void())
+    .mutation(async ({ ctx, input }) => {
+      const currentWorkspaceUser =
+        await ctx.db.query.workspaceUserTable.findFirst({
+          where: (wu, { and, eq }) =>
+            and(
+              eq(wu.userId, input.userId),
+              eq(wu.workspaceId, input.workspaceId),
+            ),
+        });
 
-  // removeUserFromWorkspace: workspaceProcedure
-  //   .input(z.object({ workspaceId: z.string(), userId: z.string() }))
-  //   .use(workspaceAccessMiddleware)
-  //   .output(z.object({ success: z.boolean() }))
-  //   .mutation(async ({ ctx, input }) => {
-  //     await ctx.db.workspace_user.delete({
-  //       where: {
-  //         userId_workspaceId: {
-  //           userId: input.userId,
-  //           workspaceId: input.workspaceId,
-  //         },
-  //       },
-  //     });
-  //     return { success: true };
-  //   }),
+      if (
+        currentWorkspaceUser?.role !== "owner" &&
+        currentWorkspaceUser?.role !== "admin"
+      ) {
+        throw new Error(
+          "You don't have permission to add users to this workspace",
+        );
+      }
+
+      await ctx.db.insert(workspaceUserTable).values({
+        ...input,
+        isPending: true,
+      });
+    }),
+
+  removeUserFromWorkspace: workspaceProcedure
+    .input(z.object({ workspaceId: z.string(), userId: z.string() }))
+    .use(workspaceAccessMiddleware)
+    .output(z.void())
+    .mutation(async ({ ctx, input }) => {
+      const currentWorkspaceUser =
+        await ctx.db.query.workspaceUserTable.findFirst({
+          where: (wu, { and, eq }) =>
+            and(
+              eq(wu.userId, input.userId),
+              eq(wu.workspaceId, input.workspaceId),
+            ),
+        });
+
+      if (
+        currentWorkspaceUser?.role !== "owner" &&
+        currentWorkspaceUser?.role !== "admin"
+      ) {
+        throw new Error(
+          "You don't have permission to remove users from this workspace",
+        );
+      }
+
+      await ctx.db
+        .delete(workspaceUserTable)
+        .where(
+          and(
+            eq(workspaceUserTable.userId, input.userId),
+            eq(workspaceUserTable.workspaceId, input.workspaceId),
+          ),
+        );
+    }),
 
   // updateRoleInWorkspace: workspaceProcedure
   //   .input(
