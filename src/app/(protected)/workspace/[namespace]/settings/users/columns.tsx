@@ -16,6 +16,8 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { api } from "~/trpc/react";
+import { useRouter } from "next/navigation";
 
 export const userColumns: ColumnDef<{
   user: SelectUser;
@@ -40,6 +42,13 @@ export const userColumns: ColumnDef<{
   {
     id: "actions",
     cell: ({ row }) => {
+      const router = useRouter();
+      const remove = api.user.removeUserFromWorkspace.useMutation({
+        onSuccess: () => {
+          router.refresh();
+        },
+      });
+
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -66,8 +75,24 @@ export const userColumns: ColumnDef<{
             {row.original.workspace_user.role !== "owner" && (
               <>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Update role</DropdownMenuItem>
-                <DropdownMenuItem>Remove user</DropdownMenuItem>
+                {/* <DropdownMenuItem>Update role</DropdownMenuItem> */}
+                <DropdownMenuItem
+                  onSelect={() => {
+                    toast.promise(
+                      remove.mutateAsync({
+                        workspaceId: row.original.workspace_user.workspaceId,
+                        userId: row.original.workspace_user.userId,
+                      }),
+                      {
+                        success: "User removed.",
+                        loading: "Removing user...",
+                        error: "Something went wrong :(",
+                      },
+                    );
+                  }}
+                >
+                  Remove user
+                </DropdownMenuItem>
               </>
             )}
           </DropdownMenuContent>

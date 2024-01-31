@@ -120,7 +120,7 @@ export const userRouter = createTRPCRouter({
         await ctx.db.query.workspaceUserTable.findFirst({
           where: (wu, { and, eq }) =>
             and(
-              eq(wu.userId, input.userId),
+              eq(wu.userId, ctx.user.id),
               eq(wu.workspaceId, input.workspaceId),
             ),
         });
