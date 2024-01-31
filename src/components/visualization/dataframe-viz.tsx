@@ -51,7 +51,7 @@ const getValidColumns = (dataframes: DataframeData[]): [string[], string[]] => {
   const validYKeys = [];
 
   for (const df of dataframes) {
-    for (const [k, v] of Object.entries(df.dataframe)) {
+    for (const [k, v] of Object.entries(df.value)) {
       if (typeof v[0] === "number") {
         validYKeys.push(k);
       }
@@ -322,8 +322,8 @@ const DataFrameViz = ({ measurements, title, workspaceId }: Props) => {
               const yCol = form.watch("yAxisColumn");
               if (measurement.data.type === "dataframe" && xCol && yCol) {
                 return {
-                  x: measurement.data.dataframe[xCol] ?? [],
-                  y: (measurement.data.dataframe[yCol] ?? []) as number[],
+                  x: measurement.data.value[xCol] ?? [],
+                  y: (measurement.data.value[yCol] ?? []) as number[],
                   name: measurement.hardware.name,
                 };
               }

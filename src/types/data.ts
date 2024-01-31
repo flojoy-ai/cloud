@@ -8,13 +8,13 @@ export type MeasurementDataType = (typeof allMeasurementDataTypes)[number];
 
 // Step 2: Create a schema for the newly added measurement type
 const booleanDataSchema = z.object({
-  passed: z.boolean(),
+  value: z.boolean(),
 });
 
 export type BooleanData = z.infer<typeof booleanDataSchema>;
 
 const dataframeDataSchema = z.object({
-  dataframe: z.record(
+  value: z.record(
     z.string(),
     // TODO: technically the array can also contain nulls
     z.union([z.number().array(), z.string().array()]),

@@ -25,7 +25,7 @@ export const columns: ColumnDef<MeasurementWithHardware>[] = [
   },
   {
     accessorKey: "data.type",
-    header: "Type",
+    header: "Measurement Type",
   },
   {
     accessorKey: "createdAt",
@@ -33,28 +33,30 @@ export const columns: ColumnDef<MeasurementWithHardware>[] = [
   },
   {
     accessorKey: "id",
-    header: "ID",
+    header: "Measurement ID",
+  },
+  {
+    accessorKey: "pass",
+    header: "Pass",
+    cell: ({ row }) => {
+      const val = row.original.pass;
+      return val === null ? (
+        <div className="text-muted-foreground">Unevaluated</div>
+      ) : val ? (
+        <div className="text-green-500">Pass</div>
+      ) : (
+        <div className="text-red-500">Fail</div>
+      );
+    },
   },
   {
     accessorKey: "data",
     header: "Data",
     // TODO: implement a better looking preview here
     accessorFn: (data) => {
-      if (data.data.type === "boolean") {
-        return data.data.passed ? "Passed" : "Failed";
-      }
-
-      return JSON.stringify(data.data).slice(0, 10);
+      return JSON.stringify(data.data.value).slice(0, 10);
     },
     cell: ({ row }) => {
-      switch (row.original.data.type) {
-        case "boolean":
-          if (row.getValue("data") === "Passed") {
-            return <div className="text-green-500">{row.getValue("data")}</div>;
-          } else if (row.getValue("data") === "Failed") {
-            return <div className="text-red-500">{row.getValue("data")}</div>;
-          }
-      }
       return <div>{row.getValue("data")}</div>;
     },
   },
