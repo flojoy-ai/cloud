@@ -6,6 +6,7 @@ import {
 import { api } from "~/trpc/server";
 import { type ReactNode } from "react";
 import { SidebarNav } from "~/components/sidebar-nav";
+import { Key, Settings, Users } from "lucide-react";
 
 export default async function Workspace({
   params,
@@ -24,14 +25,17 @@ export default async function Workspace({
   const sidebarNavItems = [
     {
       title: "General",
+      icon: <Settings />,
       href: `/workspace/${params.namespace}/settings/general`,
     },
     {
       title: "Users",
+      icon: <Users />,
       href: `/workspace/${params.namespace}/settings/users`,
     },
     {
       title: "Secret",
+      icon: <Key />,
       href: `/workspace/${params.namespace}/settings/secret`,
     },
   ];
