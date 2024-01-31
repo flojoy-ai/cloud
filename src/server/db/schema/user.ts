@@ -85,7 +85,7 @@ export const userInviteTable = pgTable("user_invite", {
 });
 
 export const userInviteRelation = relations(userInviteTable, ({ one }) => ({
-  test: one(workspaceTable, {
+  workspace: one(workspaceTable, {
     fields: [userInviteTable.workspaceId],
     references: [workspaceTable.id],
   }),

@@ -145,11 +145,19 @@ export const userRouter = createTRPCRouter({
     }),
 
   getAllWorkspaceInvites: protectedProcedure
-    .output(z.array(selectUserInviteSchema))
+    .output(
+      z.array(
+        selectUserInviteSchema.extend({ workspace: selectWorkspaceSchema }),
+      ),
+    )
     .query(async ({ ctx }) => {
-      return ctx.db.query.userInviteTable.findMany({
+      const result = ctx.db.query.userInviteTable.findMany({
         where: (ui) => eq(ui.email, ctx.user.email),
+        with: {
+          workspace: true,
+        },
       });
+      return result;
     }),
 
   // updateRoleInWorkspace: workspaceProcedure
