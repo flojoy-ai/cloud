@@ -128,7 +128,7 @@ const BooleanViz = ({ measurements, title, workspaceId }: Props) => {
             )}
             y={measurements.map((measurement) => {
               if (measurement.data.type === "boolean") {
-                return measurement.data.passed ? "passed" : "failed";
+                return measurement.data.value ? "passed" : "failed";
               }
               return "";
             })}
