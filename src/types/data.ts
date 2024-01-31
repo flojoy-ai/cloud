@@ -82,32 +82,36 @@ const exprValidator = (varName: string) => (expr: string | undefined) => {
   return valid;
 };
 
-const dataframeExplorerSchema = z
+const traceSchema = z
   .object({
     xAxisColumn: z.string().optional(),
     yAxisColumn: z.string().optional(),
     mode: z.union([z.literal("lines"), z.literal("markers")]),
-    upperControlLimit: z.number().optional(),
-    lowerControlLimit: z.number().optional(),
-    yTransform: z
-      .string()
-      .optional()
-      .refine(exprValidator("y"), "Expression must be a function of y"),
-    upperControlLimitTransform: z
-      .string()
-      .optional()
-      .refine(exprValidator("x"), "Expression must be a function of x"),
-    lowerControlLimitTransform: z
-      .string()
-      .optional()
-      .refine(exprValidator("x"), "Expression must be a function of x"),
-    logScaleYAxis: z.boolean().optional(),
-    errorBars: z.boolean().optional(),
-    errorPercentage: z.number().min(0).optional(),
   })
   .refine((schema) => {
     return schema.xAxisColumn !== schema.yAxisColumn;
   }, "X Axis and Y Axis must be different");
+
+const dataframeExplorerSchema = z.object({
+  traces: z.array(traceSchema),
+  upperControlLimit: z.number().optional(),
+  lowerControlLimit: z.number().optional(),
+  yTransform: z
+    .string()
+    .optional()
+    .refine(exprValidator("y"), "Expression must be a function of y"),
+  upperControlLimitTransform: z
+    .string()
+    .optional()
+    .refine(exprValidator("x"), "Expression must be a function of x"),
+  lowerControlLimitTransform: z
+    .string()
+    .optional()
+    .refine(exprValidator("x"), "Expression must be a function of x"),
+  logScaleYAxis: z.boolean().optional(),
+  errorBars: z.boolean().optional(),
+  errorPercentage: z.number().min(0).optional(),
+});
 
 export const explorerConfig = {
   boolean: booleanExplorerSchema,

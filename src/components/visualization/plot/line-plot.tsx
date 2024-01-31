@@ -18,6 +18,7 @@ type Line = {
   x: number[] | string[];
   y: number[];
   name: string;
+  mode: "lines" | "markers";
 };
 
 type ComputedTraces = {
@@ -103,7 +104,7 @@ const LinePlot = ({ lines, title, config, onTraceClick }: Props) => {
 
       traces.push({
         type: "scatter",
-        mode: config.mode,
+        mode: line.mode,
         x: line.x,
         y: yTransform
           ? line.y.map((y) => yTransform.evaluate({ y }) as number)
@@ -197,10 +198,10 @@ const LinePlot = ({ lines, title, config, onTraceClick }: Props) => {
     return _.merge(layoutBase, {
       title,
       xaxis: {
-        title: config.xAxisColumn,
+        title: config.traces[0]?.xAxisColumn,
       },
       yaxis: {
-        title: config.yAxisColumn,
+        title: config.traces[0]?.yAxisColumn,
         type: config.logScaleYAxis ? "log" : "linear",
       },
       shapes,
