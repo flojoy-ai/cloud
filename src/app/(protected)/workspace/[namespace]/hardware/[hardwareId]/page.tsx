@@ -1,24 +1,24 @@
-import { MeasurementsDataTable } from "~/components/measurements-data-table";
 import {
   PageHeader,
   PageHeaderDescription,
   PageHeaderHeading,
 } from "~/components/page-header";
-import { Checkbox } from "~/components/ui/checkbox";
 
 import { api } from "~/trpc/server";
+import HardwareMeasurements from "./_components/hardware-measurements";
 
-export default async function Device({
+export default async function Hardware({
   params,
 }: {
-  params: { deviceId: string; namespace: string };
+  params: { hardwareId: string; namespace: string };
 }) {
   const device = await api.hardware.getHardwareById.query({
-    hardwareId: params.deviceId,
+    hardwareId: params.hardwareId,
   });
-  const deviceMeasurements =
+  const measurements =
     await api.measurement.getAllMeasurementsByHardwareId.query({
-      hardwareId: params.deviceId,
+      hardwareId: params.hardwareId,
+      latest: true,
     });
 
   return (
@@ -30,11 +30,10 @@ export default async function Device({
         </PageHeaderDescription>
       </PageHeader>
 
-      <div className="py-4"></div>
-
-      <MeasurementsDataTable
-        measurements={deviceMeasurements}
+      <HardwareMeasurements
+        hardwareId={params.hardwareId}
         namespace={params.namespace}
+        initialMeasurements={measurements}
       />
     </div>
   );

@@ -25,7 +25,7 @@ export const columns: ColumnDef<MeasurementWithHardware>[] = [
   },
   {
     accessorKey: "data.type",
-    header: "Type",
+    header: "Measurement Type",
   },
   {
     accessorKey: "createdAt",
@@ -33,7 +33,7 @@ export const columns: ColumnDef<MeasurementWithHardware>[] = [
   },
   {
     accessorKey: "id",
-    header: "ID",
+    header: "Measurement ID",
   },
   {
     accessorKey: "pass",
@@ -41,7 +41,7 @@ export const columns: ColumnDef<MeasurementWithHardware>[] = [
     cell: ({ row }) => {
       const val = row.original.pass;
       return val === null ? (
-        <div className="text-muted-foreground">Undecided</div>
+        <div className="text-muted-foreground">Unevaluated</div>
       ) : val ? (
         <div className="text-green-500">Pass</div>
       ) : (
@@ -54,7 +54,7 @@ export const columns: ColumnDef<MeasurementWithHardware>[] = [
     header: "Data",
     // TODO: implement a better looking preview here
     accessorFn: (data) => {
-      return JSON.stringify(data.data).slice(0, 10);
+      return JSON.stringify(data.data.value).slice(0, 10);
     },
     cell: ({ row }) => {
       return <div>{row.getValue("data")}</div>;

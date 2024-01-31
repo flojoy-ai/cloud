@@ -1,8 +1,13 @@
-import { type SQL, eq, lte, gte } from "drizzle-orm";
+import { type SQL, eq, lte, gte, and, desc } from "drizzle-orm";
 import { z } from "zod";
 
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
-import { measurementTable, hardwareTable, testTable } from "~/server/db/schema";
+import {
+  measurementTable,
+  hardwareTable,
+  testTable,
+  modelTable,
+} from "~/server/db/schema";
 import { selectHardwareSchema } from "~/types/hardware";
 import {
   publicInsertMeasurementSchema,
@@ -13,6 +18,7 @@ import { type db } from "~/server/db";
 import { hardwareAccessMiddleware } from "./hardware";
 import { testAccessMiddleware } from "./test";
 import { checkWorkspaceAccess } from "~/lib/auth";
+import _ from "lodash";
 
 export const measurementAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -161,6 +167,7 @@ export const measurementRouter = createTRPCRouter({
         hardwareId: z.string(),
         startDate: z.date().optional(),
         endDate: z.date().optional(),
+        latest: z.boolean().optional(),
       }),
     )
     .use(hardwareAccessMiddleware)
@@ -185,6 +192,7 @@ export const measurementRouter = createTRPCRouter({
 
       const result = await ctx.db.query.measurementTable.findMany({
         where: (_, { and }) => and(...where),
+        orderBy: (row) => desc(row.createdAt),
         with: {
           hardware: {
             with: {
@@ -193,6 +201,13 @@ export const measurementRouter = createTRPCRouter({
           },
         },
       });
+
+      if (input.latest) {
+        return _.values(_.groupBy(result, (meas) => meas.testId)).map(
+          (meas) => meas[0]!,
+        );
+      }
+
       return result;
     }),
 
