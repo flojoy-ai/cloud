@@ -58,7 +58,7 @@ project = client.get_all_projects("${workspace.id}")
 
       <div className="py-2"></div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
         {projects
           .sort(
             (a, b) =>

@@ -15,6 +15,8 @@ export async function ProtectedHeader() {
 
   const workspaces = await api.workspace.getWorkspaces.query();
 
+  const invites = await api.user.getAllWorkspaceInvites.query();
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
@@ -37,6 +39,18 @@ export async function ProtectedHeader() {
               </>
             ) : (
               <>
+                {invites.length > 0 && (
+                  <Button
+                    className="h-8 rounded-[0.5rem] text-sm font-normal shadow-none"
+                    asChild
+                  >
+                    <Link href="/workspace/invites">
+                      {invites.length} pending invite{invites.length > 1 && "s"}
+                    </Link>
+                  </Button>
+                )}
+                <div className="px-1" />
+
                 <UserButton user={user} />
                 <div className="px-1" />
               </>
