@@ -4,16 +4,11 @@ import {
   PageHeaderDescription,
   PageHeaderHeading,
 } from "~/components/page-header";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
+import { Card, CardFooter, CardHeader, CardTitle } from "~/components/ui/card";
 import { type SelectUserInvite } from "~/types/user";
 import { type SelectWorkspace } from "~/types/workspace";
+import { AcceptInvite } from "./_components/accept-invite";
+import { RejectInvite } from "./_components/reject-invite";
 
 const InvitePage = async () => {
   const invites = await api.user.getAllWorkspaceInvites.query();
@@ -26,6 +21,10 @@ const InvitePage = async () => {
           Here are all the pending invites.
         </PageHeaderDescription>
       </PageHeader>
+
+      {invites.length === 0 && (
+        <div>You do not have any pending invites for the moment.</div>
+      )}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {invites.map((invite) => (
@@ -47,16 +46,11 @@ const InviteCard = ({
         <CardTitle className="overflow-hidden text-ellipsis whitespace-nowrap">
           Invite to join {invite.workspace.name}
         </CardTitle>
-        <CardDescription>{invite.workspace.id}</CardDescription>
+        {/* <CardDescription>{invite.workspace.id}</CardDescription> */}
       </CardHeader>
-      <CardContent>{/* <Badge>{workspace.planType}</Badge> */}</CardContent>
-      <CardFooter>
-        {/* <div> */}
-        {/*   Last updated:{" "} */}
-        {/*   {workspace.updatedAt */}
-        {/*     ? getPrettyTime(workspace.updatedAt) */}
-        {/*     : "Never"} */}
-        {/* </div> */}
+      <CardFooter className="gap-2">
+        <AcceptInvite workspaceId={invite.workspace.id} />
+        <RejectInvite workspaceId={invite.workspace.id} />
       </CardFooter>
     </Card>
   );

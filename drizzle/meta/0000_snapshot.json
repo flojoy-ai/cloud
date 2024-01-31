@@ -1,5 +1,5 @@
 {
-  "id": "8508eab6-5856-4d2e-a8a2-23e61c211f46",
+  "id": "bb4b2f4e-9b43-4520-9c34-646cd48b6635",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -1281,12 +1281,6 @@
         "role": {
           "name": "role",
           "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "is_pending": {
-          "name": "is_pending",
-          "type": "boolean",
           "primaryKey": false,
           "notNull": true
         },

@@ -161,7 +161,6 @@ CREATE TABLE IF NOT EXISTS "cloud_workspace_user" (
 	"user_id" text NOT NULL,
 	"workspace_id" text NOT NULL,
 	"role" text NOT NULL,
-	"is_pending" boolean NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "cloud_workspace_user_workspace_id_user_id_pk" PRIMARY KEY("workspace_id","user_id")
 );

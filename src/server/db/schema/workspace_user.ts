@@ -14,7 +14,6 @@ export const workspaceUserTable = pgTable(
       .notNull()
       .references(() => workspaceTable.id, { onDelete: "cascade" }),
     role: text("role", { enum: workspaceRoles }).notNull(),
-    isPending: boolean("is_pending").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => {

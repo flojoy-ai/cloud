@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import { useState } from "react";
 
 import {
   Form,
@@ -48,9 +49,11 @@ const InviteUser = ({ workspaceId }: Props) => {
       workspaceId,
     },
   });
+  const [open, setOpen] = useState(false);
 
   const inviteUser = api.user.addUserToWorkspace.useMutation({
     onSuccess: () => {
+      setOpen(false);
       toast.message("User invited, an email has been sent.");
     },
   });
@@ -67,7 +70,7 @@ const InviteUser = ({ workspaceId }: Props) => {
         className="space-y-8"
         id="invite-user-form"
       >
-        <Dialog>
+        <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
           <DialogTrigger asChild>
             <Button size="sm">Invite user</Button>
           </DialogTrigger>

@@ -160,28 +160,61 @@ export const userRouter = createTRPCRouter({
       return result;
     }),
 
-  // updateRoleInWorkspace: workspaceProcedure
-  //   .input(
-  //     z.object({
-  //       workspaceId: z.string(),
-  //       userId: z.string(),
-  //       role: z.enum(["ADMIN", "USER"]),
-  //     }),
-  //   )
-  //   .use(workspaceAccessMiddleware)
-  //   .output(z.object({ success: z.boolean() }))
-  //   .mutation(async ({ ctx, input }) => {
-  //     await ctx.db.workspace_user.update({
-  //       where: {
-  //         userId_workspaceId: {
-  //           userId: input.userId,
-  //           workspaceId: input.workspaceId,
-  //         },
-  //       },
-  //       data: {
-  //         role: input.role,
-  //       },
-  //     });
-  //     return { success: true };
-  //   }),
+  acceptWorkspaceInvite: protectedProcedure
+    .input(
+      z.object({
+        workspaceId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const invite = await ctx.db.query.userInviteTable.findFirst({
+        where: (ui) =>
+          and(
+            eq(ui.email, ctx.user.email),
+            eq(ui.workspaceId, input.workspaceId),
+          ),
+      });
+
+      if (!invite) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Invite not found",
+        });
+      }
+
+      await ctx.db.transaction(async (trx) => {
+        await trx.insert(workspaceUserTable).values({
+          userId: ctx.user.id,
+          workspaceId: input.workspaceId,
+          role: invite.role,
+        });
+
+        await trx
+          .delete(userInviteTable)
+          .where(
+            and(
+              eq(userInviteTable.email, ctx.user.email),
+              eq(userInviteTable.workspaceId, input.workspaceId),
+            ),
+          );
+      });
+    }),
+
+  rejectWorkspaceInvite: protectedProcedure
+    .input(
+      z.object({
+        workspaceId: z.string(),
+      }),
+    )
+    .output(z.void())
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db
+        .delete(userInviteTable)
+        .where(
+          and(
+            eq(userInviteTable.email, ctx.user.email),
+            eq(userInviteTable.workspaceId, input.workspaceId),
+          ),
+        );
+    }),
 });
