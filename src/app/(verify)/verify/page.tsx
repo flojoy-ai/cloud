@@ -1,11 +1,28 @@
 "use client";
+import axios from "axios";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 
 const Page = () => {
   // I want to implement a countdown after I press the resend button
 
   const [countdown, setCountdown] = useState<number>(0);
+
+  const sendEmailVerification = async () => {
+    try {
+      const data = (await axios.post("/api/email-verification", {}))
+        .data as Record<string, string>;
+      toast.message(data.message);
+    } catch (e) {
+      if (axios.isAxiosError(e)) {
+        toast.error(e.response?.data as string);
+      } else {
+        toast.error(String(e));
+      }
+    }
+    setCountdown(60);
+  };
 
   useEffect(() => {
     if (countdown > 0) {
@@ -35,10 +52,7 @@ const Page = () => {
           <Button
             variant="secondary"
             disabled={countdown > 0}
-            onClick={async () => {
-              await fetch("/api/email-verification", { method: "POST" });
-              setCountdown(60);
-            }}
+            onClick={sendEmailVerification}
           >
             {countdown === 0 ? <>Resend</> : <>{countdown}s</>}
           </Button>

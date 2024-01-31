@@ -1,31 +1,32 @@
-import { type NextRequest } from "next/server";
 import { validateRequest } from "~/auth/lucia";
+import { env } from "~/env";
 import { sendEmailVerificationLink } from "~/lib/email";
 import { generateEmailVerificationToken } from "~/lib/token";
 
-export const POST = async (request: NextRequest) => {
+export const POST = async () => {
   const { user } = await validateRequest();
   if (!user) {
-    return new Response(null, {
+    return new Response("Unauthorized", {
       status: 401,
     });
   }
   if (user.emailVerified) {
     // email already verified
-    return new Response(null, {
+    return new Response("Email already verified", {
       status: 422,
     });
   }
 
   try {
     const token = await generateEmailVerificationToken(user.id, user.email);
-    const verificationLink =
-      request.nextUrl.origin + "/api/email-verification/" + token;
+    const verificationLink = `${env.NEXT_PUBLIC_URL_ORIGIN}/api/email-verification/${token}`;
     await sendEmailVerificationLink(user.email, verificationLink);
-    return new Response();
-  } catch {
-    return new Response("An unknown error occurred", {
-      status: 500,
+    return new Response("Verification email sent to " + user.email, {
+      status: 200,
+    });
+  } catch (e) {
+    return new Response("Failed to send verification email, " + String(e), {
+      status: 400,
     });
   }
 };
