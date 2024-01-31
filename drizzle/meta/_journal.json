@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1706560385025,
-      "tag": "0000_luxuriant_sue_storm",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1706719166494,
-      "tag": "0001_fine_stryfe",
+      "when": 1706719257213,
+      "tag": "0000_ancient_mongu",
       "breakpoints": true
     }
   ]
