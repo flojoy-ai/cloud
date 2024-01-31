@@ -129,6 +129,13 @@ CREATE TABLE IF NOT EXISTS "cloud_user_session" (
 	"expires_at" timestamp with time zone NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "cloud_user_invite" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"email" text NOT NULL,
+	"workspace_id" text NOT NULL,
+	"role" text NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_user" (
 	"id" text PRIMARY KEY NOT NULL,
 	"email_verified" boolean DEFAULT false,
@@ -314,6 +321,12 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "cloud_user_session" ADD CONSTRAINT "cloud_user_session_user_id_cloud_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "cloud_user"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "cloud_user_invite" ADD CONSTRAINT "cloud_user_invite_workspace_id_cloud_workspace_id_fk" FOREIGN KEY ("workspace_id") REFERENCES "cloud_workspace"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

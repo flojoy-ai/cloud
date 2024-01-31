@@ -11,12 +11,19 @@ import {
   Text,
 } from "@react-email/components";
 import * as React from "react";
+import { env } from "~/env";
 
 interface Props {
-  resetLink: string;
+  fromEmail: string;
+  workspaceName: string;
+  inviteLink: string;
 }
 
-export const PasswordResetHTML = ({ resetLink }: Props) => (
+export const WorkspaceUserInvite = ({
+  inviteLink,
+  fromEmail,
+  workspaceName,
+}: Props) => (
   <Tailwind
     config={{
       theme: {
@@ -29,11 +36,11 @@ export const PasswordResetHTML = ({ resetLink }: Props) => (
     }}
   >
     <Head>
-      <Preview>Welcome to Flojoy Cloud!</Preview>
+      <Preview>Invite to Flojoy Cloud!</Preview>
       <Body className="font-main bg-white">
         <Container>
           <div className="flex items-center gap-2">
-            <Link href="https://cloud.flojoy.ai">
+            <Link href={env.NEXT_PUBLIC_URL_ORIGIN}>
               <Img
                 src="https://cloud.flojoy.ai/logo.png"
                 alt="Flojoy Logo"
@@ -43,22 +50,25 @@ export const PasswordResetHTML = ({ resetLink }: Props) => (
               <Text className="text-xl font-bold">Flojoy Cloud</Text>
             </Link>
           </div>
-          <Heading>Reset your password</Heading>
-          <Text>To reset your password, please click the button below.:</Text>
+          <Heading>Invite to join workspace</Heading>
+          <Text>
+            Hey there! {fromEmail} just sent you an invite to join the "
+            {workspaceName}" workspace
+          </Text>
           <Button
-            href={resetLink}
+            href={inviteLink}
             target="_blank"
             className="rounded-lg bg-black px-4 py-2 text-sm text-white"
           >
-            Click here to reset your password
+            Accept Invite
           </Button>
           <Text>
-            If you didn&apos;t request a password reset, you can safely ignore
-            this email.
+            If you do not recognize this address, you can safely ignore this
+            email.
           </Text>
           <Text>
             <div className="flex items-center gap-2">
-              <Link href="https://cloud.flojoy.ai">
+              <Link href={env.NEXT_PUBLIC_URL_ORIGIN}>
                 <Img
                   src="https://cloud.flojoy.ai/logo.png"
                   alt="Flojoy Logo"

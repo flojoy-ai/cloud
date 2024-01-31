@@ -1,5 +1,5 @@
 {
-  "id": "114ac5d7-6b77-47ba-a12d-16ab315eaa74",
+  "id": "79d06b72-c362-4e13-80ce-175ae1835684",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -1077,6 +1077,54 @@
           "tableTo": "cloud_user",
           "columnsFrom": [
             "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "cloud_user_invite": {
+      "name": "cloud_user_invite",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "cloud_user_invite_workspace_id_cloud_workspace_id_fk": {
+          "name": "cloud_user_invite_workspace_id_cloud_workspace_id_fk",
+          "tableFrom": "cloud_user_invite",
+          "tableTo": "cloud_workspace",
+          "columnsFrom": [
+            "workspace_id"
           ],
           "columnsTo": [
             "id"

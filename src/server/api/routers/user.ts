@@ -1,15 +1,25 @@
 import { z } from "zod";
-import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  workspaceProcedure,
+} from "~/server/api/trpc";
 import { workspaceAccessMiddleware } from "./workspace";
 import { selectWorkspaceUserSchema } from "~/types/workspace_user";
 import {
+  userInviteTable,
   userTable,
   workspaceTable,
   workspaceUserTable,
 } from "~/server/db/schema";
 import { and, eq } from "drizzle-orm";
-import { selectUserSchema } from "~/types/user";
+import { insertUserInviteSchema, selectUserSchema } from "~/types/user";
 import { selectWorkspaceSchema } from "~/types/workspace";
+import { render } from "@react-email/render";
+import { WorkspaceUserInvite } from "~/emails/workspace-user-invite";
+import { sendEmailWithSES } from "~/lib/email";
+import { TRPCError } from "@trpc/server";
+import { env } from "~/env";
 
 export const userRouter = createTRPCRouter({
   getUsersInWorkspace: workspaceProcedure
@@ -37,8 +47,8 @@ export const userRouter = createTRPCRouter({
       return result;
     }),
 
-  addUserToWorkspace: workspaceProcedure
-    .input(selectWorkspaceUserSchema)
+  addUserToWorkspace: protectedProcedure
+    .input(insertUserInviteSchema)
     .use(workspaceAccessMiddleware)
     .output(z.void())
     .mutation(async ({ ctx, input }) => {
@@ -46,23 +56,42 @@ export const userRouter = createTRPCRouter({
         await ctx.db.query.workspaceUserTable.findFirst({
           where: (wu, { and, eq }) =>
             and(
-              eq(wu.userId, input.userId),
-              eq(wu.workspaceId, input.workspaceId),
+              eq(wu.userId, ctx.user.id),
+              eq(wu.workspaceId, ctx.workspace.id),
             ),
         });
 
-      if (
-        currentWorkspaceUser?.role !== "owner" &&
-        currentWorkspaceUser?.role !== "admin"
-      ) {
-        throw new Error(
-          "You don't have permission to add users to this workspace",
-        );
+      if (!currentWorkspaceUser) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You don't have permission to add users to this workspace",
+        });
       }
 
-      await ctx.db.insert(workspaceUserTable).values({
-        ...input,
-        isPending: true,
+      if (["owner", "admin"].includes(currentWorkspaceUser.role)) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You do not have permission to add users to this workspace",
+        });
+      }
+
+      await ctx.db.insert(userInviteTable).values({
+        email: input.email,
+        workspaceId: ctx.workspace.id,
+        role: input.role,
+      });
+
+      const emailHtml = render(
+        WorkspaceUserInvite({
+          fromEmail: ctx.user.email,
+          workspaceName: ctx.workspace.name,
+          inviteLink: env.NEXT_PUBLIC_URL_ORIGIN + "/workspace/invites",
+        }),
+      );
+      await sendEmailWithSES({
+        recipients: [input.email],
+        emailHtml,
+        subject: "Flojoy Cloud - Workspace Invite",
       });
     }),
 

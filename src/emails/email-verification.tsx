@@ -78,5 +78,3 @@ export const EmailVerification = ({ verificationLink }: Props) => (
     </Head>
   </Tailwind>
 );
-
-export default EmailVerification;

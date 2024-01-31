@@ -6,6 +6,8 @@ import {
   boolean,
 } from "drizzle-orm/pg-core";
 import { baseModal, pgTable } from "./table";
+import { workspaceTable } from "./workspace";
+import { workspaceRoles } from "~/config/workspace_user";
 
 // After a user signs up with the auth provider, we will create a user
 // object in our database as well. This user object will also record the
@@ -70,4 +72,13 @@ export const emailVerificationTable = pgTable("email_verification", {
     .notNull(),
   email: text("email").notNull(),
   expiresAt: timestamp("expiresAt").notNull(),
+});
+
+export const userInviteTable = pgTable("user_invite", {
+  id: serial("id").notNull().primaryKey(),
+  email: text("email").notNull(),
+  workspaceId: text("workspace_id")
+    .notNull()
+    .references(() => workspaceTable.id),
+  role: text("role", { enum: workspaceRoles }).notNull(),
 });

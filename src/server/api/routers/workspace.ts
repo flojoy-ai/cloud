@@ -25,7 +25,7 @@ import { selectWorkspaceUserSchema } from "~/types/workspace_user";
 import { api } from "~/trpc/server";
 
 export const workspaceAccessMiddleware = experimental_standaloneMiddleware<{
-  ctx: { db: typeof db; userId: string; workspaceId: string | null };
+  ctx: { db: typeof db; workspaceId: string | null };
   input: { workspaceId: string };
 }>().create(async (opts) => {
   const workspace = await opts.ctx.db.query.workspaceTable.findFirst({
@@ -54,7 +54,7 @@ export const workspaceAccessMiddleware = experimental_standaloneMiddleware<{
     // this infers the `workspaceId` in ctx to be non-null
     // and also adds the respective resource id as well for use
     ctx: {
-      workspaceId: workspaceUser.workspaceId,
+      workspace,
     },
   });
 });
