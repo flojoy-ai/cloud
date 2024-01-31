@@ -97,10 +97,10 @@ export const exampleRouter = createTRPCRouter({
           )
           .returning();
 
-        if (!hardwareEntries) {
+        if (!devices) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create hardware entries",
+            message: "Failed to create devices",
           });
         }
 

@@ -25,7 +25,7 @@ export const POST = async () => {
       status: 200,
     });
   } catch (e) {
-    return new Response("Failed to send verification email, " + String(e), {
+    return new Response("Failed to send verification email!", {
       status: 400,
     });
   }

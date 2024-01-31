@@ -22,6 +22,7 @@ import {
   multiHardwareAccessMiddleware,
 } from "./hardware";
 import { workspaceAccessMiddleware } from "./workspace";
+import { type DatabaseError } from "pg";
 
 export const projectAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -355,8 +356,26 @@ export const projectRouter = createTRPCRouter({
     .use(projectAccessMiddleware)
     .output(z.void())
     .mutation(async ({ ctx, input }) => {
-      await ctx.db
-        .delete(projectTable)
-        .where(eq(projectTable.id, input.projectId));
+      try {
+        await ctx.db
+          .delete(projectTable)
+          .where(eq(projectTable.id, input.projectId));
+      } catch (e) {
+        const err = e as DatabaseError;
+        if (err.message.includes("violates foreign key constraint")) {
+          throw new TRPCError({
+            message:
+              "Cannot delete project because it is in use, make sure all associated items are deleted first",
+            cause: e,
+            code: "BAD_REQUEST",
+          });
+        }
+
+        throw new TRPCError({
+          message: "Internal database error",
+          cause: e,
+          code: "INTERNAL_SERVER_ERROR",
+        });
+      }
     }),
 });

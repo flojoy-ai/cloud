@@ -35,7 +35,7 @@ export const POST = async (
     });
 
     if (!token || !isWithinExpirationDate(token.expiresAt)) {
-      return new Response("Invalid or expired password reset link", {
+      return new Response("Invalid or expired password reset link!", {
         status: 400,
       });
     }
@@ -60,8 +60,8 @@ export const POST = async (
       },
     });
   } catch (e) {
-    return new Response(String(e), {
-      status: 400,
+    return new Response("Internal server error", {
+      status: 500,
     });
   }
 };

@@ -15,6 +15,7 @@ import {
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
+import { handleTrpcError } from "~/lib/utils";
 import { api } from "~/trpc/react";
 
 type Props = {
@@ -51,7 +52,7 @@ const DeleteProject = ({ projectId }: Props) => {
               toast.promise(deleteProject.mutateAsync({ projectId }), {
                 loading: "Deleting your project...",
                 success: "Your project has been deleted.",
-                error: "Something went wrong :(",
+                error: handleTrpcError,
               })
             }
           >

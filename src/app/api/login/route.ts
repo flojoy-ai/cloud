@@ -1,7 +1,6 @@
 // app/api/login/route.ts
 import { Argon2id } from "oslo/password";
 import { lucia } from "~/auth/lucia";
-import { NextResponse } from "next/server";
 
 import type { NextRequest } from "next/server";
 import { z } from "zod";

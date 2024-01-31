@@ -33,6 +33,7 @@ import _ from "lodash";
 import { useState } from "react";
 import { api } from "~/trpc/react";
 import { type SelectProject } from "~/types/project";
+import { handleTrpcError } from "~/lib/utils";
 
 type ActionsProps = {
   elem: { id: string };
@@ -54,7 +55,7 @@ const Actions = ({ elem, children }: ActionsProps) => {
           onClick={() =>
             toast.promise(navigator.clipboard.writeText(elem.id), {
               success: "Copied to clipboard",
-              error: "Something went wrong :(",
+              error: (err) => "Failed to copy: " + err,
             })
           }
         >
@@ -142,7 +143,7 @@ export const deviceColumns: ColumnDef<
                       {
                         loading: "Deleting your device instance...",
                         success: "Your device instance has been deleted.",
-                        error: "Something went wrong :(",
+                        error: handleTrpcError,
                       },
                     )
                   }
@@ -262,7 +263,7 @@ export const systemColumns: ColumnDef<
                       {
                         loading: "Deleting your system instance...",
                         success: "Your system instance has been deleted.",
-                        error: "Something went wrong :(",
+                        error: handleTrpcError,
                       },
                     )
                   }
@@ -332,7 +333,7 @@ const DeleteDialog = ({
                 {
                   loading: "Deleting your model...",
                   success: "Your model has been deleted.",
-                  error: "Something went wrong :(",
+                  error: handleTrpcError,
                 },
               )
             }

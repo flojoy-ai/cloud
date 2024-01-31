@@ -22,7 +22,7 @@ export const POST = async (request: NextRequest) => {
 
     if (!storedUser) {
       return new Response("User does not exist!", {
-        status: 400,
+        status: 404,
       });
     }
 
@@ -30,10 +30,12 @@ export const POST = async (request: NextRequest) => {
     const resetLink = `${env.NEXT_PUBLIC_URL_ORIGIN}/password-reset/${token}`;
     await sendPasswordResetLink(storedUser.email, resetLink);
 
-    return new Response(null, { status: 200 });
+    return new Response(`Password reset link sent to ${storedUser.email}`, {
+      status: 200,
+    });
   } catch (e) {
-    return new Response(String(e), {
-      status: 400,
+    return new Response("Internal server error", {
+      status: 500,
     });
   }
 };

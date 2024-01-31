@@ -44,7 +44,7 @@ const LoginForm = () => {
       if (!axios.isAxiosError(error)) {
         return;
       }
-      if (error.response?.data && typeof error.response?.data === "string") {
+      if (error.response?.data && typeof error.response.data === "string") {
         toast.error(error.response.data);
       } else {
         toast.error(

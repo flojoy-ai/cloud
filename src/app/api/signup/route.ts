@@ -22,7 +22,7 @@ export const POST = async (request: NextRequest) => {
     password.length < 6 ||
     password.length > 255
   ) {
-    return new Response("Invalid password", {
+    return new Response("Invalid password!", {
       status: 400,
     });
   }
@@ -38,7 +38,15 @@ export const POST = async (request: NextRequest) => {
     const userId = "user_" + createId();
     const hashedPassword = await new Argon2id().hash(password);
 
-    // TODO: check if the user already exists
+    const userExists = await db.query.userTable.findFirst({
+      where: (u, { eq }) => eq(u.email, parsedEmail.data),
+    });
+    if (userExists) {
+      return new Response("User already exists, please login!", {
+        status: 400,
+      });
+    }
+
     await db.insert(userTable).values({
       id: userId,
       email: parsedEmail.data,
@@ -85,7 +93,7 @@ export const POST = async (request: NextRequest) => {
       );
     }
 
-    return new Response("An unknown error occurred: " + String(e), {
+    return new Response("Internal server error", {
       status: 500,
     });
   }

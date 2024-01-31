@@ -20,6 +20,7 @@ import {
   selectSystemModelSchema,
 } from "~/types/model";
 import { workspaceAccessMiddleware } from "./workspace";
+import { type DatabaseError } from "pg";
 
 export const modelAccessMiddlware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; userId: string; workspaceId: string | null };
@@ -233,7 +234,25 @@ export const modelRouter = createTRPCRouter({
     .output(z.void())
     .use(modelAccessMiddlware)
     .mutation(async ({ ctx, input }) => {
-      await ctx.db.delete(modelTable).where(eq(modelTable.id, input.modelId));
+      try {
+        await ctx.db.delete(modelTable).where(eq(modelTable.id, input.modelId));
+      } catch (e) {
+        const err = e as DatabaseError;
+        if (err.message.includes("violates foreign key constraint")) {
+          throw new TRPCError({
+            message:
+              "Cannot delete model because it is in use, make sure all associated items are deleted first",
+            cause: e,
+            code: "BAD_REQUEST",
+          });
+        }
+
+        throw new TRPCError({
+          message: "Internal database error",
+          cause: e,
+          code: "INTERNAL_SERVER_ERROR",
+        });
+      }
     }),
 });
 

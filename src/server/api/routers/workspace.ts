@@ -188,7 +188,7 @@ export const workspaceRouter = createTRPCRouter({
 
       if (!result) {
         throw new TRPCError({
-          code: "BAD_REQUEST",
+          code: "NOT_FOUND",
           message: "Workspace not found",
         });
       }
@@ -204,7 +204,7 @@ export const workspaceRouter = createTRPCRouter({
       });
       if (!result) {
         throw new TRPCError({
-          code: "BAD_REQUEST",
+          code: "NOT_FOUND",
           message: "Workspace not found",
         });
       }
