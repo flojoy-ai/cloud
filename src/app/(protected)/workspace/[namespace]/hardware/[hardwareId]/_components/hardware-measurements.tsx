@@ -95,7 +95,7 @@ export default function HardwareMeasurements({
         </div>
         <div className="py-2" />
         <div className="text-sm text-muted-foreground">
-          <span>{status.passCount} passing</span>,{" "}
+          <span>{status.passCount} passed</span>,{" "}
           <span>{status.failCount} failed</span>,{" "}
           <span>{status.unevaluatedCount} unevaluated</span>
         </div>
