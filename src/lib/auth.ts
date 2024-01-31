@@ -3,7 +3,7 @@ import { type SelectWorkspaceUser } from "~/types/workspace_user";
 
 export type AccessContext = {
   db: typeof db;
-  userId: string;
+  user: { id: string };
   workspaceId: string | null;
 };
 
@@ -27,7 +27,7 @@ export const checkWorkspaceAccess = async (
     where: (workspace_user, { and, eq }) =>
       and(
         eq(workspace_user.workspaceId, workspaceIdOfTheResource),
-        eq(workspace_user.userId, ctx.userId),
+        eq(workspace_user.userId, ctx.user.id),
       ),
   });
 

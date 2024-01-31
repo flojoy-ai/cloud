@@ -33,6 +33,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { insertUserInviteSchema } from "~/types/user";
 import { workspaceRoles } from "~/config/workspace_user";
+import { toast } from "sonner";
 
 const formSchema = insertUserInviteSchema;
 
@@ -48,7 +49,11 @@ const InviteUser = ({ workspaceId }: Props) => {
     },
   });
 
-  const inviteUser = api.user.addUserToWorkspace.useMutation();
+  const inviteUser = api.user.addUserToWorkspace.useMutation({
+    onSuccess: () => {
+      toast.message("User invited, an email has been sent.");
+    },
+  });
 
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof formSchema>) {
@@ -57,7 +62,11 @@ const InviteUser = ({ workspaceId }: Props) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-8"
+        id="invite-user-form"
+      >
         <Dialog>
           <DialogTrigger asChild>
             <Button size="sm">Invite user</Button>
@@ -128,7 +137,9 @@ const InviteUser = ({ workspaceId }: Props) => {
                 />
               </div>
             </div>
-            <Button type="submit">Invite</Button>
+            <Button type="submit" form="invite-user-form">
+              Invite
+            </Button>
           </DialogContent>
         </Dialog>
       </form>

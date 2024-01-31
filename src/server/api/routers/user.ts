@@ -20,6 +20,7 @@ import { WorkspaceUserInvite } from "~/emails/workspace-user-invite";
 import { sendEmailWithSES } from "~/lib/email";
 import { TRPCError } from "@trpc/server";
 import { env } from "~/env";
+import _ from "lodash";
 
 export const userRouter = createTRPCRouter({
   getUsersInWorkspace: workspaceProcedure
@@ -64,21 +65,32 @@ export const userRouter = createTRPCRouter({
       if (!currentWorkspaceUser) {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: "You don't have permission to add users to this workspace",
+          message: "Something went wrong :(",
         });
       }
 
-      if (["owner", "admin"].includes(currentWorkspaceUser.role)) {
+      if (!_.includes(["admin", "owner"], currentWorkspaceUser.role)) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You do not have permission to add users to this workspace",
         });
       }
 
-      await ctx.db.insert(userInviteTable).values({
-        email: input.email,
-        workspaceId: ctx.workspace.id,
-        role: input.role,
+      await ctx.db.transaction(async (trx) => {
+        await trx
+          .delete(userInviteTable)
+          .where(
+            and(
+              eq(userInviteTable.email, input.email),
+              eq(userInviteTable.workspaceId, ctx.workspace.id),
+            ),
+          );
+
+        await trx.insert(userInviteTable).values({
+          email: input.email,
+          workspaceId: ctx.workspace.id,
+          role: input.role,
+        });
       });
 
       const emailHtml = render(
