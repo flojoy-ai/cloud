@@ -9,7 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
-import { z } from "zod";
+import { type z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { api } from "~/trpc/react";
@@ -31,11 +31,10 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import { insertUserInviteSchema } from "~/types/user";
+import { workspaceRoles } from "~/config/workspace_user";
 
-const formSchema = z.object({
-  email: z.string().email(),
-  workspaceId: z.string(),
-});
+const formSchema = insertUserInviteSchema;
 
 type Props = {
   workspaceId: string;
@@ -53,7 +52,7 @@ const InviteUser = ({ workspaceId }: Props) => {
 
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // inviteUser.mutate(values);
+    inviteUser.mutate(values);
   }
 
   return (
@@ -97,7 +96,7 @@ const InviteUser = ({ workspaceId }: Props) => {
               <div>
                 <FormField
                   control={form.control}
-                  name="email"
+                  name="role"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Role</FormLabel>
@@ -112,8 +111,13 @@ const InviteUser = ({ workspaceId }: Props) => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="admin">admin</SelectItem>
-                            <SelectItem value="member">member</SelectItem>
+                            {workspaceRoles
+                              .filter((role) => role !== "owner")
+                              .map((role) => (
+                                <SelectItem key={role} value={role}>
+                                  {role}
+                                </SelectItem>
+                              ))}
                           </SelectContent>
                         </Select>
                       </FormControl>

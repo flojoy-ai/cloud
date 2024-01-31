@@ -12,4 +12,8 @@ export type SelectUserInvite = typeof userInviteTable.$inferSelect;
 export type InsertUserInvite = typeof userInviteTable.$inferInsert;
 
 export const selectUserInviteSchema = createSelectSchema(userInviteTable);
-export const insertUserInviteSchema = createInsertSchema(userInviteTable);
+export const insertUserInviteSchema = createInsertSchema(userInviteTable).pick({
+  email: true,
+  role: true,
+  workspaceId: true,
+});
