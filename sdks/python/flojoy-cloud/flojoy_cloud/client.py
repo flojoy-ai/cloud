@@ -116,6 +116,7 @@ class FlojoyCloud:
             headers={
                 "Authorization": f"Bearer {workspace_secret}",
             },
+            timeout=10,
         )
 
     """Test Endpoints"""
