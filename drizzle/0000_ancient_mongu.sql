@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS "cloud_measurement" (
 	"id" text PRIMARY KEY NOT NULL,
 	"name" text DEFAULT 'Untitled',
 	"data" jsonb NOT NULL,
+	"pass" boolean,
 	"hardware_id" text NOT NULL,
 	"test_id" text NOT NULL,
 	"storage_provider" text NOT NULL,

@@ -3,8 +3,6 @@ import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
 
 const Page = () => {
-  // I want to implement a countdown after I press the resend button
-
   const [countdown, setCountdown] = useState<number>(0);
 
   useEffect(() => {

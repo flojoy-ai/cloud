@@ -1,5 +1,5 @@
 {
-  "id": "9cf70287-5fac-4483-b26e-30bdcb7f8788",
+  "id": "2d120df3-a67d-47f2-ab7f-65b6ed24f994",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -235,6 +235,12 @@
           "type": "jsonb",
           "primaryKey": false,
           "notNull": true
+        },
+        "pass": {
+          "name": "pass",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
         },
         "hardware_id": {
           "name": "hardware_id",
