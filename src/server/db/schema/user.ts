@@ -8,6 +8,7 @@ import {
 import { baseModal, pgTable } from "./table";
 import { workspaceTable } from "./workspace";
 import { workspaceRoles } from "~/config/workspace_user";
+import { relations } from "drizzle-orm";
 
 // After a user signs up with the auth provider, we will create a user
 // object in our database as well. This user object will also record the
@@ -79,6 +80,13 @@ export const userInviteTable = pgTable("user_invite", {
   email: text("email").notNull(),
   workspaceId: text("workspace_id")
     .notNull()
-    .references(() => workspaceTable.id),
+    .references(() => workspaceTable.id, { onDelete: "cascade" }),
   role: text("role", { enum: workspaceRoles }).notNull(),
 });
+
+export const userInviteRelation = relations(userInviteTable, ({ one }) => ({
+  test: one(workspaceTable, {
+    fields: [userInviteTable.workspaceId],
+    references: [workspaceTable.id],
+  }),
+}));
