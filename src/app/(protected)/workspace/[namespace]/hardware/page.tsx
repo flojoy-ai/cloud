@@ -4,7 +4,6 @@ import {
   PageHeaderHeading,
 } from "~/components/small-header";
 import { api } from "~/trpc/server";
-import CreateModel from "./_components/create-model";
 import HardwareInstances from "./_components/hardware-instances";
 import HardwareModels from "./_components/hardware-models";
 import { Separator } from "~/components/ui/separator";
