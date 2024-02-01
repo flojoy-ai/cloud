@@ -2,7 +2,6 @@
 
 import { type ColumnDef } from "@tanstack/react-table";
 import { type SelectUser } from "~/types/user";
-import { type SelectWorkspace } from "~/types/workspace";
 import { type SelectWorkspaceUser } from "~/types/workspace_user";
 import { MoreHorizontal } from "lucide-react";
 
