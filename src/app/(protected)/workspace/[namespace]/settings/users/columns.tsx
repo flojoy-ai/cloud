@@ -21,7 +21,6 @@ import { useRouter } from "next/navigation";
 
 export const userColumns: ColumnDef<{
   user: SelectUser;
-  workspace: SelectWorkspace;
   workspace_user: SelectWorkspaceUser;
 }>[] = [
   {
