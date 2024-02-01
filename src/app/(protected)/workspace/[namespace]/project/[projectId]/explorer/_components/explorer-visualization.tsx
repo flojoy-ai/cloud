@@ -63,9 +63,13 @@ const ExplorerVisualization = ({ tests, workspaceId, namespace }: Props) => {
 
 client = FlojoyCloud(workspace_secret="YOUR_WORKSPACE_SECRET")
 
+# Per test
 measurements = client.get_all_measurements_by_test_id("${
     selectedTest?.id ?? "TEST_ID"
   }")
+
+# Per device
+measurements = client.get_all_measurements_by_hardware_id("HARDWARE_ID")
 `;
 
   return (
