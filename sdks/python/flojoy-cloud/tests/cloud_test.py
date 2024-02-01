@@ -321,8 +321,11 @@ def measurement_setup(workspace: WorkspaceInfo):
     client, workspace_id = workspace
     model = client.create_device_model("model", workspace_id)
     project = client.create_project("project", model.id, workspace_id)
-    device = client.create_device(
-        workspace_id, "device", model.id, project_id=project.id
+    device1 = client.create_device(
+        workspace_id, "device1", model.id, project_id=project.id
+    )
+    device2 = client.create_device(
+        workspace_id, "device2", model.id, project_id=project.id
     )
 
     bool_test = client.create_test(
@@ -332,7 +335,7 @@ def measurement_setup(workspace: WorkspaceInfo):
         "dataframe-test", project.id, measurement_type="dataframe"
     )
 
-    yield bool_test, df_test, device
+    yield bool_test, df_test, device1, device2
 
     for measurement in client.get_all_measurements_by_test_id(bool_test.id):
         client.delete_measurement_by_id(measurement.id)
@@ -343,34 +346,48 @@ def measurement_setup(workspace: WorkspaceInfo):
     client.delete_test(df_test.id)
 
     client.delete_project(project.id)
-    client.delete_hardware_by_id(device.id)
+    client.delete_hardware_by_id(device1.id)
+    client.delete_hardware_by_id(device2.id)
     client.delete_model(model.id)
 
 
 @pytest.mark.skipif(not runnable, reason="Need environment setup")
 def test_measurement_routes(workspace: WorkspaceInfo, measurement_setup):
     client, workspace_id = workspace
-    bool_test, df_test, device = measurement_setup
+    bool_test, df_test, device1, device2 = measurement_setup
 
     client.upload(
         data=True,
         test_id=bool_test.id,
-        hardware_id=device.id,
+        hardware_id=device1.id,
         name="bool",
     )
 
     client.upload(
         data=pd.DataFrame({"col1": [1, 2, 3], "col2": [4, 5, 6], "col3": [7, 8, 9]}),
         test_id=df_test.id,
-        hardware_id=device.id,
+        hardware_id=device1.id,
         name="df",
     )
 
+    client.upload(
+        data=False,
+        test_id=bool_test.id,
+        hardware_id=device2.id,
+        name="bool 2",
+    )
+
     bool_measurements = client.get_all_measurements_by_test_id(bool_test.id)
-    assert len(bool_measurements) == 1
+    assert len(bool_measurements) == 2
 
     df_measurements = client.get_all_measurements_by_test_id(df_test.id)
     assert len(df_measurements) == 1
+
+    d1_measurements = client.get_all_measurements_by_hardware_id(device1.id)
+    assert len(d1_measurements) == 2
+
+    d2_measurements = client.get_all_measurements_by_hardware_id(device2.id)
+    assert len(d2_measurements) == 1
 
     bool_meas = client.get_measurement_by_id(bool_measurements[0].id)
     assert bool_meas.name == "bool"
@@ -383,7 +400,7 @@ def test_measurement_routes(workspace: WorkspaceInfo, measurement_setup):
     client.delete_measurement_by_id(bool_meas.id)
 
     bool_measurements = client.get_all_measurements_by_test_id(bool_test.id)
-    assert len(bool_measurements) == 0
+    assert len(bool_measurements) == 1
 
     client.delete_measurement_by_id(df_meas.id)
 
