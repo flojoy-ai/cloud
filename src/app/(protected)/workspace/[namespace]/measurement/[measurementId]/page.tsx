@@ -5,7 +5,7 @@ import {
   PageHeaderDescription,
   PageHeaderHeading,
 } from "~/components/small-header";
-import { Button } from "~/components/ui/button";
+import { Badge } from "~/components/ui/badge";
 import { Card } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
 import DataframeViz from "~/components/visualization/dataframe-viz";
@@ -69,20 +69,24 @@ export default async function Measurement({
         {searchParams.back && <BackButton />}
 
         <PageHeaderHeading className="">{measurement.name}</PageHeaderHeading>
-        <PageHeaderDescription>
-          {measurement.createdAt.toString()}
-        </PageHeaderDescription>
+        <PageHeaderDescription>{measurement.id}</PageHeaderDescription>
       </PageHeader>
 
       <Separator className="my-6" />
 
-      <Button asChild>
-        <Link
-          href={`/workspace/${params.namespace}/hardware/${measurement.hardware.id}`}
-        >
-          {measurement.hardware.model.name} {measurement.hardware.name}
-        </Link>
-      </Button>
+      <div>
+        <div>Taken at: {measurement.createdAt.toString()}</div>
+        <div>
+          Hardware instance:{" "}
+          <Badge>
+            <Link
+              href={`/workspace/${params.namespace}/hardware/${measurement.hardware.id}`}
+            >
+              {measurement.hardware.model.name} {measurement.hardware.name}
+            </Link>
+          </Badge>
+        </div>
+      </div>
 
       <div className="py-4" />
       {visualization}
