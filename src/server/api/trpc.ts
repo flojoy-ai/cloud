@@ -215,7 +215,9 @@ export const workspaceProcedure = t.procedure.use(async ({ ctx, next }) => {
 
   return next({
     ctx: {
-      userId, // this cannot be null
+      user: {
+        id: userId,
+      }, // this cannot be null
 
       // when the workspaceId is not null, then we need to make sure
       // the request does not access anything outside of this workspace

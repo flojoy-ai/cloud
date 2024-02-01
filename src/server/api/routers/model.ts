@@ -22,7 +22,7 @@ import {
 import { workspaceAccessMiddleware } from "./workspace";
 
 export const modelAccessMiddlware = experimental_standaloneMiddleware<{
-  ctx: { db: typeof db; userId: string; workspaceId: string | null };
+  ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
   input: { modelId: string };
 }>().create(async (opts) => {
   const model = await opts.ctx.db.query.modelTable.findFirst({
@@ -54,8 +54,8 @@ export const modelAccessMiddlware = experimental_standaloneMiddleware<{
     // this infers the `workspaceId` in ctx to be non-null
     // and also adds the respective resource id as well for use
     ctx: {
-      workspaceId: workspaceUser.workspaceId,
-      modelId: model.id,
+      workspaceUser,
+      model,
     },
   });
 });
@@ -233,6 +233,12 @@ export const modelRouter = createTRPCRouter({
     .output(z.void())
     .use(modelAccessMiddlware)
     .mutation(async ({ ctx, input }) => {
+      if (ctx.workspaceUser.role !== "owner") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You do not have permission to delete this workspace",
+        });
+      }
       await ctx.db.delete(modelTable).where(eq(modelTable.id, input.modelId));
     }),
 });

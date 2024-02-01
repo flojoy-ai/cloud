@@ -36,7 +36,7 @@ function UserButton({ user }: Props) {
         <Button
           variant="outline"
           className={cn(
-            "h-8 justify-start gap-2 rounded-[0.5rem] bg-background text-sm font-normal  shadow-none",
+            "h-8 justify-start gap-2 rounded-[0.5rem] bg-background text-sm font-normal shadow-none",
           )}
         >
           <Avatar className="h-5 w-5">

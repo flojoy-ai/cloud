@@ -21,7 +21,7 @@ export const secretRouter = createTRPCRouter({
       const date = new Date();
 
       const jwtValue = await new jose.SignJWT({
-        userId: ctx.userId,
+        userId: ctx.user.id,
         workspaceId: input.workspaceId,
       })
         .setProtectedHeader({ alg: "HS256" })
@@ -33,14 +33,14 @@ export const secretRouter = createTRPCRouter({
         .where(
           and(
             eq(secretTable.workspaceId, input.workspaceId),
-            eq(secretTable.userId, ctx.userId),
+            eq(secretTable.userId, ctx.user.id),
           ),
         );
 
       const [secretCreateResult] = await ctx.db
         .insert(secretTable)
         .values({
-          userId: ctx.userId,
+          userId: ctx.user.id,
           workspaceId: input.workspaceId,
           value: jwtValue,
         })
@@ -70,7 +70,7 @@ export const secretRouter = createTRPCRouter({
         where: (secret, { eq, and }) =>
           and(
             eq(secret.workspaceId, input.workspaceId),
-            eq(secret.userId, ctx.userId),
+            eq(secret.userId, ctx.user.id),
           ),
       });
     }),

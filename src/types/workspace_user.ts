@@ -1,9 +1,9 @@
-import { workspace_user } from "~/server/db/schema";
+import { workspaceUserTable } from "~/server/db/schema";
 
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
-export type SelectWorkspaceUser = typeof workspace_user.$inferSelect;
-export type InsertWorkspaceUser = typeof workspace_user.$inferInsert;
+export type SelectWorkspaceUser = typeof workspaceUserTable.$inferSelect;
+export type InsertWorkspaceUser = typeof workspaceUserTable.$inferInsert;
 
-export const selectWorkspaceUserSchema = createSelectSchema(workspace_user);
-export const insertWorkspaceUserSchema = createInsertSchema(workspace_user);
+export const selectWorkspaceUserSchema = createSelectSchema(workspaceUserTable);
+export const insertWorkspaceUserSchema = createInsertSchema(workspaceUserTable);

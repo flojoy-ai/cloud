@@ -1,18 +1,10 @@
-import { text, timestamp, pgEnum, primaryKey } from "drizzle-orm/pg-core";
+import { text, timestamp, primaryKey, boolean } from "drizzle-orm/pg-core";
 import { pgTable } from "./table";
 import { userTable } from "./user";
 import { workspaceTable } from "./workspace";
+import { workspaceRoles } from "~/config/workspace_user";
 
-// The workspaces_users table is a join table between the workspaces and users
-// It is used to keep track of which user belongs to which workspace.
-export const workspaceRoleEnum = pgEnum("workspace_role", [
-  "owner",
-  "admin",
-  "member",
-  "pending", // An invite has sent but the user has not accepted it yet
-]);
-
-export const workspace_user = pgTable(
+export const workspaceUserTable = pgTable(
   "workspace_user",
   {
     userId: text("user_id")
@@ -21,7 +13,7 @@ export const workspace_user = pgTable(
     workspaceId: text("workspace_id")
       .notNull()
       .references(() => workspaceTable.id, { onDelete: "cascade" }),
-    workspaceRole: workspaceRoleEnum("workspace_role").notNull(),
+    role: text("role", { enum: workspaceRoles }).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => {

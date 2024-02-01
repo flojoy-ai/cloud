@@ -3,7 +3,7 @@ import { type SelectWorkspaceUser } from "~/types/workspace_user";
 
 export type AccessContext = {
   db: typeof db;
-  userId: string;
+  user: { id: string };
   workspaceId: string | null;
 };
 
@@ -23,11 +23,11 @@ export const checkWorkspaceAccess = async (
   // Now we need to make sure the given user in ctx has access to the workspace
   // that holds the resource. The userId field in ctx is always non-null no matter
   // you are authenticating with a secret key or a user session.
-  const perm = await ctx.db.query.workspace_user.findFirst({
+  const perm = await ctx.db.query.workspaceUserTable.findFirst({
     where: (workspace_user, { and, eq }) =>
       and(
         eq(workspace_user.workspaceId, workspaceIdOfTheResource),
-        eq(workspace_user.userId, ctx.userId),
+        eq(workspace_user.userId, ctx.user.id),
       ),
   });
 
