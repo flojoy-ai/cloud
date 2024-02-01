@@ -7,6 +7,7 @@ import { api } from "~/trpc/server";
 import CreateModel from "./_components/create-model";
 import HardwareInstances from "./_components/hardware-instances";
 import HardwareModels from "./_components/hardware-models";
+import { Separator } from "~/components/ui/separator";
 
 export default async function HardwareInventory({
   params,
@@ -42,16 +43,15 @@ export default async function HardwareInventory({
       </PageHeader>
       <div className="py-4" />
 
-      <h1 className="text-2xl font-bold">Hardware Models</h1>
-      <div className="py-1" />
-      <CreateModel workspaceId={workspaceId} deviceModels={deviceModels} />
-      <div className="py-4" />
+      <Separator />
 
       <HardwareModels
         deviceModels={deviceModels}
         systemModels={systemModels}
         workspaceId={workspaceId}
       />
+
+      <Separator />
 
       <HardwareInstances
         devices={devices}

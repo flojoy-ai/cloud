@@ -35,8 +35,9 @@ export default function HardwareInstances(props: Props) {
 
   return (
     <div className="">
+      <div className="py-2" />
       <h1 className="text-2xl font-bold">Hardware Instances</h1>
-      <div className="py-4" />
+      <div className="py-1" />
       <h1 className="text-lg font-bold text-muted-foreground">Devices</h1>
       <div className="py-1" />
       <CreateDevice workspaceId={props.workspaceId} models={props.deviceModels}>
