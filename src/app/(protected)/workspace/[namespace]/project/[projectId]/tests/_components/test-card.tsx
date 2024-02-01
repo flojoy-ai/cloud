@@ -5,7 +5,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
@@ -36,12 +35,6 @@ const TestCard = ({ test, namespace }: Props) => {
             <CardContent>
               <Badge>{test.measurementType}</Badge>
             </CardContent>
-            <CardFooter>
-              {/* <div> */}
-              {/*   Last updated:{" "} */}
-              {/*   {test.updatedAt ? getPrettyTime(test.updatedAt) : "Never"} */}
-              {/* </div> */}
-            </CardFooter>
           </Card>
         </Link>
       </ContextMenuTrigger>
