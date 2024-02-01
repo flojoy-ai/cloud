@@ -24,7 +24,6 @@
     "@aws-sdk/client-ses": "^3.504.0",
     "@hookform/resolvers": "^3.3.4",
     "@lucia-auth/adapter-drizzle": "^1.0.0",
-    "@lucia-auth/adapter-postgresql": "^3.0.0",
     "@neondatabase/serverless": "^0.7.2",
     "@next/bundle-analyzer": "^14.1.0",
     "@paralleldrive/cuid2": "^2.2.2",

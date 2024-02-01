@@ -22,9 +22,6 @@ dependencies:
   '@lucia-auth/adapter-drizzle':
     specifier: ^1.0.0
     version: 1.0.0(lucia@3.0.1)
-  '@lucia-auth/adapter-postgresql':
-    specifier: ^3.0.0
-    version: 3.0.0(lucia@3.0.1)(pg@8.11.3)(postgres@3.4.3)
   '@neondatabase/serverless':
     specifier: ^0.7.2
     version: 0.7.2
@@ -2072,23 +2069,6 @@ packages:
       lucia: 3.x
     dependencies:
       lucia: 3.0.1
-    dev: false
-
-  /@lucia-auth/adapter-postgresql@3.0.0(lucia@3.0.1)(pg@8.11.3)(postgres@3.4.3):
-    resolution: {integrity: sha512-DyKLrVe2kFajJ9DIISP11mFz4Y72XnW1g4SrvRATrD+qPr+l7iwt5emWbqQJ6p3zbfY0VraPNICSp23mgAg0jw==}
-    peerDependencies:
-      lucia: 3.x
-      pg: ^8.8.0
-      postgres: ^3.3.0
-    peerDependenciesMeta:
-      pg:
-        optional: true
-      postgres:
-        optional: true
-    dependencies:
-      lucia: 3.0.1
-      pg: 8.11.3
-      postgres: 3.4.3
     dev: false
 
   /@mapbox/geojson-rewind@0.5.2:
