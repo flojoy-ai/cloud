@@ -138,7 +138,7 @@ class FlojoyCloud:
         )
 
     @query(model=Test)
-    def get_test_by_id(self, test_id: str):
+    def get_test(self, test_id: str):
         return self.client.get(f"/tests/{test_id}")
 
     @query(model=TypeAdapter(list[Test]))
@@ -240,7 +240,7 @@ class FlojoyCloud:
         return self.client.post("/hardware/systems", json=body)
 
     @query(model=Hardware)
-    def get_hardware_by_id(self, hardware_id: str):
+    def get_hardware(self, hardware_id: str):
         return self.client.get(f"/hardware/{hardware_id}")
 
     @query(model=TypeAdapter(list[Hardware]))
@@ -286,11 +286,11 @@ class FlojoyCloud:
         return self.client.get("/hardware/all/systems", params=params)
 
     @query(model=None)
-    def delete_hardware_by_id(self, hardware_id: str):
+    def delete_hardware(self, hardware_id: str):
         return self.client.delete(f"/hardware/{hardware_id}")
 
     @query(model=None)
-    def update_hardware_by_id(self, hardware_id: str, name: str):
+    def update_hardware(self, hardware_id: str, name: str):
         return self.client.patch(f"/hardware/{hardware_id}", json={"name": name})
 
     """Measurement Endpoints"""
@@ -332,30 +332,26 @@ class FlojoyCloud:
         start_date: datetime.datetime | None = None,
         end_date: datetime.datetime | None = None,
     ):
-        query_params: dict[str, int | str] = {
-            "testId": test_id,
-        }
+        query_params = {}
         if start_date is not None:
             query_params["startDate"] = start_date.isoformat()
         if end_date is not None:
             query_params["endDate"] = end_date.isoformat()
 
         return self.client.get(
-            "/measurements",
+            f"/measurements/test/{test_id}",
             params=query_params,
         )
 
     @query(model=TypeAdapter(list[MeasurementWithHardware]))
     def get_all_measurements_by_hardware_id(
         self,
-        test_id: str,
+        hardware_id: str,
         start_date: datetime.datetime | None = None,
         end_date: datetime.datetime | None = None,
         latest: bool | None = None,
     ):
-        query_params: dict[str, int | str] = {
-            "testId": test_id,
-        }
+        query_params = {}
         if start_date is not None:
             query_params["startDate"] = start_date.isoformat()
         if end_date is not None:
@@ -364,16 +360,16 @@ class FlojoyCloud:
             query_params["latest"] = latest
 
         return self.client.get(
-            "/measurements",
+            f"/measurements/hardware/{hardware_id}",
             params=query_params,
         )
 
     @query(model=MeasurementWithHardware)
-    def get_measurement_by_id(self, measurement_id: str):
+    def get_measurement(self, measurement_id: str):
         return self.client.get(f"/measurements/{measurement_id}")
 
     @query(model=None)
-    def delete_measurement_by_id(self, measurement_id: str):
+    def delete_measurement(self, measurement_id: str):
         return self.client.delete(f"/measurements/{measurement_id}")
 
     """Project Routes"""
@@ -386,7 +382,7 @@ class FlojoyCloud:
         )
 
     @query(model=ProjectWithModel)
-    def get_project_by_id(self, project_id: str):
+    def get_project(self, project_id: str):
         return self.client.get(f"/projects/{project_id}")
 
     @query(model=TypeAdapter(list[Project]))
