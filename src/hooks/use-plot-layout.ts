@@ -15,11 +15,23 @@ const darkModeLayout: Partial<Layout> = {
   },
 };
 
+export const plasmaColorscale = [
+  "#0d0887",
+  "#7201a8",
+  "#bc3587",
+  "#eb7655",
+  "#fa9c3c",
+  "#f1f525",
+];
+
 export const usePlotLayout = (): Partial<Layout> => {
   const { resolvedTheme } = useTheme();
 
   return {
-    showlegend: false,
+    showlegend: true,
+    modebar: {
+      orientation: "v",
+    },
     hoverlabel: {
       namelength: -1,
     },

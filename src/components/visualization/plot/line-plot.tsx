@@ -11,13 +11,15 @@ import { type explorerConfig } from "~/types/data";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import * as math from "mathjs";
 import _ from "lodash";
-import { usePlotLayout } from "~/hooks/use-plot-layout";
+import { plasmaColorscale, usePlotLayout } from "~/hooks/use-plot-layout";
 import { useTheme } from "next-themes";
 
 type Line = {
   x: number[] | string[];
   y: number[];
   name: string;
+  group: string;
+  mode: "lines" | "markers";
 };
 
 type ComputedTraces = {
@@ -69,14 +71,14 @@ const hline = (y: number, theme: string | undefined): Partial<Shape> => {
 
 type Props = {
   title: string;
-  lines: Line[];
+  lineGroups: Line[][];
   config: z.infer<typeof explorerConfig.dataframe>;
   onTraceClick: (event: Readonly<PlotMouseEvent>) => void;
 };
 
-const LinePlot = ({ lines, title, config, onTraceClick }: Props) => {
-  const [highlightedTraceIndex, setHighlightedTraceIndex] = useState<
-    number | null
+const LinePlot = ({ lineGroups, title, config, onTraceClick }: Props) => {
+  const [highlightedTraceName, setHighlightedTraceName] = useState<
+    string | null
   >(null);
   const layoutBase = usePlotLayout();
   const { resolvedTheme } = useTheme();
@@ -91,34 +93,44 @@ const LinePlot = ({ lines, title, config, onTraceClick }: Props) => {
 
     const traces: Partial<PlotData>[] = [];
 
-    lines.forEach((line, i) => {
-      const min = line.x[0];
-      if (min !== undefined && typeof min === "number") {
-        minX = Math.min(min, minX);
-      }
-      const max = line.x[line.x.length - 1];
-      if (max !== undefined && typeof max === "number") {
-        maxX = Math.max(max, maxX);
-      }
+    for (const lines of lineGroups) {
+      lines.forEach((line, index) => {
+        const isNumeric = typeof line.x[0] === "number";
+        if (isNumeric) {
+          const min = Math.min(...(line.x as number[]));
+          minX = Math.min(min, minX);
+          const max = Math.max(...(line.x as number[]));
+          maxX = Math.max(max, maxX);
+        }
 
-      traces.push({
-        type: "scatter",
-        mode: "lines",
-        x: line.x,
-        y: yTransform
-          ? line.y.map((y) => yTransform.evaluate({ y }) as number)
-          : line.y,
-        error_y:
-          config.errorBars && config.errorPercentage
-            ? { type: "percent", value: config.errorPercentage, thickness: 0.5 }
-            : undefined,
-        name: line.name,
-        line:
-          i === highlightedTraceIndex
-            ? { color: "#7B61FF", width: 2 }
-            : { color: "rgba(160,160,160,0.75)", width: 1 },
+        traces.push({
+          type: "scatter",
+          mode: line.mode,
+          x: line.x,
+          y: yTransform
+            ? line.y.map((y) => yTransform.evaluate({ y }) as number)
+            : line.y,
+          error_y:
+            config.errorBars && config.errorPercentage
+              ? {
+                  type: "percent",
+                  value: config.errorPercentage,
+                  thickness: 0.5,
+                }
+              : undefined,
+          name: line.group,
+          hovertext: line.name,
+          line:
+            line.name === highlightedTraceName
+              ? {
+                  color: plasmaColorscale[index % plasmaColorscale.length],
+                  width: 2,
+                }
+              : { color: "rgba(160,160,160,0.75)", width: 1 },
+          legendgroup: line.group,
+        });
       });
-    });
+    }
 
     return {
       minX,
@@ -126,8 +138,8 @@ const LinePlot = ({ lines, title, config, onTraceClick }: Props) => {
       traces,
     };
   }, [
-    lines,
-    highlightedTraceIndex,
+    lineGroups,
+    highlightedTraceName,
     config.errorPercentage,
     config.errorBars,
     config.yTransform,
@@ -178,11 +190,13 @@ const LinePlot = ({ lines, title, config, onTraceClick }: Props) => {
   }
 
   const handleHover = useCallback((event: Readonly<PlotHoverEvent>) => {
-    setHighlightedTraceIndex(event.points[0]?.curveNumber ?? null);
+    setHighlightedTraceName(
+      (event.points[0]?.data.hovertext as string) ?? null,
+    );
   }, []);
 
   const handleUnhover = useCallback(() => {
-    setHighlightedTraceIndex(null);
+    setHighlightedTraceName(null);
   }, []);
 
   const layout: Partial<Layout> = useMemo(() => {
@@ -196,7 +210,14 @@ const LinePlot = ({ lines, title, config, onTraceClick }: Props) => {
 
     return _.merge(layoutBase, {
       title,
+      xaxis: {
+        title: config.xAxisColumn,
+      },
       yaxis: {
+        title:
+          config.traces.length === 1
+            ? config.traces[0]?.yAxisColumn
+            : undefined,
         type: config.logScaleYAxis ? "log" : "linear",
       },
       shapes,

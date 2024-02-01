@@ -11,9 +11,11 @@ def make_payload(data: MeasurementData):
         case bool():
             return {"type": "boolean", "value": data}
         case pd.DataFrame():
-            return {
-                "type": "dataframe",
-                "value": data.to_dict("list"),
-            }
+            value = {}
+            # Have to do this weird hack because df.todict('list') behaves strangely
+            for col_name, series in data.items():
+                value[col_name] = series.tolist()
+
+            return {"type": "dataframe", "value": value}
         case _:
             raise TypeError(f"Unsupported data type: {type(data)}")
