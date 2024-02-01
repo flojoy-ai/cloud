@@ -1,4 +1,3 @@
-import { MeasurementsDataTable } from "~/components/measurements-data-table";
 import {
   PageHeader,
   PageHeaderDescription,
@@ -6,15 +5,21 @@ import {
 } from "~/components/page-header";
 
 import { api } from "~/trpc/server";
+import HardwareMeasurements from "./_components/hardware-measurements";
 
-export default async function Device({
+export default async function Hardware({
   params,
 }: {
-  params: { deviceId: string; namespace: string };
+  params: { hardwareId: string; namespace: string };
 }) {
   const device = await api.hardware.getHardwareById.query({
-    hardwareId: params.deviceId,
+    hardwareId: params.hardwareId,
   });
+  const measurements =
+    await api.measurement.getAllMeasurementsByHardwareId.query({
+      hardwareId: params.hardwareId,
+      latest: true,
+    });
 
   return (
     <div className="container max-w-screen-2xl">
@@ -25,11 +30,10 @@ export default async function Device({
         </PageHeaderDescription>
       </PageHeader>
 
-      <div className="py-4"></div>
-
-      <MeasurementsDataTable
-        measurements={device.measurements}
+      <HardwareMeasurements
+        hardwareId={params.hardwareId}
         namespace={params.namespace}
+        initialMeasurements={measurements}
       />
     </div>
   );

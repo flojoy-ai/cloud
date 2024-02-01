@@ -20,11 +20,6 @@ variable "key_name" {
   type        = string
 }
 
-variable "subnet_id" {
-  description = "The subnet ID"
-  type        = string
-}
-
 variable "security_group_ids" {
   description = "The security group IDs"
   type        = list(string)

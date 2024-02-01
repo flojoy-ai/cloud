@@ -16,7 +16,7 @@ import { projectAccessMiddleware } from "./project";
 import { checkWorkspaceAccess } from "~/lib/auth";
 
 export const testAccessMiddleware = experimental_standaloneMiddleware<{
-  ctx: { db: typeof db; userId: string; workspaceId: string | null };
+  ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
   input: { testId: string };
 }>().create(async (opts) => {
   const test = await opts.ctx.db.query.testTable.findFirst({
@@ -52,8 +52,8 @@ export const testAccessMiddleware = experimental_standaloneMiddleware<{
     // this infers the `workspaceId` in ctx to be non-null
     // and also adds the respective resource id as well for use
     ctx: {
-      workspaceId: workspaceUser.workspaceId,
-      testId: test.id,
+      workspaceUser,
+      test,
     },
   });
 });
@@ -166,8 +166,16 @@ export const testRouter = createTRPCRouter({
       openapi: { method: "DELETE", path: "/v1/tests/{testId}", tags: ["test"] },
     })
     .input(z.object({ testId: z.string() }))
+    .use(testAccessMiddleware)
     .output(z.void())
     .mutation(async ({ ctx, input }) => {
+      if (ctx.workspaceUser.role !== "owner") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You do not have permission to delete this workspace",
+        });
+      }
+
       await ctx.db.delete(testTable).where(eq(testTable.id, input.testId));
     }),
 });

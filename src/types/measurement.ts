@@ -1,14 +1,14 @@
 import { measurementTable } from "~/server/db/schema";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { measurementDataSchema } from "~/types/data";
-import { type SelectHardwareBase } from "./hardware";
+import { type SelectHardware } from "./hardware";
 
 export type SelectMeasurement = typeof measurementTable.$inferSelect;
 
 export type InsertMeasurement = typeof measurementTable.$inferSelect;
 
 export type MeasurementWithHardware = SelectMeasurement & {
-  hardware: SelectHardwareBase;
+  hardware: SelectHardware;
 };
 
 export const insertMeasurementSchema = createInsertSchema(measurementTable, {
@@ -16,6 +16,7 @@ export const insertMeasurementSchema = createInsertSchema(measurementTable, {
 });
 export const publicInsertMeasurementSchema = insertMeasurementSchema.pick({
   name: true,
+  pass: true,
   data: true,
   hardwareId: true,
   testId: true,

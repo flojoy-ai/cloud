@@ -1,8 +1,8 @@
 import { render } from "@react-email/render";
 import { SES } from "@aws-sdk/client-ses";
-import EmailVerification from "~/emails/email-verification";
+import { EmailVerification } from "~/emails/email-verification";
 import { env } from "~/env";
-import PasswordResetHTML from "~/emails/password-reset";
+import { PasswordResetHTML } from "~/emails/password-reset";
 
 export const sendEmailVerificationLink = async (
   email: string,
@@ -40,7 +40,7 @@ type SendEmailWithSESProps = {
   subject: string;
 };
 
-const sendEmailWithSES = async ({
+export const sendEmailWithSES = async ({
   recipients,
   emailHtml,
   subject,

@@ -8,13 +8,13 @@ export type MeasurementDataType = (typeof allMeasurementDataTypes)[number];
 
 // Step 2: Create a schema for the newly added measurement type
 const booleanDataSchema = z.object({
-  passed: z.boolean(),
+  value: z.boolean(),
 });
 
 export type BooleanData = z.infer<typeof booleanDataSchema>;
 
 const dataframeDataSchema = z.object({
-  dataframe: z.record(
+  value: z.record(
     z.string(),
     // TODO: technically the array can also contain nulls
     z.union([z.number().array(), z.string().array()]),
@@ -82,31 +82,32 @@ const exprValidator = (varName: string) => (expr: string | undefined) => {
   return valid;
 };
 
-const dataframeExplorerSchema = z
-  .object({
-    xAxisColumn: z.string().optional(),
-    yAxisColumn: z.string().optional(),
-    upperControlLimit: z.number().optional(),
-    lowerControlLimit: z.number().optional(),
-    yTransform: z
-      .string()
-      .optional()
-      .refine(exprValidator("y"), "Expression must be a function of y"),
-    upperControlLimitTransform: z
-      .string()
-      .optional()
-      .refine(exprValidator("x"), "Expression must be a function of x"),
-    lowerControlLimitTransform: z
-      .string()
-      .optional()
-      .refine(exprValidator("x"), "Expression must be a function of x"),
-    logScaleYAxis: z.boolean().optional(),
-    errorBars: z.boolean().optional(),
-    errorPercentage: z.number().min(0).optional(),
-  })
-  .refine((schema) => {
-    return schema.xAxisColumn !== schema.yAxisColumn;
-  }, "X Axis and Y Axis must be different");
+const traceSchema = z.object({
+  yAxisColumn: z.string().optional(),
+  mode: z.union([z.literal("lines"), z.literal("markers")]),
+});
+
+const dataframeExplorerSchema = z.object({
+  xAxisColumn: z.string(),
+  traces: z.array(traceSchema),
+  upperControlLimit: z.number().optional(),
+  lowerControlLimit: z.number().optional(),
+  yTransform: z
+    .string()
+    .optional()
+    .refine(exprValidator("y"), "Expression must be a function of y"),
+  upperControlLimitTransform: z
+    .string()
+    .optional()
+    .refine(exprValidator("x"), "Expression must be a function of x"),
+  lowerControlLimitTransform: z
+    .string()
+    .optional()
+    .refine(exprValidator("x"), "Expression must be a function of x"),
+  logScaleYAxis: z.boolean().optional(),
+  errorBars: z.boolean().optional(),
+  errorPercentage: z.number().min(0).optional(),
+});
 
 export const explorerConfig = {
   boolean: booleanExplorerSchema,

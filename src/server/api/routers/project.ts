@@ -25,7 +25,7 @@ import { workspaceAccessMiddleware } from "./workspace";
 import { type DatabaseError } from "pg";
 
 export const projectAccessMiddleware = experimental_standaloneMiddleware<{
-  ctx: { db: typeof db; userId: string; workspaceId: string | null };
+  ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
   input: { projectId: string };
 }>().create(async (opts) => {
   const project = await opts.ctx.db.query.projectTable.findFirst({
@@ -55,8 +55,8 @@ export const projectAccessMiddleware = experimental_standaloneMiddleware<{
     // this infers the `workspaceId` in ctx to be non-null
     // and also adds the respective resource id as well for use
     ctx: {
-      workspaceId: workspaceUser.workspaceId,
-      projectId: project.id,
+      project,
+      workspaceUser,
     },
   });
 });
@@ -356,6 +356,12 @@ export const projectRouter = createTRPCRouter({
     .use(projectAccessMiddleware)
     .output(z.void())
     .mutation(async ({ ctx, input }) => {
+      if (ctx.workspaceUser.role !== "owner") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You do not have permission to delete this workspace",
+        });
+      }
       try {
         await ctx.db
           .delete(projectTable)

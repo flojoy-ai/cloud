@@ -9,7 +9,7 @@ import { db } from "~/server/db";
 import {
   workspaceTable,
   userTable,
-  workspace_user,
+  workspaceUserTable,
   projectTable,
   hardwareTable,
 } from "~/server/db/schema";
@@ -25,7 +25,7 @@ import { selectWorkspaceUserSchema } from "~/types/workspace_user";
 import { api } from "~/trpc/server";
 
 export const workspaceAccessMiddleware = experimental_standaloneMiddleware<{
-  ctx: { db: typeof db; userId: string; workspaceId: string | null };
+  ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
   input: { workspaceId: string };
 }>().create(async (opts) => {
   const workspace = await opts.ctx.db.query.workspaceTable.findFirst({
@@ -54,7 +54,8 @@ export const workspaceAccessMiddleware = experimental_standaloneMiddleware<{
     // this infers the `workspaceId` in ctx to be non-null
     // and also adds the respective resource id as well for use
     ctx: {
-      workspaceId: workspaceUser.workspaceId,
+      workspace,
+      workspaceUser,
     },
   });
 });
@@ -77,10 +78,10 @@ export const workspaceRouter = createTRPCRouter({
           });
         }
 
-        await tx.insert(workspace_user).values({
+        await tx.insert(workspaceUserTable).values({
           workspaceId: newWorkspace.id,
           userId: ctx.user.id,
-          workspaceRole: "owner",
+          role: "owner" as const,
         });
 
         cookies().set("scope", newWorkspace.namespace);
@@ -124,8 +125,15 @@ export const workspaceRouter = createTRPCRouter({
 
   deleteWorkspaceById: workspaceProcedure
     .input(z.object({ workspaceId: z.string() }))
+    .use(workspaceAccessMiddleware)
     .output(z.void())
     .mutation(async ({ ctx, input }) => {
+      if (ctx.workspaceUser.role !== "owner") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You do not have permission to delete this workspace",
+        });
+      }
       return await ctx.db.transaction(async (tx) => {
         await tx
           .delete(projectTable)
@@ -154,7 +162,7 @@ export const workspaceRouter = createTRPCRouter({
     .output(
       z.array(
         selectWorkspaceSchema.merge(
-          selectWorkspaceUserSchema.pick({ workspaceRole: true }),
+          selectWorkspaceUserSchema.pick({ role: true }),
         ),
       ),
     )
@@ -162,19 +170,19 @@ export const workspaceRouter = createTRPCRouter({
       const result = await ctx.db
         .select({
           workspace: workspaceTable,
-          workspaceUser: workspace_user,
+          workspaceUser: workspaceUserTable,
         })
-        .from(workspace_user)
+        .from(workspaceUserTable)
         .innerJoin(
           workspaceTable,
-          eq(workspace_user.workspaceId, workspaceTable.id),
+          eq(workspaceUserTable.workspaceId, workspaceTable.id),
         )
-        .innerJoin(userTable, eq(workspace_user.userId, userTable.id))
+        .innerJoin(userTable, eq(workspaceUserTable.userId, userTable.id))
         .where(eq(userTable.id, ctx.user.id));
 
       return result.map((w) => ({
         ...w.workspace,
-        workspaceRole: w.workspaceUser.workspaceRole,
+        role: w.workspaceUser.role,
       }));
     }),
 

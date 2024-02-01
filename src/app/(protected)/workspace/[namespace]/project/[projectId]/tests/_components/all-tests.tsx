@@ -17,7 +17,7 @@ const AllTests = async ({ project, namespace }: Props) => {
       {tests.length === 0 && (
         <div className="">No test found, get started by creating a test.</div>
       )}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
         {tests.map((test) => (
           <TestCard test={test} key={test.id} namespace={namespace} />
         ))}

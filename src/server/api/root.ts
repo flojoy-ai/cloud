@@ -7,6 +7,7 @@ import { projectRouter } from "./routers/project";
 import { secretRouter } from "./routers/secret";
 import { testRouter } from "./routers/test";
 import { workspaceRouter } from "./routers/workspace";
+import { userRouter } from "./routers/user";
 
 /**
  * This is the primary router for your server.
@@ -14,14 +15,15 @@ import { workspaceRouter } from "./routers/workspace";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-  workspace: workspaceRouter,
-  project: projectRouter,
-  test: testRouter,
+  example: exampleRouter,
   hardware: hardwareRouter,
   measurement: measurementRouter,
-  secret: secretRouter,
   model: modelRouter,
-  example: exampleRouter,
+  project: projectRouter,
+  secret: secretRouter,
+  test: testRouter,
+  user: userRouter,
+  workspace: workspaceRouter,
 });
 
 // export type definition of API

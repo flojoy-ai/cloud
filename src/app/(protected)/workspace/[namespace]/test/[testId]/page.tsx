@@ -16,6 +16,10 @@ export default async function Test({
   const test = await api.test.getTestById.query({
     testId: params.testId,
   });
+  const testMeasurements =
+    await api.measurement.getAllMeasurementsByTestId.query({
+      testId: params.testId,
+    });
 
   const code = `from flojoy.cloud import FlojoyCloud
 
@@ -36,7 +40,7 @@ measurements = client.get_all_measurements_by_test_id("${params.testId}")
       <div className="py-4"></div>
 
       <MeasurementsDataTable
-        measurements={test.measurements}
+        measurements={testMeasurements}
         namespace={params.namespace}
       />
 

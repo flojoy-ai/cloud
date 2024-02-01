@@ -1,9 +1,3 @@
-DO $$ BEGIN
- CREATE TYPE "workspace_role" AS ENUM('owner', 'admin', 'member', 'pending');
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_device" (
 	"id" text PRIMARY KEY NOT NULL
 );
@@ -32,6 +26,7 @@ CREATE TABLE IF NOT EXISTS "cloud_measurement" (
 	"id" text PRIMARY KEY NOT NULL,
 	"name" text DEFAULT 'Untitled',
 	"data" jsonb NOT NULL,
+	"pass" boolean,
 	"hardware_id" text NOT NULL,
 	"test_id" text NOT NULL,
 	"storage_provider" text NOT NULL,
@@ -134,6 +129,13 @@ CREATE TABLE IF NOT EXISTS "cloud_user_session" (
 	"expires_at" timestamp with time zone NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "cloud_user_invite" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"email" text NOT NULL,
+	"workspace_id" text NOT NULL,
+	"role" text NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_user" (
 	"id" text PRIMARY KEY NOT NULL,
 	"email_verified" boolean DEFAULT false,
@@ -158,7 +160,7 @@ CREATE TABLE IF NOT EXISTS "cloud_workspace" (
 CREATE TABLE IF NOT EXISTS "cloud_workspace_user" (
 	"user_id" text NOT NULL,
 	"workspace_id" text NOT NULL,
-	"workspace_role" "workspace_role" NOT NULL,
+	"role" text NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "cloud_workspace_user_workspace_id_user_id_pk" PRIMARY KEY("workspace_id","user_id")
 );
@@ -318,6 +320,12 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "cloud_user_session" ADD CONSTRAINT "cloud_user_session_user_id_cloud_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "cloud_user"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "cloud_user_invite" ADD CONSTRAINT "cloud_user_invite_workspace_id_cloud_workspace_id_fk" FOREIGN KEY ("workspace_id") REFERENCES "cloud_workspace"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
