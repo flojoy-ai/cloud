@@ -78,7 +78,7 @@ export default function HardwareMeasurements({
 
   return (
     <div>
-      <Card className="mx-auto w-fit p-4 text-center">
+      <Card className="w-fit p-4 text-center">
         <div
           className={cn(
             "flex items-center justify-center gap-2 text-2xl font-bold",
@@ -100,7 +100,9 @@ export default function HardwareMeasurements({
           <span>{status.unevaluatedCount} unevaluated</span>
         </div>
       </Card>
+
       <div className="py-4" />
+
       <Card className="p-4">
         <div className="flex items-center gap-2">
           <Checkbox

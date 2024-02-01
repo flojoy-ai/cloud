@@ -2,7 +2,8 @@ import {
   PageHeader,
   PageHeaderDescription,
   PageHeaderHeading,
-} from "~/components/page-header";
+} from "~/components/small-header";
+import { Separator } from "~/components/ui/separator";
 
 import { api } from "~/trpc/server";
 import HardwareMeasurements from "./_components/hardware-measurements";
@@ -29,6 +30,8 @@ export default async function Hardware({
           All tests that have been performed on "{device.name}" are listed here.
         </PageHeaderDescription>
       </PageHeader>
+
+      <Separator className="my-6" />
 
       <HardwareMeasurements
         hardwareId={params.hardwareId}
