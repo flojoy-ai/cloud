@@ -409,6 +409,12 @@ class FlojoyCloud:
         )
 
     @query(model=None)
+    def set_project_hardware(self, hardware_ids: list[str], project_id: str):
+        return self.client.put(
+            f"/projects/{project_id}/hardware", json={"hardwareIds": hardware_ids}
+        )
+
+    @query(model=None)
     def update_project(self, name: str, project_id: str):
         return self.client.patch(f"/projects/{project_id}", json={"name": name})
 
