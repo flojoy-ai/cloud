@@ -40,6 +40,7 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { Cpu, Plus, Trash2 } from "lucide-react";
+import { handleTrpcError } from "~/lib/utils";
 
 const modelFormSchema = publicInsertSystemModelSchema.extend({
   type: z.enum(["device", "system"]),
@@ -103,7 +104,7 @@ const CreateModel = ({ workspaceId, deviceModels }: Props) => {
       toast.promise(createDeviceModel.mutateAsync(values), {
         loading: "Creating your model...",
         success: "Model created.",
-        error: "Something went wrong :(",
+        error: handleTrpcError,
       });
     }
 
@@ -124,7 +125,7 @@ const CreateModel = ({ workspaceId, deviceModels }: Props) => {
       toast.promise(createSystemModel.mutateAsync(values), {
         loading: "Creating your model...",
         success: "Model created.",
-        error: "Something went wrong :(",
+        error: handleTrpcError,
       });
     }
   }

@@ -44,6 +44,7 @@ import {
 import { type SelectModel } from "~/types/model";
 import Link from "next/link";
 import { Badge } from "~/components/ui/badge";
+import { handleTrpcError } from "~/lib/utils";
 
 type Props = {
   workspace: SelectWorkspace;
@@ -76,7 +77,7 @@ export default function NewProjectButton({ workspace, models }: Props) {
       {
         loading: "Creating your project...",
         success: "Your project is ready.",
-        error: "Something went wrong :(",
+        error: handleTrpcError,
       },
     );
   }

@@ -35,7 +35,7 @@ export const modelAccessMiddlware = experimental_standaloneMiddleware<{
 
   if (!model) {
     throw new TRPCError({
-      code: "BAD_REQUEST",
+      code: "NOT_FOUND",
       message: "Model not found",
     });
   }
@@ -83,10 +83,7 @@ export const modelRouter = createTRPCRouter({
           });
         }
 
-        await tx
-          .insert(deviceModelTable)
-          .values({ id: modelCreateResult.id })
-          .returning();
+        await tx.insert(deviceModelTable).values({ id: modelCreateResult.id });
 
         await tx
           .update(workspaceTable)
@@ -142,10 +139,7 @@ export const modelRouter = createTRPCRouter({
           });
         }
 
-        await tx
-          .insert(systemModelTable)
-          .values({ id: modelCreateResult.id })
-          .returning();
+        await tx.insert(systemModelTable).values({ id: modelCreateResult.id });
 
         await tx.insert(systemModelDeviceModelTable).values(
           input.parts.map(({ modelId, count }) => ({
@@ -247,7 +241,7 @@ export const modelRouter = createTRPCRouter({
         if (err.message.includes("violates foreign key constraint")) {
           throw new TRPCError({
             message:
-              "Cannot delete model because it is in use, make sure all associated items are deleted first",
+              "Cannot delete model because some of its resources are in use, make sure all associated items are deleted first",
             cause: e,
             code: "BAD_REQUEST",
           });

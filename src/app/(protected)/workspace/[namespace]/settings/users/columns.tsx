@@ -17,6 +17,7 @@ import {
 import { toast } from "sonner";
 import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
+import { handleTrpcError } from "~/lib/utils";
 
 export const userColumns: ColumnDef<{
   user: SelectUser;
@@ -63,7 +64,7 @@ export const userColumns: ColumnDef<{
                   navigator.clipboard.writeText(row.original.user.email),
                   {
                     success: "Copied to clipboard",
-                    error: "Something went wrong :(",
+                    error: (err) => "Failed to copy: " + String(err),
                   },
                 )
               }
@@ -84,7 +85,7 @@ export const userColumns: ColumnDef<{
                       {
                         success: "User removed.",
                         loading: "Removing user...",
-                        error: "Something went wrong :(",
+                        error: handleTrpcError,
                       },
                     );
                   }}

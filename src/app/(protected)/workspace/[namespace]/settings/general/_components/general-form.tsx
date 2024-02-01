@@ -15,31 +15,30 @@ import { useForm } from "react-hook-form";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 
-import { publicUpdateWorkspaceSchema } from "~/types/workspace";
+import {
+  publicUpdateWorkspaceSchema,
+  type selectWorkspaceSchema,
+} from "~/types/workspace";
 import { type z } from "zod";
 import DeleteWorkspace from "./delete-workspace";
 import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Icons } from "~/components/icons";
 import { useWorkspace } from "../../../workspace-provider";
 import { env } from "~/env";
+import { handleTrpcError } from "~/lib/utils";
 
 type Props = {
-  workspaceId: string;
+  workspace: z.infer<typeof selectWorkspaceSchema>;
 };
 
-const GeneralForm = ({ workspaceId }: Props) => {
-  const { data: workspace } = api.workspace.getWorkspaceById.useQuery({
-    workspaceId,
-  });
-
+const GeneralForm = ({ workspace }: Props) => {
   const router = useRouter();
   const namespace = useWorkspace();
 
   const defaultValues = {
-    workspaceId,
-    name: "",
+    workspaceId: workspace.id,
+    name: workspace.name,
     namespace,
   };
 
@@ -64,13 +63,9 @@ const GeneralForm = ({ workspaceId }: Props) => {
       {
         loading: "Updating your workspace...",
         success: "Your workspace is updated.",
-        error: "Something went wrong :(",
+        error: handleTrpcError,
       },
     );
-  }
-
-  if (!workspace) {
-    return <Icons.spinner />;
   }
 
   return (
@@ -121,7 +116,7 @@ const GeneralForm = ({ workspaceId }: Props) => {
           <Button type="submit" size="sm">
             Update Workspace
           </Button>
-          <DeleteWorkspace workspaceId={workspaceId} />
+          <DeleteWorkspace workspaceId={workspace.id} />
         </div>
       </form>
     </Form>

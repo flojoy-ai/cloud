@@ -35,7 +35,7 @@ export const projectAccessMiddleware = experimental_standaloneMiddleware<{
 
   if (!project) {
     throw new TRPCError({
-      code: "BAD_REQUEST",
+      code: "NOT_FOUND",
       message: "Project not found",
     });
   }
@@ -76,7 +76,7 @@ export const projectRouter = createTRPCRouter({
 
       if (model === undefined) {
         throw new TRPCError({
-          code: "BAD_REQUEST",
+          code: "NOT_FOUND",
           message: "Model not found",
         });
       }
@@ -124,7 +124,7 @@ export const projectRouter = createTRPCRouter({
       });
       if (!project) {
         throw new TRPCError({
-          code: "BAD_REQUEST",
+          code: "NOT_FOUND",
           message: "Project not found",
         });
       }
@@ -150,7 +150,7 @@ export const projectRouter = createTRPCRouter({
       if (!deviceParts) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "An error occured when trying to fetch system model",
+          message: "An error occurred when trying to fetch system model",
         });
       }
 
@@ -201,7 +201,7 @@ export const projectRouter = createTRPCRouter({
 
       if (project === undefined) {
         throw new TRPCError({
-          code: "BAD_REQUEST",
+          code: "NOT_FOUND",
           message: "Project not found",
         });
       }
@@ -212,7 +212,7 @@ export const projectRouter = createTRPCRouter({
 
       if (hardware === undefined) {
         throw new TRPCError({
-          code: "BAD_REQUEST",
+          code: "NOT_FOUND",
           message: "Hardware not found",
         });
       }
@@ -371,7 +371,7 @@ export const projectRouter = createTRPCRouter({
         if (err.message.includes("violates foreign key constraint")) {
           throw new TRPCError({
             message:
-              "Cannot delete project because it is in use, make sure all associated items are deleted first",
+              "Cannot delete project because some of its resources are in use, make sure all associated items are deleted first",
             cause: e,
             code: "BAD_REQUEST",
           });

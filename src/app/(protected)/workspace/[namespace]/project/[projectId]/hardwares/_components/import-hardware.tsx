@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { ArchiveRestore } from "lucide-react";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { ControlledDataTable } from "~/components/ui/controlled-data-table";
+import { handleTrpcError } from "~/lib/utils";
 
 type Props = {
   workspaceId: string;
@@ -92,7 +93,7 @@ const ImportHardware = ({
       {
         success: "Project hardware updated.",
         loading: "Updating...",
-        error: "Something went wrong :(",
+        error: handleTrpcError,
       },
     );
   };

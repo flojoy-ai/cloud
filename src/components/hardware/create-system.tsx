@@ -40,6 +40,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import { handleTrpcError } from "~/lib/utils";
 
 const systemFormSchema = publicInsertSystemSchema.extend({
   deviceIds: z.object({ value: z.string() }).array(),
@@ -148,7 +149,7 @@ const CreateSystem = ({
       {
         loading: "Creating your system instance...",
         success: "Your system is ready.",
-        error: (err) => `${err}`,
+        error: handleTrpcError,
       },
     );
   }

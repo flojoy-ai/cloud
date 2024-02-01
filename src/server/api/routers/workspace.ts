@@ -23,6 +23,7 @@ import { checkWorkspaceAccess } from "~/lib/auth";
 import { cookies } from "next/headers";
 import { selectWorkspaceUserSchema } from "~/types/workspace_user";
 import { api } from "~/trpc/server";
+import { type DatabaseError } from "pg";
 
 export const workspaceAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
@@ -65,62 +66,77 @@ export const workspaceRouter = createTRPCRouter({
     .input(publicInsertWorkspaceSchema)
     .output(selectWorkspaceSchema)
     .mutation(async ({ ctx, input }) => {
-      const newWorkspace = await ctx.db.transaction(async (tx) => {
-        const [newWorkspace] = await tx
-          .insert(workspaceTable)
-          .values({ planType: "enterprise", ...input })
-          .returning();
+      try {
+        const newWorkspace = await ctx.db.transaction(async (tx) => {
+          const [newWorkspace] = await tx
+            .insert(workspaceTable)
+            .values({ planType: "enterprise", ...input })
+            .returning();
 
-        if (!newWorkspace) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create workspace",
+          if (!newWorkspace) {
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "Failed to create workspace",
+            });
+          }
+
+          await tx.insert(workspaceUserTable).values({
+            workspaceId: newWorkspace.id,
+            userId: ctx.user.id,
+            role: "owner" as const,
           });
-        }
 
-        await tx.insert(workspaceUserTable).values({
-          workspaceId: newWorkspace.id,
-          userId: ctx.user.id,
-          role: "owner" as const,
+          cookies().set("scope", newWorkspace.namespace);
+
+          return newWorkspace;
         });
 
-        cookies().set("scope", newWorkspace.namespace);
+        if (!input.populateData) {
+          return newWorkspace;
+        }
+
+        await api.example.populateExample.mutate({
+          workspaceId: newWorkspace.id,
+        });
 
         return newWorkspace;
-      });
-
-      if (!input.populateData) {
-        return newWorkspace;
+      } catch (error) {
+        throw handleNamespaceConflict(error as DatabaseError, input.namespace);
       }
-
-      await api.example.populateExample.mutate({
-        workspaceId: newWorkspace.id,
-      });
-
-      return newWorkspace;
     }),
 
   updateWorkspace: workspaceProcedure
     .input(
       publicInsertWorkspaceSchema.merge(z.object({ workspaceId: z.string() })),
     )
+    .use(workspaceAccessMiddleware)
     .output(selectWorkspaceSchema)
     .mutation(async ({ ctx, input }) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { workspaceId, ...updatedWorkspace } = input;
-      const [result] = await ctx.db
-        .update(workspaceTable)
-        .set(updatedWorkspace)
-        .where(eq(workspaceTable.id, ctx.workspaceId))
-        .returning();
-      if (!result) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to update workspace",
-        });
-      }
+      try {
+        if (ctx.workspaceUser.role === "member") {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "You do not have permission to update this workspace",
+          });
+        }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { workspaceId, ...updatedWorkspace } = input;
+        const [result] = await ctx.db
+          .update(workspaceTable)
+          .set(updatedWorkspace)
+          .where(eq(workspaceTable.id, ctx.workspaceId))
+          .returning();
+        if (!result) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to update workspace",
+          });
+        }
 
-      return result;
+        return result;
+      } catch (error) {
+        throw handleNamespaceConflict(error as DatabaseError, input.namespace);
+      }
     }),
 
   deleteWorkspaceById: workspaceProcedure
@@ -219,3 +235,17 @@ export const workspaceRouter = createTRPCRouter({
       return result.id;
     }),
 });
+
+const handleNamespaceConflict = (err: DatabaseError, namespace: string) => {
+  if (err.message.includes("duplicate key value violates unique constraint")) {
+    return new TRPCError({
+      code: "CONFLICT",
+      message: `A workspace with namespace "${namespace}" already exists!`,
+    });
+  }
+  return new TRPCError({
+    code: "INTERNAL_SERVER_ERROR",
+    cause: err,
+    message: "Internal server error",
+  });
+};

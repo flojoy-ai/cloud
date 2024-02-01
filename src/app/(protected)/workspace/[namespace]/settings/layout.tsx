@@ -4,7 +4,7 @@ import {
   PageHeaderHeading,
 } from "~/components/small-header";
 import { api } from "~/trpc/server";
-import { type ReactNode } from "react";
+import React, { type ReactNode } from "react";
 import { SidebarNav } from "~/components/sidebar-nav";
 import { Key, Settings, Users } from "lucide-react";
 
@@ -18,6 +18,7 @@ export default async function Workspace({
   const workspaceId = await api.workspace.getWorkspaceIdByNamespace.query({
     namespace: params.namespace,
   });
+
   const workspace = await api.workspace.getWorkspaceById.query({
     workspaceId,
   });

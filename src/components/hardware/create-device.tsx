@@ -39,6 +39,7 @@ import {
   SelectContent,
   SelectItem,
 } from "~/components/ui/select";
+import { handleTrpcError } from "~/lib/utils";
 
 type FormSchema = z.infer<typeof publicInsertDeviceSchema>;
 
@@ -90,7 +91,7 @@ const CreateDevice = ({
       {
         loading: "Creating your device instance...",
         success: "Your device instance is ready.",
-        error: "Something went wrong :(",
+        error: handleTrpcError,
       },
     );
   }
