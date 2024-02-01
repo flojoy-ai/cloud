@@ -129,9 +129,11 @@ export const userRouter = createTRPCRouter({
         currentWorkspaceUser?.role !== "owner" &&
         currentWorkspaceUser?.role !== "admin"
       ) {
-        throw new Error(
-          "You don't have permission to remove users from this workspace",
-        );
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message:
+            "You do not have permission to remove users from this workspace",
+        });
       }
 
       await ctx.db

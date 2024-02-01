@@ -24,7 +24,7 @@ export function RejectInvite({ workspaceId }: Props) {
       disabled={reject.isLoading}
       onClick={() =>
         toast.promise(reject.mutateAsync({ workspaceId }), {
-          success: "Accepted invite! 🎉",
+          success: "Rejected invite!",
           error: "Something went wrong :(",
         })
       }

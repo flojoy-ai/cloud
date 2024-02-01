@@ -28,7 +28,7 @@ export function AcceptInvite({ workspaceId }: Props) {
         })
       }
     >
-      Accpet
+      Accept
     </Button>
   );
 }
