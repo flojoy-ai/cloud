@@ -33,12 +33,10 @@ echo "$defaut_server_config" >/etc/nginx/sites-enabled/default
 echo "$defaut_server_config" >/etc/nginx/sites-available/default
 echo "$nginx_config" >/etc/nginx/conf.d/default.conf
 
-jwt_secret=$(head -c 32 /dev/urandom | base64)
-
 mkdir /etc/systemd/system/cloud_app.d
 cat <<EOF >/etc/systemd/system/cloud_app.d/Environment
 HOME=/root
-JWT_SECRET=$jwt_secret
+JWT_SECRET=""
 AWS_AMI=1
 NODE_TLS_REJECT_UNAUTHORIZED=0
 EOF
