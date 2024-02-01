@@ -13,7 +13,6 @@ from flojoy_cloud.dtypes import (
     Device,
     DeviceModel,
     Hardware,
-    HardwareWithMeasurements,
     MeasurementWithHardware,
     Project,
     ProjectWithModel,
@@ -240,13 +239,9 @@ class FlojoyCloud:
 
         return self.client.post("/hardware/systems", json=body)
 
-    @query(model=HardwareWithMeasurements)
+    @query(model=Hardware)
     def get_hardware_by_id(self, hardware_id: str):
         return self.client.get(f"/hardware/{hardware_id}")
-
-    @query(model=None)
-    def update_hardware_by_id(self, hardware_id: str, name: str):
-        return self.client.patch(f"/hardware/{hardware_id}", json={"name": name})
 
     @query(model=TypeAdapter(list[Hardware]))
     def get_all_hardware(
@@ -294,6 +289,10 @@ class FlojoyCloud:
     def delete_hardware_by_id(self, hardware_id: str):
         return self.client.delete(f"/hardware/{hardware_id}")
 
+    @query(model=None)
+    def update_hardware_by_id(self, hardware_id: str, name: str):
+        return self.client.patch(f"/hardware/{hardware_id}", json={"name": name})
+
     """Measurement Endpoints"""
 
     @query(model=None)
@@ -340,6 +339,29 @@ class FlojoyCloud:
             query_params["startDate"] = start_date.isoformat()
         if end_date is not None:
             query_params["endDate"] = end_date.isoformat()
+
+        return self.client.get(
+            "/measurements",
+            params=query_params,
+        )
+
+    @query(model=TypeAdapter(list[MeasurementWithHardware]))
+    def get_all_measurements_by_hardware_id(
+        self,
+        test_id: str,
+        start_date: datetime.datetime | None = None,
+        end_date: datetime.datetime | None = None,
+        latest: bool | None = None,
+    ):
+        query_params: dict[str, int | str] = {
+            "testId": test_id,
+        }
+        if start_date is not None:
+            query_params["startDate"] = start_date.isoformat()
+        if end_date is not None:
+            query_params["endDate"] = end_date.isoformat()
+        if latest is not None:
+            query_params["latest"] = latest
 
         return self.client.get(
             "/measurements",

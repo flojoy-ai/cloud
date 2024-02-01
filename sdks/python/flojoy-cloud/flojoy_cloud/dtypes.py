@@ -72,10 +72,6 @@ class MeasurementWithHardware(Measurement):
     hardware: Hardware
 
 
-class HardwareWithMeasurements(Hardware):
-    measurements: list[MeasurementWithHardware]
-
-
 class Test(CloudModel):
     name: str
     updated_at: Optional[datetime.datetime]
