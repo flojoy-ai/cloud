@@ -83,7 +83,7 @@ const GeneralForm = ({ workspaceId }: Props) => {
             <FormItem>
               <FormLabel>Workspace Name</FormLabel>
               <FormControl>
-                <Input {...field} data-1p-ignore />
+                <Input {...field} placeholder={workspace.name} data-1p-ignore />
               </FormControl>
               <FormDescription>
                 This is your workspace&apos;s visible name within Flojoy.
