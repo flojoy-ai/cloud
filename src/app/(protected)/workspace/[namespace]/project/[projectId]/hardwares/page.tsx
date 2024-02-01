@@ -36,9 +36,8 @@ const DevicesView = async ({
           testing in this project.
         </p>
       </div>
-      <Separator className="my-6" />
 
-      <div className="py-2"></div>
+      <Separator className="my-6" />
 
       <AllHardwares
         hardwares={hardwares}
