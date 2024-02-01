@@ -20,7 +20,7 @@ import { useRouter } from "next/navigation";
 
 export const userColumns: ColumnDef<{
   user: SelectUser;
-  workspace_user: SelectWorkspaceUser;
+  workspaceUser: SelectWorkspaceUser;
 }>[] = [
   {
     accessorKey: "user",
@@ -34,7 +34,7 @@ export const userColumns: ColumnDef<{
     accessorKey: "workspace_user",
     header: "Role",
     cell: ({ row }) => {
-      return <div>{row.original.workspace_user.role}</div>;
+      return <div>{row.original.workspaceUser.role}</div>;
     },
   },
   {
@@ -70,7 +70,7 @@ export const userColumns: ColumnDef<{
             >
               Copy email
             </DropdownMenuItem>
-            {row.original.workspace_user.role !== "owner" && (
+            {row.original.workspaceUser.role !== "owner" && (
               <>
                 <DropdownMenuSeparator />
                 {/* <DropdownMenuItem>Update role</DropdownMenuItem> */}
@@ -78,8 +78,8 @@ export const userColumns: ColumnDef<{
                   onSelect={() => {
                     toast.promise(
                       remove.mutateAsync({
-                        workspaceId: row.original.workspace_user.workspaceId,
-                        userId: row.original.workspace_user.userId,
+                        workspaceId: row.original.workspaceUser.workspaceId,
+                        userId: row.original.workspaceUser.userId,
                       }),
                       {
                         success: "User removed.",

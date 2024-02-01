@@ -34,7 +34,7 @@ export const userRouter = createTRPCRouter({
       z.array(
         z.object({
           user: selectUserSchema,
-          workspace_user: selectWorkspaceUserSchema,
+          workspaceUser: selectWorkspaceUserSchema,
         }),
       ),
     )
@@ -42,6 +42,7 @@ export const userRouter = createTRPCRouter({
       const result = ctx.db
         .select({
           user: { ...getTableColumns(userTable) },
+          workspaceUser: { ...getTableColumns(workspaceUserTable) },
         })
         .from(workspaceUserTable)
         .where(eq(workspaceUserTable.workspaceId, input.workspaceId))
