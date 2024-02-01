@@ -3,8 +3,9 @@ import {
   PageHeader,
   PageHeaderDescription,
   PageHeaderHeading,
-} from "~/components/page-header";
+} from "~/components/small-header";
 import { api } from "~/trpc/server";
+import { Separator } from "~/components/ui/separator";
 
 export default async function Test({
   params,
@@ -28,7 +29,7 @@ export default async function Test({
         </PageHeaderDescription>
       </PageHeader>
 
-      <div className="py-4"></div>
+      <Separator className="my-6" />
 
       <MeasurementsDataTable
         measurements={testMeasurements}
