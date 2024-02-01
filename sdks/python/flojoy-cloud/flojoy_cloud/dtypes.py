@@ -83,10 +83,6 @@ class Test(CloudModel):
     project_id: str
 
 
-class TestWithMeasurements(Test):
-    measurements: list[MeasurementWithHardware]
-
-
 class Project(CloudModel):
     name: str
     updated_at: Optional[datetime.datetime]

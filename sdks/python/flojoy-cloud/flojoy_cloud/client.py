@@ -21,7 +21,6 @@ from flojoy_cloud.dtypes import (
     SystemModel,
     SystemModelPart,
     Test,
-    TestWithMeasurements,
 )
 from flojoy_cloud.measurement import MeasurementData, MeasurementType, make_payload
 
@@ -139,7 +138,7 @@ class FlojoyCloud:
             },
         )
 
-    @query(model=TestWithMeasurements)
+    @query(model=Test)
     def get_test_by_id(self, test_id: str):
         return self.client.get(f"/tests/{test_id}")
 
