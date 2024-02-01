@@ -1,5 +1,13 @@
 import Link from "next/link";
+import BackButton from "~/components/back-button";
+import {
+  PageHeader,
+  PageHeaderDescription,
+  PageHeaderHeading,
+} from "~/components/small-header";
+import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
+import { Separator } from "~/components/ui/separator";
 import DataframeViz from "~/components/visualization/dataframe-viz";
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/server";
@@ -26,8 +34,10 @@ const BooleanViz = ({ data }: BooleanVizProps) => {
 
 export default async function Measurement({
   params,
+  searchParams,
 }: {
   params: { measurementId: string; namespace: string };
+  searchParams: { back?: string };
 }) {
   const measurement = await api.measurement.getMeasurementById.query({
     measurementId: params.measurementId,
@@ -55,21 +65,25 @@ export default async function Measurement({
 
   return (
     <div className="container max-w-screen-2xl">
-      <div className="py-4"></div>
-      <h1 className="text-3xl font-bold">{measurement.name}</h1>
-      <div className="text-base text-muted-foreground">
-        {params.measurementId}
-      </div>
-      <div className="py-2" />
-      <div className="text-muted-foreground">
-        {measurement.createdAt.toString()}
-      </div>
-      <Link
-        className="text-lg"
-        href={`/workspace/${params.namespace}/device/${measurement.hardware.id}`}
-      >
-        {measurement.hardware.name}
-      </Link>
+      <PageHeader>
+        {searchParams.back && <BackButton />}
+
+        <PageHeaderHeading className="">{measurement.name}</PageHeaderHeading>
+        <PageHeaderDescription>
+          {measurement.createdAt.toString()}
+        </PageHeaderDescription>
+      </PageHeader>
+
+      <Separator className="my-6" />
+
+      <Button asChild>
+        <Link
+          href={`/workspace/${params.namespace}/hardware/${measurement.hardware.id}`}
+        >
+          {measurement.hardware.model.name} {measurement.hardware.name}
+        </Link>
+      </Button>
+
       <div className="py-4" />
       {visualization}
     </div>

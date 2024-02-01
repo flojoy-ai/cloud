@@ -18,7 +18,7 @@ export function MeasurementsDataTable({ measurements, namespace }: Props) {
       columns={columns}
       data={measurements}
       onRowClick={(row) =>
-        router.push(`/workspace/${namespace}/measurement/${row.id}`)
+        router.push(`/workspace/${namespace}/measurement/${row.id}?back=true`)
       }
     />
   );
