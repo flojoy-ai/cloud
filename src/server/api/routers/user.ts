@@ -12,7 +12,7 @@ import {
   workspaceTable,
   workspaceUserTable,
 } from "~/server/db/schema";
-import { and, eq } from "drizzle-orm";
+import { and, eq, getTableColumns } from "drizzle-orm";
 import {
   insertUserInviteSchema,
   selectUserInviteSchema,
@@ -34,14 +34,15 @@ export const userRouter = createTRPCRouter({
       z.array(
         z.object({
           user: selectUserSchema,
-          workspace: selectWorkspaceSchema,
           workspace_user: selectWorkspaceUserSchema,
         }),
       ),
     )
     .query(({ ctx, input }) => {
       const result = ctx.db
-        .select()
+        .select({
+          user: { ...getTableColumns(userTable) },
+        })
         .from(workspaceUserTable)
         .where(eq(workspaceUserTable.workspaceId, input.workspaceId))
         .innerJoin(userTable, eq(userTable.id, workspaceUserTable.userId))
