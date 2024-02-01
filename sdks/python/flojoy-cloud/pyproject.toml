@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "flojoy-cloud"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["Joey Yu <joey@flojoy.io>", "Jeff Zhang <jeff@flojoy.io>"]
 readme = "README.md"
