@@ -227,10 +227,21 @@ def test_hardware_routes(workspace: WorkspaceInfo, hardware_setup):
     devices = client.get_all_devices(workspace_id, project_id=device_project.id)
     assert len(devices) == 1
 
-    # Then remove and check again
+    # Set it
+    client.set_project_hardware(
+        project_id=device_project.id, hardware_ids=[device1.id, device2.id]
+    )
+    devices = client.get_all_devices(workspace_id, project_id=device_project.id)
+    assert len(devices) == 2
+
+    # Then remove both and check again
     client.remove_hardware_from_project(
         project_id=device_project.id,
         hardware_id=device1.id,
+    )
+    client.remove_hardware_from_project(
+        project_id=device_project.id,
+        hardware_id=device2.id,
     )
 
     devices = client.get_all_devices(workspace_id, project_id=device_project.id)
