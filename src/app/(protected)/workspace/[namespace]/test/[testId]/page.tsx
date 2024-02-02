@@ -6,11 +6,14 @@ import {
 } from "~/components/small-header";
 import { api } from "~/trpc/server";
 import { Separator } from "~/components/ui/separator";
+import BackButton from "~/components/back-button";
 
 export default async function Test({
   params,
+  searchParams,
 }: {
   params: { testId: string; namespace: string };
+  searchParams: { back?: string };
 }) {
   const test = await api.test.getTestById.query({
     testId: params.testId,
@@ -23,6 +26,8 @@ export default async function Test({
   return (
     <div className="container max-w-screen-2xl">
       <PageHeader>
+        {searchParams.back && <BackButton />}
+
         <PageHeaderHeading className="">{test.name}</PageHeaderHeading>
         <PageHeaderDescription>
           All measurements for the "{test.name}" test are listed here.

@@ -7,11 +7,14 @@ import { api } from "~/trpc/server";
 import HardwareInstances from "./_components/hardware-instances";
 import HardwareModels from "./_components/hardware-models";
 import { Separator } from "~/components/ui/separator";
+import { Button } from "~/components/ui/button";
 
 export default async function HardwareInventory({
   params,
+  searchParams,
 }: {
   params: { namespace: string };
+  searchParams: { back?: string };
 }) {
   const workspaceId = await api.workspace.getWorkspaceIdByNamespace.query({
     namespace: params.namespace,
@@ -33,6 +36,7 @@ export default async function HardwareInventory({
 
   return (
     <div className="container max-w-screen-2xl">
+      {searchParams.back && <Button>Back</Button>}
       <PageHeader>
         <PageHeaderHeading>Hardware Inventory</PageHeaderHeading>
         <PageHeaderDescription>

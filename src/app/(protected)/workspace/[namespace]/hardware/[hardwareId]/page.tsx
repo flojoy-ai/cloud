@@ -7,11 +7,14 @@ import { Separator } from "~/components/ui/separator";
 
 import { api } from "~/trpc/server";
 import HardwareMeasurements from "./_components/hardware-measurements";
+import BackButton from "~/components/back-button";
 
 export default async function Hardware({
   params,
+  searchParams,
 }: {
   params: { hardwareId: string; namespace: string };
+  searchParams: { back?: string };
 }) {
   const device = await api.hardware.getHardwareById.query({
     hardwareId: params.hardwareId,
@@ -25,6 +28,7 @@ export default async function Hardware({
   return (
     <div className="container max-w-screen-2xl">
       <PageHeader>
+        {searchParams.back && <BackButton />}
         <PageHeaderHeading className="">{device.name}</PageHeaderHeading>
         <PageHeaderDescription>
           All tests that have been performed on "{device.name}" are listed here.
