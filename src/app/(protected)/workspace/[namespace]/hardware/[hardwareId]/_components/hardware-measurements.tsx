@@ -9,7 +9,7 @@ import { Label } from "~/components/ui/label";
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/react";
 import { type MeasurementWithHardware } from "~/types/measurement";
-import { HelpCircle, Check, X } from "lucide-react";
+import { Check, X, Upload } from "lucide-react";
 
 type Props = {
   hardwareId: string;
@@ -73,6 +73,26 @@ export default function HardwareMeasurements({
       initialData: initialMeasurements,
     },
   );
+
+  if (data.length === 0) {
+    return (
+      <div className="mt-24 flex flex-col items-center justify-center text-center text-muted-foreground">
+        <Upload size={40} />
+        <div className="py-1" />
+        <div>
+          No tests have been performed on this hardware yet, try uploading some
+          through the{" "}
+          <a
+            href="https://rest.flojoy.ai/api-reference"
+            className="underline hover:text-muted-foreground/70"
+          >
+            REST API
+          </a>
+          .
+        </div>
+      </div>
+    );
+  }
 
   const status = useMemo(() => computePassingStatus(data), [data]);
 
