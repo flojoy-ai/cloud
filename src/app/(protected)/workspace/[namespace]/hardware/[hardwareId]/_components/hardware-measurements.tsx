@@ -81,7 +81,14 @@ export default function HardwareMeasurements({
         <div className="py-1" />
         <div>
           No tests have been performed on this hardware yet, try uploading some
-          using the <a href="https://rest.flojoy.ai/api-reference">REST API</a>.
+          through the{" "}
+          <a
+            href="https://rest.flojoy.ai/api-reference"
+            className="underline hover:text-muted-foreground/70"
+          >
+            REST API
+          </a>
+          .
         </div>
       </div>
     );
