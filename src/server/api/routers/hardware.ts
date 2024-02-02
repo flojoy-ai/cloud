@@ -36,6 +36,7 @@ import {
 } from "~/types/hardware";
 import { workspaceAccessMiddleware } from "./workspace";
 import { selectProjectSchema } from "~/types/project";
+import { type DatabaseError } from "pg";
 
 export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
@@ -50,7 +51,7 @@ export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
 
   if (!hardware) {
     throw new TRPCError({
-      code: "BAD_REQUEST",
+      code: "NOT_FOUND",
       message: "Device not found",
     });
   }
@@ -98,7 +99,7 @@ export const multiHardwareAccessMiddleware = experimental_standaloneMiddleware<{
 
   if (hardwares.length !== ids.length) {
     throw new TRPCError({
-      code: "BAD_REQUEST",
+      code: "NOT_FOUND",
       message: "Device not found",
     });
   }
@@ -177,48 +178,67 @@ export const hardwareRouter = createTRPCRouter({
       }
 
       return await ctx.db.transaction(async (tx) => {
-        const [hardwareCreateResult] = await tx
-          .insert(hardwareTable)
-          .values(input)
-          .returning();
+        try {
+          const [hardwareCreateResult] = await tx
+            .insert(hardwareTable)
+            .values(input)
+            .returning();
 
-        if (!hardwareCreateResult) {
+          if (!hardwareCreateResult) {
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "Failed to create device",
+            });
+          }
+
+          const [deviceCreateResult] = await tx
+            .insert(deviceTable)
+            .values({
+              id: hardwareCreateResult.id,
+            })
+            .returning();
+
+          if (!deviceCreateResult) {
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "Failed to create device",
+            });
+          }
+
+          if (input.projectId) {
+            await tx.insert(projectHardwareTable).values({
+              projectId: input.projectId,
+              hardwareId: hardwareCreateResult.id,
+            });
+          }
+
+          await tx
+            .update(workspaceTable)
+            .set({ updatedAt: new Date() })
+            .where(eq(workspaceTable.id, input.workspaceId));
+
+          return {
+            ...hardwareCreateResult,
+            model,
+          };
+        } catch (error) {
+          const err = error as DatabaseError;
+          // https://www.postgresql.org/docs/current/errcodes-appendix.html unique_violation
+          if (
+            err.code === "23505" &&
+            err.constraint?.includes("hardware_workspace_id_name_model_id")
+          ) {
+            throw new TRPCError({
+              code: "CONFLICT",
+              message: `A device with identifier "${input.name}" for this project already exists!`,
+            });
+          }
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create device",
+            cause: err,
+            message: "Internal server error",
           });
         }
-
-        const [deviceCreateResult] = await tx
-          .insert(deviceTable)
-          .values({
-            id: hardwareCreateResult.id,
-          })
-          .returning();
-
-        if (!deviceCreateResult) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create device",
-          });
-        }
-
-        if (input.projectId) {
-          await tx.insert(projectHardwareTable).values({
-            projectId: input.projectId,
-            hardwareId: hardwareCreateResult.id,
-          });
-        }
-
-        await tx
-          .update(workspaceTable)
-          .set({ updatedAt: new Date() })
-          .where(eq(workspaceTable.id, input.workspaceId));
-
-        return {
-          ...hardwareCreateResult,
-          model,
-        };
       });
     }),
 

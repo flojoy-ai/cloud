@@ -43,7 +43,7 @@ export const exampleRouter = createTRPCRouter({
           workspaceId: input.workspaceId,
         });
 
-        const newSystemModel = await api.model.createSystemModel.mutate({
+        await api.model.createSystemModel.mutate({
           name: "HL9876",
           workspaceId: input.workspaceId,
           parts: [

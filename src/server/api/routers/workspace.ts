@@ -237,7 +237,7 @@ export const workspaceRouter = createTRPCRouter({
 });
 
 const handleNamespaceConflict = (err: DatabaseError, namespace: string) => {
-  if (err.message.includes("duplicate key value violates unique constraint")) {
+  if (err.code === "23505") {
     return new TRPCError({
       code: "CONFLICT",
       message: `A workspace with namespace "${namespace}" already exists!`,

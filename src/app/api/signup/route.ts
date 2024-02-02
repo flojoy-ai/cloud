@@ -82,11 +82,7 @@ export const POST = async (request: NextRequest) => {
     // this part depends on the database you're using
     // check for unique constraint error in user table
 
-    if (
-      (e as DatabaseError).message.includes(
-        "duplicate key value violates unique constraint",
-      )
-    ) {
+    if ((e as DatabaseError).code === "23505") {
       return new Response(
         "Seems like this email already exists! Try logging in :)",
         { status: 400 },

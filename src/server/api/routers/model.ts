@@ -238,7 +238,7 @@ export const modelRouter = createTRPCRouter({
         await ctx.db.delete(modelTable).where(eq(modelTable.id, input.modelId));
       } catch (e) {
         const err = e as DatabaseError;
-        if (err.message.includes("violates foreign key constraint")) {
+        if (err.code === "23503") {
           throw new TRPCError({
             message:
               "Cannot delete model because some of its resources are in use, make sure all associated items are deleted first",

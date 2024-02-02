@@ -82,23 +82,41 @@ export const projectRouter = createTRPCRouter({
       }
 
       return await ctx.db.transaction(async (tx) => {
-        const [projectCreateResult] = await tx
-          .insert(projectTable)
-          .values(input)
-          .returning();
+        try {
+          const [projectCreateResult] = await tx
+            .insert(projectTable)
+            .values(input)
+            .returning();
 
-        if (!projectCreateResult) {
+          if (!projectCreateResult) {
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "Failed to create project",
+            });
+          }
+
+          await tx
+            .update(workspaceTable)
+            .set({ updatedAt: new Date() })
+            .where(eq(workspaceTable.id, input.workspaceId));
+          return projectCreateResult;
+        } catch (error) {
+          const err = error as DatabaseError;
+          if (
+            err.code === "23505" &&
+            err.constraint?.includes("project_workspace_id_name")
+          ) {
+            throw new TRPCError({
+              code: "CONFLICT",
+              message: `A project with name "${input.name}" for workspace "${ctx.workspace.namespace}" already exists!`,
+            });
+          }
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create project",
+            cause: err,
+            message: "Internal server error",
           });
         }
-
-        await tx
-          .update(workspaceTable)
-          .set({ updatedAt: new Date() })
-          .where(eq(workspaceTable.id, input.workspaceId));
-        return projectCreateResult;
       });
     }),
 
@@ -368,11 +386,10 @@ export const projectRouter = createTRPCRouter({
           .where(eq(projectTable.id, input.projectId));
       } catch (e) {
         const err = e as DatabaseError;
-        if (err.message.includes("violates foreign key constraint")) {
+        if (err.code === "23503") {
           throw new TRPCError({
             message:
               "Cannot delete project because some of its resources are in use, make sure all associated items are deleted first",
-            cause: e,
             code: "BAD_REQUEST",
           });
         }
