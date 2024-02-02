@@ -230,45 +230,49 @@ const CreateSystem = ({
                   What are the device instances that make up this system?
                 </FormDescription>
                 <div>
-                  {deviceModels.sort().map((part, index) => (
-                    <FormField
-                      control={form.control}
-                      key={`${part}-${index}`}
-                      name={`deviceIds.${index}.value` as const}
-                      render={({ field }) => (
-                        <FormItem className="flex items-center gap-2">
-                          <FormLabel>
-                            <Badge>
-                              {models.find((m) => m.id === part)?.name}
-                            </Badge>
-                          </FormLabel>
-                          <FormControl>
-                            <Select
-                              value={field.value}
-                              onValueChange={field.onChange}
-                            >
-                              <SelectTrigger className="w-[180px]">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {devices
-                                  .filter((d) => d.modelId === part)
-                                  .map((device) => (
-                                    <SelectItem
-                                      value={device.id}
-                                      key={device.id}
-                                    >
-                                      {device.name}
-                                    </SelectItem>
-                                  ))}
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  ))}
+                  <div className="mt-4 flex items-center gap-2">
+                    <div className="flex w-fit flex-col gap-y-6">
+                      {deviceModels.sort().map((part) => (
+                        <Badge>{models.find((m) => m.id === part)?.name}</Badge>
+                      ))}
+                    </div>
+                    <div className="flex w-fit flex-col gap-y-1.5">
+                      {deviceModels.sort().map((part, index) => (
+                        <FormField
+                          control={form.control}
+                          key={`${part}-${index}`}
+                          name={`deviceIds.${index}.value` as const}
+                          render={({ field }) => (
+                            <FormItem className="flex items-center gap-2">
+                              <FormControl>
+                                <Select
+                                  value={field.value}
+                                  onValueChange={field.onChange}
+                                >
+                                  <SelectTrigger className="w-[180px]">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {devices
+                                      .filter((d) => d.modelId === part)
+                                      .map((device) => (
+                                        <SelectItem
+                                          value={device.id}
+                                          key={device.id}
+                                        >
+                                          {device.name}
+                                        </SelectItem>
+                                      ))}
+                                  </SelectContent>
+                                </Select>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
