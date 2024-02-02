@@ -232,8 +232,10 @@ const CreateSystem = ({
                 <div>
                   <div className="mt-4 flex items-center gap-2">
                     <div className="flex w-fit flex-col gap-y-6">
-                      {deviceModels.sort().map((part) => (
-                        <Badge>{models.find((m) => m.id === part)?.name}</Badge>
+                      {deviceModels.sort().map((part, index) => (
+                        <Badge key={index}>
+                          {models.find((m) => m.id === part)?.name}
+                        </Badge>
                       ))}
                     </div>
                     <div className="flex w-fit flex-col gap-y-1.5">
