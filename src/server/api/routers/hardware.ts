@@ -222,6 +222,9 @@ export const hardwareRouter = createTRPCRouter({
             model,
           };
         } catch (error) {
+          if (error instanceof TRPCError) {
+            throw error;
+          }
           const err = error as DatabaseError;
           // https://www.postgresql.org/docs/current/errcodes-appendix.html unique_violation
           if (
@@ -230,7 +233,7 @@ export const hardwareRouter = createTRPCRouter({
           ) {
             throw new TRPCError({
               code: "CONFLICT",
-              message: `A device with identifier "${input.name}" for this project already exists!`,
+              message: `A device with identifier "${input.name}" for selected model already exists!`,
             });
           }
           throw new TRPCError({
@@ -254,114 +257,134 @@ export const hardwareRouter = createTRPCRouter({
     .use(workspaceAccessMiddleware)
     .output(selectHardwareSchema)
     .mutation(async ({ ctx, input }) => {
-      // TODO: Refactor this massive query
-      const deviceParts = await getSystemModelParts(input.modelId);
+      try {
+        // TODO: Refactor this massive query
+        const deviceParts = await getSystemModelParts(input.modelId);
 
-      if (deviceParts === undefined) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Invalid model ID",
-        });
-      }
-
-      const notUsed = not(
-        exists(
-          db
-            .select()
-            .from(systemDeviceTable)
-            .where(inArray(systemDeviceTable.deviceId, input.deviceIds)),
-        ),
-      );
-
-      const selectResult = await ctx.db
-        .select()
-        .from(deviceTable)
-        .innerJoin(hardwareTable, eq(hardwareTable.id, deviceTable.id))
-        .where(and(inArray(deviceTable.id, input.deviceIds), notUsed));
-
-      if (selectResult.length !== input.deviceIds.length) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message:
-            "Invalid device IDs, or some devices are already used in an existing system.",
-        });
-      }
-
-      const partCounts = _.countBy(selectResult, (x) => x.hardware.modelId);
-
-      const matchesModel = deviceParts.every(
-        ({ modelId, count }) => partCounts[modelId] === count,
-      );
-
-      if (!matchesModel) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Devices given for system do not match model.",
-        });
-      }
-
-      return await ctx.db.transaction(async (tx) => {
-        const [hardwareCreateResult] = await tx
-          .insert(hardwareTable)
-          .values(input)
-          .returning();
-
-        if (!hardwareCreateResult) {
+        if (deviceParts === undefined) {
           throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create device",
+            code: "BAD_REQUEST",
+            message: "Invalid model ID",
           });
         }
 
-        const [systemCreateResult] = await tx
-          .insert(systemTable)
-          .values({
-            id: hardwareCreateResult.id,
-          })
-          .returning();
-
-        if (!systemCreateResult) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create system",
-          });
-        }
-
-        if (input.projectId) {
-          await tx.insert(projectHardwareTable).values({
-            projectId: input.projectId,
-            hardwareId: hardwareCreateResult.id,
-          });
-        }
-
-        await tx.insert(systemDeviceTable).values(
-          input.deviceIds.map((deviceId) => ({
-            systemId: systemCreateResult.id,
-            deviceId,
-          })),
+        const notUsed = not(
+          exists(
+            db
+              .select()
+              .from(systemDeviceTable)
+              .where(inArray(systemDeviceTable.deviceId, input.deviceIds)),
+          ),
         );
 
-        await tx
-          .update(workspaceTable)
-          .set({ updatedAt: new Date() })
-          .where(eq(workspaceTable.id, input.workspaceId));
+        const selectResult = await ctx.db
+          .select()
+          .from(deviceTable)
+          .innerJoin(hardwareTable, eq(hardwareTable.id, deviceTable.id))
+          .where(and(inArray(deviceTable.id, input.deviceIds), notUsed));
 
-        const model = await tx.query.modelTable.findFirst({
-          where: (model, { eq }) => eq(model.id, input.modelId),
-        });
-
-        if (!model) {
+        if (selectResult.length !== input.deviceIds.length) {
           throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Model not found, this shouldn't happen",
+            code: "BAD_REQUEST",
+            message:
+              "Invalid device IDs, or some devices are already used in an existing system.",
           });
         }
 
-        return {
-          ...hardwareCreateResult,
-          model,
-        };
-      });
+        const partCounts = _.countBy(selectResult, (x) => x.hardware.modelId);
+
+        const matchesModel = deviceParts.every(
+          ({ modelId, count }) => partCounts[modelId] === count,
+        );
+
+        if (!matchesModel) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Devices given for system do not match model.",
+          });
+        }
+        return await ctx.db.transaction(async (tx) => {
+          const [hardwareCreateResult] = await tx
+            .insert(hardwareTable)
+            .values(input)
+            .returning();
+
+          if (!hardwareCreateResult) {
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "Failed to create device",
+            });
+          }
+
+          const [systemCreateResult] = await tx
+            .insert(systemTable)
+            .values({
+              id: hardwareCreateResult.id,
+            })
+            .returning();
+
+          if (!systemCreateResult) {
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "Failed to create system",
+            });
+          }
+
+          if (input.projectId) {
+            await tx.insert(projectHardwareTable).values({
+              projectId: input.projectId,
+              hardwareId: hardwareCreateResult.id,
+            });
+          }
+
+          await tx.insert(systemDeviceTable).values(
+            input.deviceIds.map((deviceId) => ({
+              systemId: systemCreateResult.id,
+              deviceId,
+            })),
+          );
+
+          await tx
+            .update(workspaceTable)
+            .set({ updatedAt: new Date() })
+            .where(eq(workspaceTable.id, input.workspaceId));
+
+          const model = await tx.query.modelTable.findFirst({
+            where: (model, { eq }) => eq(model.id, input.modelId),
+          });
+
+          if (!model) {
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "Model not found, this shouldn't happen",
+            });
+          }
+
+          return {
+            ...hardwareCreateResult,
+            model,
+          };
+        });
+      } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error;
+        }
+        const err = error as DatabaseError;
+        if (
+          err.code === "23505" &&
+          err.constraint?.includes("hardware_workspace_id_name")
+        ) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: `A system for selected model already exists!`,
+          });
+        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          cause: err,
+          message: "Internal server error",
+        });
+      }
     }),
 
   getHardwareById: workspaceProcedure

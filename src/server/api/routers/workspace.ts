@@ -101,6 +101,9 @@ export const workspaceRouter = createTRPCRouter({
 
         return newWorkspace;
       } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error;
+        }
         throw handleNamespaceConflict(error as DatabaseError, input.namespace);
       }
     }),
@@ -135,6 +138,9 @@ export const workspaceRouter = createTRPCRouter({
 
         return result;
       } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error;
+        }
         throw handleNamespaceConflict(error as DatabaseError, input.namespace);
       }
     }),
@@ -246,6 +252,6 @@ const handleNamespaceConflict = (err: DatabaseError, namespace: string) => {
   return new TRPCError({
     code: "INTERNAL_SERVER_ERROR",
     cause: err,
-    message: "Internal server error",
+    message: err.message ?? "Internal server error",
   });
 };

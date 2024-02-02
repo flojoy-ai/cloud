@@ -71,26 +71,49 @@ export const modelRouter = createTRPCRouter({
     .use(workspaceAccessMiddleware)
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.transaction(async (tx) => {
-        const [modelCreateResult] = await tx
-          .insert(modelTable)
-          .values(input)
-          .returning();
+        try {
+          const [modelCreateResult] = await tx
+            .insert(modelTable)
+            .values(input)
+            .returning();
 
-        if (!modelCreateResult) {
+          if (!modelCreateResult) {
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "Failed to create model",
+            });
+          }
+
+          await tx
+            .insert(deviceModelTable)
+            .values({ id: modelCreateResult.id });
+
+          await tx
+            .update(workspaceTable)
+            .set({ updatedAt: new Date() })
+            .where(eq(workspaceTable.id, input.workspaceId));
+
+          return modelCreateResult;
+        } catch (error) {
+          if (error instanceof TRPCError) {
+            throw error;
+          }
+          const err = error as DatabaseError;
+          if (
+            err.code === "23505" &&
+            err.constraint?.includes("workspace_id_name")
+          ) {
+            throw new TRPCError({
+              code: "CONFLICT",
+              message: `A device model with identifier "${input.name}" already exists!`,
+            });
+          }
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create model",
+            cause: err,
+            message: "Internal server error",
           });
         }
-
-        await tx.insert(deviceModelTable).values({ id: modelCreateResult.id });
-
-        await tx
-          .update(workspaceTable)
-          .set({ updatedAt: new Date() })
-          .where(eq(workspaceTable.id, input.workspaceId));
-
-        return modelCreateResult;
       });
     }),
 
@@ -127,40 +150,63 @@ export const modelRouter = createTRPCRouter({
       }
 
       return await ctx.db.transaction(async (tx) => {
-        const [modelCreateResult] = await tx
-          .insert(modelTable)
-          .values(input)
-          .returning();
+        try {
+          const [modelCreateResult] = await tx
+            .insert(modelTable)
+            .values(input)
+            .returning();
 
-        if (!modelCreateResult) {
+          if (!modelCreateResult) {
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "Failed to create model",
+            });
+          }
+
+          await tx
+            .insert(systemModelTable)
+            .values({ id: modelCreateResult.id });
+
+          await tx.insert(systemModelDeviceModelTable).values(
+            input.parts.map(({ modelId, count }) => ({
+              systemModelId: modelCreateResult.id,
+              deviceModelId: modelId,
+              count,
+            })),
+          );
+
+          await tx
+            .update(workspaceTable)
+            .set({ updatedAt: new Date() })
+            .where(eq(workspaceTable.id, input.workspaceId));
+
+          return {
+            ...modelCreateResult,
+            parts: input.parts.map((part) => ({
+              ...part,
+              name: deviceModels[part.modelId]!.name,
+            })),
+          };
+        } catch (error) {
+          if (error instanceof TRPCError) {
+            throw error;
+          }
+          const err = error as DatabaseError;
+          if (
+            err.code === "23505" &&
+            err.constraint?.includes("workspace_id_name")
+          ) {
+            throw new TRPCError({
+              code: "CONFLICT",
+              message: `A model with identifier "${input.name}" already exists!`,
+            });
+          }
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create model",
+            cause: err,
+            message: "Internal server error",
           });
         }
-
-        await tx.insert(systemModelTable).values({ id: modelCreateResult.id });
-
-        await tx.insert(systemModelDeviceModelTable).values(
-          input.parts.map(({ modelId, count }) => ({
-            systemModelId: modelCreateResult.id,
-            deviceModelId: modelId,
-            count,
-          })),
-        );
-
-        await tx
-          .update(workspaceTable)
-          .set({ updatedAt: new Date() })
-          .where(eq(workspaceTable.id, input.workspaceId));
-
-        return {
-          ...modelCreateResult,
-          parts: input.parts.map((part) => ({
-            ...part,
-            name: deviceModels[part.modelId]!.name,
-          })),
-        };
       });
     }),
 

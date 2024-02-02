@@ -20,6 +20,11 @@ export function bind<T, U>(
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const handleTrpcError = (error: any) => {
   if (error instanceof TRPCClientError) {
+    if ((error.data as Record<string, string>)?.zodError) {
+      const parsed = JSON.parse(error.message) as Record<string, string>[];
+
+      return parsed.map((p) => p.message).join("\n");
+    }
     return error.message;
   }
   return "Internal server error!";

@@ -101,6 +101,9 @@ export const projectRouter = createTRPCRouter({
             .where(eq(workspaceTable.id, input.workspaceId));
           return projectCreateResult;
         } catch (error) {
+          if (error instanceof TRPCError) {
+            throw error;
+          }
           const err = error as DatabaseError;
           if (
             err.code === "23505" &&
