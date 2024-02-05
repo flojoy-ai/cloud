@@ -2,6 +2,7 @@ import { type NextRequest } from "next/server";
 import { validateRequest } from "~/auth/lucia";
 import { sendEmailVerificationLink } from "~/lib/email";
 import { generateEmailVerificationToken } from "~/lib/token";
+import { type UserId } from "~/schemas/public/User";
 
 export const POST = async (request: NextRequest) => {
   const { user } = await validateRequest();
@@ -18,7 +19,10 @@ export const POST = async (request: NextRequest) => {
   }
 
   try {
-    const token = await generateEmailVerificationToken(user.id, user.email);
+    const token = await generateEmailVerificationToken(
+      user.id as UserId,
+      user.email,
+    );
     const verificationLink =
       request.nextUrl.origin + "/api/email-verification/" + token;
     await sendEmailVerificationLink(user.email, verificationLink);

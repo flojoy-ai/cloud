@@ -4,9 +4,12 @@ import { db } from "~/server/db";
 import { TimeSpan, createDate } from "oslo";
 import { generateRandomString, alphabet } from "oslo/crypto";
 import { createId } from "@paralleldrive/cuid2";
+import { type UserId } from "~/schemas/public/User";
+import { type EmailVerificationId } from "~/schemas/public/EmailVerification";
+import { type PasswordResetTokenId } from "~/schemas/public/PasswordResetToken";
 
 export const generateEmailVerificationToken = async (
-  userId: string,
+  userId: UserId,
   email: string,
 ) => {
   await db
@@ -19,7 +22,7 @@ export const generateEmailVerificationToken = async (
   await db
     .insertInto("email_verification")
     .values({
-      id: "ev_" + createId(),
+      id: ("ev_" + createId()) as EmailVerificationId,
       user_id: userId,
       email,
       code,
@@ -31,7 +34,7 @@ export const generateEmailVerificationToken = async (
 };
 
 export async function createPasswordResetToken(
-  userId: string,
+  userId: UserId,
 ): Promise<string> {
   await db
     .deleteFrom("password_reset_token")
@@ -43,7 +46,7 @@ export async function createPasswordResetToken(
   await db
     .insertInto("password_reset_token")
     .values({
-      id: "ev_" + createId(),
+      id: ("ev_" + createId()) as PasswordResetTokenId,
       user_id: userId,
       token,
       expires_at: createDate(new TimeSpan(5, "m")),
