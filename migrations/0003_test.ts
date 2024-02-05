@@ -15,7 +15,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     )
     .addColumn("name", "text", (col) => col.notNull())
     .addColumn("project_id", "text", (col) =>
-      col.notNull().references("workspace.id").onDelete("cascade"),
+      col.notNull().references("project.id").onDelete("cascade"),
     )
     .addColumn("created_at", "timestamptz", (col) =>
       col.defaultTo(sql`now()`).notNull(),
