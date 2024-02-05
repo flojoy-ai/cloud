@@ -4,7 +4,7 @@ import {
   PageHeaderHeading,
 } from "~/components/small-header";
 import { api } from "~/trpc/server";
-import React, { type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { SidebarNav } from "~/components/sidebar-nav";
 import { Key, Settings, Users } from "lucide-react";
 
