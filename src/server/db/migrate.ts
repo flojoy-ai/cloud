@@ -1,17 +1,27 @@
 import * as path from "path";
-import { promises as fs } from "fs";
 import { Migrator, FileMigrationProvider } from "kysely";
-import { db } from ".";
+import { env } from "~/env";
+
+import { Kysely, PostgresDialect } from "kysely";
+import { type DB } from "kysely-codegen";
+import pg from "pg";
 
 async function migrateToLatest() {
+  const pool = new pg.Pool({
+    connectionString: env.DATABASE_URL,
+  });
+
+  const db = new Kysely<DB>({
+    dialect: new PostgresDialect({
+      pool,
+    }),
+  });
+
   const migrator = new Migrator({
     db,
-    provider: new FileMigrationProvider({
-      fs,
-      path,
-      // This needs to be an absolute path.
-      migrationFolder: path.join(__dirname, "migrations"),
-    }),
+    provider: new FileMigrationProvider(
+      path.join(path.resolve(), "migrations"),
+    ),
   });
 
   const { error, results } = await migrator.migrateToLatest();
