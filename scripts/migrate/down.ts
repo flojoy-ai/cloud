@@ -4,15 +4,15 @@ import { Migrator, FileMigrationProvider } from "kysely";
 import { env } from "~/env";
 
 import { Kysely, PostgresDialect } from "kysely";
-import { type DB } from "kysely-codegen";
 import pg from "pg";
+import type Database from "~/schemas/Database";
 
 async function migrateDown() {
   const pool = new pg.Pool({
     connectionString: env.DATABASE_URL,
   });
 
-  const db = new Kysely<DB>({
+  const db = new Kysely<Database>({
     dialect: new PostgresDialect({
       pool,
     }),
