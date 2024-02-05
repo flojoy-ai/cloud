@@ -30,5 +30,5 @@ export async function up(db: Kysely<unknown>): Promise<void> {
 
 export async function down(db: Kysely<unknown>): Promise<void> {
   await db.schema.dropTable("workspace").execute();
-  await db.schema.dropType("plan").execute();
+  await db.schema.dropType("plan_type").execute();
 }
