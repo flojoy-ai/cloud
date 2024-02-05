@@ -1,20 +1,9 @@
-import { migrate } from "drizzle-orm/postgres-js/migrator";
-import { drizzle } from "drizzle-orm/postgres-js/driver";
-import { migrate as neonMigrate } from "drizzle-orm/neon-http/migrator";
-import { neon } from "@neondatabase/serverless";
-import { drizzle as neonDrizzle } from "drizzle-orm/neon-http/driver";
-import { env } from "~/env";
-import postgres from "postgres";
+import { type Kysely, sql } from "kysely";
 
-if (env.AWS_AMI) {
-  const pg = postgres(env.DATABASE_URL);
-  const db = drizzle(pg);
-  await migrate(db, { migrationsFolder: "./drizzle" });
+export async function up(db: Kysely<unknown>): Promise<void> {
+  // TODO: move our migrations to here
+}
 
-  // Don't forget to close the connection, otherwise the script will hang
-  await pg.end();
-} else {
-  const sql = neon(env.DATABASE_URL);
-  const db = neonDrizzle(sql);
-  await neonMigrate(db, { migrationsFolder: "./drizzle" });
+export async function down(db: Kysely<unknown>): Promise<void> {
+  // TODO: move our migrations to here
 }
