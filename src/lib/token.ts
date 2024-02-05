@@ -1,30 +1,31 @@
 // token.ts
-import { eq } from "drizzle-orm";
 import { db } from "~/server/db";
-import {
-  emailVerificationTable,
-  passwordResetTokenTable,
-} from "~/server/db/schema";
 
 import { TimeSpan, createDate } from "oslo";
 import { generateRandomString, alphabet } from "oslo/crypto";
+import { createId } from "@paralleldrive/cuid2";
 
 export const generateEmailVerificationToken = async (
   userId: string,
   email: string,
 ) => {
   await db
-    .delete(emailVerificationTable)
-    .where(eq(emailVerificationTable.userId, userId));
+    .deleteFrom("email_verification")
+    .where("user_id", "=", userId)
+    .execute();
 
   const code = generateRandomString(8, alphabet("0-9"));
 
-  await db.insert(emailVerificationTable).values({
-    userId,
-    email,
-    code,
-    expiresAt: createDate(new TimeSpan(5, "m")),
-  });
+  await db
+    .insertInto("email_verification")
+    .values({
+      id: "ev_" + createId(),
+      user_id: userId,
+      email,
+      code,
+      expires_at: createDate(new TimeSpan(5, "m")),
+    })
+    .execute();
 
   return code;
 };
@@ -33,16 +34,21 @@ export async function createPasswordResetToken(
   userId: string,
 ): Promise<string> {
   await db
-    .delete(passwordResetTokenTable)
-    .where(eq(passwordResetTokenTable.userId, userId));
+    .deleteFrom("password_reset_token")
+    .where("user_id", "=", userId)
+    .execute();
 
   const token = generateRandomString(40, alphabet("0-9"));
 
-  await db.insert(passwordResetTokenTable).values({
-    userId,
-    token,
-    expiresAt: createDate(new TimeSpan(5, "m")),
-  });
+  await db
+    .insertInto("password_reset_token")
+    .values({
+      id: "ev_" + createId(),
+      user_id: userId,
+      token,
+      expires_at: createDate(new TimeSpan(5, "m")),
+    })
+    .execute();
 
   return token;
 }
