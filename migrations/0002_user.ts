@@ -74,6 +74,21 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     )
     .addColumn("role", sql`workspace_role`, (col) => col.notNull())
     .execute();
+
+  await db.schema
+    .createTable("workspace_user")
+    .addColumn("user_id", "text", (col) =>
+      col.notNull().references("user.id").onDelete("cascade"),
+    )
+    .addColumn("workspace_id", "text", (col) =>
+      col.references("workspace.id").onDelete("cascade").notNull(),
+    )
+    .addColumn("role", sql`workspace_role`, (col) => col.notNull())
+    .addColumn("created_at", "timestamptz", (col) =>
+      col.defaultTo(sql`now()`).notNull(),
+    )
+    .addPrimaryKeyConstraint("workspace_user_pk", ["user_id", "workspace_id"])
+    .execute();
 }
 
 export async function down(db: Kysely<unknown>): Promise<void> {
