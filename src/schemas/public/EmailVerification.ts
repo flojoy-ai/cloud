@@ -5,8 +5,7 @@ import { userId, type UserId } from './User';
 import { type ColumnType, type Selectable, type Insertable, type Updateable } from 'kysely';
 import { z } from 'zod';
 
-/** Identifier type for public.email_verification */
-export type EmailVerificationId = string & { __brand: 'EmailVerificationId' };
+export type EmailVerificationId = string;
 
 /** Represents the table public.email_verification */
 export default interface EmailVerificationTable {

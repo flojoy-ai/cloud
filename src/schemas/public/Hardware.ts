@@ -6,8 +6,7 @@ import { modelId, type ModelId } from './Model';
 import { type ColumnType, type Selectable, type Insertable, type Updateable } from 'kysely';
 import { z } from 'zod';
 
-/** Identifier type for public.hardware */
-export type HardwareId = string & { __brand: 'HardwareId' };
+export type HardwareId = string;
 
 /** Represents the table public.hardware */
 export default interface HardwareTable {

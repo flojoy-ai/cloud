@@ -6,8 +6,7 @@ import { modelId, type ModelId } from './Model';
 import { type ColumnType, type Selectable, type Insertable, type Updateable } from 'kysely';
 import { z } from 'zod';
 
-/** Identifier type for public.project */
-export type ProjectId = string & { __brand: 'ProjectId' };
+export type ProjectId = string;
 
 /** Represents the table public.project */
 export default interface ProjectTable {

@@ -5,11 +5,9 @@ import { userId, type UserId } from './User';
 import { type ColumnType, type Selectable, type Insertable, type Updateable } from 'kysely';
 import { z } from 'zod';
 
-/** Identifier type for public.oauth_account */
-export type OauthAccountProviderId = string & { __brand: 'OauthAccountProviderId' };
+export type OauthAccountProviderId = string;
 
-/** Identifier type for public.oauth_account */
-export type OauthAccountProviderUserId = string & { __brand: 'OauthAccountProviderUserId' };
+export type OauthAccountProviderUserId = string;
 
 /** Represents the table public.oauth_account */
 export default interface OauthAccountTable {

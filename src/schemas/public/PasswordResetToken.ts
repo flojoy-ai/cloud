@@ -5,8 +5,7 @@ import { userId, type UserId } from './User';
 import { type ColumnType, type Selectable, type Insertable, type Updateable } from 'kysely';
 import { z } from 'zod';
 
-/** Identifier type for public.password_reset_token */
-export type PasswordResetTokenId = string & { __brand: 'PasswordResetTokenId' };
+export type PasswordResetTokenId = string;
 
 /** Represents the table public.password_reset_token */
 export default interface PasswordResetTokenTable {

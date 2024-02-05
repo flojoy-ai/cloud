@@ -5,8 +5,7 @@ import { workspaceId, type WorkspaceId } from './Workspace';
 import { type ColumnType, type Selectable, type Insertable, type Updateable } from 'kysely';
 import { z } from 'zod';
 
-/** Identifier type for public.model */
-export type ModelId = string & { __brand: 'ModelId' };
+export type ModelId = string;
 
 /** Represents the table public.model */
 export default interface ModelTable {

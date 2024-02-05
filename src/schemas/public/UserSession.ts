@@ -5,8 +5,7 @@ import { userId, type UserId } from './User';
 import { type ColumnType, type Selectable, type Insertable, type Updateable } from 'kysely';
 import { z } from 'zod';
 
-/** Identifier type for public.user_session */
-export type UserSessionId = string & { __brand: 'UserSessionId' };
+export type UserSessionId = string;
 
 /** Represents the table public.user_session */
 export default interface UserSessionTable {

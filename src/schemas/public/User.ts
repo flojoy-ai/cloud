@@ -4,8 +4,7 @@
 import { type ColumnType, type Selectable, type Insertable, type Updateable } from 'kysely';
 import { z } from 'zod';
 
-/** Identifier type for public.user */
-export type UserId = string & { __brand: 'UserId' };
+export type UserId = string;
 
 /** Represents the table public.user */
 export default interface UserTable {

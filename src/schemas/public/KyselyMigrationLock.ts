@@ -4,8 +4,7 @@
 import { type ColumnType, type Selectable, type Insertable, type Updateable } from 'kysely';
 import { z } from 'zod';
 
-/** Identifier type for public.kysely_migration_lock */
-export type KyselyMigrationLockId = string & { __brand: 'KyselyMigrationLockId' };
+export type KyselyMigrationLockId = string;
 
 /** Represents the table public.kysely_migration_lock */
 export default interface KyselyMigrationLockTable {

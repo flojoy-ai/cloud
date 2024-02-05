@@ -5,8 +5,7 @@ import { planType, type default as PlanType } from './PlanType';
 import { type ColumnType, type Selectable, type Insertable, type Updateable } from 'kysely';
 import { z } from 'zod';
 
-/** Identifier type for public.workspace */
-export type WorkspaceId = string & { __brand: 'WorkspaceId' };
+export type WorkspaceId = string;
 
 /** Represents the table public.workspace */
 export default interface WorkspaceTable {

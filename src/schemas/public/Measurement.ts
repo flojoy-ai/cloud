@@ -7,8 +7,7 @@ import { storageProvider, type default as StorageProvider } from './StorageProvi
 import { type ColumnType, type Selectable, type Insertable, type Updateable } from 'kysely';
 import { z } from 'zod';
 
-/** Identifier type for public.measurement */
-export type MeasurementId = string & { __brand: 'MeasurementId' };
+export type MeasurementId = string;
 
 /** Represents the table public.measurement */
 export default interface MeasurementTable {

@@ -6,8 +6,7 @@ import { workspaceRole, type default as WorkspaceRole } from './WorkspaceRole';
 import { type ColumnType, type Selectable, type Insertable, type Updateable } from 'kysely';
 import { z } from 'zod';
 
-/** Identifier type for public.user_invite */
-export type UserInviteId = string & { __brand: 'UserInviteId' };
+export type UserInviteId = string;
 
 /** Represents the table public.user_invite */
 export default interface UserInviteTable {

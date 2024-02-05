@@ -5,8 +5,7 @@ import { measurementId, type MeasurementId } from './Measurement';
 import { type ColumnType, type Selectable, type Insertable, type Updateable } from 'kysely';
 import { z } from 'zod';
 
-/** Identifier type for public.tag */
-export type TagId = string & { __brand: 'TagId' };
+export type TagId = string;
 
 /** Represents the table public.tag */
 export default interface TagTable {

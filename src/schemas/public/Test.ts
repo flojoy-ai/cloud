@@ -6,8 +6,7 @@ import { projectId, type ProjectId } from './Project';
 import { type ColumnType, type Selectable, type Insertable, type Updateable } from 'kysely';
 import { z } from 'zod';
 
-/** Identifier type for public.test */
-export type TestId = string & { __brand: 'TestId' };
+export type TestId = string;
 
 /** Represents the table public.test */
 export default interface TestTable {
