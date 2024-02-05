@@ -1,4 +1,5 @@
 import { type Kysely, sql } from "kysely";
+import { workspaceRoles } from "~/config/workspace_user";
 
 export async function up(db: Kysely<unknown>): Promise<void> {
   await db.schema
@@ -14,8 +15,71 @@ export async function up(db: Kysely<unknown>): Promise<void> {
       col.defaultTo(sql`now()`).notNull(),
     )
     .execute();
+
+  await db.schema
+    .createTable("user_session")
+    .addColumn("id", "text", (col) => col.primaryKey())
+    .addColumn("user_id", "text", (col) =>
+      col.references("user.id").onDelete("cascade").notNull(),
+    )
+    .addColumn("expires_at", "timestamptz", (col) => col.notNull())
+    .execute();
+
+  await db.schema
+    .createTable("oauth_account")
+    .addColumn("provider_id", "text", (col) => col.notNull())
+    .addColumn("provider_user_id", "text", (col) => col.notNull())
+    .addColumn("user_id", "text", (col) =>
+      col.references("user.id").onDelete("cascade").notNull(),
+    )
+    .addPrimaryKeyConstraint("oauth_account_pk", [
+      "provider_id",
+      "provider_user_id",
+    ])
+    .execute();
+
+  await db.schema
+    .createTable("password_reset_token")
+    .addColumn("id", "serial", (col) => col.primaryKey())
+    .addColumn("user_id", "text", (col) =>
+      col.references("user.id").onDelete("cascade").notNull(),
+    )
+    .addColumn("token", "text", (col) => col.notNull())
+    .addColumn("expires_at", "timestamp", (col) => col.notNull())
+    .execute();
+
+  await db.schema
+    .createTable("email_verification")
+    .addColumn("id", "serial", (col) => col.primaryKey())
+    .addColumn("code", "text", (col) => col.notNull())
+    .addColumn("user_id", "text", (col) =>
+      col.references("user.id").onDelete("cascade").notNull(),
+    )
+    .addColumn("email", "text", (col) => col.notNull())
+    .addColumn("expires_at", "timestamp", (col) => col.notNull())
+    .execute();
+
+  await db.schema
+    .createType("workspace_role")
+    .asEnum([...workspaceRoles])
+    .execute();
+
+  await db.schema
+    .createTable("user_invite")
+    .addColumn("id", "serial", (col) => col.primaryKey().notNull())
+    .addColumn("email", "text", (col) => col.notNull())
+    .addColumn("workspace_id", "text", (col) =>
+      col.references("workspace.id").onDelete("cascade").notNull(),
+    )
+    .addColumn("role", sql`workspace_role`, (col) => col.notNull())
+    .execute();
 }
 
 export async function down(db: Kysely<unknown>): Promise<void> {
   await db.schema.dropTable("user").execute();
+  await db.schema.dropTable("user_session").execute();
+  await db.schema.dropTable("oauth_account").execute();
+  await db.schema.dropTable("password_reset_token").execute();
+  await db.schema.dropTable("email_verification").execute();
+  await db.schema.dropType("workspace_role").execute();
 }
