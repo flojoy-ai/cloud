@@ -19,31 +19,31 @@ export default interface PasswordResetTokenTable {
   expires_at: ColumnType<Date, Date | string, Date | string>;
 }
 
-export const passwordResetTokenId = z.string() as unknown as z.Schema<PasswordResetTokenId>;
+export type PasswordResetToken = Selectable<PasswordResetTokenTable>;
+
+export type NewPasswordResetToken = Insertable<PasswordResetTokenTable>;
+
+export type PasswordResetTokenUpdate = Updateable<PasswordResetTokenTable>;
+
+export const passwordResetTokenId = z.string();
 
 export const passwordResetToken = z.object({
   id: passwordResetTokenId,
   user_id: userId,
   token: z.string(),
   expires_at: z.date(),
-}) as unknown as z.Schema<PasswordResetToken>;
+});
 
 export const passwordResetTokenInitializer = z.object({
   id: passwordResetTokenId,
   user_id: userId,
   token: z.string(),
   expires_at: z.date(),
-}) as unknown as z.Schema<PasswordResetTokenInitializer>;
+});
 
 export const passwordResetTokenMutator = z.object({
   id: passwordResetTokenId.optional(),
   user_id: userId.optional(),
   token: z.string().optional(),
   expires_at: z.date().optional(),
-}) as unknown as z.Schema<PasswordResetTokenMutator>;
-
-export type PasswordResetToken = Selectable<PasswordResetTokenTable>;
-
-export type NewPasswordResetToken = Insertable<PasswordResetTokenTable>;
-
-export type PasswordResetTokenUpdate = Updateable<PasswordResetTokenTable>;
+});

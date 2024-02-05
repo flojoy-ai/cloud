@@ -20,31 +20,31 @@ export default interface UserInviteTable {
   role: ColumnType<WorkspaceRole, WorkspaceRole, WorkspaceRole>;
 }
 
-export const userInviteId = z.string() as unknown as z.Schema<UserInviteId>;
+export type UserInvite = Selectable<UserInviteTable>;
+
+export type NewUserInvite = Insertable<UserInviteTable>;
+
+export type UserInviteUpdate = Updateable<UserInviteTable>;
+
+export const userInviteId = z.string();
 
 export const userInvite = z.object({
   id: userInviteId,
   email: z.string(),
   workspace_id: workspaceId,
   role: workspaceRole,
-}) as unknown as z.Schema<UserInvite>;
+});
 
 export const userInviteInitializer = z.object({
   id: userInviteId,
   email: z.string(),
   workspace_id: workspaceId,
   role: workspaceRole,
-}) as unknown as z.Schema<UserInviteInitializer>;
+});
 
 export const userInviteMutator = z.object({
   id: userInviteId.optional(),
   email: z.string().optional(),
   workspace_id: workspaceId.optional(),
   role: workspaceRole.optional(),
-}) as unknown as z.Schema<UserInviteMutator>;
-
-export type UserInvite = Selectable<UserInviteTable>;
-
-export type NewUserInvite = Insertable<UserInviteTable>;
-
-export type UserInviteUpdate = Updateable<UserInviteTable>;
+});

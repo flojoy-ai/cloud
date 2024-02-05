@@ -23,7 +23,13 @@ export default interface WorkspaceTable {
   updated_at: ColumnType<Date, Date | string | undefined, Date | string>;
 }
 
-export const workspaceId = z.string() as unknown as z.Schema<WorkspaceId>;
+export type Workspace = Selectable<WorkspaceTable>;
+
+export type NewWorkspace = Insertable<WorkspaceTable>;
+
+export type WorkspaceUpdate = Updateable<WorkspaceTable>;
+
+export const workspaceId = z.string();
 
 export const workspace = z.object({
   id: workspaceId,
@@ -32,7 +38,7 @@ export const workspace = z.object({
   plan_type: planType,
   created_at: z.date(),
   updated_at: z.date(),
-}) as unknown as z.Schema<Workspace>;
+});
 
 export const workspaceInitializer = z.object({
   id: workspaceId,
@@ -41,7 +47,7 @@ export const workspaceInitializer = z.object({
   plan_type: planType,
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
-}) as unknown as z.Schema<WorkspaceInitializer>;
+});
 
 export const workspaceMutator = z.object({
   id: workspaceId.optional(),
@@ -50,10 +56,4 @@ export const workspaceMutator = z.object({
   plan_type: planType.optional(),
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
-}) as unknown as z.Schema<WorkspaceMutator>;
-
-export type Workspace = Selectable<WorkspaceTable>;
-
-export type NewWorkspace = Insertable<WorkspaceTable>;
-
-export type WorkspaceUpdate = Updateable<WorkspaceTable>;
+});

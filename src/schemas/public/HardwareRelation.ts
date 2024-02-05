@@ -12,23 +12,23 @@ export default interface HardwareRelationTable {
   child_hardware_id: ColumnType<HardwareId, HardwareId, HardwareId>;
 }
 
-export const hardwareRelation = z.object({
-  parent_hardware_id: hardwareId,
-  child_hardware_id: hardwareId,
-}) as unknown as z.Schema<HardwareRelation>;
-
-export const hardwareRelationInitializer = z.object({
-  parent_hardware_id: hardwareId,
-  child_hardware_id: hardwareId,
-}) as unknown as z.Schema<HardwareRelationInitializer>;
-
-export const hardwareRelationMutator = z.object({
-  parent_hardware_id: hardwareId.optional(),
-  child_hardware_id: hardwareId.optional(),
-}) as unknown as z.Schema<HardwareRelationMutator>;
-
 export type HardwareRelation = Selectable<HardwareRelationTable>;
 
 export type NewHardwareRelation = Insertable<HardwareRelationTable>;
 
 export type HardwareRelationUpdate = Updateable<HardwareRelationTable>;
+
+export const hardwareRelation = z.object({
+  parent_hardware_id: hardwareId,
+  child_hardware_id: hardwareId,
+});
+
+export const hardwareRelationInitializer = z.object({
+  parent_hardware_id: hardwareId,
+  child_hardware_id: hardwareId,
+});
+
+export const hardwareRelationMutator = z.object({
+  parent_hardware_id: hardwareId.optional(),
+  child_hardware_id: hardwareId.optional(),
+});

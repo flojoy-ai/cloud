@@ -21,6 +21,12 @@ export default interface SecretTable {
   last_used_at: ColumnType<Date | null, Date | string | null, Date | string | null>;
 }
 
+export type Secret = Selectable<SecretTable>;
+
+export type NewSecret = Insertable<SecretTable>;
+
+export type SecretUpdate = Updateable<SecretTable>;
+
 export const secret = z.object({
   id: z.string(),
   user_id: userId,
@@ -28,7 +34,7 @@ export const secret = z.object({
   workspace_id: workspaceId,
   created_at: z.date(),
   last_used_at: z.date().nullable(),
-}) as unknown as z.Schema<Secret>;
+});
 
 export const secretInitializer = z.object({
   id: z.string(),
@@ -37,7 +43,7 @@ export const secretInitializer = z.object({
   workspace_id: workspaceId,
   created_at: z.date().optional(),
   last_used_at: z.date().optional().nullable(),
-}) as unknown as z.Schema<SecretInitializer>;
+});
 
 export const secretMutator = z.object({
   id: z.string().optional(),
@@ -46,10 +52,4 @@ export const secretMutator = z.object({
   workspace_id: workspaceId.optional(),
   created_at: z.date().optional(),
   last_used_at: z.date().optional().nullable(),
-}) as unknown as z.Schema<SecretMutator>;
-
-export type Secret = Selectable<SecretTable>;
-
-export type NewSecret = Insertable<SecretTable>;
-
-export type SecretUpdate = Updateable<SecretTable>;
+});

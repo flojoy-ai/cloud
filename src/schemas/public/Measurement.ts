@@ -31,7 +31,13 @@ export default interface MeasurementTable {
   is_deleted: ColumnType<boolean | null, boolean | null, boolean | null>;
 }
 
-export const measurementId = z.string() as unknown as z.Schema<MeasurementId>;
+export type Measurement = Selectable<MeasurementTable>;
+
+export type NewMeasurement = Insertable<MeasurementTable>;
+
+export type MeasurementUpdate = Updateable<MeasurementTable>;
+
+export const measurementId = z.string();
 
 export const measurement = z.object({
   id: measurementId,
@@ -43,7 +49,7 @@ export const measurement = z.object({
   storage_provider: storageProvider,
   created_at: z.date(),
   is_deleted: z.boolean().nullable(),
-}) as unknown as z.Schema<Measurement>;
+});
 
 export const measurementInitializer = z.object({
   id: measurementId,
@@ -55,7 +61,7 @@ export const measurementInitializer = z.object({
   storage_provider: storageProvider,
   created_at: z.date().optional(),
   is_deleted: z.boolean().optional().nullable(),
-}) as unknown as z.Schema<MeasurementInitializer>;
+});
 
 export const measurementMutator = z.object({
   id: measurementId.optional(),
@@ -67,10 +73,4 @@ export const measurementMutator = z.object({
   storage_provider: storageProvider.optional(),
   created_at: z.date().optional(),
   is_deleted: z.boolean().optional().nullable(),
-}) as unknown as z.Schema<MeasurementMutator>;
-
-export type Measurement = Selectable<MeasurementTable>;
-
-export type NewMeasurement = Insertable<MeasurementTable>;
-
-export type MeasurementUpdate = Updateable<MeasurementTable>;
+});

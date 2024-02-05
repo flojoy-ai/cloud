@@ -24,7 +24,13 @@ export default interface TestTable {
   updated_at: ColumnType<Date, Date | string | undefined, Date | string>;
 }
 
-export const testId = z.string() as unknown as z.Schema<TestId>;
+export type Test = Selectable<TestTable>;
+
+export type NewTest = Insertable<TestTable>;
+
+export type TestUpdate = Updateable<TestTable>;
+
+export const testId = z.string();
 
 export const test = z.object({
   id: testId,
@@ -33,7 +39,7 @@ export const test = z.object({
   project_id: projectId,
   created_at: z.date(),
   updated_at: z.date(),
-}) as unknown as z.Schema<Test>;
+});
 
 export const testInitializer = z.object({
   id: testId,
@@ -42,7 +48,7 @@ export const testInitializer = z.object({
   project_id: projectId,
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
-}) as unknown as z.Schema<TestInitializer>;
+});
 
 export const testMutator = z.object({
   id: testId.optional(),
@@ -51,10 +57,4 @@ export const testMutator = z.object({
   project_id: projectId.optional(),
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
-}) as unknown as z.Schema<TestMutator>;
-
-export type Test = Selectable<TestTable>;
-
-export type NewTest = Insertable<TestTable>;
-
-export type TestUpdate = Updateable<TestTable>;
+});

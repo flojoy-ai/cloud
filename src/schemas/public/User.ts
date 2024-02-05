@@ -22,7 +22,13 @@ export default interface UserTable {
   updated_at: ColumnType<Date, Date | string | undefined, Date | string>;
 }
 
-export const userId = z.string() as unknown as z.Schema<UserId>;
+export type User = Selectable<UserTable>;
+
+export type NewUser = Insertable<UserTable>;
+
+export type UserUpdate = Updateable<UserTable>;
+
+export const userId = z.string();
 
 export const user = z.object({
   id: userId,
@@ -31,7 +37,7 @@ export const user = z.object({
   hashed_password: z.string().nullable(),
   created_at: z.date(),
   updated_at: z.date(),
-}) as unknown as z.Schema<User>;
+});
 
 export const userInitializer = z.object({
   id: userId,
@@ -40,7 +46,7 @@ export const userInitializer = z.object({
   hashed_password: z.string().optional().nullable(),
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
-}) as unknown as z.Schema<UserInitializer>;
+});
 
 export const userMutator = z.object({
   id: userId.optional(),
@@ -49,10 +55,4 @@ export const userMutator = z.object({
   hashed_password: z.string().optional().nullable(),
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
-}) as unknown as z.Schema<UserMutator>;
-
-export type User = Selectable<UserTable>;
-
-export type NewUser = Insertable<UserTable>;
-
-export type UserUpdate = Updateable<UserTable>;
+});

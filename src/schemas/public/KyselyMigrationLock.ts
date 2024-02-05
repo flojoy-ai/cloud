@@ -14,25 +14,25 @@ export default interface KyselyMigrationLockTable {
   is_locked: ColumnType<number, number | undefined, number>;
 }
 
-export const kyselyMigrationLockId = z.string() as unknown as z.Schema<KyselyMigrationLockId>;
-
-export const kyselyMigrationLock = z.object({
-  id: kyselyMigrationLockId,
-  is_locked: z.number(),
-}) as unknown as z.Schema<KyselyMigrationLock>;
-
-export const kyselyMigrationLockInitializer = z.object({
-  id: kyselyMigrationLockId,
-  is_locked: z.number().optional(),
-}) as unknown as z.Schema<KyselyMigrationLockInitializer>;
-
-export const kyselyMigrationLockMutator = z.object({
-  id: kyselyMigrationLockId.optional(),
-  is_locked: z.number().optional(),
-}) as unknown as z.Schema<KyselyMigrationLockMutator>;
-
 export type KyselyMigrationLock = Selectable<KyselyMigrationLockTable>;
 
 export type NewKyselyMigrationLock = Insertable<KyselyMigrationLockTable>;
 
 export type KyselyMigrationLockUpdate = Updateable<KyselyMigrationLockTable>;
+
+export const kyselyMigrationLockId = z.string();
+
+export const kyselyMigrationLock = z.object({
+  id: kyselyMigrationLockId,
+  is_locked: z.number(),
+});
+
+export const kyselyMigrationLockInitializer = z.object({
+  id: kyselyMigrationLockId,
+  is_locked: z.number().optional(),
+});
+
+export const kyselyMigrationLockMutator = z.object({
+  id: kyselyMigrationLockId.optional(),
+  is_locked: z.number().optional(),
+});

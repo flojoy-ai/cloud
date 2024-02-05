@@ -18,29 +18,29 @@ export default interface WorkspaceUserTable {
   created_at: ColumnType<Date, Date | string | undefined, Date | string>;
 }
 
+export type WorkspaceUser = Selectable<WorkspaceUserTable>;
+
+export type NewWorkspaceUser = Insertable<WorkspaceUserTable>;
+
+export type WorkspaceUserUpdate = Updateable<WorkspaceUserTable>;
+
 export const workspaceUser = z.object({
   user_id: userId,
   workspace_id: workspaceId,
   role: workspaceRole,
   created_at: z.date(),
-}) as unknown as z.Schema<WorkspaceUser>;
+});
 
 export const workspaceUserInitializer = z.object({
   user_id: userId,
   workspace_id: workspaceId,
   role: workspaceRole,
   created_at: z.date().optional(),
-}) as unknown as z.Schema<WorkspaceUserInitializer>;
+});
 
 export const workspaceUserMutator = z.object({
   user_id: userId.optional(),
   workspace_id: workspaceId.optional(),
   role: workspaceRole.optional(),
   created_at: z.date().optional(),
-}) as unknown as z.Schema<WorkspaceUserMutator>;
-
-export type WorkspaceUser = Selectable<WorkspaceUserTable>;
-
-export type NewWorkspaceUser = Insertable<WorkspaceUserTable>;
-
-export type WorkspaceUserUpdate = Updateable<WorkspaceUserTable>;
+});

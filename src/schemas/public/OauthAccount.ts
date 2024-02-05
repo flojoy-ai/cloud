@@ -20,30 +20,30 @@ export default interface OauthAccountTable {
   user_id: ColumnType<UserId, UserId, UserId>;
 }
 
-export const oauthAccountProviderId = z.string() as unknown as z.Schema<OauthAccountProviderId>;
-
-export const oauthAccountProviderUserId = z.string() as unknown as z.Schema<OauthAccountProviderUserId>;
-
-export const oauthAccount = z.object({
-  provider_id: oauthAccountProviderId,
-  provider_user_id: oauthAccountProviderUserId,
-  user_id: userId,
-}) as unknown as z.Schema<OauthAccount>;
-
-export const oauthAccountInitializer = z.object({
-  provider_id: oauthAccountProviderId,
-  provider_user_id: oauthAccountProviderUserId,
-  user_id: userId,
-}) as unknown as z.Schema<OauthAccountInitializer>;
-
-export const oauthAccountMutator = z.object({
-  provider_id: oauthAccountProviderId.optional(),
-  provider_user_id: oauthAccountProviderUserId.optional(),
-  user_id: userId.optional(),
-}) as unknown as z.Schema<OauthAccountMutator>;
-
 export type OauthAccount = Selectable<OauthAccountTable>;
 
 export type NewOauthAccount = Insertable<OauthAccountTable>;
 
 export type OauthAccountUpdate = Updateable<OauthAccountTable>;
+
+export const oauthAccountProviderId = z.string();
+
+export const oauthAccountProviderUserId = z.string();
+
+export const oauthAccount = z.object({
+  provider_id: oauthAccountProviderId,
+  provider_user_id: oauthAccountProviderUserId,
+  user_id: userId,
+});
+
+export const oauthAccountInitializer = z.object({
+  provider_id: oauthAccountProviderId,
+  provider_user_id: oauthAccountProviderUserId,
+  user_id: userId,
+});
+
+export const oauthAccountMutator = z.object({
+  provider_id: oauthAccountProviderId.optional(),
+  provider_user_id: oauthAccountProviderUserId.optional(),
+  user_id: userId.optional(),
+});

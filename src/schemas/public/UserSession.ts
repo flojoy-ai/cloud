@@ -17,28 +17,28 @@ export default interface UserSessionTable {
   expires_at: ColumnType<Date, Date | string, Date | string>;
 }
 
-export const userSessionId = z.string() as unknown as z.Schema<UserSessionId>;
-
-export const userSession = z.object({
-  id: userSessionId,
-  user_id: userId,
-  expires_at: z.date(),
-}) as unknown as z.Schema<UserSession>;
-
-export const userSessionInitializer = z.object({
-  id: userSessionId,
-  user_id: userId,
-  expires_at: z.date(),
-}) as unknown as z.Schema<UserSessionInitializer>;
-
-export const userSessionMutator = z.object({
-  id: userSessionId.optional(),
-  user_id: userId.optional(),
-  expires_at: z.date().optional(),
-}) as unknown as z.Schema<UserSessionMutator>;
-
 export type UserSession = Selectable<UserSessionTable>;
 
 export type NewUserSession = Insertable<UserSessionTable>;
 
 export type UserSessionUpdate = Updateable<UserSessionTable>;
+
+export const userSessionId = z.string();
+
+export const userSession = z.object({
+  id: userSessionId,
+  user_id: userId,
+  expires_at: z.date(),
+});
+
+export const userSessionInitializer = z.object({
+  id: userSessionId,
+  user_id: userId,
+  expires_at: z.date(),
+});
+
+export const userSessionMutator = z.object({
+  id: userSessionId.optional(),
+  user_id: userId.optional(),
+  expires_at: z.date().optional(),
+});

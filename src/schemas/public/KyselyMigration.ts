@@ -14,25 +14,25 @@ export default interface KyselyMigrationTable {
   timestamp: ColumnType<string, string, string>;
 }
 
-export const kyselyMigrationName = z.string() as unknown as z.Schema<KyselyMigrationName>;
-
-export const kyselyMigration = z.object({
-  name: kyselyMigrationName,
-  timestamp: z.string(),
-}) as unknown as z.Schema<KyselyMigration>;
-
-export const kyselyMigrationInitializer = z.object({
-  name: kyselyMigrationName,
-  timestamp: z.string(),
-}) as unknown as z.Schema<KyselyMigrationInitializer>;
-
-export const kyselyMigrationMutator = z.object({
-  name: kyselyMigrationName.optional(),
-  timestamp: z.string().optional(),
-}) as unknown as z.Schema<KyselyMigrationMutator>;
-
 export type KyselyMigration = Selectable<KyselyMigrationTable>;
 
 export type NewKyselyMigration = Insertable<KyselyMigrationTable>;
 
 export type KyselyMigrationUpdate = Updateable<KyselyMigrationTable>;
+
+export const kyselyMigrationName = z.string();
+
+export const kyselyMigration = z.object({
+  name: kyselyMigrationName,
+  timestamp: z.string(),
+});
+
+export const kyselyMigrationInitializer = z.object({
+  name: kyselyMigrationName,
+  timestamp: z.string(),
+});
+
+export const kyselyMigrationMutator = z.object({
+  name: kyselyMigrationName.optional(),
+  timestamp: z.string().optional(),
+});

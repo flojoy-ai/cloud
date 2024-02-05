@@ -12,23 +12,23 @@ export default interface ModelRelationTable {
   child_model_id: ColumnType<ModelId, ModelId, ModelId>;
 }
 
-export const modelRelation = z.object({
-  parent_model_id: modelId,
-  child_model_id: modelId,
-}) as unknown as z.Schema<ModelRelation>;
-
-export const modelRelationInitializer = z.object({
-  parent_model_id: modelId,
-  child_model_id: modelId,
-}) as unknown as z.Schema<ModelRelationInitializer>;
-
-export const modelRelationMutator = z.object({
-  parent_model_id: modelId.optional(),
-  child_model_id: modelId.optional(),
-}) as unknown as z.Schema<ModelRelationMutator>;
-
 export type ModelRelation = Selectable<ModelRelationTable>;
 
 export type NewModelRelation = Insertable<ModelRelationTable>;
 
 export type ModelRelationUpdate = Updateable<ModelRelationTable>;
+
+export const modelRelation = z.object({
+  parent_model_id: modelId,
+  child_model_id: modelId,
+});
+
+export const modelRelationInitializer = z.object({
+  parent_model_id: modelId,
+  child_model_id: modelId,
+});
+
+export const modelRelationMutator = z.object({
+  parent_model_id: modelId.optional(),
+  child_model_id: modelId.optional(),
+});

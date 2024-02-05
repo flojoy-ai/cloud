@@ -13,23 +13,23 @@ export default interface ProjectHardwareTable {
   hardware_id: ColumnType<HardwareId, HardwareId, HardwareId>;
 }
 
-export const projectHardware = z.object({
-  project_id: projectId,
-  hardware_id: hardwareId,
-}) as unknown as z.Schema<ProjectHardware>;
-
-export const projectHardwareInitializer = z.object({
-  project_id: projectId,
-  hardware_id: hardwareId,
-}) as unknown as z.Schema<ProjectHardwareInitializer>;
-
-export const projectHardwareMutator = z.object({
-  project_id: projectId.optional(),
-  hardware_id: hardwareId.optional(),
-}) as unknown as z.Schema<ProjectHardwareMutator>;
-
 export type ProjectHardware = Selectable<ProjectHardwareTable>;
 
 export type NewProjectHardware = Insertable<ProjectHardwareTable>;
 
 export type ProjectHardwareUpdate = Updateable<ProjectHardwareTable>;
+
+export const projectHardware = z.object({
+  project_id: projectId,
+  hardware_id: hardwareId,
+});
+
+export const projectHardwareInitializer = z.object({
+  project_id: projectId,
+  hardware_id: hardwareId,
+});
+
+export const projectHardwareMutator = z.object({
+  project_id: projectId.optional(),
+  hardware_id: hardwareId.optional(),
+});

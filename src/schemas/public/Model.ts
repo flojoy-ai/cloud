@@ -19,31 +19,31 @@ export default interface ModelTable {
   created_at: ColumnType<Date, Date | string | undefined, Date | string>;
 }
 
-export const modelId = z.string() as unknown as z.Schema<ModelId>;
+export type Model = Selectable<ModelTable>;
+
+export type NewModel = Insertable<ModelTable>;
+
+export type ModelUpdate = Updateable<ModelTable>;
+
+export const modelId = z.string();
 
 export const model = z.object({
   id: modelId,
   name: z.string(),
   workspace_id: workspaceId,
   created_at: z.date(),
-}) as unknown as z.Schema<Model>;
+});
 
 export const modelInitializer = z.object({
   id: modelId,
   name: z.string(),
   workspace_id: workspaceId,
   created_at: z.date().optional(),
-}) as unknown as z.Schema<ModelInitializer>;
+});
 
 export const modelMutator = z.object({
   id: modelId.optional(),
   name: z.string().optional(),
   workspace_id: workspaceId.optional(),
   created_at: z.date().optional(),
-}) as unknown as z.Schema<ModelMutator>;
-
-export type Model = Selectable<ModelTable>;
-
-export type NewModel = Insertable<ModelTable>;
-
-export type ModelUpdate = Updateable<ModelTable>;
+});

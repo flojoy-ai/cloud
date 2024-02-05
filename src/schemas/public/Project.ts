@@ -24,7 +24,13 @@ export default interface ProjectTable {
   updated_at: ColumnType<Date, Date | string | undefined, Date | string>;
 }
 
-export const projectId = z.string() as unknown as z.Schema<ProjectId>;
+export type Project = Selectable<ProjectTable>;
+
+export type NewProject = Insertable<ProjectTable>;
+
+export type ProjectUpdate = Updateable<ProjectTable>;
+
+export const projectId = z.string();
 
 export const project = z.object({
   id: projectId,
@@ -33,7 +39,7 @@ export const project = z.object({
   model_id: modelId,
   created_at: z.date(),
   updated_at: z.date(),
-}) as unknown as z.Schema<Project>;
+});
 
 export const projectInitializer = z.object({
   id: projectId,
@@ -42,7 +48,7 @@ export const projectInitializer = z.object({
   model_id: modelId,
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
-}) as unknown as z.Schema<ProjectInitializer>;
+});
 
 export const projectMutator = z.object({
   id: projectId.optional(),
@@ -51,10 +57,4 @@ export const projectMutator = z.object({
   model_id: modelId.optional(),
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
-}) as unknown as z.Schema<ProjectMutator>;
-
-export type Project = Selectable<ProjectTable>;
-
-export type NewProject = Insertable<ProjectTable>;
-
-export type ProjectUpdate = Updateable<ProjectTable>;
+});

@@ -19,31 +19,31 @@ export default interface TagTable {
   created_at: ColumnType<Date, Date | string | undefined, Date | string>;
 }
 
-export const tagId = z.string() as unknown as z.Schema<TagId>;
+export type Tag = Selectable<TagTable>;
+
+export type NewTag = Insertable<TagTable>;
+
+export type TagUpdate = Updateable<TagTable>;
+
+export const tagId = z.string();
 
 export const tag = z.object({
   id: tagId,
   name: z.string(),
   measurement_id: measurementId,
   created_at: z.date(),
-}) as unknown as z.Schema<Tag>;
+});
 
 export const tagInitializer = z.object({
   id: tagId,
   name: z.string(),
   measurement_id: measurementId,
   created_at: z.date().optional(),
-}) as unknown as z.Schema<TagInitializer>;
+});
 
 export const tagMutator = z.object({
   id: tagId.optional(),
   name: z.string().optional(),
   measurement_id: measurementId.optional(),
   created_at: z.date().optional(),
-}) as unknown as z.Schema<TagMutator>;
-
-export type Tag = Selectable<TagTable>;
-
-export type NewTag = Insertable<TagTable>;
-
-export type TagUpdate = Updateable<TagTable>;
+});

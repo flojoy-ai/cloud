@@ -1,6 +1,18 @@
 // const path = require("path");
 const { makeKyselyHook } = require("kanel-kysely");
-const { generateZodSchemas } = require("kanel-zod");
+const {
+  makeGenerateZodSchemas,
+  defaultGetZodSchemaMetadata,
+  defaultGetZodIdentifierMetadata,
+  defaultZodTypeMap,
+} = require("kanel-zod");
+
+const generateZodSchemas = makeGenerateZodSchemas({
+  getZodSchemaMetadata: defaultGetZodSchemaMetadata,
+  getZodIdentifierMetadata: defaultGetZodIdentifierMetadata,
+  zodTypeMap: defaultZodTypeMap,
+  castToSchema: false,
+});
 
 /** @type {import('kanel').Config} */
 module.exports = {
@@ -8,7 +20,8 @@ module.exports = {
 
   preDeleteOutputFolder: true,
   outputPath: "./src/schemas",
-  preRenderHooks: [generateZodSchemas, makeKyselyHook()],
+  preRenderHooks: [makeKyselyHook(), generateZodSchemas],
+  castToSchema: false,
 
   enumStyle: "type",
 

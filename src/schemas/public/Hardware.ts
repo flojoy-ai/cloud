@@ -24,7 +24,13 @@ export default interface HardwareTable {
   updated_at: ColumnType<Date, Date | string | undefined, Date | string>;
 }
 
-export const hardwareId = z.string() as unknown as z.Schema<HardwareId>;
+export type Hardware = Selectable<HardwareTable>;
+
+export type NewHardware = Insertable<HardwareTable>;
+
+export type HardwareUpdate = Updateable<HardwareTable>;
+
+export const hardwareId = z.string();
 
 export const hardware = z.object({
   id: hardwareId,
@@ -33,7 +39,7 @@ export const hardware = z.object({
   model_id: modelId,
   created_at: z.date(),
   updated_at: z.date(),
-}) as unknown as z.Schema<Hardware>;
+});
 
 export const hardwareInitializer = z.object({
   id: hardwareId,
@@ -42,7 +48,7 @@ export const hardwareInitializer = z.object({
   model_id: modelId,
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
-}) as unknown as z.Schema<HardwareInitializer>;
+});
 
 export const hardwareMutator = z.object({
   id: hardwareId.optional(),
@@ -51,10 +57,4 @@ export const hardwareMutator = z.object({
   model_id: modelId.optional(),
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
-}) as unknown as z.Schema<HardwareMutator>;
-
-export type Hardware = Selectable<HardwareTable>;
-
-export type NewHardware = Insertable<HardwareTable>;
-
-export type HardwareUpdate = Updateable<HardwareTable>;
+});

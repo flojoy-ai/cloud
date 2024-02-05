@@ -21,7 +21,13 @@ export default interface EmailVerificationTable {
   expires_at: ColumnType<Date, Date | string, Date | string>;
 }
 
-export const emailVerificationId = z.string() as unknown as z.Schema<EmailVerificationId>;
+export type EmailVerification = Selectable<EmailVerificationTable>;
+
+export type NewEmailVerification = Insertable<EmailVerificationTable>;
+
+export type EmailVerificationUpdate = Updateable<EmailVerificationTable>;
+
+export const emailVerificationId = z.string();
 
 export const emailVerification = z.object({
   id: emailVerificationId,
@@ -29,7 +35,7 @@ export const emailVerification = z.object({
   user_id: userId,
   email: z.string(),
   expires_at: z.date(),
-}) as unknown as z.Schema<EmailVerification>;
+});
 
 export const emailVerificationInitializer = z.object({
   id: emailVerificationId,
@@ -37,7 +43,7 @@ export const emailVerificationInitializer = z.object({
   user_id: userId,
   email: z.string(),
   expires_at: z.date(),
-}) as unknown as z.Schema<EmailVerificationInitializer>;
+});
 
 export const emailVerificationMutator = z.object({
   id: emailVerificationId.optional(),
@@ -45,10 +51,4 @@ export const emailVerificationMutator = z.object({
   user_id: userId.optional(),
   email: z.string().optional(),
   expires_at: z.date().optional(),
-}) as unknown as z.Schema<EmailVerificationMutator>;
-
-export type EmailVerification = Selectable<EmailVerificationTable>;
-
-export type NewEmailVerification = Insertable<EmailVerificationTable>;
-
-export type EmailVerificationUpdate = Updateable<EmailVerificationTable>;
+});
