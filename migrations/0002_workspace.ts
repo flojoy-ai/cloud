@@ -1,5 +1,4 @@
 import { type Kysely, sql } from "kysely";
-import { allMeasurementDataTypes } from "~/types/data";
 
 export async function up(db: Kysely<unknown>): Promise<void> {
   await db.schema
@@ -31,4 +30,5 @@ export async function up(db: Kysely<unknown>): Promise<void> {
 
 export async function down(db: Kysely<unknown>): Promise<void> {
   await db.schema.dropTable("workspace").execute();
+  await db.schema.dropType("plan").execute();
 }
