@@ -5,6 +5,7 @@ const {
   defaultGetZodIdentifierMetadata,
   defaultZodTypeMap,
 } = require("kanel-zod");
+const { resolveType } = require("kanel");
 
 const { recase } = require("@kristiandupont/recase");
 const { tryParse } = require("tagged-comment-parser");
@@ -16,7 +17,8 @@ const generateZodSchemas = makeGenerateZodSchemas({
   castToSchema: false,
 });
 
-const toPascalCase = recase("snake", "camel");
+const toCamelCase = recase("snake", "camel");
+const toPascalCase = recase("snake", "pascal");
 const outputPath = "./src/schemas";
 
 /** @type {import('kanel').Config} */
@@ -38,7 +40,7 @@ module.exports = {
     const { comment: strippedComment } = tryParse(property.comment);
 
     return {
-      name: toPascalCase(property.name),
+      name: toCamelCase(property.name),
       comment: [
         `Database type: ${property.expandedType}`,
         ...(generateFor === "initializer" && property.defaultValue
@@ -46,6 +48,32 @@ module.exports = {
           : []),
         ...(strippedComment ? [strippedComment] : []),
       ],
+    };
+  },
+
+  generateIdentifierType: (column, details, config) => {
+    const name = toPascalCase(details.name) + toPascalCase(column.name);
+    const innerType = resolveType(column, details, {
+      ...config,
+      // Explicitly disable identifier resolution so we get the actual inner type here
+      generateIdentifierType: undefined,
+    });
+    const imports = [];
+
+    let type = innerType;
+    if (typeof innerType === "object") {
+      // Handle non-primitives
+      type = innerType.name;
+      imports.push(...innerType.typeImports);
+    }
+
+    return {
+      declarationType: "typeDeclaration",
+      name,
+      exportAs: "named",
+      typeDefinition: [innerType],
+      typeImports: imports,
+      comment: [],
     };
   },
 };
