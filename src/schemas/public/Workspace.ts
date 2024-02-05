@@ -11,22 +11,22 @@ export type WorkspaceId = string & { __brand: 'WorkspaceId' };
 /** Represents the table public.workspace */
 export default interface WorkspaceTable {
   /** Database type: pg_catalog.text */
-  Id: ColumnType<WorkspaceId, WorkspaceId, WorkspaceId>;
+  id: ColumnType<WorkspaceId, WorkspaceId, WorkspaceId>;
 
   /** Database type: pg_catalog.text */
-  Name: ColumnType<string, string, string>;
+  name: ColumnType<string, string, string>;
 
   /** Database type: pg_catalog.text */
-  Namespace: ColumnType<string, string, string>;
+  namespace: ColumnType<string, string, string>;
 
   /** Database type: public.plan_type */
-  PlanType: ColumnType<PlanType, PlanType, PlanType>;
+  planType: ColumnType<PlanType, PlanType, PlanType>;
 
   /** Database type: pg_catalog.timestamptz */
-  CreatedAt: ColumnType<Date, Date | string | undefined, Date | string>;
+  createdAt: ColumnType<Date, Date | string | undefined, Date | string>;
 
   /** Database type: pg_catalog.timestamptz */
-  UpdatedAt: ColumnType<Date, Date | string | undefined, Date | string>;
+  updatedAt: ColumnType<Date, Date | string | undefined, Date | string>;
 }
 
 export type Workspace = Selectable<WorkspaceTable>;
@@ -38,28 +38,28 @@ export type WorkspaceUpdate = Updateable<WorkspaceTable>;
 export const workspaceId = z.string();
 
 export const workspace = z.object({
-  Id: workspaceId,
-  Name: z.string(),
-  Namespace: z.string(),
-  PlanType: planType,
-  CreatedAt: z.date(),
-  UpdatedAt: z.date(),
+  id: workspaceId,
+  name: z.string(),
+  namespace: z.string(),
+  planType: planType,
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
 
 export const workspaceInitializer = z.object({
-  Id: workspaceId,
-  Name: z.string(),
-  Namespace: z.string(),
-  PlanType: planType,
-  CreatedAt: z.date().optional(),
-  UpdatedAt: z.date().optional(),
+  id: workspaceId,
+  name: z.string(),
+  namespace: z.string(),
+  planType: planType,
+  createdAt: z.date().optional(),
+  updatedAt: z.date().optional(),
 });
 
 export const workspaceMutator = z.object({
-  Id: workspaceId.optional(),
-  Name: z.string().optional(),
-  Namespace: z.string().optional(),
-  PlanType: planType.optional(),
-  CreatedAt: z.date().optional(),
-  UpdatedAt: z.date().optional(),
+  id: workspaceId.optional(),
+  name: z.string().optional(),
+  namespace: z.string().optional(),
+  planType: planType.optional(),
+  createdAt: z.date().optional(),
+  updatedAt: z.date().optional(),
 });

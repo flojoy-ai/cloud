@@ -11,13 +11,13 @@ export type UserSessionId = string & { __brand: 'UserSessionId' };
 /** Represents the table public.user_session */
 export default interface UserSessionTable {
   /** Database type: pg_catalog.text */
-  Id: ColumnType<UserSessionId, UserSessionId, UserSessionId>;
+  id: ColumnType<UserSessionId, UserSessionId, UserSessionId>;
 
   /** Database type: pg_catalog.text */
-  UserId: ColumnType<UserId, UserId, UserId>;
+  userId: ColumnType<UserId, UserId, UserId>;
 
   /** Database type: pg_catalog.timestamptz */
-  ExpiresAt: ColumnType<Date, Date | string, Date | string>;
+  expiresAt: ColumnType<Date, Date | string, Date | string>;
 }
 
 export type UserSession = Selectable<UserSessionTable>;
@@ -29,19 +29,19 @@ export type UserSessionUpdate = Updateable<UserSessionTable>;
 export const userSessionId = z.string();
 
 export const userSession = z.object({
-  Id: userSessionId,
-  UserId: userId,
-  ExpiresAt: z.date(),
+  id: userSessionId,
+  userId: userId,
+  expiresAt: z.date(),
 });
 
 export const userSessionInitializer = z.object({
-  Id: userSessionId,
-  UserId: userId,
-  ExpiresAt: z.date(),
+  id: userSessionId,
+  userId: userId,
+  expiresAt: z.date(),
 });
 
 export const userSessionMutator = z.object({
-  Id: userSessionId.optional(),
-  UserId: userId.optional(),
-  ExpiresAt: z.date().optional(),
+  id: userSessionId.optional(),
+  userId: userId.optional(),
+  expiresAt: z.date().optional(),
 });

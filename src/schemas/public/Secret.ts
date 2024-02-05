@@ -9,22 +9,22 @@ import { z } from 'zod';
 /** Represents the table public.secret */
 export default interface SecretTable {
   /** Database type: pg_catalog.text */
-  Id: ColumnType<string, string, string>;
+  id: ColumnType<string, string, string>;
 
   /** Database type: pg_catalog.text */
-  UserId: ColumnType<UserId, UserId, UserId>;
+  userId: ColumnType<UserId, UserId, UserId>;
 
   /** Database type: pg_catalog.text */
-  Value: ColumnType<string, string, string>;
+  value: ColumnType<string, string, string>;
 
   /** Database type: pg_catalog.text */
-  WorkspaceId: ColumnType<WorkspaceId, WorkspaceId, WorkspaceId>;
+  workspaceId: ColumnType<WorkspaceId, WorkspaceId, WorkspaceId>;
 
   /** Database type: pg_catalog.timestamp */
-  CreatedAt: ColumnType<Date, Date | string | undefined, Date | string>;
+  createdAt: ColumnType<Date, Date | string | undefined, Date | string>;
 
   /** Database type: pg_catalog.timestamp */
-  LastUsedAt: ColumnType<Date | null, Date | string | null, Date | string | null>;
+  lastUsedAt: ColumnType<Date | null, Date | string | null, Date | string | null>;
 }
 
 export type Secret = Selectable<SecretTable>;
@@ -34,28 +34,28 @@ export type NewSecret = Insertable<SecretTable>;
 export type SecretUpdate = Updateable<SecretTable>;
 
 export const secret = z.object({
-  Id: z.string(),
-  UserId: userId,
-  Value: z.string(),
-  WorkspaceId: workspaceId,
-  CreatedAt: z.date(),
-  LastUsedAt: z.date().nullable(),
+  id: z.string(),
+  userId: userId,
+  value: z.string(),
+  workspaceId: workspaceId,
+  createdAt: z.date(),
+  lastUsedAt: z.date().nullable(),
 });
 
 export const secretInitializer = z.object({
-  Id: z.string(),
-  UserId: userId,
-  Value: z.string(),
-  WorkspaceId: workspaceId,
-  CreatedAt: z.date().optional(),
-  LastUsedAt: z.date().optional().nullable(),
+  id: z.string(),
+  userId: userId,
+  value: z.string(),
+  workspaceId: workspaceId,
+  createdAt: z.date().optional(),
+  lastUsedAt: z.date().optional().nullable(),
 });
 
 export const secretMutator = z.object({
-  Id: z.string().optional(),
-  UserId: userId.optional(),
-  Value: z.string().optional(),
-  WorkspaceId: workspaceId.optional(),
-  CreatedAt: z.date().optional(),
-  LastUsedAt: z.date().optional().nullable(),
+  id: z.string().optional(),
+  userId: userId.optional(),
+  value: z.string().optional(),
+  workspaceId: workspaceId.optional(),
+  createdAt: z.date().optional(),
+  lastUsedAt: z.date().optional().nullable(),
 });

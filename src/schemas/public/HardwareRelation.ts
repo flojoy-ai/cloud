@@ -8,10 +8,10 @@ import { z } from 'zod';
 /** Represents the table public.hardware_relation */
 export default interface HardwareRelationTable {
   /** Database type: pg_catalog.text */
-  ParentHardwareId: ColumnType<HardwareId, HardwareId, HardwareId>;
+  parentHardwareId: ColumnType<HardwareId, HardwareId, HardwareId>;
 
   /** Database type: pg_catalog.text */
-  ChildHardwareId: ColumnType<HardwareId, HardwareId, HardwareId>;
+  childHardwareId: ColumnType<HardwareId, HardwareId, HardwareId>;
 }
 
 export type HardwareRelation = Selectable<HardwareRelationTable>;
@@ -21,16 +21,16 @@ export type NewHardwareRelation = Insertable<HardwareRelationTable>;
 export type HardwareRelationUpdate = Updateable<HardwareRelationTable>;
 
 export const hardwareRelation = z.object({
-  ParentHardwareId: hardwareId,
-  ChildHardwareId: hardwareId,
+  parentHardwareId: hardwareId,
+  childHardwareId: hardwareId,
 });
 
 export const hardwareRelationInitializer = z.object({
-  ParentHardwareId: hardwareId,
-  ChildHardwareId: hardwareId,
+  parentHardwareId: hardwareId,
+  childHardwareId: hardwareId,
 });
 
 export const hardwareRelationMutator = z.object({
-  ParentHardwareId: hardwareId.optional(),
-  ChildHardwareId: hardwareId.optional(),
+  parentHardwareId: hardwareId.optional(),
+  childHardwareId: hardwareId.optional(),
 });

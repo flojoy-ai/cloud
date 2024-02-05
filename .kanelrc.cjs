@@ -16,7 +16,7 @@ const generateZodSchemas = makeGenerateZodSchemas({
   castToSchema: false,
 });
 
-const toPascalCase = recase("snake", "pascal");
+const toPascalCase = recase("snake", "camel");
 const outputPath = "./src/schemas";
 
 /** @type {import('kanel').Config} */

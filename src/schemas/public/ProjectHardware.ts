@@ -9,10 +9,10 @@ import { z } from 'zod';
 /** Represents the table public.project_hardware */
 export default interface ProjectHardwareTable {
   /** Database type: pg_catalog.text */
-  ProjectId: ColumnType<ProjectId, ProjectId, ProjectId>;
+  projectId: ColumnType<ProjectId, ProjectId, ProjectId>;
 
   /** Database type: pg_catalog.text */
-  HardwareId: ColumnType<HardwareId, HardwareId, HardwareId>;
+  hardwareId: ColumnType<HardwareId, HardwareId, HardwareId>;
 }
 
 export type ProjectHardware = Selectable<ProjectHardwareTable>;
@@ -22,16 +22,16 @@ export type NewProjectHardware = Insertable<ProjectHardwareTable>;
 export type ProjectHardwareUpdate = Updateable<ProjectHardwareTable>;
 
 export const projectHardware = z.object({
-  ProjectId: projectId,
-  HardwareId: hardwareId,
+  projectId: projectId,
+  hardwareId: hardwareId,
 });
 
 export const projectHardwareInitializer = z.object({
-  ProjectId: projectId,
-  HardwareId: hardwareId,
+  projectId: projectId,
+  hardwareId: hardwareId,
 });
 
 export const projectHardwareMutator = z.object({
-  ProjectId: projectId.optional(),
-  HardwareId: hardwareId.optional(),
+  projectId: projectId.optional(),
+  hardwareId: hardwareId.optional(),
 });

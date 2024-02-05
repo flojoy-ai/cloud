@@ -11,16 +11,16 @@ export type TagId = string & { __brand: 'TagId' };
 /** Represents the table public.tag */
 export default interface TagTable {
   /** Database type: pg_catalog.text */
-  Id: ColumnType<TagId, TagId, TagId>;
+  id: ColumnType<TagId, TagId, TagId>;
 
   /** Database type: pg_catalog.text */
-  Name: ColumnType<string, string, string>;
+  name: ColumnType<string, string, string>;
 
   /** Database type: pg_catalog.text */
-  MeasurementId: ColumnType<MeasurementId, MeasurementId, MeasurementId>;
+  measurementId: ColumnType<MeasurementId, MeasurementId, MeasurementId>;
 
   /** Database type: pg_catalog.timestamptz */
-  CreatedAt: ColumnType<Date, Date | string | undefined, Date | string>;
+  createdAt: ColumnType<Date, Date | string | undefined, Date | string>;
 }
 
 export type Tag = Selectable<TagTable>;
@@ -32,22 +32,22 @@ export type TagUpdate = Updateable<TagTable>;
 export const tagId = z.string();
 
 export const tag = z.object({
-  Id: tagId,
-  Name: z.string(),
-  MeasurementId: measurementId,
-  CreatedAt: z.date(),
+  id: tagId,
+  name: z.string(),
+  measurementId: measurementId,
+  createdAt: z.date(),
 });
 
 export const tagInitializer = z.object({
-  Id: tagId,
-  Name: z.string(),
-  MeasurementId: measurementId,
-  CreatedAt: z.date().optional(),
+  id: tagId,
+  name: z.string(),
+  measurementId: measurementId,
+  createdAt: z.date().optional(),
 });
 
 export const tagMutator = z.object({
-  Id: tagId.optional(),
-  Name: z.string().optional(),
-  MeasurementId: measurementId.optional(),
-  CreatedAt: z.date().optional(),
+  id: tagId.optional(),
+  name: z.string().optional(),
+  measurementId: measurementId.optional(),
+  createdAt: z.date().optional(),
 });

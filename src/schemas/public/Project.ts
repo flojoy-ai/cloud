@@ -12,22 +12,22 @@ export type ProjectId = string & { __brand: 'ProjectId' };
 /** Represents the table public.project */
 export default interface ProjectTable {
   /** Database type: pg_catalog.text */
-  Id: ColumnType<ProjectId, ProjectId, ProjectId>;
+  id: ColumnType<ProjectId, ProjectId, ProjectId>;
 
   /** Database type: pg_catalog.text */
-  Name: ColumnType<string, string, string>;
+  name: ColumnType<string, string, string>;
 
   /** Database type: pg_catalog.text */
-  WorkspaceId: ColumnType<WorkspaceId, WorkspaceId, WorkspaceId>;
+  workspaceId: ColumnType<WorkspaceId, WorkspaceId, WorkspaceId>;
 
   /** Database type: pg_catalog.text */
-  ModelId: ColumnType<ModelId, ModelId, ModelId>;
+  modelId: ColumnType<ModelId, ModelId, ModelId>;
 
   /** Database type: pg_catalog.timestamptz */
-  CreatedAt: ColumnType<Date, Date | string | undefined, Date | string>;
+  createdAt: ColumnType<Date, Date | string | undefined, Date | string>;
 
   /** Database type: pg_catalog.timestamptz */
-  UpdatedAt: ColumnType<Date, Date | string | undefined, Date | string>;
+  updatedAt: ColumnType<Date, Date | string | undefined, Date | string>;
 }
 
 export type Project = Selectable<ProjectTable>;
@@ -39,28 +39,28 @@ export type ProjectUpdate = Updateable<ProjectTable>;
 export const projectId = z.string();
 
 export const project = z.object({
-  Id: projectId,
-  Name: z.string(),
-  WorkspaceId: workspaceId,
-  ModelId: modelId,
-  CreatedAt: z.date(),
-  UpdatedAt: z.date(),
+  id: projectId,
+  name: z.string(),
+  workspaceId: workspaceId,
+  modelId: modelId,
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
 
 export const projectInitializer = z.object({
-  Id: projectId,
-  Name: z.string(),
-  WorkspaceId: workspaceId,
-  ModelId: modelId,
-  CreatedAt: z.date().optional(),
-  UpdatedAt: z.date().optional(),
+  id: projectId,
+  name: z.string(),
+  workspaceId: workspaceId,
+  modelId: modelId,
+  createdAt: z.date().optional(),
+  updatedAt: z.date().optional(),
 });
 
 export const projectMutator = z.object({
-  Id: projectId.optional(),
-  Name: z.string().optional(),
-  WorkspaceId: workspaceId.optional(),
-  ModelId: modelId.optional(),
-  CreatedAt: z.date().optional(),
-  UpdatedAt: z.date().optional(),
+  id: projectId.optional(),
+  name: z.string().optional(),
+  workspaceId: workspaceId.optional(),
+  modelId: modelId.optional(),
+  createdAt: z.date().optional(),
+  updatedAt: z.date().optional(),
 });

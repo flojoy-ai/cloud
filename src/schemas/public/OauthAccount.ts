@@ -14,13 +14,13 @@ export type OauthAccountProviderUserId = string & { __brand: 'OauthAccountProvid
 /** Represents the table public.oauth_account */
 export default interface OauthAccountTable {
   /** Database type: pg_catalog.text */
-  ProviderId: ColumnType<OauthAccountProviderId, OauthAccountProviderId, OauthAccountProviderId>;
+  providerId: ColumnType<OauthAccountProviderId, OauthAccountProviderId, OauthAccountProviderId>;
 
   /** Database type: pg_catalog.text */
-  ProviderUserId: ColumnType<OauthAccountProviderUserId, OauthAccountProviderUserId, OauthAccountProviderUserId>;
+  providerUserId: ColumnType<OauthAccountProviderUserId, OauthAccountProviderUserId, OauthAccountProviderUserId>;
 
   /** Database type: pg_catalog.text */
-  UserId: ColumnType<UserId, UserId, UserId>;
+  userId: ColumnType<UserId, UserId, UserId>;
 }
 
 export type OauthAccount = Selectable<OauthAccountTable>;
@@ -34,19 +34,19 @@ export const oauthAccountProviderId = z.string();
 export const oauthAccountProviderUserId = z.string();
 
 export const oauthAccount = z.object({
-  ProviderId: oauthAccountProviderId,
-  ProviderUserId: oauthAccountProviderUserId,
-  UserId: userId,
+  providerId: oauthAccountProviderId,
+  providerUserId: oauthAccountProviderUserId,
+  userId: userId,
 });
 
 export const oauthAccountInitializer = z.object({
-  ProviderId: oauthAccountProviderId,
-  ProviderUserId: oauthAccountProviderUserId,
-  UserId: userId,
+  providerId: oauthAccountProviderId,
+  providerUserId: oauthAccountProviderUserId,
+  userId: userId,
 });
 
 export const oauthAccountMutator = z.object({
-  ProviderId: oauthAccountProviderId.optional(),
-  ProviderUserId: oauthAccountProviderUserId.optional(),
-  UserId: userId.optional(),
+  providerId: oauthAccountProviderId.optional(),
+  providerUserId: oauthAccountProviderUserId.optional(),
+  userId: userId.optional(),
 });

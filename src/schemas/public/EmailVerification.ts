@@ -11,19 +11,19 @@ export type EmailVerificationId = string & { __brand: 'EmailVerificationId' };
 /** Represents the table public.email_verification */
 export default interface EmailVerificationTable {
   /** Database type: pg_catalog.text */
-  Id: ColumnType<EmailVerificationId, EmailVerificationId, EmailVerificationId>;
+  id: ColumnType<EmailVerificationId, EmailVerificationId, EmailVerificationId>;
 
   /** Database type: pg_catalog.text */
-  Code: ColumnType<string, string, string>;
+  code: ColumnType<string, string, string>;
 
   /** Database type: pg_catalog.text */
-  UserId: ColumnType<UserId, UserId, UserId>;
+  userId: ColumnType<UserId, UserId, UserId>;
 
   /** Database type: pg_catalog.text */
-  Email: ColumnType<string, string, string>;
+  email: ColumnType<string, string, string>;
 
   /** Database type: pg_catalog.timestamptz */
-  ExpiresAt: ColumnType<Date, Date | string, Date | string>;
+  expiresAt: ColumnType<Date, Date | string, Date | string>;
 }
 
 export type EmailVerification = Selectable<EmailVerificationTable>;
@@ -35,25 +35,25 @@ export type EmailVerificationUpdate = Updateable<EmailVerificationTable>;
 export const emailVerificationId = z.string();
 
 export const emailVerification = z.object({
-  Id: emailVerificationId,
-  Code: z.string(),
-  UserId: userId,
-  Email: z.string(),
-  ExpiresAt: z.date(),
+  id: emailVerificationId,
+  code: z.string(),
+  userId: userId,
+  email: z.string(),
+  expiresAt: z.date(),
 });
 
 export const emailVerificationInitializer = z.object({
-  Id: emailVerificationId,
-  Code: z.string(),
-  UserId: userId,
-  Email: z.string(),
-  ExpiresAt: z.date(),
+  id: emailVerificationId,
+  code: z.string(),
+  userId: userId,
+  email: z.string(),
+  expiresAt: z.date(),
 });
 
 export const emailVerificationMutator = z.object({
-  Id: emailVerificationId.optional(),
-  Code: z.string().optional(),
-  UserId: userId.optional(),
-  Email: z.string().optional(),
-  ExpiresAt: z.date().optional(),
+  id: emailVerificationId.optional(),
+  code: z.string().optional(),
+  userId: userId.optional(),
+  email: z.string().optional(),
+  expiresAt: z.date().optional(),
 });
