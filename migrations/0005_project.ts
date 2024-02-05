@@ -17,7 +17,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .addColumn("updated_at", "timestamptz", (col) =>
       col.defaultTo(sql`now()`).notNull(),
     )
-    .addUniqueConstraint("test_project_id_name_unique", [
+    .addUniqueConstraint("project_workspace_id_name_unique", [
       "workspace_id",
       "name",
     ])
