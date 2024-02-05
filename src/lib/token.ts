@@ -14,7 +14,7 @@ export const generateEmailVerificationToken = async (
 ) => {
   await db
     .deleteFrom("email_verification")
-    .where("user_id", "=", userId)
+    .where("userId", "=", userId)
     .execute();
 
   const code = generateRandomString(8, alphabet("0-9"));
@@ -23,10 +23,10 @@ export const generateEmailVerificationToken = async (
     .insertInto("email_verification")
     .values({
       id: ("ev_" + createId()) as EmailVerificationId,
-      user_id: userId,
+      userId: userId,
       email,
       code,
-      expires_at: createDate(new TimeSpan(5, "m")),
+      expiresAt: createDate(new TimeSpan(5, "m")),
     })
     .execute();
 
@@ -38,7 +38,7 @@ export async function createPasswordResetToken(
 ): Promise<string> {
   await db
     .deleteFrom("password_reset_token")
-    .where("user_id", "=", userId)
+    .where("userId", "=", userId)
     .execute();
 
   const token = generateRandomString(40, alphabet("0-9"));
@@ -47,9 +47,9 @@ export async function createPasswordResetToken(
     .insertInto("password_reset_token")
     .values({
       id: ("ev_" + createId()) as PasswordResetTokenId,
-      user_id: userId,
+      userId: userId,
       token,
-      expires_at: createDate(new TimeSpan(5, "m")),
+      expiresAt: createDate(new TimeSpan(5, "m")),
     })
     .execute();
 

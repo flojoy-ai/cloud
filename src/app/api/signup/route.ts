@@ -44,8 +44,8 @@ export const POST = async (request: NextRequest) => {
       .values({
         id: userId,
         email: parsedEmail.data,
-        hashed_password: hashedPassword,
-        email_verified: false,
+        hashedPassword: hashedPassword,
+        emailVerified: false,
       })
       .execute();
 
