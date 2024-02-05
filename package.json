@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "pnpm run db:migrate && next build",
+    "build": "next build",
     "build:analyze": "ANALYZE=true next build",
     "dev": "next dev",
     "lint": "next lint",
