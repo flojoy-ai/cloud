@@ -1,4 +1,5 @@
 import * as path from "path";
+import { promises as fs } from "fs";
 import { Migrator, FileMigrationProvider } from "kysely";
 import { env } from "~/env";
 
@@ -19,9 +20,11 @@ async function migrateToLatest() {
 
   const migrator = new Migrator({
     db,
-    provider: new FileMigrationProvider(
-      path.join(path.resolve(), "migrations"),
-    ),
+    provider: new FileMigrationProvider({
+      fs,
+      path,
+      migrationFolder: path.join(path.resolve(), "migrations"),
+    }),
   });
 
   const { error, results } = await migrator.migrateToLatest();
