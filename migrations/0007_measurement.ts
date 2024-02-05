@@ -10,6 +10,8 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .createTable("measurement")
     .addColumn("id", "text", (col) => col.primaryKey())
     .addColumn("name", "text", (col) => col.notNull())
+    .addColumn("data", "jsonb", (col) => col.notNull())
+    .addColumn("pass", "boolean")
     .addColumn("hardware_id", "text", (col) =>
       col.notNull().references("hardware.id").onDelete("cascade"),
     )

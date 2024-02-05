@@ -22,7 +22,6 @@ export async function up(db: Kysely<unknown>): Promise<void> {
 
   await db.schema
     .createIndex("workspace_namespace_index")
-    .ifNotExists()
     .on("workspace")
     .column("namespace")
     .execute();

@@ -14,6 +14,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .addColumn("updated_at", "timestamptz", (col) =>
       col.defaultTo(sql`now()`).notNull(),
     )
+    .addUniqueConstraint("user_email_unique", ["email"])
     .execute();
 
   await db.schema
@@ -40,23 +41,23 @@ export async function up(db: Kysely<unknown>): Promise<void> {
 
   await db.schema
     .createTable("password_reset_token")
-    .addColumn("id", "serial", (col) => col.primaryKey())
+    .addColumn("id", "text", (col) => col.primaryKey())
     .addColumn("user_id", "text", (col) =>
       col.references("user.id").onDelete("cascade").notNull(),
     )
     .addColumn("token", "text", (col) => col.notNull())
-    .addColumn("expires_at", "timestamp", (col) => col.notNull())
+    .addColumn("expires_at", "timestamptz", (col) => col.notNull())
     .execute();
 
   await db.schema
     .createTable("email_verification")
-    .addColumn("id", "serial", (col) => col.primaryKey())
+    .addColumn("id", "text", (col) => col.primaryKey())
     .addColumn("code", "text", (col) => col.notNull())
     .addColumn("user_id", "text", (col) =>
       col.references("user.id").onDelete("cascade").notNull(),
     )
     .addColumn("email", "text", (col) => col.notNull())
-    .addColumn("expires_at", "timestamp", (col) => col.notNull())
+    .addColumn("expires_at", "timestamptz", (col) => col.notNull())
     .execute();
 
   await db.schema
@@ -66,7 +67,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
 
   await db.schema
     .createTable("user_invite")
-    .addColumn("id", "serial", (col) => col.primaryKey().notNull())
+    .addColumn("id", "text", (col) => col.primaryKey().notNull())
     .addColumn("email", "text", (col) => col.notNull())
     .addColumn("workspace_id", "text", (col) =>
       col.references("workspace.id").onDelete("cascade").notNull(),
@@ -81,5 +82,6 @@ export async function down(db: Kysely<unknown>): Promise<void> {
   await db.schema.dropTable("oauth_account").execute();
   await db.schema.dropTable("password_reset_token").execute();
   await db.schema.dropTable("email_verification").execute();
+  await db.schema.dropTable("user_invite").execute();
   await db.schema.dropType("workspace_role").execute();
 }

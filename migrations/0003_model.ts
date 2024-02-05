@@ -19,24 +19,26 @@ export async function up(db: Kysely<unknown>): Promise<void> {
 
   await db.schema
     .createIndex("model_name_index")
-    .ifNotExists()
     .on("model")
     .column("name")
     .execute();
 
   await db.schema
-    .createTable("parent_child_model")
-    .addColumn("id", "serial", (col) => col.primaryKey())
+    .createTable("model_relation")
     .addColumn("parent_model_id", "text", (col) =>
       col.notNull().references("model.id").onDelete("cascade"),
     )
     .addColumn("child_model_id", "text", (col) =>
-      col.notNull().references("model.id").onDelete("cascade"),
+      col.notNull().references("model.id").onDelete("restrict"),
     )
+    .addPrimaryKeyConstraint("model_relation_pk", [
+      "parent_model_id",
+      "child_model_id",
+    ])
     .execute();
 }
 
 export async function down(db: Kysely<unknown>): Promise<void> {
   await db.schema.dropTable("model").execute();
-  await db.schema.dropTable("parent_child_model").execute();
+  await db.schema.dropTable("model_relation").execute();
 }

@@ -28,7 +28,6 @@ export async function up(db: Kysely<unknown>): Promise<void> {
 
   await db.schema
     .createIndex("test_name_index")
-    .ifNotExists()
     .on("test")
     .column("name")
     .execute();
