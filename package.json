@@ -14,7 +14,7 @@
     "commitlint": "commitlint --edit",
     "email:dev": "email dev -d ./src/emails",
     "email:export": "email export -d ./src/emails",
-    "kysely:gen": "dotenv -c -- kysely-codegen",
+    "kanel": "dotenv -c -- pnpx kanel",
     "migrate:up": "dotenv -c -- tsx ./scripts/migrate/up.ts",
     "migrate:down": "dotenv -c -- tsx ./scripts/migrate/down.ts",
     "migrate:to-latest": "dotenv -c -- tsx ./scripts/migrate/to-latest.ts"
@@ -117,6 +117,9 @@
     "dotenv-cli": "^7.3.0",
     "eslint": "^8.56.0",
     "husky": "^9.0.10",
+    "kanel": "^3.8.7",
+    "kanel-kysely": "^0.3.3",
+    "kanel-zod": "^1.3.3",
     "kysely-codegen": "^0.11.0",
     "postcss": "^8.4.33",
     "prettier": "^3.2.5",

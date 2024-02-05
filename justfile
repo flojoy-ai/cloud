@@ -10,6 +10,3 @@ env:
 dev:
   pnpm dev
 
-migrate-latest:
-  pnpm migrate:to-latest
-  pnpm kysely:gen
