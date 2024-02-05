@@ -9,9 +9,11 @@ export type KyselyMigrationName = string & { __brand: 'KyselyMigrationName' };
 
 /** Represents the table public.kysely_migration */
 export default interface KyselyMigrationTable {
-  name: ColumnType<KyselyMigrationName, KyselyMigrationName, KyselyMigrationName>;
+  /** Database type: pg_catalog.varchar */
+  Name: ColumnType<KyselyMigrationName, KyselyMigrationName, KyselyMigrationName>;
 
-  timestamp: ColumnType<string, string, string>;
+  /** Database type: pg_catalog.varchar */
+  Timestamp: ColumnType<string, string, string>;
 }
 
 export type KyselyMigration = Selectable<KyselyMigrationTable>;
@@ -23,16 +25,16 @@ export type KyselyMigrationUpdate = Updateable<KyselyMigrationTable>;
 export const kyselyMigrationName = z.string();
 
 export const kyselyMigration = z.object({
-  name: kyselyMigrationName,
-  timestamp: z.string(),
+  Name: kyselyMigrationName,
+  Timestamp: z.string(),
 });
 
 export const kyselyMigrationInitializer = z.object({
-  name: kyselyMigrationName,
-  timestamp: z.string(),
+  Name: kyselyMigrationName,
+  Timestamp: z.string(),
 });
 
 export const kyselyMigrationMutator = z.object({
-  name: kyselyMigrationName.optional(),
-  timestamp: z.string().optional(),
+  Name: kyselyMigrationName.optional(),
+  Timestamp: z.string().optional(),
 });

@@ -8,17 +8,23 @@ import { z } from 'zod';
 
 /** Represents the table public.secret */
 export default interface SecretTable {
-  id: ColumnType<string, string, string>;
+  /** Database type: pg_catalog.text */
+  Id: ColumnType<string, string, string>;
 
-  user_id: ColumnType<UserId, UserId, UserId>;
+  /** Database type: pg_catalog.text */
+  UserId: ColumnType<UserId, UserId, UserId>;
 
-  value: ColumnType<string, string, string>;
+  /** Database type: pg_catalog.text */
+  Value: ColumnType<string, string, string>;
 
-  workspace_id: ColumnType<WorkspaceId, WorkspaceId, WorkspaceId>;
+  /** Database type: pg_catalog.text */
+  WorkspaceId: ColumnType<WorkspaceId, WorkspaceId, WorkspaceId>;
 
-  created_at: ColumnType<Date, Date | string | undefined, Date | string>;
+  /** Database type: pg_catalog.timestamp */
+  CreatedAt: ColumnType<Date, Date | string | undefined, Date | string>;
 
-  last_used_at: ColumnType<Date | null, Date | string | null, Date | string | null>;
+  /** Database type: pg_catalog.timestamp */
+  LastUsedAt: ColumnType<Date | null, Date | string | null, Date | string | null>;
 }
 
 export type Secret = Selectable<SecretTable>;
@@ -28,28 +34,28 @@ export type NewSecret = Insertable<SecretTable>;
 export type SecretUpdate = Updateable<SecretTable>;
 
 export const secret = z.object({
-  id: z.string(),
-  user_id: userId,
-  value: z.string(),
-  workspace_id: workspaceId,
-  created_at: z.date(),
-  last_used_at: z.date().nullable(),
+  Id: z.string(),
+  UserId: userId,
+  Value: z.string(),
+  WorkspaceId: workspaceId,
+  CreatedAt: z.date(),
+  LastUsedAt: z.date().nullable(),
 });
 
 export const secretInitializer = z.object({
-  id: z.string(),
-  user_id: userId,
-  value: z.string(),
-  workspace_id: workspaceId,
-  created_at: z.date().optional(),
-  last_used_at: z.date().optional().nullable(),
+  Id: z.string(),
+  UserId: userId,
+  Value: z.string(),
+  WorkspaceId: workspaceId,
+  CreatedAt: z.date().optional(),
+  LastUsedAt: z.date().optional().nullable(),
 });
 
 export const secretMutator = z.object({
-  id: z.string().optional(),
-  user_id: userId.optional(),
-  value: z.string().optional(),
-  workspace_id: workspaceId.optional(),
-  created_at: z.date().optional(),
-  last_used_at: z.date().optional().nullable(),
+  Id: z.string().optional(),
+  UserId: userId.optional(),
+  Value: z.string().optional(),
+  WorkspaceId: workspaceId.optional(),
+  CreatedAt: z.date().optional(),
+  LastUsedAt: z.date().optional().nullable(),
 });

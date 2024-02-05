@@ -11,17 +11,23 @@ export type HardwareId = string & { __brand: 'HardwareId' };
 
 /** Represents the table public.hardware */
 export default interface HardwareTable {
-  id: ColumnType<HardwareId, HardwareId, HardwareId>;
+  /** Database type: pg_catalog.text */
+  Id: ColumnType<HardwareId, HardwareId, HardwareId>;
 
-  name: ColumnType<string, string, string>;
+  /** Database type: pg_catalog.text */
+  Name: ColumnType<string, string, string>;
 
-  workspace_id: ColumnType<WorkspaceId, WorkspaceId, WorkspaceId>;
+  /** Database type: pg_catalog.text */
+  WorkspaceId: ColumnType<WorkspaceId, WorkspaceId, WorkspaceId>;
 
-  model_id: ColumnType<ModelId, ModelId, ModelId>;
+  /** Database type: pg_catalog.text */
+  ModelId: ColumnType<ModelId, ModelId, ModelId>;
 
-  created_at: ColumnType<Date, Date | string | undefined, Date | string>;
+  /** Database type: pg_catalog.timestamptz */
+  CreatedAt: ColumnType<Date, Date | string | undefined, Date | string>;
 
-  updated_at: ColumnType<Date, Date | string | undefined, Date | string>;
+  /** Database type: pg_catalog.timestamptz */
+  UpdatedAt: ColumnType<Date, Date | string | undefined, Date | string>;
 }
 
 export type Hardware = Selectable<HardwareTable>;
@@ -33,28 +39,28 @@ export type HardwareUpdate = Updateable<HardwareTable>;
 export const hardwareId = z.string();
 
 export const hardware = z.object({
-  id: hardwareId,
-  name: z.string(),
-  workspace_id: workspaceId,
-  model_id: modelId,
-  created_at: z.date(),
-  updated_at: z.date(),
+  Id: hardwareId,
+  Name: z.string(),
+  WorkspaceId: workspaceId,
+  ModelId: modelId,
+  CreatedAt: z.date(),
+  UpdatedAt: z.date(),
 });
 
 export const hardwareInitializer = z.object({
-  id: hardwareId,
-  name: z.string(),
-  workspace_id: workspaceId,
-  model_id: modelId,
-  created_at: z.date().optional(),
-  updated_at: z.date().optional(),
+  Id: hardwareId,
+  Name: z.string(),
+  WorkspaceId: workspaceId,
+  ModelId: modelId,
+  CreatedAt: z.date().optional(),
+  UpdatedAt: z.date().optional(),
 });
 
 export const hardwareMutator = z.object({
-  id: hardwareId.optional(),
-  name: z.string().optional(),
-  workspace_id: workspaceId.optional(),
-  model_id: modelId.optional(),
-  created_at: z.date().optional(),
-  updated_at: z.date().optional(),
+  Id: hardwareId.optional(),
+  Name: z.string().optional(),
+  WorkspaceId: workspaceId.optional(),
+  ModelId: modelId.optional(),
+  CreatedAt: z.date().optional(),
+  UpdatedAt: z.date().optional(),
 });

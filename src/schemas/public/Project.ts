@@ -11,17 +11,23 @@ export type ProjectId = string & { __brand: 'ProjectId' };
 
 /** Represents the table public.project */
 export default interface ProjectTable {
-  id: ColumnType<ProjectId, ProjectId, ProjectId>;
+  /** Database type: pg_catalog.text */
+  Id: ColumnType<ProjectId, ProjectId, ProjectId>;
 
-  name: ColumnType<string, string, string>;
+  /** Database type: pg_catalog.text */
+  Name: ColumnType<string, string, string>;
 
-  workspace_id: ColumnType<WorkspaceId, WorkspaceId, WorkspaceId>;
+  /** Database type: pg_catalog.text */
+  WorkspaceId: ColumnType<WorkspaceId, WorkspaceId, WorkspaceId>;
 
-  model_id: ColumnType<ModelId, ModelId, ModelId>;
+  /** Database type: pg_catalog.text */
+  ModelId: ColumnType<ModelId, ModelId, ModelId>;
 
-  created_at: ColumnType<Date, Date | string | undefined, Date | string>;
+  /** Database type: pg_catalog.timestamptz */
+  CreatedAt: ColumnType<Date, Date | string | undefined, Date | string>;
 
-  updated_at: ColumnType<Date, Date | string | undefined, Date | string>;
+  /** Database type: pg_catalog.timestamptz */
+  UpdatedAt: ColumnType<Date, Date | string | undefined, Date | string>;
 }
 
 export type Project = Selectable<ProjectTable>;
@@ -33,28 +39,28 @@ export type ProjectUpdate = Updateable<ProjectTable>;
 export const projectId = z.string();
 
 export const project = z.object({
-  id: projectId,
-  name: z.string(),
-  workspace_id: workspaceId,
-  model_id: modelId,
-  created_at: z.date(),
-  updated_at: z.date(),
+  Id: projectId,
+  Name: z.string(),
+  WorkspaceId: workspaceId,
+  ModelId: modelId,
+  CreatedAt: z.date(),
+  UpdatedAt: z.date(),
 });
 
 export const projectInitializer = z.object({
-  id: projectId,
-  name: z.string(),
-  workspace_id: workspaceId,
-  model_id: modelId,
-  created_at: z.date().optional(),
-  updated_at: z.date().optional(),
+  Id: projectId,
+  Name: z.string(),
+  WorkspaceId: workspaceId,
+  ModelId: modelId,
+  CreatedAt: z.date().optional(),
+  UpdatedAt: z.date().optional(),
 });
 
 export const projectMutator = z.object({
-  id: projectId.optional(),
-  name: z.string().optional(),
-  workspace_id: workspaceId.optional(),
-  model_id: modelId.optional(),
-  created_at: z.date().optional(),
-  updated_at: z.date().optional(),
+  Id: projectId.optional(),
+  Name: z.string().optional(),
+  WorkspaceId: workspaceId.optional(),
+  ModelId: modelId.optional(),
+  CreatedAt: z.date().optional(),
+  UpdatedAt: z.date().optional(),
 });

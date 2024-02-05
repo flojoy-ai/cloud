@@ -10,13 +10,17 @@ export type ModelId = string & { __brand: 'ModelId' };
 
 /** Represents the table public.model */
 export default interface ModelTable {
-  id: ColumnType<ModelId, ModelId, ModelId>;
+  /** Database type: pg_catalog.text */
+  Id: ColumnType<ModelId, ModelId, ModelId>;
 
-  name: ColumnType<string, string, string>;
+  /** Database type: pg_catalog.text */
+  Name: ColumnType<string, string, string>;
 
-  workspace_id: ColumnType<WorkspaceId, WorkspaceId, WorkspaceId>;
+  /** Database type: pg_catalog.text */
+  WorkspaceId: ColumnType<WorkspaceId, WorkspaceId, WorkspaceId>;
 
-  created_at: ColumnType<Date, Date | string | undefined, Date | string>;
+  /** Database type: pg_catalog.timestamptz */
+  CreatedAt: ColumnType<Date, Date | string | undefined, Date | string>;
 }
 
 export type Model = Selectable<ModelTable>;
@@ -28,22 +32,22 @@ export type ModelUpdate = Updateable<ModelTable>;
 export const modelId = z.string();
 
 export const model = z.object({
-  id: modelId,
-  name: z.string(),
-  workspace_id: workspaceId,
-  created_at: z.date(),
+  Id: modelId,
+  Name: z.string(),
+  WorkspaceId: workspaceId,
+  CreatedAt: z.date(),
 });
 
 export const modelInitializer = z.object({
-  id: modelId,
-  name: z.string(),
-  workspace_id: workspaceId,
-  created_at: z.date().optional(),
+  Id: modelId,
+  Name: z.string(),
+  WorkspaceId: workspaceId,
+  CreatedAt: z.date().optional(),
 });
 
 export const modelMutator = z.object({
-  id: modelId.optional(),
-  name: z.string().optional(),
-  workspace_id: workspaceId.optional(),
-  created_at: z.date().optional(),
+  Id: modelId.optional(),
+  Name: z.string().optional(),
+  WorkspaceId: workspaceId.optional(),
+  CreatedAt: z.date().optional(),
 });

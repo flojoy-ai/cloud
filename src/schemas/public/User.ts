@@ -9,17 +9,23 @@ export type UserId = string & { __brand: 'UserId' };
 
 /** Represents the table public.user */
 export default interface UserTable {
-  id: ColumnType<UserId, UserId, UserId>;
+  /** Database type: pg_catalog.text */
+  Id: ColumnType<UserId, UserId, UserId>;
 
-  email_verified: ColumnType<boolean | null, boolean | null, boolean | null>;
+  /** Database type: pg_catalog.bool */
+  EmailVerified: ColumnType<boolean | null, boolean | null, boolean | null>;
 
-  email: ColumnType<string, string, string>;
+  /** Database type: pg_catalog.text */
+  Email: ColumnType<string, string, string>;
 
-  hashed_password: ColumnType<string | null, string | null, string | null>;
+  /** Database type: pg_catalog.text */
+  HashedPassword: ColumnType<string | null, string | null, string | null>;
 
-  created_at: ColumnType<Date, Date | string | undefined, Date | string>;
+  /** Database type: pg_catalog.timestamptz */
+  CreatedAt: ColumnType<Date, Date | string | undefined, Date | string>;
 
-  updated_at: ColumnType<Date, Date | string | undefined, Date | string>;
+  /** Database type: pg_catalog.timestamptz */
+  UpdatedAt: ColumnType<Date, Date | string | undefined, Date | string>;
 }
 
 export type User = Selectable<UserTable>;
@@ -31,28 +37,28 @@ export type UserUpdate = Updateable<UserTable>;
 export const userId = z.string();
 
 export const user = z.object({
-  id: userId,
-  email_verified: z.boolean().nullable(),
-  email: z.string(),
-  hashed_password: z.string().nullable(),
-  created_at: z.date(),
-  updated_at: z.date(),
+  Id: userId,
+  EmailVerified: z.boolean().nullable(),
+  Email: z.string(),
+  HashedPassword: z.string().nullable(),
+  CreatedAt: z.date(),
+  UpdatedAt: z.date(),
 });
 
 export const userInitializer = z.object({
-  id: userId,
-  email_verified: z.boolean().optional().nullable(),
-  email: z.string(),
-  hashed_password: z.string().optional().nullable(),
-  created_at: z.date().optional(),
-  updated_at: z.date().optional(),
+  Id: userId,
+  EmailVerified: z.boolean().optional().nullable(),
+  Email: z.string(),
+  HashedPassword: z.string().optional().nullable(),
+  CreatedAt: z.date().optional(),
+  UpdatedAt: z.date().optional(),
 });
 
 export const userMutator = z.object({
-  id: userId.optional(),
-  email_verified: z.boolean().optional().nullable(),
-  email: z.string().optional(),
-  hashed_password: z.string().optional().nullable(),
-  created_at: z.date().optional(),
-  updated_at: z.date().optional(),
+  Id: userId.optional(),
+  EmailVerified: z.boolean().optional().nullable(),
+  Email: z.string().optional(),
+  HashedPassword: z.string().optional().nullable(),
+  CreatedAt: z.date().optional(),
+  UpdatedAt: z.date().optional(),
 });

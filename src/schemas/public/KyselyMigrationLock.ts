@@ -9,9 +9,11 @@ export type KyselyMigrationLockId = string & { __brand: 'KyselyMigrationLockId' 
 
 /** Represents the table public.kysely_migration_lock */
 export default interface KyselyMigrationLockTable {
-  id: ColumnType<KyselyMigrationLockId, KyselyMigrationLockId, KyselyMigrationLockId>;
+  /** Database type: pg_catalog.varchar */
+  Id: ColumnType<KyselyMigrationLockId, KyselyMigrationLockId, KyselyMigrationLockId>;
 
-  is_locked: ColumnType<number, number | undefined, number>;
+  /** Database type: pg_catalog.int4 */
+  IsLocked: ColumnType<number, number | undefined, number>;
 }
 
 export type KyselyMigrationLock = Selectable<KyselyMigrationLockTable>;
@@ -23,16 +25,16 @@ export type KyselyMigrationLockUpdate = Updateable<KyselyMigrationLockTable>;
 export const kyselyMigrationLockId = z.string();
 
 export const kyselyMigrationLock = z.object({
-  id: kyselyMigrationLockId,
-  is_locked: z.number(),
+  Id: kyselyMigrationLockId,
+  IsLocked: z.number(),
 });
 
 export const kyselyMigrationLockInitializer = z.object({
-  id: kyselyMigrationLockId,
-  is_locked: z.number().optional(),
+  Id: kyselyMigrationLockId,
+  IsLocked: z.number().optional(),
 });
 
 export const kyselyMigrationLockMutator = z.object({
-  id: kyselyMigrationLockId.optional(),
-  is_locked: z.number().optional(),
+  Id: kyselyMigrationLockId.optional(),
+  IsLocked: z.number().optional(),
 });

@@ -9,13 +9,17 @@ import { z } from 'zod';
 
 /** Represents the table public.workspace_user */
 export default interface WorkspaceUserTable {
-  user_id: ColumnType<UserId, UserId, UserId>;
+  /** Database type: pg_catalog.text */
+  UserId: ColumnType<UserId, UserId, UserId>;
 
-  workspace_id: ColumnType<WorkspaceId, WorkspaceId, WorkspaceId>;
+  /** Database type: pg_catalog.text */
+  WorkspaceId: ColumnType<WorkspaceId, WorkspaceId, WorkspaceId>;
 
-  role: ColumnType<WorkspaceRole, WorkspaceRole, WorkspaceRole>;
+  /** Database type: public.workspace_role */
+  Role: ColumnType<WorkspaceRole, WorkspaceRole, WorkspaceRole>;
 
-  created_at: ColumnType<Date, Date | string | undefined, Date | string>;
+  /** Database type: pg_catalog.timestamptz */
+  CreatedAt: ColumnType<Date, Date | string | undefined, Date | string>;
 }
 
 export type WorkspaceUser = Selectable<WorkspaceUserTable>;
@@ -25,22 +29,22 @@ export type NewWorkspaceUser = Insertable<WorkspaceUserTable>;
 export type WorkspaceUserUpdate = Updateable<WorkspaceUserTable>;
 
 export const workspaceUser = z.object({
-  user_id: userId,
-  workspace_id: workspaceId,
-  role: workspaceRole,
-  created_at: z.date(),
+  UserId: userId,
+  WorkspaceId: workspaceId,
+  Role: workspaceRole,
+  CreatedAt: z.date(),
 });
 
 export const workspaceUserInitializer = z.object({
-  user_id: userId,
-  workspace_id: workspaceId,
-  role: workspaceRole,
-  created_at: z.date().optional(),
+  UserId: userId,
+  WorkspaceId: workspaceId,
+  Role: workspaceRole,
+  CreatedAt: z.date().optional(),
 });
 
 export const workspaceUserMutator = z.object({
-  user_id: userId.optional(),
-  workspace_id: workspaceId.optional(),
-  role: workspaceRole.optional(),
-  created_at: z.date().optional(),
+  UserId: userId.optional(),
+  WorkspaceId: workspaceId.optional(),
+  Role: workspaceRole.optional(),
+  CreatedAt: z.date().optional(),
 });

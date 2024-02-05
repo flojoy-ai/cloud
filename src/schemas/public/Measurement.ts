@@ -12,23 +12,32 @@ export type MeasurementId = string & { __brand: 'MeasurementId' };
 
 /** Represents the table public.measurement */
 export default interface MeasurementTable {
-  id: ColumnType<MeasurementId, MeasurementId, MeasurementId>;
+  /** Database type: pg_catalog.text */
+  Id: ColumnType<MeasurementId, MeasurementId, MeasurementId>;
 
-  name: ColumnType<string, string, string>;
+  /** Database type: pg_catalog.text */
+  Name: ColumnType<string, string, string>;
 
-  data: ColumnType<unknown, unknown, unknown>;
+  /** Database type: pg_catalog.jsonb */
+  Data: ColumnType<unknown, unknown, unknown>;
 
-  pass: ColumnType<boolean | null, boolean | null, boolean | null>;
+  /** Database type: pg_catalog.bool */
+  Pass: ColumnType<boolean | null, boolean | null, boolean | null>;
 
-  hardware_id: ColumnType<HardwareId, HardwareId, HardwareId>;
+  /** Database type: pg_catalog.text */
+  HardwareId: ColumnType<HardwareId, HardwareId, HardwareId>;
 
-  test_id: ColumnType<TestId, TestId, TestId>;
+  /** Database type: pg_catalog.text */
+  TestId: ColumnType<TestId, TestId, TestId>;
 
-  storage_provider: ColumnType<StorageProvider, StorageProvider, StorageProvider>;
+  /** Database type: public.storage_provider */
+  StorageProvider: ColumnType<StorageProvider, StorageProvider, StorageProvider>;
 
-  created_at: ColumnType<Date, Date | string | undefined, Date | string>;
+  /** Database type: pg_catalog.timestamptz */
+  CreatedAt: ColumnType<Date, Date | string | undefined, Date | string>;
 
-  is_deleted: ColumnType<boolean | null, boolean | null, boolean | null>;
+  /** Database type: pg_catalog.bool */
+  IsDeleted: ColumnType<boolean | null, boolean | null, boolean | null>;
 }
 
 export type Measurement = Selectable<MeasurementTable>;
@@ -40,37 +49,37 @@ export type MeasurementUpdate = Updateable<MeasurementTable>;
 export const measurementId = z.string();
 
 export const measurement = z.object({
-  id: measurementId,
-  name: z.string(),
-  data: z.unknown(),
-  pass: z.boolean().nullable(),
-  hardware_id: hardwareId,
-  test_id: testId,
-  storage_provider: storageProvider,
-  created_at: z.date(),
-  is_deleted: z.boolean().nullable(),
+  Id: measurementId,
+  Name: z.string(),
+  Data: z.unknown(),
+  Pass: z.boolean().nullable(),
+  HardwareId: hardwareId,
+  TestId: testId,
+  StorageProvider: storageProvider,
+  CreatedAt: z.date(),
+  IsDeleted: z.boolean().nullable(),
 });
 
 export const measurementInitializer = z.object({
-  id: measurementId,
-  name: z.string(),
-  data: z.unknown(),
-  pass: z.boolean().optional().nullable(),
-  hardware_id: hardwareId,
-  test_id: testId,
-  storage_provider: storageProvider,
-  created_at: z.date().optional(),
-  is_deleted: z.boolean().optional().nullable(),
+  Id: measurementId,
+  Name: z.string(),
+  Data: z.unknown(),
+  Pass: z.boolean().optional().nullable(),
+  HardwareId: hardwareId,
+  TestId: testId,
+  StorageProvider: storageProvider,
+  CreatedAt: z.date().optional(),
+  IsDeleted: z.boolean().optional().nullable(),
 });
 
 export const measurementMutator = z.object({
-  id: measurementId.optional(),
-  name: z.string().optional(),
-  data: z.unknown().optional(),
-  pass: z.boolean().optional().nullable(),
-  hardware_id: hardwareId.optional(),
-  test_id: testId.optional(),
-  storage_provider: storageProvider.optional(),
-  created_at: z.date().optional(),
-  is_deleted: z.boolean().optional().nullable(),
+  Id: measurementId.optional(),
+  Name: z.string().optional(),
+  Data: z.unknown().optional(),
+  Pass: z.boolean().optional().nullable(),
+  HardwareId: hardwareId.optional(),
+  TestId: testId.optional(),
+  StorageProvider: storageProvider.optional(),
+  CreatedAt: z.date().optional(),
+  IsDeleted: z.boolean().optional().nullable(),
 });

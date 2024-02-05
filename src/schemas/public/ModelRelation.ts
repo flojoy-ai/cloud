@@ -7,9 +7,11 @@ import { z } from 'zod';
 
 /** Represents the table public.model_relation */
 export default interface ModelRelationTable {
-  parent_model_id: ColumnType<ModelId, ModelId, ModelId>;
+  /** Database type: pg_catalog.text */
+  ParentModelId: ColumnType<ModelId, ModelId, ModelId>;
 
-  child_model_id: ColumnType<ModelId, ModelId, ModelId>;
+  /** Database type: pg_catalog.text */
+  ChildModelId: ColumnType<ModelId, ModelId, ModelId>;
 }
 
 export type ModelRelation = Selectable<ModelRelationTable>;
@@ -19,16 +21,16 @@ export type NewModelRelation = Insertable<ModelRelationTable>;
 export type ModelRelationUpdate = Updateable<ModelRelationTable>;
 
 export const modelRelation = z.object({
-  parent_model_id: modelId,
-  child_model_id: modelId,
+  ParentModelId: modelId,
+  ChildModelId: modelId,
 });
 
 export const modelRelationInitializer = z.object({
-  parent_model_id: modelId,
-  child_model_id: modelId,
+  ParentModelId: modelId,
+  ChildModelId: modelId,
 });
 
 export const modelRelationMutator = z.object({
-  parent_model_id: modelId.optional(),
-  child_model_id: modelId.optional(),
+  ParentModelId: modelId.optional(),
+  ChildModelId: modelId.optional(),
 });

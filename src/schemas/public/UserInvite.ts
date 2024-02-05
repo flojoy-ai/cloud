@@ -11,13 +11,17 @@ export type UserInviteId = string & { __brand: 'UserInviteId' };
 
 /** Represents the table public.user_invite */
 export default interface UserInviteTable {
-  id: ColumnType<UserInviteId, UserInviteId, UserInviteId>;
+  /** Database type: pg_catalog.text */
+  Id: ColumnType<UserInviteId, UserInviteId, UserInviteId>;
 
-  email: ColumnType<string, string, string>;
+  /** Database type: pg_catalog.text */
+  Email: ColumnType<string, string, string>;
 
-  workspace_id: ColumnType<WorkspaceId, WorkspaceId, WorkspaceId>;
+  /** Database type: pg_catalog.text */
+  WorkspaceId: ColumnType<WorkspaceId, WorkspaceId, WorkspaceId>;
 
-  role: ColumnType<WorkspaceRole, WorkspaceRole, WorkspaceRole>;
+  /** Database type: public.workspace_role */
+  Role: ColumnType<WorkspaceRole, WorkspaceRole, WorkspaceRole>;
 }
 
 export type UserInvite = Selectable<UserInviteTable>;
@@ -29,22 +33,22 @@ export type UserInviteUpdate = Updateable<UserInviteTable>;
 export const userInviteId = z.string();
 
 export const userInvite = z.object({
-  id: userInviteId,
-  email: z.string(),
-  workspace_id: workspaceId,
-  role: workspaceRole,
+  Id: userInviteId,
+  Email: z.string(),
+  WorkspaceId: workspaceId,
+  Role: workspaceRole,
 });
 
 export const userInviteInitializer = z.object({
-  id: userInviteId,
-  email: z.string(),
-  workspace_id: workspaceId,
-  role: workspaceRole,
+  Id: userInviteId,
+  Email: z.string(),
+  WorkspaceId: workspaceId,
+  Role: workspaceRole,
 });
 
 export const userInviteMutator = z.object({
-  id: userInviteId.optional(),
-  email: z.string().optional(),
-  workspace_id: workspaceId.optional(),
-  role: workspaceRole.optional(),
+  Id: userInviteId.optional(),
+  Email: z.string().optional(),
+  WorkspaceId: workspaceId.optional(),
+  Role: workspaceRole.optional(),
 });

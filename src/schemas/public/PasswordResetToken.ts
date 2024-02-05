@@ -10,13 +10,17 @@ export type PasswordResetTokenId = string & { __brand: 'PasswordResetTokenId' };
 
 /** Represents the table public.password_reset_token */
 export default interface PasswordResetTokenTable {
-  id: ColumnType<PasswordResetTokenId, PasswordResetTokenId, PasswordResetTokenId>;
+  /** Database type: pg_catalog.text */
+  Id: ColumnType<PasswordResetTokenId, PasswordResetTokenId, PasswordResetTokenId>;
 
-  user_id: ColumnType<UserId, UserId, UserId>;
+  /** Database type: pg_catalog.text */
+  UserId: ColumnType<UserId, UserId, UserId>;
 
-  token: ColumnType<string, string, string>;
+  /** Database type: pg_catalog.text */
+  Token: ColumnType<string, string, string>;
 
-  expires_at: ColumnType<Date, Date | string, Date | string>;
+  /** Database type: pg_catalog.timestamptz */
+  ExpiresAt: ColumnType<Date, Date | string, Date | string>;
 }
 
 export type PasswordResetToken = Selectable<PasswordResetTokenTable>;
@@ -28,22 +32,22 @@ export type PasswordResetTokenUpdate = Updateable<PasswordResetTokenTable>;
 export const passwordResetTokenId = z.string();
 
 export const passwordResetToken = z.object({
-  id: passwordResetTokenId,
-  user_id: userId,
-  token: z.string(),
-  expires_at: z.date(),
+  Id: passwordResetTokenId,
+  UserId: userId,
+  Token: z.string(),
+  ExpiresAt: z.date(),
 });
 
 export const passwordResetTokenInitializer = z.object({
-  id: passwordResetTokenId,
-  user_id: userId,
-  token: z.string(),
-  expires_at: z.date(),
+  Id: passwordResetTokenId,
+  UserId: userId,
+  Token: z.string(),
+  ExpiresAt: z.date(),
 });
 
 export const passwordResetTokenMutator = z.object({
-  id: passwordResetTokenId.optional(),
-  user_id: userId.optional(),
-  token: z.string().optional(),
-  expires_at: z.date().optional(),
+  Id: passwordResetTokenId.optional(),
+  UserId: userId.optional(),
+  Token: z.string().optional(),
+  ExpiresAt: z.date().optional(),
 });

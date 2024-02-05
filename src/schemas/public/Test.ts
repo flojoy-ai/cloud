@@ -11,17 +11,23 @@ export type TestId = string & { __brand: 'TestId' };
 
 /** Represents the table public.test */
 export default interface TestTable {
-  id: ColumnType<TestId, TestId, TestId>;
+  /** Database type: pg_catalog.text */
+  Id: ColumnType<TestId, TestId, TestId>;
 
-  measurement_type: ColumnType<MeasurementType, MeasurementType, MeasurementType>;
+  /** Database type: public.measurement_type */
+  MeasurementType: ColumnType<MeasurementType, MeasurementType, MeasurementType>;
 
-  name: ColumnType<string, string, string>;
+  /** Database type: pg_catalog.text */
+  Name: ColumnType<string, string, string>;
 
-  project_id: ColumnType<ProjectId, ProjectId, ProjectId>;
+  /** Database type: pg_catalog.text */
+  ProjectId: ColumnType<ProjectId, ProjectId, ProjectId>;
 
-  created_at: ColumnType<Date, Date | string | undefined, Date | string>;
+  /** Database type: pg_catalog.timestamptz */
+  CreatedAt: ColumnType<Date, Date | string | undefined, Date | string>;
 
-  updated_at: ColumnType<Date, Date | string | undefined, Date | string>;
+  /** Database type: pg_catalog.timestamptz */
+  UpdatedAt: ColumnType<Date, Date | string | undefined, Date | string>;
 }
 
 export type Test = Selectable<TestTable>;
@@ -33,28 +39,28 @@ export type TestUpdate = Updateable<TestTable>;
 export const testId = z.string();
 
 export const test = z.object({
-  id: testId,
-  measurement_type: measurementType,
-  name: z.string(),
-  project_id: projectId,
-  created_at: z.date(),
-  updated_at: z.date(),
+  Id: testId,
+  MeasurementType: measurementType,
+  Name: z.string(),
+  ProjectId: projectId,
+  CreatedAt: z.date(),
+  UpdatedAt: z.date(),
 });
 
 export const testInitializer = z.object({
-  id: testId,
-  measurement_type: measurementType,
-  name: z.string(),
-  project_id: projectId,
-  created_at: z.date().optional(),
-  updated_at: z.date().optional(),
+  Id: testId,
+  MeasurementType: measurementType,
+  Name: z.string(),
+  ProjectId: projectId,
+  CreatedAt: z.date().optional(),
+  UpdatedAt: z.date().optional(),
 });
 
 export const testMutator = z.object({
-  id: testId.optional(),
-  measurement_type: measurementType.optional(),
-  name: z.string().optional(),
-  project_id: projectId.optional(),
-  created_at: z.date().optional(),
-  updated_at: z.date().optional(),
+  Id: testId.optional(),
+  MeasurementType: measurementType.optional(),
+  Name: z.string().optional(),
+  ProjectId: projectId.optional(),
+  CreatedAt: z.date().optional(),
+  UpdatedAt: z.date().optional(),
 });
