@@ -2,7 +2,7 @@ import { type Kysely, sql } from "kysely";
 
 export async function up(db: Kysely<unknown>): Promise<void> {
   await db.schema
-    .createType("plan")
+    .createType("plan_type")
     .asEnum(["hobby", "pro", "enterprise"])
     .execute();
 
@@ -11,7 +11,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .addColumn("id", "text", (col) => col.primaryKey())
     .addColumn("name", "text", (col) => col.notNull())
     .addColumn("namespace", "text", (col) => col.notNull().unique())
-    .addColumn("plan_type", sql`plan`, (col) => col.notNull())
+    .addColumn("plan_type", sql`plan_type`, (col) => col.notNull())
     .addColumn("created_at", "timestamptz", (col) =>
       col.defaultTo(sql`now()`).notNull(),
     )
