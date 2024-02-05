@@ -21,7 +21,6 @@ module.exports = {
   preDeleteOutputFolder: true,
   outputPath: "./src/schemas",
   preRenderHooks: [makeKyselyHook(), generateZodSchemas],
-  castToSchema: false,
 
   enumStyle: "type",
 
