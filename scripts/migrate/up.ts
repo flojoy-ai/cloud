@@ -7,7 +7,7 @@ import { Kysely, PostgresDialect } from "kysely";
 import { type DB } from "kysely-codegen";
 import pg from "pg";
 
-async function migrateToLatest() {
+async function migrateUp() {
   const pool = new pg.Pool({
     connectionString: env.DATABASE_URL,
   });
@@ -27,19 +27,21 @@ async function migrateToLatest() {
     }),
   });
 
-  const { error, results } = await migrator.migrateToLatest();
+  const { error, results } = await migrator.migrateUp();
 
   results?.forEach((it) => {
     if (it.status === "Success") {
       // eslint-disable-next-line no-console
-      console.log(`migration "${it.migrationName}" was executed successfully`);
+      console.log(
+        `migration up "${it.migrationName}" was executed successfully`,
+      );
     } else if (it.status === "Error") {
-      console.error(`failed to execute migration "${it.migrationName}"`);
+      console.error(`failed to execute migration up "${it.migrationName}"`);
     }
   });
 
   if (error) {
-    console.error("failed to migrate");
+    console.error("failed to migrate up");
     console.error(error);
     process.exit(1);
   }
@@ -48,4 +50,4 @@ async function migrateToLatest() {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
-migrateToLatest();
+migrateUp();

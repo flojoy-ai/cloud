@@ -14,7 +14,10 @@
     "commitlint": "commitlint --edit",
     "email:dev": "email dev -d ./src/emails",
     "email:export": "email export -d ./src/emails",
-    "kysely:gen": "dotenv -c -- kysely-codegen"
+    "kysely:gen": "dotenv -c -- kysely-codegen",
+    "migrate:up": "dotenv -c -- tsx ./scripts/migrate/up.ts",
+    "migrate:down": "dotenv -c -- tsx ./scripts/migrate/down.ts",
+    "migrate:to-latest": "dotenv -c -- tsx ./scripts/migrate/to-latest.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.504.0",
