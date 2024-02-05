@@ -9,6 +9,9 @@ export async function up(db: Kysely<unknown>): Promise<void> {
 
   await db.schema
     .createTable("test")
+    .addColumn("measurement_type", sql`measurement_type`, (col) =>
+      col.notNull(),
+    )
     .addColumn("id", "text", (col) => col.primaryKey())
     .addColumn("name", "text", (col) => col.notNull())
     .addColumn("project_id", "text", (col) =>
