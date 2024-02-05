@@ -23,7 +23,9 @@ export const measurementTable = pgTable(
     storageProvider: text("storage_provider", {
       enum: ["s3", "postgres"],
     }).notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
     isDeleted: boolean("is_deleted").default(false),
   },
   (measurement) => ({

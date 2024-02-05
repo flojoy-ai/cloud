@@ -22,8 +22,10 @@ export const userTable = pgTable("user", {
   emailVerified: boolean("email_verified").default(false),
   email: text("email").notNull().unique(),
   hashedPassword: text("hashed_password"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }),
 });
 
 // The user_session and user_key tables are internal to Lucia
@@ -60,7 +62,7 @@ export const passwordResetTokenTable = pgTable("password_reset_token", {
     .notNull()
     .references(() => userTable.id),
   token: text("token").notNull(),
-  expiresAt: timestamp("expires_at").notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
 });
 
 export const emailVerificationTable = pgTable("email_verification", {
@@ -72,7 +74,7 @@ export const emailVerificationTable = pgTable("email_verification", {
     })
     .notNull(),
   email: text("email").notNull(),
-  expiresAt: timestamp("expiresAt").notNull(),
+  expiresAt: timestamp("expiresAt", { withTimezone: true }).notNull(),
 });
 
 export const userInviteTable = pgTable("user_invite", {

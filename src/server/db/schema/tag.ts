@@ -10,7 +10,9 @@ export const tagTable = pgTable(
     measurementId: text("measurement_id")
       .notNull()
       .references(() => measurementTable.id, { onDelete: "cascade" }),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
   (tags) => ({
     tagNameMeasurementIdIndex: index().on(tags.name, tags.measurementId),

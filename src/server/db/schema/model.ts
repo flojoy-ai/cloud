@@ -19,7 +19,9 @@ export const modelTable = pgTable(
       .notNull()
       .references(() => workspaceTable.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
   (table) => ({
     modelNameIndex: index().on(table.name),

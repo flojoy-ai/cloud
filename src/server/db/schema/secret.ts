@@ -14,8 +14,10 @@ export const secretTable = pgTable(
     workspaceId: text("workspace_id")
       .notNull()
       .references(() => workspaceTable.id, { onDelete: "cascade" }),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    lastUsedAt: timestamp("last_used_at"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
   },
   (secret) => ({
     unq: unique().on(secret.userId, secret.workspaceId),

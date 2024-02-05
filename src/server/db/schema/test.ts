@@ -17,8 +17,10 @@ export const testTable = pgTable(
     projectId: text("project_id")
       .notNull()
       .references(() => projectTable.id, { onDelete: "cascade" }),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }),
   },
   (table) => ({
     testNameIndex: index().on(table.name),
