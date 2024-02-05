@@ -10,3 +10,6 @@ env:
 dev:
   pnpm dev
 
+migrate-latest:
+  pnpm db:migrate-latest
+  pnpm kysely:gen
