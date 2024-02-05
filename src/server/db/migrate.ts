@@ -1,79 +1,38 @@
-import { type Kysely, sql } from "kysely";
-import { allMeasurementDataTypes } from "~/types/data";
+import * as path from "path";
+import { promises as fs } from "fs";
+import { Migrator, FileMigrationProvider } from "kysely";
+import { db } from ".";
 
-export async function up(db: Kysely<unknown>): Promise<void> {
-  await db.schema
-    .createTable("user")
-    .addColumn("id", "text", (col) => col.primaryKey())
-    .addColumn("email_verified", "boolean", (col) => col.defaultTo(false))
-    .addColumn("email", "text", (col) => col.notNull())
-    .addColumn("hashed_password", "text")
-    .addColumn("created_at", "timestamptz", (col) =>
-      col.defaultTo(sql`now()`).notNull(),
-    )
-    .addColumn("updated_at", "timestamptz", (col) =>
-      col.defaultTo(sql`now()`).notNull(),
-    )
-    .execute();
+async function migrateToLatest() {
+  const migrator = new Migrator({
+    db,
+    provider: new FileMigrationProvider({
+      fs,
+      path,
+      // This needs to be an absolute path.
+      migrationFolder: path.join(__dirname, "migrations"),
+    }),
+  });
 
-  // Workspace table
+  const { error, results } = await migrator.migrateToLatest();
 
-  await db.schema
-    .createType("plan")
-    .asEnum(["hobby", "pro", "enterprise"])
-    .execute();
+  results?.forEach((it) => {
+    if (it.status === "Success") {
+      // eslint-disable-next-line no-console
+      console.log(`migration "${it.migrationName}" was executed successfully`);
+    } else if (it.status === "Error") {
+      console.error(`failed to execute migration "${it.migrationName}"`);
+    }
+  });
 
-  await db.schema
-    .createTable("workspace")
-    .addColumn("id", "text", (col) => col.primaryKey())
-    .addColumn("name", "text", (col) => col.notNull())
-    .addColumn("namespace", "text", (col) => col.notNull().unique())
-    .addColumn("plan_type", sql`plan`, (col) => col.notNull())
-    .addColumn("created_at", "timestamptz", (col) =>
-      col.defaultTo(sql`now()`).notNull(),
-    )
-    .addColumn("updated_at", "timestamptz", (col) =>
-      col.defaultTo(sql`now()`).notNull(),
-    )
-    .execute();
+  if (error) {
+    console.error("failed to migrate");
+    console.error(error);
+    process.exit(1);
+  }
 
-  await db.schema
-    .createIndex("workspace_namespace_index")
-    .ifNotExists()
-    .on("workspace")
-    .column("namespace")
-    .execute();
-
-  // Test table
-  await db.schema
-    .createType("measurement_type")
-    .asEnum([...allMeasurementDataTypes])
-    .execute();
-
-  await db.schema
-    .createTable("test")
-    .addColumn("id", "text", (col) => col.primaryKey())
-    .addColumn("name", "text", (col) => col.notNull())
-    .addColumn("project_id", "text", (col) =>
-      col.notNull().references("workspace.id").onDelete("cascade"),
-    )
-    .addColumn("created_at", "timestamptz", (col) =>
-      col.defaultTo(sql`now()`).notNull(),
-    )
-    .addColumn("updated_at", "timestamptz", (col) =>
-      col.defaultTo(sql`now()`).notNull(),
-    )
-    .addUniqueConstraint("test_project_id_name_unique", ["project_id", "name"])
-    .execute();
-
-  await db.schema
-    .createIndex("test_name_index")
-    .ifNotExists()
-    .on("test")
-    .column("name")
-    .execute();
+  await db.destroy();
 }
 
-export async function down(db: Kysely<unknown>): Promise<void> {
-  await db.schema.dropTable("user").execute();
-}
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
+migrateToLatest();
