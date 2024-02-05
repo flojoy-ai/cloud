@@ -7,8 +7,8 @@ CREATE TABLE IF NOT EXISTS "cloud_hardware" (
 	"workspace_id" text NOT NULL,
 	"name" text NOT NULL,
 	"model_id" text NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone,
 	CONSTRAINT "cloud_hardware_workspace_id_name_model_id_unique" UNIQUE("workspace_id","name","model_id")
 );
 --> statement-breakpoint
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS "cloud_measurement" (
 	"hardware_id" text NOT NULL,
 	"test_id" text NOT NULL,
 	"storage_provider" text NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"is_deleted" boolean DEFAULT false
 );
 --> statement-breakpoint
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS "cloud_model" (
 	"id" text PRIMARY KEY NOT NULL,
 	"workspace_id" text NOT NULL,
 	"name" text NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "cloud_model_workspace_id_name_unique" UNIQUE("workspace_id","name")
 );
 --> statement-breakpoint
@@ -57,20 +57,20 @@ CREATE TABLE IF NOT EXISTS "cloud_system_model" (
 	"id" text PRIMARY KEY NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "cloud_project_hardware" (
+	"project_id" text NOT NULL,
+	"hardware_id" text NOT NULL,
+	CONSTRAINT "cloud_project_hardware_project_id_hardware_id_pk" PRIMARY KEY("project_id","hardware_id")
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_project" (
 	"id" text PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"workspace_id" text NOT NULL,
 	"model_id" text NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone,
 	CONSTRAINT "cloud_project_workspace_id_name_unique" UNIQUE("workspace_id","name")
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "cloud_project_hardware" (
-	"project_id" text NOT NULL,
-	"hardware_id" text NOT NULL,
-	CONSTRAINT "cloud_project_hardware_project_id_hardware_id_pk" PRIMARY KEY("project_id","hardware_id")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_secret" (
@@ -78,8 +78,8 @@ CREATE TABLE IF NOT EXISTS "cloud_secret" (
 	"user_id" text NOT NULL,
 	"value" text NOT NULL,
 	"workspace_id" text NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"last_used_at" timestamp,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"last_used_at" timestamp with time zone,
 	CONSTRAINT "cloud_secret_user_id_workspace_id_unique" UNIQUE("user_id","workspace_id")
 );
 --> statement-breakpoint
@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS "cloud_tag" (
 	"id" text PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"measurement_id" text NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "cloud_tag_measurement_id_name_unique" UNIQUE("measurement_id","name")
 );
 --> statement-breakpoint
@@ -96,8 +96,8 @@ CREATE TABLE IF NOT EXISTS "cloud_test" (
 	"measurement_type" text NOT NULL,
 	"name" text NOT NULL,
 	"project_id" text NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone,
 	CONSTRAINT "cloud_test_project_id_name_unique" UNIQUE("project_id","name")
 );
 --> statement-breakpoint
@@ -106,7 +106,7 @@ CREATE TABLE IF NOT EXISTS "cloud_email_verification" (
 	"code" text NOT NULL,
 	"user_id" text NOT NULL,
 	"email" text NOT NULL,
-	"expiresAt" timestamp NOT NULL
+	"expiresAt" timestamp with time zone NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_oauth_account" (
@@ -120,7 +120,7 @@ CREATE TABLE IF NOT EXISTS "cloud_password_reset_token" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" text NOT NULL,
 	"token" text NOT NULL,
-	"expires_at" timestamp NOT NULL
+	"expires_at" timestamp with time zone NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cloud_user_session" (
@@ -141,8 +141,8 @@ CREATE TABLE IF NOT EXISTS "cloud_user" (
 	"email_verified" boolean DEFAULT false,
 	"email" text NOT NULL,
 	"hashed_password" text,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone,
 	CONSTRAINT "cloud_user_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint
@@ -152,8 +152,8 @@ CREATE TABLE IF NOT EXISTS "cloud_workspace" (
 	"namespace" text NOT NULL,
 	"plan_type" text NOT NULL,
 	"total_seats" integer DEFAULT 1 NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone,
 	CONSTRAINT "cloud_workspace_namespace_unique" UNIQUE("namespace")
 );
 --> statement-breakpoint
@@ -161,7 +161,7 @@ CREATE TABLE IF NOT EXISTS "cloud_workspace_user" (
 	"user_id" text NOT NULL,
 	"workspace_id" text NOT NULL,
 	"role" text NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "cloud_workspace_user_workspace_id_user_id_pk" PRIMARY KEY("workspace_id","user_id")
 );
 --> statement-breakpoint
@@ -253,18 +253,6 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "cloud_project" ADD CONSTRAINT "cloud_project_workspace_id_cloud_workspace_id_fk" FOREIGN KEY ("workspace_id") REFERENCES "cloud_workspace"("id") ON DELETE cascade ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "cloud_project" ADD CONSTRAINT "cloud_project_model_id_cloud_model_id_fk" FOREIGN KEY ("model_id") REFERENCES "cloud_model"("id") ON DELETE restrict ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
  ALTER TABLE "cloud_project_hardware" ADD CONSTRAINT "cloud_project_hardware_project_id_cloud_project_id_fk" FOREIGN KEY ("project_id") REFERENCES "cloud_project"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
@@ -272,6 +260,18 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "cloud_project_hardware" ADD CONSTRAINT "cloud_project_hardware_hardware_id_cloud_hardware_id_fk" FOREIGN KEY ("hardware_id") REFERENCES "cloud_hardware"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "cloud_project" ADD CONSTRAINT "cloud_project_workspace_id_cloud_workspace_id_fk" FOREIGN KEY ("workspace_id") REFERENCES "cloud_workspace"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "cloud_project" ADD CONSTRAINT "cloud_project_model_id_cloud_model_id_fk" FOREIGN KEY ("model_id") REFERENCES "cloud_model"("id") ON DELETE restrict ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
