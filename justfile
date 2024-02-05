@@ -10,6 +10,3 @@ env:
 dev:
   pnpm dev
 
-migrate:
-  pnpm db:migrate
-
