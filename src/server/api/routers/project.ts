@@ -1,48 +1,46 @@
-import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
 import { checkWorkspaceAccess } from "~/lib/auth";
-import { getSystemModelParts } from "~/lib/query";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { type db } from "~/server/db";
 import {
-  projectTable,
-  projectHardwareTable,
-  workspaceTable,
-} from "~/server/db/schema";
-import { selectModelSchema } from "~/types/model";
-import {
-  publicInsertProjectSchema,
+  insertProjectSchema,
   publicUpdateProjectSchema,
-  selectProjectSchema,
 } from "~/types/project";
 import {
   hardwareAccessMiddleware,
   multiHardwareAccessMiddleware,
 } from "./hardware";
 import { workspaceAccessMiddleware } from "./workspace";
+import { type ProjectId, project } from "~/schemas/public/Project";
+import { createId } from "@paralleldrive/cuid2";
+import { getProjectById } from "~/lib/project";
+import { getHardwareById } from "~/lib/hardware";
 
 export const projectAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
-  input: { projectId: string };
+  input: { projectId: ProjectId };
 }>().create(async (opts) => {
-  const project = await opts.ctx.db.query.projectTable.findFirst({
-    where: (project, { eq }) => eq(project.id, opts.input.projectId),
-    with: { workspace: true },
-  });
+  const [project] = await opts.ctx.db
+    .selectFrom("project")
+    .selectAll("project")
+    .where("project.id", "=", opts.input.projectId)
+    .limit(1)
+    .execute();
 
   if (!project) {
     throw new TRPCError({
-      code: "BAD_REQUEST",
+      code: "NOT_FOUND",
       message: "Project not found",
     });
   }
 
   const workspaceUser = await checkWorkspaceAccess(
     opts.ctx,
-    project.workspace.id,
+    project.workspaceId,
   );
+
   if (!workspaceUser) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
@@ -65,13 +63,16 @@ export const projectRouter = createTRPCRouter({
     .meta({
       openapi: { method: "POST", path: "/v1/projects/", tags: ["project"] },
     })
-    .input(publicInsertProjectSchema)
-    .output(selectProjectSchema)
+    .input(insertProjectSchema)
+    .output(project)
     .use(workspaceAccessMiddleware)
     .mutation(async ({ ctx, input }) => {
-      const model = await ctx.db.query.modelTable.findFirst({
-        where: (model, { eq }) => eq(model.id, input.modelId),
-      });
+      const [model] = await ctx.db
+        .selectFrom("model")
+        .selectAll("model")
+        .where("model.id", "=", input.modelId)
+        .limit(1)
+        .execute();
 
       if (model === undefined) {
         throw new TRPCError({
@@ -80,13 +81,17 @@ export const projectRouter = createTRPCRouter({
         });
       }
 
-      return await ctx.db.transaction(async (tx) => {
-        const [projectCreateResult] = await tx
-          .insert(projectTable)
-          .values(input)
-          .returning();
+      return await ctx.db.transaction().execute(async (tx) => {
+        const [project] = await tx
+          .insertInto("project")
+          .values({
+            id: "project_" + createId(),
+            ...input,
+          })
+          .returningAll()
+          .execute();
 
-        if (!projectCreateResult) {
+        if (!project) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message: "Failed to create project",
@@ -94,10 +99,12 @@ export const projectRouter = createTRPCRouter({
         }
 
         await tx
-          .update(workspaceTable)
+          .updateTable("workspace")
           .set({ updatedAt: new Date() })
-          .where(eq(workspaceTable.id, input.workspaceId));
-        return projectCreateResult;
+          .where("id", "=", input.workspaceId)
+          .execute();
+
+        return project;
       });
     }),
 
@@ -111,16 +118,10 @@ export const projectRouter = createTRPCRouter({
     })
     .input(z.object({ projectId: z.string() }))
     .use(projectAccessMiddleware)
-    .output(
-      selectProjectSchema.extend({
-        model: selectModelSchema,
-      }),
-    )
+    .output(project)
     .query(async ({ input, ctx }) => {
-      const project = await ctx.db.query.projectTable.findFirst({
-        where: (project, { eq }) => eq(project.id, input.projectId),
-        with: { model: true },
-      });
+      const project = await getProjectById(ctx.db, input.projectId);
+
       if (!project) {
         throw new TRPCError({
           code: "BAD_REQUEST",
@@ -128,39 +129,41 @@ export const projectRouter = createTRPCRouter({
         });
       }
 
-      // TODO: Is there a clean way to just attach this to the above query somehow?
-      const isDeviceModel =
-        (await ctx.db.query.deviceModelTable.findFirst({
-          where: (deviceModel, { eq }) => eq(deviceModel.id, project.modelId),
-        })) !== undefined;
+      return project;
 
-      if (isDeviceModel) {
-        return {
-          ...project,
-          model: {
-            ...project.model,
-            type: "device",
-          },
-        };
-      }
-
-      const deviceParts = await getSystemModelParts(project.modelId);
-
-      if (!deviceParts) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An error occured when trying to fetch system model",
-        });
-      }
-
-      return {
-        ...project,
-        model: {
-          ...project.model,
-          type: "system",
-          parts: deviceParts,
-        },
-      };
+      // TODO: Fix
+      // const isDeviceModel =
+      //   (await ctx.db.query.deviceModelTable.findFirst({
+      //     where: (deviceModel, { eq }) => eq(deviceModel.id, project.modelId),
+      //   })) !== undefined;
+      //
+      // if (isDeviceModel) {
+      //   return {
+      //     ...project,
+      //     model: {
+      //       ...project.model,
+      //       type: "device",
+      //     },
+      //   };
+      // }
+      //
+      // const deviceParts = await getSystemModelParts(project.modelId);
+      //
+      // if (!deviceParts) {
+      //   throw new TRPCError({
+      //     code: "INTERNAL_SERVER_ERROR",
+      //     message: "An error occured when trying to fetch system model",
+      //   });
+      // }
+      //
+      // return {
+      //   ...project,
+      //   model: {
+      //     ...project.model,
+      //     type: "system",
+      //     parts: deviceParts,
+      //   },
+      // };
     }),
 
   getAllProjectsByWorkspaceId: workspaceProcedure
@@ -169,11 +172,13 @@ export const projectRouter = createTRPCRouter({
     })
     .input(z.object({ workspaceId: z.string() }))
     .use(workspaceAccessMiddleware)
-    .output(z.array(selectProjectSchema))
+    .output(z.array(project))
     .query(async ({ ctx, input }) => {
-      return await ctx.db.query.projectTable.findMany({
-        where: (project, { eq }) => eq(project.workspaceId, input.workspaceId),
-      });
+      return await ctx.db
+        .selectFrom("project")
+        .selectAll("project")
+        .where("workspaceId", "=", input.workspaceId)
+        .execute();
     }),
 
   addHardwareToProject: workspaceProcedure
@@ -194,24 +199,20 @@ export const projectRouter = createTRPCRouter({
     .use(hardwareAccessMiddleware)
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
-      const project = await ctx.db.query.projectTable.findFirst({
-        where: (project, { eq }) => eq(project.id, input.projectId),
-      });
+      const project = await getProjectById(ctx.db, input.projectId);
 
       if (project === undefined) {
         throw new TRPCError({
-          code: "BAD_REQUEST",
+          code: "NOT_FOUND",
           message: "Project not found",
         });
       }
 
-      const hardware = await ctx.db.query.hardwareTable.findFirst({
-        where: (hardware, { eq }) => eq(hardware.id, input.hardwareId),
-      });
+      const hardware = await getHardwareById(ctx.db, input.hardwareId);
 
       if (hardware === undefined) {
         throw new TRPCError({
-          code: "BAD_REQUEST",
+          code: "NOT_FOUND",
           message: "Hardware not found",
         });
       }
@@ -223,10 +224,13 @@ export const projectRouter = createTRPCRouter({
         });
       }
 
-      await ctx.db.insert(projectHardwareTable).values({
-        hardwareId: input.hardwareId,
-        projectId: input.projectId,
-      });
+      await ctx.db
+        .insertInto("project_hardware")
+        .values({
+          hardwareId: input.hardwareId,
+          projectId: input.projectId,
+        })
+        .execute();
     }),
 
   removeHardwareFromProject: workspaceProcedure
@@ -248,13 +252,10 @@ export const projectRouter = createTRPCRouter({
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
       await ctx.db
-        .delete(projectHardwareTable)
-        .where(
-          and(
-            eq(projectHardwareTable.hardwareId, input.hardwareId),
-            eq(projectHardwareTable.projectId, input.projectId),
-          ),
-        );
+        .deleteFrom("project_hardware")
+        .where("projectId", "=", input.projectId)
+        .where("hardwareId", "=", input.hardwareId)
+        .execute();
     }),
 
   setProjectHardware: workspaceProcedure
@@ -275,23 +276,27 @@ export const projectRouter = createTRPCRouter({
     .use(projectAccessMiddleware)
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
-      await ctx.db.transaction(async (tx) => {
+      await ctx.db.transaction().execute(async (tx) => {
         await tx
-          .delete(projectHardwareTable)
-          .where(eq(projectHardwareTable.projectId, input.projectId));
+          .deleteFrom("project_hardware")
+          .where("projectId", "=", input.projectId)
+          .execute();
 
         if (input.hardwareIds.length === 0) {
           return;
         }
 
-        const hardwares = await tx.query.hardwareTable.findMany({
-          where: (hardware, { inArray }) =>
-            inArray(hardware.id, input.hardwareIds),
-        });
+        const hardwares = await tx
+          .selectFrom("hardware")
+          .selectAll("hardware")
+          .where("id", "in", input.hardwareIds)
+          .execute();
 
-        const project = await tx.query.projectTable.findFirst({
-          where: (project, { eq }) => eq(project.id, input.projectId),
-        });
+        // const hardwares = await tx.query.hardwareTable.findMany({
+        //   where: (hardware, { inArray }) =>
+        //     inArray(hardware.id, input.hardwareIds),
+        // });
+        const project = await getProjectById(tx, input.projectId);
 
         if (project === undefined) {
           throw new TRPCError({
@@ -314,12 +319,15 @@ export const projectRouter = createTRPCRouter({
           });
         }
 
-        await tx.insert(projectHardwareTable).values(
-          input.hardwareIds.map((hardwareId) => ({
-            hardwareId,
-            projectId: input.projectId,
-          })),
-        );
+        await tx
+          .insertInto("project_hardware")
+          .values(
+            input.hardwareIds.map((hardwareId) => ({
+              hardwareId,
+              projectId: input.projectId,
+            })),
+          )
+          .execute();
       });
     }),
 
@@ -337,10 +345,12 @@ export const projectRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { projectId, ...updatedProject } = input;
+
       await ctx.db
-        .update(projectTable)
+        .updateTable("project")
         .set(updatedProject)
-        .where(eq(projectTable.id, input.projectId));
+        .where("project.id", "=", input.projectId)
+        .execute();
     }),
 
   deleteProjectById: workspaceProcedure
@@ -363,7 +373,8 @@ export const projectRouter = createTRPCRouter({
       }
 
       await ctx.db
-        .delete(projectTable)
-        .where(eq(projectTable.id, input.projectId));
+        .deleteFrom("project")
+        .where("project.id", "=", input.projectId)
+        .execute();
     }),
 });
