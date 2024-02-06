@@ -1,21 +1,18 @@
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
 import { z } from "zod";
 import { checkWorkspaceAccess } from "~/lib/auth";
-// import { partsFrom } from "~/lib/query";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
 import { workspaceAccessMiddleware } from "./workspace";
+import { getModelById, markUpdatedAt } from "~/lib/query";
+import { insertModelSchema, selectModelTreeSchema } from "~/types/model";
+import { model } from "~/schemas/public/Model";
 
 export const modelAccessMiddlware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
   input: { modelId: string };
 }>().create(async (opts) => {
-  const model = await opts.ctx.db.query.modelTable.findFirst({
-    where: (model, { eq }) => eq(model.id, opts.input.modelId),
-    with: {
-      workspace: true,
-    },
-  });
+  const model = await getModelById(opts.input.modelId);
 
   if (!model) {
     throw new TRPCError({
@@ -24,10 +21,8 @@ export const modelAccessMiddlware = experimental_standaloneMiddleware<{
     });
   }
 
-  const workspaceUser = await checkWorkspaceAccess(
-    opts.ctx,
-    model.workspace.id,
-  );
+  const workspaceUser = await checkWorkspaceAccess(opts.ctx, model.workspaceId);
+
   if (!workspaceUser) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
@@ -46,111 +41,30 @@ export const modelAccessMiddlware = experimental_standaloneMiddleware<{
 });
 
 export const modelRouter = createTRPCRouter({
-  createDeviceModel: workspaceProcedure
+  createModel: workspaceProcedure
     .meta({
       openapi: { method: "POST", path: "/v1/models/devices", tags: ["model"] },
     })
-    .input(publicInsertDeviceModelSchema)
-    .output(selectDeviceModelSchema)
+    .input(insertModelSchema)
+    .output(model)
     .use(workspaceAccessMiddleware)
     .mutation(async ({ ctx, input }) => {
-      return await ctx.db.transaction(async (tx) => {
-        const [modelCreateResult] = await tx
-          .insert(modelTable)
+      return await ctx.db.transaction().execute(async (tx) => {
+        const model = await tx
+          .insertInto("model")
           .values(input)
-          .returning();
+          .returningAll()
+          .executeTakeFirstOrThrow(
+            () =>
+              new TRPCError({
+                code: "INTERNAL_SERVER_ERROR",
+                message: "Failed to create model",
+              }),
+          );
 
-        if (!modelCreateResult) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create model",
-          });
-        }
+        await markUpdatedAt(tx, "workspace", input.workspaceId);
 
-        await tx
-          .insert(deviceModelTable)
-          .values({ id: modelCreateResult.id })
-          .returning();
-
-        await tx
-          .update(workspaceTable)
-          .set({ updatedAt: new Date() })
-          .where(eq(workspaceTable.id, input.workspaceId));
-
-        return modelCreateResult;
-      });
-    }),
-
-  createSystemModel: workspaceProcedure
-    .meta({
-      openapi: { method: "POST", path: "/v1/models/systems", tags: ["model"] },
-    })
-    .input(publicInsertSystemModelSchema)
-    .output(selectSystemModelSchema)
-    .use(workspaceAccessMiddleware)
-    .mutation(async ({ ctx, input }) => {
-      const partIds = input.parts.map((p) => p.modelId);
-
-      const res = await ctx.db
-        .select()
-        .from(deviceModelTable)
-        .innerJoin(modelTable, eq(modelTable.id, deviceModelTable.id))
-        .where(
-          and(
-            eq(modelTable.workspaceId, input.workspaceId),
-            inArray(modelTable.id, partIds),
-          ),
-        );
-
-      const deviceModels = Object.fromEntries(
-        res.map(({ model }) => [model.id, model]),
-      );
-
-      if (partIds.some((id) => deviceModels[id] === undefined)) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "All system parts must be valid device models",
-        });
-      }
-
-      return await ctx.db.transaction(async (tx) => {
-        const [modelCreateResult] = await tx
-          .insert(modelTable)
-          .values(input)
-          .returning();
-
-        if (!modelCreateResult) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create model",
-          });
-        }
-
-        await tx
-          .insert(systemModelTable)
-          .values({ id: modelCreateResult.id })
-          .returning();
-
-        await tx.insert(systemModelDeviceModelTable).values(
-          input.parts.map(({ modelId, count }) => ({
-            systemModelId: modelCreateResult.id,
-            deviceModelId: modelId,
-            count,
-          })),
-        );
-
-        await tx
-          .update(workspaceTable)
-          .set({ updatedAt: new Date() })
-          .where(eq(workspaceTable.id, input.workspaceId));
-
-        return {
-          ...modelCreateResult,
-          parts: input.parts.map((part) => ({
-            ...part,
-            name: deviceModels[part.modelId]!.name,
-          })),
-        };
+        return model;
       });
     }),
 
@@ -163,43 +77,32 @@ export const modelRouter = createTRPCRouter({
         workspaceId: z.string(),
       }),
     )
-    .output(z.array(selectModelSchema))
+    .output(z.array(model))
     .use(workspaceAccessMiddleware)
-    .query(async ({ input }) => {
-      const deviceModels = await getDeviceModels(input.workspaceId);
-      const systemModels = await getSystemModels(input.workspaceId);
+    .query(async ({ input, ctx }) => {
+      const models = await ctx.db
+        .selectFrom("model")
+        .selectAll("model")
+        .where("model.workspaceId", "=", input.workspaceId)
+        .execute();
 
-      return [...deviceModels, ...systemModels];
+      return models;
     }),
 
-  getAllDeviceModels: workspaceProcedure
+  getModelById: workspaceProcedure
     .meta({
-      openapi: { method: "GET", path: "/v1/models/devices", tags: ["model"] },
+      openapi: { method: "GET", path: "/v1/models/{modelId}", tags: ["model"] },
     })
     .input(
       z.object({
-        workspaceId: z.string(),
+        modelId: z.string(),
       }),
     )
-    .output(z.array(selectDeviceModelSchema))
-    .use(workspaceAccessMiddleware)
-    .query(async ({ input }) => {
-      return await getDeviceModels(input.workspaceId);
-    }),
-
-  getAllSystemModels: workspaceProcedure
-    .meta({
-      openapi: { method: "GET", path: "/v1/models/systems", tags: ["model"] },
-    })
-    .input(
-      z.object({
-        workspaceId: z.string(),
-      }),
-    )
-    .output(z.array(selectSystemModelSchema))
-    .use(workspaceAccessMiddleware)
-    .query(async ({ input }) => {
-      return await getSystemModels(input.workspaceId);
+    .output(selectModelTreeSchema)
+    .use(modelAccessMiddlware)
+    .query(async ({ input, ctx }) => {
+      // TODO:
+      throw new Error("Not implemented");
     }),
 
   deleteModel: workspaceProcedure
@@ -224,50 +127,9 @@ export const modelRouter = createTRPCRouter({
           message: "You do not have permission to delete this workspace",
         });
       }
-      await ctx.db.delete(modelTable).where(eq(modelTable.id, input.modelId));
+      await ctx.db
+        .deleteFrom("model")
+        .where("model.id", "=", input.modelId)
+        .execute();
     }),
 });
-
-async function getDeviceModels(workspaceId: string) {
-  return await db
-    .select({
-      type: sql<"device">`'device'`.as("type"),
-      ...getTableColumns(modelTable),
-    })
-    .from(modelTable)
-    .innerJoin(deviceModelTable, eq(deviceModelTable.id, modelTable.id))
-    .where(eq(modelTable.workspaceId, workspaceId));
-}
-
-async function getSystemModels(workspaceId: string) {
-  const sq = db
-    .select({ id: modelTable.id, name: modelTable.name })
-    .from(modelTable)
-    .innerJoin(deviceModelTable, eq(deviceModelTable.id, modelTable.id))
-    .where(eq(modelTable.workspaceId, workspaceId))
-    .as("sq");
-
-  return await db
-    .select({
-      ...getTableColumns(modelTable),
-      type: sql<"system">`'system'`.as("type"),
-      parts: partsFrom(
-        deviceModelTable.id,
-        sq.name,
-        systemModelDeviceModelTable.count,
-      ),
-    })
-    .from(modelTable)
-    .innerJoin(systemModelTable, eq(systemModelTable.id, modelTable.id))
-    .innerJoin(
-      systemModelDeviceModelTable,
-      eq(systemModelTable.id, systemModelDeviceModelTable.systemModelId),
-    )
-    .innerJoin(
-      deviceModelTable,
-      eq(deviceModelTable.id, systemModelDeviceModelTable.deviceModelId),
-    )
-    .leftJoin(sq, eq(sq.id, deviceModelTable.id))
-    .groupBy(modelTable.id)
-    .where(eq(modelTable.workspaceId, workspaceId));
-}

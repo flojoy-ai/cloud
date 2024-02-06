@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { projectInitializer } from "~/schemas/public/Project";
+import { model } from "~/schemas/public/Model";
+import { project, projectInitializer } from "~/schemas/public/Project";
 
 export const insertProjectSchema = projectInitializer
   .pick({
@@ -10,6 +11,8 @@ export const insertProjectSchema = projectInitializer
   .extend({
     name: z.string().min(1),
   });
+
+export const selectProjectSchema = project.extend({ model: model });
 
 export const publicUpdateProjectSchema = insertProjectSchema
   .pick({

@@ -7,6 +7,7 @@ import { type db } from "~/server/db";
 import {
   insertProjectSchema,
   publicUpdateProjectSchema,
+  selectProjectSchema,
 } from "~/types/project";
 import {
   hardwareAccessMiddleware,
@@ -14,9 +15,8 @@ import {
 } from "./hardware";
 import { workspaceAccessMiddleware } from "./workspace";
 import { type ProjectId, project } from "~/schemas/public/Project";
-import { getProjectById } from "~/lib/project";
-import { getHardwareById } from "~/lib/hardware";
 import { generateDatabaseId } from "~/lib/id";
+import { markUpdatedAt, getProjectById, getHardwareById } from "~/lib/query";
 
 export const projectAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
@@ -62,41 +62,35 @@ export const projectRouter = createTRPCRouter({
     .output(project)
     .use(workspaceAccessMiddleware)
     .mutation(async ({ ctx, input }) => {
-      const model = await ctx.db
+      await ctx.db
         .selectFrom("model")
         .selectAll("model")
         .where("model.id", "=", input.modelId)
-        .executeTakeFirst();
-
-      if (!model) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Model not found",
-        });
-      }
+        .executeTakeFirstOrThrow(
+          () =>
+            new TRPCError({
+              code: "NOT_FOUND",
+              message: "Model not found",
+            }),
+        );
 
       return await ctx.db.transaction().execute(async (tx) => {
-        const [project] = await tx
+        const project = await tx
           .insertInto("project")
           .values({
             id: generateDatabaseId("project"),
             ...input,
           })
           .returningAll()
-          .execute();
+          .executeTakeFirstOrThrow(
+            () =>
+              new TRPCError({
+                code: "INTERNAL_SERVER_ERROR",
+                message: "Failed to create project",
+              }),
+          );
 
-        if (!project) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create project",
-          });
-        }
-
-        await tx
-          .updateTable("workspace")
-          .set({ updatedAt: new Date() })
-          .where("id", "=", input.workspaceId)
-          .execute();
+        await markUpdatedAt(tx, "workspace", input.workspaceId);
 
         return project;
       });
@@ -112,7 +106,7 @@ export const projectRouter = createTRPCRouter({
     })
     .input(z.object({ projectId: z.string() }))
     .use(projectAccessMiddleware)
-    .output(project)
+    .output(selectProjectSchema)
     .query(async ({ input }) => {
       const project = await getProjectById(input.projectId);
 
@@ -124,40 +118,6 @@ export const projectRouter = createTRPCRouter({
       }
 
       return project;
-
-      // TODO: Fix
-      // const isDeviceModel =
-      //   (await ctx.db.query.deviceModelTable.findFirst({
-      //     where: (deviceModel, { eq }) => eq(deviceModel.id, project.modelId),
-      //   })) !== undefined;
-      //
-      // if (isDeviceModel) {
-      //   return {
-      //     ...project,
-      //     model: {
-      //       ...project.model,
-      //       type: "device",
-      //     },
-      //   };
-      // }
-      //
-      // const deviceParts = await getSystemModelParts(project.modelId);
-      //
-      // if (!deviceParts) {
-      //   throw new TRPCError({
-      //     code: "INTERNAL_SERVER_ERROR",
-      //     message: "An error occured when trying to fetch system model",
-      //   });
-      // }
-      //
-      // return {
-      //   ...project,
-      //   model: {
-      //     ...project.model,
-      //     type: "system",
-      //     parts: deviceParts,
-      //   },
-      // };
     }),
 
   getAllProjectsByWorkspaceId: workspaceProcedure

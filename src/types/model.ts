@@ -1,3 +1,28 @@
+import { z } from "zod";
+import { model } from "~/schemas/public/Model";
+
+export const systemModelPartSchema = z.object({
+  modelId: z.string(),
+  name: z.string(),
+  count: z.number().min(1),
+});
+
+export const insertModelSchema = model.extend({
+  name: z.string().min(1),
+  components: z.array(systemModelPartSchema.omit({ name: true })),
+});
+
+type ModelTree = z.infer<typeof model> & {
+  components: { count: number; model: ModelTree }[];
+};
+
+export const selectModelTreeSchema: z.ZodType<ModelTree> = model.extend({
+  name: z.string().min(1),
+  components: z.lazy(() =>
+    z.object({ count: z.number(), model: selectModelTreeSchema }).array(),
+  ),
+});
+
 // import { modelTable } from "~/server/db/schema";
 // import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 // import { z } from "zod";

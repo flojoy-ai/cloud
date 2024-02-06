@@ -2,10 +2,37 @@ import type DB from "~/schemas/Database";
 import { type ExpressionBuilder, type Kysely } from "kysely";
 import { jsonObjectFrom } from "kysely/helpers/postgres";
 import { type Model } from "~/schemas/public/Model";
+import { db } from "~/server/db";
+
+export async function getProjectById(id: string) {
+  return await db
+    .selectFrom("project")
+    .selectAll("project")
+    .where("project.id", "=", id)
+    .select((eb) => withProjectModel(eb))
+    .$narrowType<{ model: Model }>()
+    .executeTakeFirst();
+}
+
+export async function getHardwareById(id: string) {
+  return await db
+    .selectFrom("hardware")
+    .selectAll("hardware")
+    .where("hardware.id", "=", id)
+    .executeTakeFirst();
+}
+
+export async function getModelById(id: string) {
+  return await db
+    .selectFrom("model")
+    .selectAll("model")
+    .where("model.id", "=", id)
+    .executeTakeFirst();
+}
 
 export async function markUpdatedAt(
   db: Kysely<DB>,
-  table: "project" | "hardware" | "test",
+  table: "project" | "hardware" | "test" | "workspace",
   id: string,
 ) {
   await db
@@ -15,12 +42,21 @@ export async function markUpdatedAt(
     .execute();
 }
 
-export function withModel(eb: ExpressionBuilder<DB, "hardware">) {
+export function withHardwareModel(eb: ExpressionBuilder<DB, "hardware">) {
   return jsonObjectFrom(
     eb
       .selectFrom("model")
       .selectAll("model")
       .whereRef("model.id", "=", "hardware.modelId"),
+  ).as("model");
+}
+
+export function withProjectModel(eb: ExpressionBuilder<DB, "project">) {
+  return jsonObjectFrom(
+    eb
+      .selectFrom("model")
+      .selectAll("model")
+      .whereRef("model.id", "=", "project.modelId"),
   ).as("model");
 }
 
@@ -30,7 +66,7 @@ export function withHardware(eb: ExpressionBuilder<DB, "measurement">) {
       .selectFrom("hardware")
       .selectAll("hardware")
       .whereRef("hardware.id", "=", "measurement.hardwareId")
-      .select((eb) => withModel(eb))
+      .select((eb) => withHardwareModel(eb))
       .$narrowType<{ model: Model }>(),
   ).as("hardware");
 }
