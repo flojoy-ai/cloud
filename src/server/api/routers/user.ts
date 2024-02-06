@@ -21,13 +21,7 @@ export const userRouter = createTRPCRouter({
   getUsersInWorkspace: workspaceProcedure
     .input(z.object({ workspaceId: z.string() }))
     .use(workspaceAccessMiddleware)
-    .output(
-      z.array(
-        user.extend({
-          role: workspaceUser.pick({ role: true }),
-        }),
-      ),
-    )
+    .output(z.array(user.merge(workspaceUser.pick({ role: true }))))
     .query(async ({ ctx, input }) => {
       const result = await ctx.db
         .selectFrom("workspace_user as wu")
