@@ -15,7 +15,6 @@ import { useForm } from "react-hook-form";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 
-import { publicUpdateWorkspaceSchema } from "~/types/workspace";
 import { type z } from "zod";
 import DeleteWorkspace from "./delete-workspace";
 import { api } from "~/trpc/react";
@@ -24,10 +23,13 @@ import { toast } from "sonner";
 import { Icons } from "~/components/icons";
 import { useWorkspace } from "../../../workspace-provider";
 import { env } from "~/env";
+import { updateWorkspace } from "~/types/workspace";
 
 type Props = {
   workspaceId: string;
 };
+
+const formSchema = updateWorkspace;
 
 const GeneralForm = ({ workspaceId }: Props) => {
   const { data: workspace } = api.workspace.getWorkspaceById.useQuery({
@@ -43,8 +45,8 @@ const GeneralForm = ({ workspaceId }: Props) => {
     namespace,
   };
 
-  const form = useForm<z.infer<typeof publicUpdateWorkspaceSchema>>({
-    resolver: zodResolver(publicUpdateWorkspaceSchema),
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
     defaultValues,
   });
 
@@ -56,10 +58,11 @@ const GeneralForm = ({ workspaceId }: Props) => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof publicUpdateWorkspaceSchema>) {
+  function onSubmit(values: z.infer<typeof formSchema>) {
     toast.promise(
       updateWorkspace.mutateAsync({
-        ...values,
+        workspaceId,
+        data: values,
       }),
       {
         loading: "Updating your workspace...",

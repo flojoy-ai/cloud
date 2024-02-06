@@ -16,15 +16,18 @@ import {
 
 import { generateDatabaseId } from "~/lib/id";
 import { type db } from "~/server/db";
+import { createWorkspace, updateWorkspace } from "~/types/workspace";
+import { api } from "~/trpc/server";
 
 export const workspaceAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: db; user: { id: string }; workspaceId: string | null };
   input: { workspaceId: string };
 }>().create(async (opts) => {
-  const [workspace] = await opts.ctx.db
+  const workspace = await opts.ctx.db
     .selectFrom("workspace")
     .where("workspace.id", "=", opts.input.workspaceId)
-    .execute();
+    .selectAll()
+    .executeTakeFirst();
 
   if (!workspace) {
     throw new TRPCError({
@@ -56,7 +59,7 @@ export const workspaceAccessMiddleware = experimental_standaloneMiddleware<{
 
 export const workspaceRouter = createTRPCRouter({
   createWorkspace: protectedProcedure
-    .input(workspaceInitializer.omit({ id: true }))
+    .input(createWorkspace)
     .output(workspace)
     .mutation(async ({ ctx, input }) => {
       const newWorkspace = await ctx.db.transaction().execute(async (tx) => {
@@ -91,29 +94,31 @@ export const workspaceRouter = createTRPCRouter({
         return newWorkspace;
       });
 
-      // TODO: just make a separate call
-      //
-      // if (!input.populateData) {
-      //   return newWorkspace;
-      // }
-      //
-      // await api.example.populateExample.mutate({
-      //   workspaceId: newWorkspace.id,
-      // });
+      if (!input.populateData) {
+        return newWorkspace;
+      }
+
+      await api.example.populateExample.mutate({
+        workspaceId: newWorkspace.id,
+      });
 
       return newWorkspace;
     }),
 
   updateWorkspace: workspaceProcedure
-    .input(workspaceMutator)
+    .input(
+      z.object({
+        workspaceId: z.string(),
+        data: updateWorkspace,
+      }),
+    )
+    .use(workspaceAccessMiddleware)
     .output(workspace)
     .mutation(async ({ ctx, input }) => {
-      const { id, ...updatedWorkspace } = input;
-
       const result = await ctx.db
         .updateTable("workspace")
         .set({
-          ...updatedWorkspace,
+          ...input.data,
         })
         .where("workspace.id", "=", ctx.workspaceId)
         .returningAll()
