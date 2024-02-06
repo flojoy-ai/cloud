@@ -15,6 +15,8 @@ import { checkWorkspaceAccess } from "~/lib/auth";
 import { cookies } from "next/headers";
 import { selectWorkspaceUserSchema } from "~/types/workspace_user";
 import { api } from "~/trpc/server";
+import { workspaceInitializer } from "~/schemas/public/Workspace";
+import { createId } from "@paralleldrive/cuid2";
 
 export const workspaceAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
@@ -55,14 +57,19 @@ export const workspaceAccessMiddleware = experimental_standaloneMiddleware<{
 
 export const workspaceRouter = createTRPCRouter({
   createWorkspace: protectedProcedure
-    .input(publicInsertWorkspaceSchema)
+    .input(workspaceInitializer.omit({ id: true }))
     .output(selectWorkspaceSchema)
     .mutation(async ({ ctx, input }) => {
-      const newWorkspace = await ctx.db.transaction(async (tx) => {
-        const [newWorkspace] = await tx
-          .insert(workspaceTable)
-          .values({ planType: "enterprise", ...input })
-          .returning();
+      const newWorkspace = await ctx.db.transaction().execute(async (tx) => {
+        const newWorkspace = await tx
+          .insertInto("workspace")
+          .values({
+            id: "workspace_" + createId(),
+            ...input,
+            planType: "enterprise",
+          })
+          .returningAll()
+          .executeTakeFirst();
 
         if (!newWorkspace) {
           throw new TRPCError({
@@ -71,24 +78,29 @@ export const workspaceRouter = createTRPCRouter({
           });
         }
 
-        await tx.insert(workspaceUserTable).values({
-          workspaceId: newWorkspace.id,
-          userId: ctx.user.id,
-          role: "owner" as const,
-        });
+        await tx
+          .insertInto("workspace_user")
+          .values({
+            workspaceId: newWorkspace.id,
+            userId: ctx.user.id,
+            role: "owner" as const,
+          })
+          .execute();
 
         cookies().set("scope", newWorkspace.namespace);
 
         return newWorkspace;
       });
 
-      if (!input.populateData) {
-        return newWorkspace;
-      }
-
-      await api.example.populateExample.mutate({
-        workspaceId: newWorkspace.id,
-      });
+      // TODO: just make a separate call
+      //
+      // if (!input.populateData) {
+      //   return newWorkspace;
+      // }
+      //
+      // await api.example.populateExample.mutate({
+      //   workspaceId: newWorkspace.id,
+      // });
 
       return newWorkspace;
     }),
