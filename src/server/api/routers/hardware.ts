@@ -1,12 +1,3 @@
-import {
-  and,
-  eq,
-  exists,
-  getTableColumns,
-  inArray,
-  not,
-  sql,
-} from "drizzle-orm";
 import { z } from "zod";
 
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
@@ -15,16 +6,6 @@ import { checkWorkspaceAccess } from "~/lib/auth";
 import { getSystemModelParts } from "~/lib/query";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
-import {
-  deviceTable,
-  hardwareTable,
-  modelTable,
-  projectHardwareTable,
-  systemTable,
-  systemDeviceTable,
-  projectTable,
-  workspaceTable,
-} from "~/server/db/schema";
 import {
   publicInsertDeviceSchema,
   publicInsertSystemSchema,
@@ -35,7 +16,6 @@ import {
   publicUpdateHardwareSchema,
 } from "~/types/hardware";
 import { workspaceAccessMiddleware } from "./workspace";
-import { selectProjectSchema } from "~/types/project";
 
 export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };

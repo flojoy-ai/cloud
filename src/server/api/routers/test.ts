@@ -1,10 +1,6 @@
-import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
-import { projectTable, testTable } from "~/server/db/schema";
-import { selectHardwareBaseSchema } from "~/types/hardware";
-import { selectMeasurementSchema } from "~/types/measurement";
 import {
   publicInsertTestSchema,
   publicUpdateTestSchema,

@@ -1,17 +1,9 @@
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
-import { and, eq, getTableColumns, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import { checkWorkspaceAccess } from "~/lib/auth";
-import { partsFrom } from "~/lib/query";
+// import { partsFrom } from "~/lib/query";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
-import {
-  deviceModelTable,
-  modelTable,
-  systemModelTable,
-  systemModelDeviceModelTable,
-  workspaceTable,
-} from "~/server/db/schema";
 import {
   publicInsertDeviceModelSchema,
   publicInsertSystemModelSchema,

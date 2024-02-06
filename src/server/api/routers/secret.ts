@@ -1,9 +1,6 @@
-import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
-import { secretTable, workspaceTable } from "~/server/db/schema";
-import { selectSecretSchema } from "~/types/secret";
 
 import * as jose from "jose";
 import { env } from "~/env";

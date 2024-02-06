@@ -5,12 +5,6 @@ import {
   workspaceProcedure,
 } from "~/server/api/trpc";
 import { workspaceAccessMiddleware } from "./workspace";
-import { selectWorkspaceUserSchema } from "~/types/workspace_user";
-import {
-  insertUserInviteSchema,
-  selectUserInviteSchema,
-  selectUserSchema,
-} from "~/types/user";
 import { render } from "@react-email/render";
 import { WorkspaceUserInvite } from "~/emails/workspace-user-invite";
 import { sendEmailWithSES } from "~/lib/email";

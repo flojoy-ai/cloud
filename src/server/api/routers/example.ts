@@ -1,13 +1,6 @@
 import { z } from "zod";
 import { workspaceAccessMiddleware } from "./workspace";
 
-import {
-  deviceTable,
-  projectHardwareTable,
-  measurementTable,
-  hardwareTable,
-} from "~/server/db/schema";
-
 import _ from "lodash";
 
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
