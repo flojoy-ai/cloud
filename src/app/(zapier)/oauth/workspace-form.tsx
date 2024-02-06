@@ -28,15 +28,16 @@ const WorkspaceForm = ({
 }: WorkspaceFormProps) => {
   const [selectedWorkspace, setSelectedWorkspace] = React.useState<string>("");
   const router = useRouter();
+  const query = api.secret._getSecret.useQuery({
+    workspaceId: selectedWorkspace,
+  });
+  const mutate = api.secret._createSecret.useMutation();
   const handleContinue = async () => {
-    const res = api.secret._getSecret.useQuery({
-      workspaceId: selectedWorkspace,
-    });
-    let workspaceSecret = res.data?.value;
+    let workspaceSecret = query.data?.value;
 
     if (!workspaceSecret) {
       workspaceSecret = (
-        await api.secret._createSecret.useMutation().mutateAsync({
+        await mutate.mutateAsync({
           workspaceId: selectedWorkspace,
         })
       ).value;
