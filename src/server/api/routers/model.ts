@@ -4,13 +4,6 @@ import { checkWorkspaceAccess } from "~/lib/auth";
 // import { partsFrom } from "~/lib/query";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
-import {
-  publicInsertDeviceModelSchema,
-  publicInsertSystemModelSchema,
-  selectDeviceModelSchema,
-  selectModelSchema,
-  selectSystemModelSchema,
-} from "~/types/model";
 import { workspaceAccessMiddleware } from "./workspace";
 
 export const modelAccessMiddlware = experimental_standaloneMiddleware<{

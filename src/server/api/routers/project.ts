@@ -14,7 +14,6 @@ import {
 } from "./hardware";
 import { workspaceAccessMiddleware } from "./workspace";
 import { type ProjectId, project } from "~/schemas/public/Project";
-import { createId } from "@paralleldrive/cuid2";
 import { getProjectById } from "~/lib/project";
 import { getHardwareById } from "~/lib/hardware";
 import { generateDatabaseId } from "~/lib/id";
