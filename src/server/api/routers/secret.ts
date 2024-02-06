@@ -6,6 +6,8 @@ import * as jose from "jose";
 import { env } from "~/env";
 import { workspaceAccessMiddleware } from "./workspace";
 import { TRPCError } from "@trpc/server";
+import { secret } from "~/schemas/public/Secret";
+import { generateDatabaseId } from "~/lib/id";
 
 const jwtSecret = new TextEncoder().encode(env.JWT_SECRET);
 
@@ -13,7 +15,7 @@ export const secretRouter = createTRPCRouter({
   _createSecret: workspaceProcedure
     .input(z.object({ workspaceId: z.string() }))
     .use(workspaceAccessMiddleware)
-    .output(selectSecretSchema)
+    .output(secret)
     .mutation(async ({ ctx, input }) => {
       const date = new Date();
 
@@ -26,22 +28,21 @@ export const secretRouter = createTRPCRouter({
         .sign(jwtSecret);
 
       await ctx.db
-        .delete(secretTable)
-        .where(
-          and(
-            eq(secretTable.workspaceId, input.workspaceId),
-            eq(secretTable.userId, ctx.user.id),
-          ),
-        );
+        .deleteFrom("secret as s")
+        .where("s.workspaceId", "=", input.workspaceId)
+        .where("s.userId", "=", ctx.user.id)
+        .execute();
 
-      const [secretCreateResult] = await ctx.db
-        .insert(secretTable)
+      const secretCreateResult = await ctx.db
+        .insertInto("secret")
         .values({
+          id: generateDatabaseId("secret"),
           userId: ctx.user.id,
           workspaceId: input.workspaceId,
           value: jwtValue,
         })
-        .returning();
+        .returningAll()
+        .executeTakeFirst();
 
       if (!secretCreateResult) {
         throw new TRPCError({
@@ -50,25 +51,19 @@ export const secretRouter = createTRPCRouter({
         });
       }
 
-      await ctx.db
-        .update(workspaceTable)
-        .set({ updatedAt: new Date() })
-        .where(eq(workspaceTable.id, input.workspaceId));
-
       return secretCreateResult;
     }),
 
   _getSecret: workspaceProcedure
     .input(z.object({ workspaceId: z.string() }))
     .use(workspaceAccessMiddleware)
-    .output(z.optional(selectSecretSchema))
-    .query(async ({ ctx, input }) => {
-      return await ctx.db.query.secretTable.findFirst({
-        where: (secret, { eq, and }) =>
-          and(
-            eq(secret.workspaceId, input.workspaceId),
-            eq(secret.userId, ctx.user.id),
-          ),
-      });
+    .output(z.optional(secret))
+    .query(async ({ ctx }) => {
+      return await ctx.db
+        .selectFrom("secret as s")
+        .where("s.userId", "=", ctx.user.id)
+        .where("s.workspaceId", "=", ctx.workspaceId)
+        .selectAll()
+        .executeTakeFirst();
     }),
 });

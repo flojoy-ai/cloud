@@ -3,18 +3,9 @@ import { z } from "zod";
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
 import _ from "lodash";
 import { checkWorkspaceAccess } from "~/lib/auth";
-import { getSystemModelParts } from "~/lib/query";
+// import { getSystemModelParts } from "~/lib/query";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
-import {
-  publicInsertDeviceSchema,
-  publicInsertSystemSchema,
-  selectHardwareSchema,
-  selectDeviceSchema,
-  selectSystemSchema,
-  selectHardwareBaseSchema,
-  publicUpdateHardwareSchema,
-} from "~/types/hardware";
 import { workspaceAccessMiddleware } from "./workspace";
 
 export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
