@@ -1,13 +1,9 @@
-import { type Kysely } from "kysely";
-import type Database from "~/schemas/Database";
+import { db } from "~/server/db";
 
-export async function getHardwareById(db: Kysely<Database>, projectId: string) {
-  const [project] = await db
+export async function getHardwareById(id: string) {
+  return await db
     .selectFrom("hardware")
     .selectAll("hardware")
-    .where("hardware.id", "=", projectId)
-    .limit(1)
-    .execute();
-
-  return project;
+    .where("hardware.id", "=", id)
+    .executeTakeFirst();
 }
