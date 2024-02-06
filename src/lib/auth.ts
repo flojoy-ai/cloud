@@ -22,12 +22,12 @@ export const checkWorkspaceAccess = async (
   // Now we need to make sure the given user in ctx has access to the workspace
   // that holds the resource. The userId field in ctx is always non-null no matter
   // you are authenticating with a secret key or a user session.
-  const [perm] = await ctx.db
+  const perm = await ctx.db
     .selectFrom("workspace_user")
     .selectAll("workspace_user")
     .where("workspace_user.workspaceId", "=", workspaceIdOfTheResource)
     .where("workspace_user.userId", "=", ctx.user.id)
-    .execute();
+    .executeTakeFirst();
 
   return perm ?? null;
 };
