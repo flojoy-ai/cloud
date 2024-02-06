@@ -7,6 +7,7 @@ export const POST = async (req: NextRequest) => {
   const code = body.get("code") as string;
   const clientId = body.get("client_id");
   const clientSecret = body.get("client_secret");
+  const workspaceSecret = body.get("workspace_secret");
   if (!code || !clientId || !clientSecret) {
     return NextResponse.json(
       { message: "Missing fields" },
@@ -27,9 +28,6 @@ export const POST = async (req: NextRequest) => {
     );
   }
   const workspace = await api.workspace.getWorkspaceById.query({
-    workspaceId: code,
-  });
-  const workspaceSecret = await api.secret._createSecret.mutate({
     workspaceId: code,
   });
 

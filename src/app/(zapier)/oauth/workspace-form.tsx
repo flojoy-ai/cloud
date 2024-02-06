@@ -13,6 +13,7 @@ import { selectWorkspaceSchema } from "~/types/workspace";
 import { selectWorkspaceUserSchema } from "~/types/workspace_user";
 import { useRouter } from "next/navigation";
 import { type OAuthSearchParams } from "./page";
+import { api } from "~/trpc/server";
 
 const workspaceSchema = z.array(
   selectWorkspaceSchema.merge(selectWorkspaceUserSchema.pick({ role: true })),
@@ -28,9 +29,18 @@ const WorkspaceForm = ({
   const [selectedWorkspace, setSelectedWorkspace] = React.useState<string>("");
   const router = useRouter();
   const handleContinue = async () => {
+    let workspaceSecret = await api.secret._getSecret.query({
+      workspaceId: selectedWorkspace,
+    });
+    if (!workspaceSecret) {
+      workspaceSecret = await api.secret._createSecret.mutate({
+        workspaceId: selectedWorkspace,
+      });
+    }
     const url = new URL(redirect_uri);
     url.searchParams.append("code", selectedWorkspace);
     url.searchParams.append("state", state);
+    url.searchParams.append("workspace_secret", workspaceSecret.value);
     router.push(url.toString());
   };
   return (

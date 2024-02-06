@@ -12,13 +12,13 @@ export type OAuthSearchParams = {
   state: string;
 };
 const Page = async ({ searchParams }: { searchParams: OAuthSearchParams }) => {
-  // if (
-  //   !searchParams.client_id ||
-  //   !searchParams.redirect_uri ||
-  //   !searchParams.state
-  // ) {
-  //   redirect("/");
-  // }
+  if (
+    !searchParams.client_id ||
+    !searchParams.redirect_uri ||
+    !searchParams.state
+  ) {
+    redirect("/");
+  }
   const workspaces = await api.workspace.getWorkspaces.query();
 
   return (
