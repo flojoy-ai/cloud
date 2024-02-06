@@ -32,11 +32,11 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { insertUserInviteSchema } from "~/types/user";
+import { createUserInvite } from "~/types/user";
 import { workspaceRoles } from "~/config/workspace_user";
 import { toast } from "sonner";
 
-const formSchema = insertUserInviteSchema;
+const formSchema = createUserInvite;
 
 type Props = {
   workspaceId: string;

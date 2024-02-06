@@ -8,11 +8,7 @@ import {
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
 import { checkWorkspaceAccess } from "~/lib/auth";
 import { cookies } from "next/headers";
-import {
-  workspace,
-  workspaceInitializer,
-  workspaceMutator,
-} from "~/schemas/public/Workspace";
+import { workspace } from "~/schemas/public/Workspace";
 
 import { generateDatabaseId } from "~/lib/id";
 import { type db } from "~/server/db";
