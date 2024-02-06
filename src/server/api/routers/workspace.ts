@@ -108,7 +108,6 @@ export const workspaceRouter = createTRPCRouter({
     .input(workspaceMutator)
     .output(workspace)
     .mutation(async ({ ctx, input }) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { id, ...updatedWorkspace } = input;
 
       const result = await ctx.db

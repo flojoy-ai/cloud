@@ -338,7 +338,6 @@ export const projectRouter = createTRPCRouter({
     .use(projectAccessMiddleware)
     .output(z.void())
     .mutation(async ({ ctx, input }) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { projectId, ...updatedProject } = input;
 
       await ctx.db

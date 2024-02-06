@@ -32,7 +32,7 @@ import { Badge } from "../ui/badge";
 import _ from "lodash";
 import { useState } from "react";
 import { api } from "~/trpc/react";
-import { type SelectProject } from "~/types/project";
+import Project from "~/schemas/public/Project";
 
 type ActionsProps = {
   elem: { id: string };
@@ -67,7 +67,7 @@ const Actions = ({ elem, children }: ActionsProps) => {
 };
 
 export const deviceColumns: ColumnDef<
-  SelectDevice & { projects: SelectProject[] }
+  SelectDevice & { projects: Project[] }
 >[] = [
   {
     accessorKey: "name",
