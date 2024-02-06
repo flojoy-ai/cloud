@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "~/lib/utils";
-import { type SelectWorkspace } from "~/types/workspace";
+import { Workspace } from "~/schemas/public/Workspace";
 
 type Props = {
-  workspaces: SelectWorkspace[];
+  workspaces: Workspace[];
 };
 
 export const WorkspaceNav = ({ workspaces }: Props) => {

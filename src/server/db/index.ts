@@ -14,3 +14,5 @@ export const db = new Kysely<Database>({
   }),
   plugins: [new CamelCasePlugin()],
 });
+
+export type db = typeof db;

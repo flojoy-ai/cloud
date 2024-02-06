@@ -6,9 +6,9 @@ import {
 } from "~/components/page-header";
 import { Card, CardFooter, CardHeader, CardTitle } from "~/components/ui/card";
 import { type SelectUserInvite } from "~/types/user";
-import { type SelectWorkspace } from "~/types/workspace";
 import { AcceptInvite } from "./_components/accept-invite";
 import { RejectInvite } from "./_components/reject-invite";
+import { Workspace } from "~/schemas/public/Workspace";
 
 const InvitePage = async () => {
   const invites = await api.user.getAllWorkspaceInvites.query();
@@ -38,7 +38,7 @@ const InvitePage = async () => {
 const InviteCard = ({
   invite,
 }: {
-  invite: SelectUserInvite & { workspace: SelectWorkspace };
+  invite: SelectUserInvite & { workspace: Workspace };
 }) => {
   return (
     <Card className="transition-all duration-300 hover:bg-secondary/80">

@@ -32,7 +32,6 @@ import {
 
 import { Input } from "~/components/ui/input";
 import { api } from "~/trpc/react";
-import { type SelectWorkspace } from "~/types/workspace";
 import { type z } from "zod";
 import {
   Select,
@@ -44,9 +43,10 @@ import {
 import { type SelectModel } from "~/types/model";
 import Link from "next/link";
 import { Badge } from "~/components/ui/badge";
+import { Workspace } from "~/schemas/public/Workspace";
 
 type Props = {
-  workspace: SelectWorkspace;
+  workspace: Workspace;
   models: SelectModel[];
 };
 

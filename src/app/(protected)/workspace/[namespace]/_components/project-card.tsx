@@ -14,14 +14,14 @@ import {
   ContextMenuTrigger,
   ContextMenuContent,
 } from "~/components/ui/context-menu";
+import { Workspace } from "~/schemas/public/Workspace";
 // import { getPrettyTime } from "~/lib/time";
 import { type SelectModel } from "~/types/model";
 import { type SelectProject } from "~/types/project";
-import { type SelectWorkspace } from "~/types/workspace";
 
 type Props = {
   project: SelectProject;
-  workspace: SelectWorkspace;
+  workspace: Workspace;
   models: SelectModel[];
 };
 
