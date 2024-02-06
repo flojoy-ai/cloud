@@ -1,4 +1,3 @@
-import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import {
   createTRPCRouter,
@@ -6,13 +5,6 @@ import {
   workspaceProcedure,
 } from "~/server/api/trpc";
 import { db } from "~/server/db";
-import {
-  workspaceTable,
-  userTable,
-  workspaceUserTable,
-  projectTable,
-  hardwareTable,
-} from "~/server/db/schema";
 import {
   publicInsertWorkspaceSchema,
   selectWorkspaceSchema,
@@ -28,9 +20,10 @@ export const workspaceAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
   input: { workspaceId: string };
 }>().create(async (opts) => {
-  const workspace = await opts.ctx.db.query.workspaceTable.findFirst({
-    where: (workspace, { eq }) => eq(workspace.id, opts.input.workspaceId),
-  });
+  const [workspace] = await opts.ctx.db
+    .selectFrom("workspace")
+    .where("workspace.id", "=", opts.input.workspaceId)
+    .execute();
 
   if (!workspace) {
     throw new TRPCError({
