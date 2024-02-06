@@ -22,12 +22,7 @@ export const projectAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
   input: { projectId: ProjectId };
 }>().create(async (opts) => {
-  const [project] = await opts.ctx.db
-    .selectFrom("project")
-    .selectAll("project")
-    .where("project.id", "=", opts.input.projectId)
-    .limit(1)
-    .execute();
+  const project = await getProjectById(opts.input.projectId);
 
   if (!project) {
     throw new TRPCError({
@@ -119,8 +114,8 @@ export const projectRouter = createTRPCRouter({
     .input(z.object({ projectId: z.string() }))
     .use(projectAccessMiddleware)
     .output(project)
-    .query(async ({ input, ctx }) => {
-      const project = await getProjectById(ctx.db, input.projectId);
+    .query(async ({ input }) => {
+      const project = await getProjectById(input.projectId);
 
       if (!project) {
         throw new TRPCError({
@@ -199,7 +194,7 @@ export const projectRouter = createTRPCRouter({
     .use(hardwareAccessMiddleware)
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
-      const project = await getProjectById(ctx.db, input.projectId);
+      const project = await getProjectById(input.projectId);
 
       if (project === undefined) {
         throw new TRPCError({
@@ -208,7 +203,7 @@ export const projectRouter = createTRPCRouter({
         });
       }
 
-      const hardware = await getHardwareById(ctx.db, input.hardwareId);
+      const hardware = await getHardwareById(input.hardwareId);
 
       if (hardware === undefined) {
         throw new TRPCError({
@@ -296,7 +291,7 @@ export const projectRouter = createTRPCRouter({
         //   where: (hardware, { inArray }) =>
         //     inArray(hardware.id, input.hardwareIds),
         // });
-        const project = await getProjectById(tx, input.projectId);
+        const project = await getProjectById(input.projectId);
 
         if (project === undefined) {
           throw new TRPCError({
