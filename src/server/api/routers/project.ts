@@ -62,14 +62,13 @@ export const projectRouter = createTRPCRouter({
     .output(project)
     .use(workspaceAccessMiddleware)
     .mutation(async ({ ctx, input }) => {
-      const [model] = await ctx.db
+      const model = await ctx.db
         .selectFrom("model")
         .selectAll("model")
         .where("model.id", "=", input.modelId)
-        .limit(1)
-        .execute();
+        .executeTakeFirst();
 
-      if (model === undefined) {
+      if (!model) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "Model not found",
