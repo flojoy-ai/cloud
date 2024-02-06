@@ -17,7 +17,8 @@
     "kanel": "dotenv -c -- pnpx kanel",
     "migrate:up": "dotenv -c -- tsx ./scripts/migrate/up.ts",
     "migrate:down": "dotenv -c -- tsx ./scripts/migrate/down.ts",
-    "migrate:to-latest": "dotenv -c -- tsx ./scripts/migrate/to-latest.ts"
+    "migrate:to-latest": "dotenv -c -- tsx ./scripts/migrate/to-latest.ts",
+    "prepare": "husky"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.507.0",
