@@ -18,10 +18,7 @@ import { useRouter } from "next/navigation";
 import { User } from "~/schemas/public/User";
 import { WorkspaceUser } from "~/schemas/public/WorkspaceUser";
 
-type Data = {
-  user: User;
-  workspaceUser: WorkspaceUser;
-};
+type Data = User & Pick<WorkspaceUser, "role">;
 
 const UserAction = ({ row }: { row: Row<Data> }) => {
   const router = useRouter();
@@ -43,18 +40,15 @@ const UserAction = ({ row }: { row: Row<Data> }) => {
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuItem
           onClick={() =>
-            toast.promise(
-              navigator.clipboard.writeText(row.original.user.email),
-              {
-                success: "Copied to clipboard",
-                error: "Something went wrong :(",
-              },
-            )
+            toast.promise(navigator.clipboard.writeText(row.original.email), {
+              success: "Copied to clipboard",
+              error: "Something went wrong :(",
+            })
           }
         >
           Copy email
         </DropdownMenuItem>
-        {row.original.workspaceUser.role !== "owner" && (
+        {row.original.role !== "owner" && (
           <>
             <DropdownMenuSeparator />
             {/* <DropdownMenuItem>Update role</DropdownMenuItem> */}
@@ -62,8 +56,7 @@ const UserAction = ({ row }: { row: Row<Data> }) => {
               onSelect={() => {
                 toast.promise(
                   remove.mutateAsync({
-                    workspaceId: row.original.workspaceUser.workspaceId,
-                    userId: row.original.workspaceUser.userId,
+                    userId: row.original.id,
                   }),
                   {
                     success: "User removed.",
@@ -87,7 +80,7 @@ export const userColumns: ColumnDef<Data>[] = [
     accessorKey: "user",
     header: "Email",
     cell: ({ row }) => {
-      return <div>{row.original.user.email}</div>;
+      return <div>{row.original.email}</div>;
     },
   },
 
@@ -95,7 +88,7 @@ export const userColumns: ColumnDef<Data>[] = [
     accessorKey: "workspace_user",
     header: "Role",
     cell: ({ row }) => {
-      return <div>{row.original.workspaceUser.role}</div>;
+      return <div>{row.original.role}</div>;
     },
   },
   {

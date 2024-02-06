@@ -40,14 +40,14 @@ import {
   SelectContent,
   SelectItem,
 } from "~/components/ui/select";
-import { type SelectModel } from "~/types/model";
 import Link from "next/link";
 import { Badge } from "~/components/ui/badge";
 import { Workspace } from "~/schemas/public/Workspace";
+import { Model } from "~/schemas/public/Model";
 
 type Props = {
   workspace: Workspace;
-  models: SelectModel[];
+  models: Model[];
 };
 
 export default function NewProjectButton({ workspace, models }: Props) {

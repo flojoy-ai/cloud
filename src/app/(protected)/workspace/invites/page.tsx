@@ -5,10 +5,10 @@ import {
   PageHeaderHeading,
 } from "~/components/page-header";
 import { Card, CardFooter, CardHeader, CardTitle } from "~/components/ui/card";
-import { type SelectUserInvite } from "~/types/user";
 import { AcceptInvite } from "./_components/accept-invite";
 import { RejectInvite } from "./_components/reject-invite";
 import { Workspace } from "~/schemas/public/Workspace";
+import { UserInvite } from "~/schemas/public/UserInvite";
 
 const InvitePage = async () => {
   const invites = await api.user.getAllWorkspaceInvites.query();
@@ -38,19 +38,19 @@ const InvitePage = async () => {
 const InviteCard = ({
   invite,
 }: {
-  invite: SelectUserInvite & { workspace: Workspace };
+  invite: UserInvite & { workspaceName: string };
 }) => {
   return (
     <Card className="transition-all duration-300 hover:bg-secondary/80">
       <CardHeader>
         <CardTitle className="overflow-hidden text-ellipsis whitespace-nowrap">
-          Invite to join {invite.workspace.name}
+          Invite to join {invite.workspaceName}
         </CardTitle>
         {/* <CardDescription>{invite.workspace.id}</CardDescription> */}
       </CardHeader>
       <CardFooter className="gap-2">
-        <AcceptInvite workspaceId={invite.workspace.id} />
-        <RejectInvite workspaceId={invite.workspace.id} />
+        <AcceptInvite workspaceId={invite.workspaceId} />
+        <RejectInvite workspaceId={invite.workspaceId} />
       </CardFooter>
     </Card>
   );

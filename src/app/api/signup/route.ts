@@ -7,10 +7,8 @@ import { type DatabaseError } from "@neondatabase/serverless";
 import { generateEmailVerificationToken } from "~/lib/token";
 import { sendEmailVerificationLink } from "~/lib/email";
 import { env } from "~/env";
-import { createId } from "@paralleldrive/cuid2";
 import { db } from "~/server/db";
 import { cookies } from "next/headers";
-import { type UserId } from "~/schemas/public/User";
 import { generateDatabaseId } from "~/lib/id";
 
 export const POST = async (request: NextRequest) => {
@@ -72,8 +70,6 @@ export const POST = async (request: NextRequest) => {
       },
       status: 302,
     });
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     // this part depends on the database you're using
     // check for unique constraint error in user table

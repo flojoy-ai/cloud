@@ -16,11 +16,11 @@ export const POST = async (request: NextRequest) => {
   }
 
   try {
-    const [storedUser] = await db
+    const storedUser = await db
       .selectFrom("user")
-      .selectAll("user")
+      .selectAll()
       .where("email", "=", parsedEmail.data)
-      .execute();
+      .executeTakeFirst();
 
     if (!storedUser) {
       return new Response("User does not exist!", {

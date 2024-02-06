@@ -1,7 +1,6 @@
 // app/api/login/route.ts
 import { Argon2id } from "oslo/password";
 import { lucia } from "~/auth/lucia";
-import { NextResponse } from "next/server";
 
 import type { NextRequest } from "next/server";
 import { z } from "zod";
@@ -30,9 +29,12 @@ export const POST = async (request: NextRequest) => {
   }
 
   try {
-    const existingUser = await db.query.userTable.findFirst({
-      where: (user, { eq }) => eq(user.email, parsedEmail.data),
-    });
+    const existingUser = await db
+      .selectFrom("user")
+      .selectAll()
+      .where("email", "=", parsedEmail.data)
+      .executeTakeFirst();
+
     if (!existingUser) {
       return new Response("This user does not exist :(", {
         status: 400,
