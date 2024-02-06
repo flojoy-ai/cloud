@@ -11,6 +11,7 @@ import { createId } from "@paralleldrive/cuid2";
 import { db } from "~/server/db";
 import { cookies } from "next/headers";
 import { type UserId } from "~/schemas/public/User";
+import { generateDatabaseId } from "~/lib/id";
 
 export const POST = async (request: NextRequest) => {
   const formData = await request.formData();
@@ -35,7 +36,7 @@ export const POST = async (request: NextRequest) => {
   }
 
   try {
-    const userId = ("user_" + createId()) as UserId;
+    const userId = generateDatabaseId("user");
     const hashedPassword = await new Argon2id().hash(password);
 
     // TODO: check if the user already exists

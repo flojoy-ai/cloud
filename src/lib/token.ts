@@ -5,8 +5,7 @@ import { TimeSpan, createDate } from "oslo";
 import { generateRandomString, alphabet } from "oslo/crypto";
 import { createId } from "@paralleldrive/cuid2";
 import { type UserId } from "~/schemas/public/User";
-import { type EmailVerificationId } from "~/schemas/public/EmailVerification";
-import { type PasswordResetTokenId } from "~/schemas/public/PasswordResetToken";
+import { generateDatabaseId } from "./id";
 
 export const generateEmailVerificationToken = async (
   userId: UserId,
@@ -22,7 +21,7 @@ export const generateEmailVerificationToken = async (
   await db
     .insertInto("email_verification")
     .values({
-      id: ("ev_" + createId()) as EmailVerificationId,
+      id: generateDatabaseId("email_verification"),
       userId: userId,
       email,
       code,
@@ -46,7 +45,7 @@ export async function createPasswordResetToken(
   await db
     .insertInto("password_reset_token")
     .values({
-      id: ("ev_" + createId()) as PasswordResetTokenId,
+      id: generateDatabaseId("password_reset_token"),
       userId: userId,
       token,
       expiresAt: createDate(new TimeSpan(5, "m")),

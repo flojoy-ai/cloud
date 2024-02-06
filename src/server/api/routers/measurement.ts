@@ -13,6 +13,7 @@ import { measurement } from "~/schemas/public/Measurement";
 import { markUpdatedAt } from "~/lib/query";
 import { jsonArrayFrom, jsonObjectFrom } from "kysely/helpers/postgres";
 import { hardware } from "~/schemas/public/Hardware";
+import { generateDatabaseId } from "~/lib/id";
 
 export const measurementAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
@@ -72,7 +73,7 @@ export const measurementRouter = createTRPCRouter({
         const [res] = await tx
           .insertInto("measurement")
           .values({
-            id: "measurement_" + createId(),
+            id: generateDatabaseId("measurement"),
             storageProvider: "postgres",
             ...input,
           })

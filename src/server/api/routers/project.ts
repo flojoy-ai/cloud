@@ -17,6 +17,7 @@ import { type ProjectId, project } from "~/schemas/public/Project";
 import { createId } from "@paralleldrive/cuid2";
 import { getProjectById } from "~/lib/project";
 import { getHardwareById } from "~/lib/hardware";
+import { generateDatabaseId } from "~/lib/id";
 
 export const projectAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
@@ -79,7 +80,7 @@ export const projectRouter = createTRPCRouter({
         const [project] = await tx
           .insertInto("project")
           .values({
-            id: "project_" + createId(),
+            id: generateDatabaseId("project"),
             ...input,
           })
           .returningAll()

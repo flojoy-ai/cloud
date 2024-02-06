@@ -17,6 +17,7 @@ import { selectWorkspaceUserSchema } from "~/types/workspace_user";
 import { api } from "~/trpc/server";
 import { workspaceInitializer } from "~/schemas/public/Workspace";
 import { createId } from "@paralleldrive/cuid2";
+import { generateDatabaseId } from "~/lib/id";
 
 export const workspaceAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
@@ -64,7 +65,7 @@ export const workspaceRouter = createTRPCRouter({
         const newWorkspace = await tx
           .insertInto("workspace")
           .values({
-            id: "workspace_" + createId(),
+            id: generateDatabaseId("workspace"),
             ...input,
             planType: "enterprise",
           })
