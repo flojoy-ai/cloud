@@ -23,7 +23,7 @@ async function UserPage({ params }: { params: { namespace: string } }) {
 
       <InviteUser workspaceId={workspaceId} />
 
-      <DataTable columns={userColumns} data={data} />
+      <DataTable columns={userColumns(workspaceId)} data={data} />
     </div>
   );
 }

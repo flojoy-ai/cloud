@@ -93,14 +93,15 @@ export const userRouter = createTRPCRouter({
       });
     }),
 
-  removeUserFromWorkspace: protectedProcedure
-    .input(z.object({ userId: z.string() }))
+  removeUserFromWorkspace: workspaceProcedure
+    .input(z.object({ workspaceId: z.string(), userId: z.string() }))
+    .use(workspaceAccessMiddleware)
     .output(z.void())
     .mutation(async ({ ctx, input }) => {
       const currentWorkspaceUser = await ctx.db
         .selectFrom("workspace_user")
         .where("userId", "=", ctx.user.id)
-        .where("workspaceId", "=", ctx.workspaceId)
+        .where("workspaceId", "=", input.workspaceId)
         .selectAll()
         .executeTakeFirst();
 

@@ -20,7 +20,13 @@ import { WorkspaceUser } from "~/schemas/public/WorkspaceUser";
 
 type Data = User & Pick<WorkspaceUser, "role">;
 
-const UserAction = ({ row }: { row: Row<Data> }) => {
+const UserAction = ({
+  row,
+  workspaceId,
+}: {
+  row: Row<Data>;
+  workspaceId: string;
+}) => {
   const router = useRouter();
   const remove = api.user.removeUserFromWorkspace.useMutation({
     onSuccess: () => {
@@ -57,6 +63,7 @@ const UserAction = ({ row }: { row: Row<Data> }) => {
                 toast.promise(
                   remove.mutateAsync({
                     userId: row.original.id,
+                    workspaceId,
                   }),
                   {
                     success: "User removed.",
@@ -75,7 +82,7 @@ const UserAction = ({ row }: { row: Row<Data> }) => {
   );
 };
 
-export const userColumns: ColumnDef<Data>[] = [
+export const userColumns = (workspaceId: string): ColumnDef<Data>[] => [
   {
     accessorKey: "user",
     header: "Email",
@@ -93,6 +100,6 @@ export const userColumns: ColumnDef<Data>[] = [
   },
   {
     id: "actions",
-    cell: UserAction,
+    cell: ({ row }) => <UserAction workspaceId={workspaceId} row={row} />,
   },
 ];
