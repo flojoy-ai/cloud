@@ -14,15 +14,15 @@ import {
   ContextMenuTrigger,
   ContextMenuContent,
 } from "~/components/ui/context-menu";
+import { Model } from "~/schemas/public/Model";
+import { Project } from "~/schemas/public/Project";
 import { Workspace } from "~/schemas/public/Workspace";
 // import { getPrettyTime } from "~/lib/time";
-import { type SelectModel } from "~/types/model";
-import { type SelectProject } from "~/types/project";
 
 type Props = {
-  project: SelectProject;
+  project: Project;
   workspace: Workspace;
-  models: SelectModel[];
+  models: Model[];
 };
 
 export default async function ProjectCard({
@@ -44,7 +44,8 @@ export default async function ProjectCard({
             </CardHeader>
             <CardContent>
               <div className="flex gap-2">
-                <Badge variant="outline">{model?.type}</Badge>
+                {/* TODO: model type? */}
+                {/* <Badge variant="outline">{model?.type}</Badge> */}
                 <Badge>{model?.name}</Badge>
               </div>
             </CardContent>

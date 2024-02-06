@@ -7,18 +7,10 @@ import {
 import { workspaceAccessMiddleware } from "./workspace";
 import { selectWorkspaceUserSchema } from "~/types/workspace_user";
 import {
-  userInviteTable,
-  userTable,
-  workspaceTable,
-  workspaceUserTable,
-} from "~/server/db/schema";
-import { and, eq, getTableColumns } from "drizzle-orm";
-import {
   insertUserInviteSchema,
   selectUserInviteSchema,
   selectUserSchema,
 } from "~/types/user";
-import { selectWorkspaceSchema } from "~/types/workspace";
 import { render } from "@react-email/render";
 import { WorkspaceUserInvite } from "~/emails/workspace-user-invite";
 import { sendEmailWithSES } from "~/lib/email";
