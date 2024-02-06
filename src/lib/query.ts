@@ -1,5 +1,7 @@
 import type DB from "~/schemas/Database";
-import { type Kysely } from "kysely";
+import { type ExpressionBuilder, type Kysely } from "kysely";
+import { jsonObjectFrom } from "kysely/helpers/postgres";
+import { type Model } from "~/schemas/public/Model";
 
 export async function markUpdatedAt(
   db: Kysely<DB>,
@@ -11,6 +13,26 @@ export async function markUpdatedAt(
     .set({ updatedAt: new Date() })
     .where(`${table}.id`, "=", id)
     .execute();
+}
+
+export function withModel(eb: ExpressionBuilder<DB, "hardware">) {
+  return jsonObjectFrom(
+    eb
+      .selectFrom("model")
+      .selectAll("model")
+      .whereRef("model.id", "=", "hardware.modelId"),
+  ).as("model");
+}
+
+export function withHardware(eb: ExpressionBuilder<DB, "measurement">) {
+  return jsonObjectFrom(
+    eb
+      .selectFrom("hardware")
+      .selectAll("hardware")
+      .whereRef("hardware.id", "=", "measurement.hardwareId")
+      .select((eb) => withModel(eb))
+      .$narrowType<{ model: Model }>(),
+  ).as("hardware");
 }
 
 // export function partsFrom(modelId: Column, name: Column, count: Column) {

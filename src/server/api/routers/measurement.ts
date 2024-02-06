@@ -1,38 +1,38 @@
 import { z } from "zod";
 
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
-import { insertMeasurementSchema } from "~/types/measurement";
+import {
+  insertMeasurementSchema,
+  selectMeasurementSchema,
+} from "~/types/measurement";
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
 import { type db } from "~/server/db";
 import { hardwareAccessMiddleware } from "./hardware";
 import { testAccessMiddleware } from "./test";
 import { checkWorkspaceAccess } from "~/lib/auth";
 import _ from "lodash";
-import { createId } from "@paralleldrive/cuid2";
 import { measurement } from "~/schemas/public/Measurement";
-import { markUpdatedAt } from "~/lib/query";
-import { jsonArrayFrom, jsonObjectFrom } from "kysely/helpers/postgres";
-import { hardware } from "~/schemas/public/Hardware";
 import { generateDatabaseId } from "~/lib/id";
+import { markUpdatedAt, withHardware } from "~/lib/query";
+import { type SelectHardware } from "~/types/hardware";
 
 export const measurementAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
   input: { measurementId: string };
 }>().create(async (opts) => {
-  const [measurement] = await opts.ctx.db
+  const measurement = await opts.ctx.db
     .selectFrom("measurement")
     .where("measurement.id", "=", opts.input.measurementId)
     .innerJoin("hardware", "measurement.hardwareId", "hardware.id")
     .selectAll("measurement")
     .select("hardware.workspaceId")
-    .execute();
-
-  if (!measurement) {
-    throw new TRPCError({
-      code: "BAD_REQUEST",
-      message: "Measurement not found",
-    });
-  }
+    .executeTakeFirstOrThrow(
+      () =>
+        new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Measurement not found",
+        }),
+    );
 
   const workspaceUser = await checkWorkspaceAccess(
     opts.ctx,
@@ -143,12 +143,14 @@ export const measurementRouter = createTRPCRouter({
       }),
     )
     .use(hardwareAccessMiddleware)
-    .output(z.array(measurement))
+    .output(z.array(selectMeasurementSchema))
     .query(async ({ ctx, input }) => {
       let query = ctx.db
         .selectFrom("measurement")
         .selectAll("measurement")
-        .where("hardwareId", "=", input.hardwareId);
+        .where("hardwareId", "=", input.hardwareId)
+        .select((eb) => withHardware(eb))
+        .$narrowType<{ hardware: SelectHardware }>();
 
       if (input.startDate) {
         query = query.where("createdAt", ">=", input.startDate);
@@ -183,28 +185,15 @@ export const measurementRouter = createTRPCRouter({
       }),
     )
     .use(measurementAccessMiddleware)
-    .output(measurement.extend({ hardware: hardware }))
+    .output(selectMeasurementSchema)
     .query(async ({ ctx, input }) => {
       const result = await ctx.db
         .selectFrom("measurement")
-        .selectAll()
+        .selectAll("measurement")
         .where("id", "=", input.measurementId)
-        .innerJoin("hardware as h", "measurement.hardwareId", "h.id")
-        .select((eb) =>
-          jsonObjectFrom(eb.selectFrom("h").selectAll()).as("hardware"),
-        )
-        .execute();
-      // .select(
-      //   jsonObjectFrom('').as("hardware"),
-      // )
-      // .execute();
-
-      // const result = await ctx.db.query.measurementTable.findFirst({
-      //   where: () => eq(measurementTable.id, input.measurementId),
-      //   with: {
-      //     hardware: { with: { model: true } },
-      //   },
-      // });
+        .select((eb) => withHardware(eb))
+        .$narrowType<{ hardware: SelectHardware }>()
+        .executeTakeFirst();
 
       if (result === undefined) {
         throw new TRPCError({
@@ -212,6 +201,7 @@ export const measurementRouter = createTRPCRouter({
           code: "BAD_REQUEST",
         });
       }
+
       return result;
     }),
 
@@ -239,7 +229,8 @@ export const measurementRouter = createTRPCRouter({
       }
 
       await ctx.db
-        .delete(measurementTable)
-        .where(eq(measurementTable.id, input.measurementId));
+        .deleteFrom("measurement")
+        .where("measurement.id", "=", input.measurementId)
+        .execute();
     }),
 });

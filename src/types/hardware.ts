@@ -71,3 +71,9 @@
 // export type SelectHardware = z.infer<typeof selectHardwareSchema>;
 // export type SelectHardwareBase = z.infer<typeof selectHardwareBaseSchema>;
 // export type SystemPart = z.infer<typeof systemPartSchema>;
+import { z } from "zod";
+import { hardware } from "~/schemas/public/Hardware";
+import { model } from "~/schemas/public/Model";
+
+export const selectHardwareSchema = hardware.extend({ model: model });
+export type SelectHardware = z.infer<typeof selectHardwareSchema>;
