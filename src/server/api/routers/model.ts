@@ -122,20 +122,8 @@ export const modelRouter = createTRPCRouter({
     )
     .output(modelTreeSchema)
     .use(modelAccessMiddleware)
-    .query(async ({ input, ctx }) => {
-      const model = await ctx.db
-        .selectFrom("model")
-        .selectAll("model")
-        .where("model.id", "=", input.modelId)
-        .executeTakeFirstOrThrow(
-          () =>
-            new TRPCError({
-              code: "NOT_FOUND",
-              message: "Model not found",
-            }),
-        );
-
-      return await getModelTree(model);
+    .query(async ({ ctx }) => {
+      return await getModelTree(ctx.model);
     }),
 
   deleteModel: workspaceProcedure

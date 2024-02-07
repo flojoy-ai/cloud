@@ -107,17 +107,8 @@ export const projectRouter = createTRPCRouter({
     .input(z.object({ projectId: z.string() }))
     .use(projectAccessMiddleware)
     .output(selectProjectSchema)
-    .query(async ({ input }) => {
-      const project = await getProjectById(input.projectId);
-
-      if (!project) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Project not found",
-        });
-      }
-
-      return project;
+    .query(async ({ ctx }) => {
+      return ctx.project;
     }),
 
   getAllProjectsByWorkspaceId: workspaceProcedure

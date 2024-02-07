@@ -18,7 +18,7 @@ export const testAccessMiddleware = experimental_standaloneMiddleware<{
     .selectFrom("test")
     .where("test.id", "=", opts.input.testId)
     .innerJoin("project", "test.projectId", "project.id")
-    .select("project.workspaceId")
+    .selectAll()
     .executeTakeFirstOrThrow(
       () =>
         new TRPCError({
@@ -80,18 +80,8 @@ export const testRouter = createTRPCRouter({
     .input(z.object({ testId: z.string() }))
     .use(testAccessMiddleware)
     .output(test)
-    .query(async ({ input, ctx }) => {
-      return await ctx.db
-        .selectFrom("test")
-        .selectAll()
-        .where("test.id", "=", input.testId)
-        .executeTakeFirstOrThrow(
-          () =>
-            new TRPCError({
-              code: "BAD_REQUEST",
-              message: "Test not found",
-            }),
-        );
+    .query(async ({ ctx }) => {
+      return ctx.test;
     }),
 
   getAllTestsByProjectId: workspaceProcedure

@@ -193,26 +193,16 @@ export const workspaceRouter = createTRPCRouter({
   getWorkspaceById: workspaceProcedure
     .input(z.object({ workspaceId: z.string() }))
     .output(workspace)
-    .query(async ({ input, ctx }) => {
-      const result = await ctx.db
-        .selectFrom("workspace")
-        .selectAll()
-        .where("workspace.id", "=", input.workspaceId)
-        .executeTakeFirstOrThrow(
-          () =>
-            new TRPCError({
-              code: "NOT_FOUND",
-              message: "Workspace not found",
-            }),
-        );
-
-      return result;
+    .use(workspaceAccessMiddleware)
+    .query(async ({ ctx }) => {
+      return ctx.workspace;
     }),
 
   getWorkspaceIdByNamespace: protectedProcedure
     .input(z.object({ namespace: z.string() }))
     .output(z.string())
     .query(async ({ input, ctx }) => {
+      // FIXME: auth check is needded here
       const result = await ctx.db
         .selectFrom("workspace")
         .selectAll()

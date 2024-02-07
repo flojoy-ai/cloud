@@ -157,17 +157,8 @@ export const hardwareRouter = createTRPCRouter({
     .input(z.object({ hardwareId: z.string() }))
     .use(hardwareAccessMiddleware)
     .output(selectHardwareSchema)
-    .query(async ({ input }) => {
-      const result = await getHardwareById(input.hardwareId);
-
-      if (!result) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Hardware not found",
-        });
-      }
-
-      return result;
+    .query(async ({ ctx }) => {
+      return ctx.hardware;
     }),
 
   getAllHardware: workspaceProcedure
