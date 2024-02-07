@@ -1,15 +1,16 @@
 import { Separator } from "~/components/ui/separator";
 import { api } from "~/trpc/server";
-import { userColumns } from "./columns";
-import { DataTable } from "~/components/ui/data-table";
-import InviteUser from "./_components/invite-user";
+import UserManagement from "./_components/user-management";
+import { UserWithRole } from "~/types/user";
 
 async function UserPage({ params }: { params: { namespace: string } }) {
   const workspaceId = await api.workspace.getWorkspaceIdByNamespace.query({
     namespace: params.namespace,
   });
 
-  const data = await api.user.getUsersInWorkspace.query({ workspaceId });
+  const data: UserWithRole[] = await api.user.getUsersInWorkspace.query({
+    workspaceId,
+  });
 
   return (
     <div className="space-y-6">
@@ -21,9 +22,11 @@ async function UserPage({ params }: { params: { namespace: string } }) {
       </div>
       <Separator />
 
-      <InviteUser workspaceId={workspaceId} />
-
-      <DataTable columns={userColumns(workspaceId)} data={data} />
+      <UserManagement
+        data={data}
+        workspaceId={workspaceId}
+        namespace={params.namespace}
+      />
     </div>
   );
 }

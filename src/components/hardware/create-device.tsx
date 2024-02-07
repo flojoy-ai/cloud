@@ -60,7 +60,7 @@ const CreateDevice = ({
   const utils = api.useUtils();
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
-  const createHardware = api.hardware.createDevice.useMutation({
+  const createHardware = api.hardware.createHardware.useMutation({
     onSuccess: () => {
       void utils.hardware.getAllHardware.invalidate();
       setIsDialogOpen(false);

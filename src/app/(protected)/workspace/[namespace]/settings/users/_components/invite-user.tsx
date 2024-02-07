@@ -51,10 +51,12 @@ const InviteUser = ({ workspaceId }: Props) => {
   });
   const [open, setOpen] = useState(false);
 
+  const utils = api.useUtils();
   const inviteUser = api.user.addUserToWorkspace.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       setOpen(false);
       toast.message("User invited, an email has been sent.");
+      void utils.user.getUsersInWorkspace.invalidate();
     },
   });
 
