@@ -51,5 +51,4 @@ async function migrateToLatest() {
   await db.destroy();
 }
 
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
 migrateToLatest();

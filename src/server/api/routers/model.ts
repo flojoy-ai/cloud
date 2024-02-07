@@ -50,9 +50,10 @@ export const modelRouter = createTRPCRouter({
     .use(workspaceAccessMiddleware)
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.transaction().execute(async (tx) => {
+        const { components, ...newModel } = input;
         const model = await tx
           .insertInto("model")
-          .values(input)
+          .values(newModel)
           .returningAll()
           .executeTakeFirstOrThrow(
             () =>

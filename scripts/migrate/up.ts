@@ -49,5 +49,4 @@ async function migrateUp() {
   await db.destroy();
 }
 
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
 migrateUp();

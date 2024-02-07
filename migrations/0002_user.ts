@@ -92,11 +92,12 @@ export async function up(db: Kysely<unknown>): Promise<void> {
 }
 
 export async function down(db: Kysely<unknown>): Promise<void> {
-  await db.schema.dropTable("user").execute();
-  await db.schema.dropTable("user_session").execute();
-  await db.schema.dropTable("oauth_account").execute();
   await db.schema.dropTable("password_reset_token").execute();
   await db.schema.dropTable("email_verification").execute();
+  await db.schema.dropTable("user_session").execute();
+  await db.schema.dropTable("oauth_account").execute();
   await db.schema.dropTable("user_invite").execute();
+  await db.schema.dropTable("workspace_user").execute();
+  await db.schema.dropTable("user").execute();
   await db.schema.dropType("workspace_role").execute();
 }
