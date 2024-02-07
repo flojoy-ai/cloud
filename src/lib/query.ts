@@ -27,6 +27,16 @@ export async function getHardwareById(id: string) {
     .executeTakeFirst();
 }
 
+export async function getHardwaresByIds(ids: string[]) {
+  return await db
+    .selectFrom("hardware")
+    .selectAll("hardware")
+    .where("hardware.id", "in", ids)
+    .select((eb) => withHardwareModel(eb))
+    .$narrowType<{ model: Model }>()
+    .execute();
+}
+
 export async function getModelById(id: string) {
   return await db
     .selectFrom("model")

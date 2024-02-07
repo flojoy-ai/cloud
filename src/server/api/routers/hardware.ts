@@ -10,7 +10,9 @@ import { workspaceAccessMiddleware } from "./workspace";
 import {
   getHardwareById,
   getHardwareTree,
+  getHardwaresByIds,
   getModelById,
+  getModelTree,
   markUpdatedAt,
 } from "~/lib/query";
 import {
@@ -127,9 +129,6 @@ const deviceQueryOptions = hardwareQueryOptions.extend({
   onlyAvailable: z.boolean().optional(),
 });
 
-type HardwareQueryOptions = z.infer<typeof hardwareQueryOptions>;
-type DeviceQueryOptions = z.infer<typeof deviceQueryOptions>;
-
 export const hardwareRouter = createTRPCRouter({
   createHardware: workspaceProcedure
     .meta({
@@ -156,11 +155,36 @@ export const hardwareRouter = createTRPCRouter({
             () =>
               new TRPCError({
                 code: "INTERNAL_SERVER_ERROR",
-                message: "Failed to create model",
+                message: "Failed to create hardware",
               }),
           );
+        const model = await getModelById(hardware.modelId);
+        if (!model) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Model not found",
+          });
+        }
+        const modelTree = await getModelTree(model);
 
-        if (components.length > 0) {
+        if (modelTree.components.length > 0) {
+          const hardwares = await getHardwaresByIds(
+            components.map((c) => c.hardwareId),
+          );
+
+          const modelCount = _.countBy(hardwares, (h) => h.modelId);
+
+          const satisfy = _.every(
+            modelTree.components.map((c) => c.count === modelCount[c.model.id]),
+          );
+
+          if (!satisfy) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Components do not satisfy model requirements",
+            });
+          }
+
           await tx
             .insertInto("hardware_relation")
             .values(
