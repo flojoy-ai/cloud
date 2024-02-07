@@ -76,12 +76,6 @@ const CreateDevice = ({
     },
   });
 
-  useEffect(() => {
-    if (isDialogOpen) {
-      form.reset();
-    }
-  }, [isDialogOpen]);
-
   function onSubmit(values: FormSchema) {
     toast.promise(
       createHardware.mutateAsync({
@@ -96,7 +90,15 @@ const CreateDevice = ({
   }
 
   return (
-    <Dialog open={isDialogOpen} onOpenChange={(open) => setIsDialogOpen(open)}>
+    <Dialog
+      open={isDialogOpen}
+      onOpenChange={(open) => {
+        setIsDialogOpen(open);
+        if (!open) {
+          form.reset();
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button variant="default" size="sm">
           {children}

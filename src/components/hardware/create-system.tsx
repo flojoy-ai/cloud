@@ -98,12 +98,6 @@ const CreateSystem = ({
   });
 
   useEffect(() => {
-    if (isDialogOpen) {
-      form.reset();
-    }
-  }, [isDialogOpen]);
-
-  useEffect(() => {
     if (model !== undefined || form.watch("modelId") === undefined) {
       return;
     }
@@ -154,7 +148,15 @@ const CreateSystem = ({
   }
 
   return (
-    <Dialog open={isDialogOpen} onOpenChange={(open) => setIsDialogOpen(open)}>
+    <Dialog
+      open={isDialogOpen}
+      onOpenChange={(open) => {
+        setIsDialogOpen(open);
+        if (!open) {
+          form.reset();
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button variant="default" size="sm">
           {children}
