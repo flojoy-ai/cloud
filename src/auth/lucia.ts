@@ -12,8 +12,8 @@ import { pool } from "~/server/db";
 // globalThis.crypto = webcrypto as Crypto;
 
 const adapter = new NodePostgresAdapter(pool, {
-  user: "cloud_user",
-  session: "cloud_session",
+  user: "user",
+  session: "user_session",
 });
 
 export const lucia = new Lucia(adapter, {
