@@ -3,13 +3,13 @@ import { Argon2id } from "oslo/password";
 
 import type { NextRequest } from "next/server";
 import { z } from "zod";
-import { type DatabaseError } from "@neondatabase/serverless";
 import { generateEmailVerificationToken } from "~/lib/token";
 import { sendEmailVerificationLink } from "~/lib/email";
 import { env } from "~/env";
 import { db } from "~/server/db";
 import { cookies } from "next/headers";
 import { generateDatabaseId } from "~/lib/id";
+import { DatabaseError } from "pg";
 
 export const POST = async (request: NextRequest) => {
   const formData = await request.formData();
