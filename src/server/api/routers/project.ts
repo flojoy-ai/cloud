@@ -2,10 +2,9 @@ import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
-import { checkWorkspaceAccess } from "~/lib/auth";
+import { type AccessContext, checkWorkspaceAccess } from "~/lib/auth";
 import { getSystemModelParts } from "~/lib/query";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
-import { type db } from "~/server/db";
 import {
   projectTable,
   projectHardwareTable,
@@ -24,7 +23,7 @@ import {
 import { workspaceAccessMiddleware } from "./workspace";
 
 export const projectAccessMiddleware = experimental_standaloneMiddleware<{
-  ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
+  ctx: AccessContext;
   input: { projectId: string };
 }>().create(async (opts) => {
   const project = await opts.ctx.db.query.projectTable.findFirst({

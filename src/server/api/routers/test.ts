@@ -3,20 +3,17 @@ import { z } from "zod";
 
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { projectTable, testTable } from "~/server/db/schema";
-import { selectHardwareBaseSchema } from "~/types/hardware";
-import { selectMeasurementSchema } from "~/types/measurement";
 import {
   publicInsertTestSchema,
   publicUpdateTestSchema,
   selectTestSchema,
 } from "~/types/test";
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
-import { type db } from "~/server/db";
 import { projectAccessMiddleware } from "./project";
-import { checkWorkspaceAccess } from "~/lib/auth";
+import { type AccessContext, checkWorkspaceAccess } from "~/lib/auth";
 
 export const testAccessMiddleware = experimental_standaloneMiddleware<{
-  ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
+  ctx: AccessContext;
   input: { testId: string };
 }>().create(async (opts) => {
   const test = await opts.ctx.db.query.testTable.findFirst({

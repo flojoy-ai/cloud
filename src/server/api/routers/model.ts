@@ -1,7 +1,7 @@
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
 import { and, eq, getTableColumns, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
-import { checkWorkspaceAccess } from "~/lib/auth";
+import { type AccessContext, checkWorkspaceAccess } from "~/lib/auth";
 import { partsFrom } from "~/lib/query";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
@@ -22,7 +22,7 @@ import {
 import { workspaceAccessMiddleware } from "./workspace";
 
 export const modelAccessMiddlware = experimental_standaloneMiddleware<{
-  ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
+  ctx: AccessContext;
   input: { modelId: string };
 }>().create(async (opts) => {
   const model = await opts.ctx.db.query.modelTable.findFirst({

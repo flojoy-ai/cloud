@@ -1,27 +1,21 @@
-import { type SQL, eq, lte, gte, and, desc } from "drizzle-orm";
+import { type SQL, eq, lte, gte, desc } from "drizzle-orm";
 import { z } from "zod";
 
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
-import {
-  measurementTable,
-  hardwareTable,
-  testTable,
-  modelTable,
-} from "~/server/db/schema";
+import { measurementTable, hardwareTable, testTable } from "~/server/db/schema";
 import { selectHardwareSchema } from "~/types/hardware";
 import {
   publicInsertMeasurementSchema,
   selectMeasurementSchema,
 } from "~/types/measurement";
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
-import { type db } from "~/server/db";
 import { hardwareAccessMiddleware } from "./hardware";
 import { testAccessMiddleware } from "./test";
-import { checkWorkspaceAccess } from "~/lib/auth";
+import { type AccessContext, checkWorkspaceAccess } from "~/lib/auth";
 import _ from "lodash";
 
 export const measurementAccessMiddleware = experimental_standaloneMiddleware<{
-  ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
+  ctx: AccessContext;
   input: { measurementId: string };
 }>().create(async (opts) => {
   const measurement = await opts.ctx.db.query.measurementTable.findFirst({
