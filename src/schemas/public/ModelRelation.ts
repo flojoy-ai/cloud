@@ -13,8 +13,8 @@ export default interface ModelRelationTable {
   /** Database type: pg_catalog.text */
   childModelId: ColumnType<ModelId, ModelId, ModelId>;
 
-  /** Database type: pg_catalog.int8 */
-  count: ColumnType<string, string, string>;
+  /** Database type: pg_catalog.int4 */
+  count: ColumnType<number, number, number>;
 }
 
 export type ModelRelation = Selectable<ModelRelationTable>;
@@ -26,17 +26,17 @@ export type ModelRelationUpdate = Updateable<ModelRelationTable>;
 export const modelRelation = z.object({
   parentModelId: modelId,
   childModelId: modelId,
-  count: z.string(),
+  count: z.number(),
 });
 
 export const modelRelationInitializer = z.object({
   parentModelId: modelId,
   childModelId: modelId,
-  count: z.string(),
+  count: z.number(),
 });
 
 export const modelRelationMutator = z.object({
   parentModelId: modelId.optional(),
   childModelId: modelId.optional(),
-  count: z.string().optional(),
+  count: z.number().optional(),
 });

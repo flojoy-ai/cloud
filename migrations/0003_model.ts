@@ -31,7 +31,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .addColumn("child_model_id", "text", (col) =>
       col.notNull().references("model.id").onDelete("restrict"),
     )
-    .addColumn("count", "bigint", (col) => col.notNull().check(sql`count > 0`))
+    .addColumn("count", "integer", (col) => col.notNull().check(sql`count > 0`))
     .addPrimaryKeyConstraint("model_relation_pk", [
       "parent_model_id",
       "child_model_id",

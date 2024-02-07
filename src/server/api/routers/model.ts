@@ -63,6 +63,17 @@ export const modelRouter = createTRPCRouter({
               }),
           );
 
+        await ctx.db
+          .insertInto("model_relation")
+          .values(
+            components.map((c) => ({
+              parentModelId: model.id,
+              childModelId: c.modelId,
+              count: c.count,
+            })),
+          )
+          .execute();
+
         await markUpdatedAt(tx, "workspace", input.workspaceId);
 
         return model;
@@ -102,8 +113,43 @@ export const modelRouter = createTRPCRouter({
     .output(selectModelTreeSchema)
     .use(modelAccessMiddlware)
     .query(async ({ input, ctx }) => {
-      // TODO:
-      throw new Error("Not implemented");
+      const model = await ctx.db
+        .selectFrom("model")
+        .selectAll("model")
+        .where("model.id", "=", input.modelId)
+        .executeTakeFirst();
+
+      if (!model) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Model not found",
+        });
+      }
+
+      const tree = await ctx.db
+        .withRecursive("model_tree", (eb) =>
+          eb
+            .selectFrom(["model_relation as mr", "model"])
+            .selectAll()
+            .where("mr.parentModelId", "=", model.id)
+            .innerJoin("model as m", "m.id", "mr.childModelId")
+            .unionAll((eb) =>
+              eb
+                .selectFrom(["model_relation as mr", "model"])
+                .selectAll()
+                .innerJoin("model", "model.id", "mr.childModelId")
+                .innerJoin(
+                  "model_tree as mt",
+                  "mt.childModelId",
+                  "mr.parantModelId",
+                ),
+            ),
+        )
+        .selectFrom(["model_tree"])
+        .selectAll()
+        .execute();
+
+      return model;
     }),
 
   deleteModel: workspaceProcedure
@@ -128,9 +174,13 @@ export const modelRouter = createTRPCRouter({
           message: "You do not have permission to delete this workspace",
         });
       }
-      await ctx.db
-        .deleteFrom("model")
-        .where("model.id", "=", input.modelId)
-        .execute();
+      await ctx.db.transaction().execute(async (tx) => {
+        await tx
+          .deleteFrom("model")
+          .where("model.id", "=", input.modelId)
+          .execute();
+
+        await markUpdatedAt(tx, "workspace", ctx.workspaceId);
+      });
     }),
 });
