@@ -27,6 +27,7 @@ import _ from "lodash";
 import { useState } from "react";
 import { api } from "~/trpc/react";
 import Project from "~/schemas/public/Project";
+import { Model } from "~/schemas/public/Model";
 
 type ActionsProps = {
   elem: { id: string };
@@ -280,7 +281,7 @@ export const systemColumns: ColumnDef<
 type DeleteDialogProps = {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
-  model: SelectModel;
+  model: Model;
   onSuccess: () => void;
 };
 
@@ -339,7 +340,7 @@ const DeleteDialog = ({
   );
 };
 
-export const deviceModelColumns: ColumnDef<SelectDeviceModel>[] = [
+export const modelColumns: ColumnDef<Model>[] = [
   {
     accessorKey: "name",
     header: "Model Name",
@@ -347,6 +348,22 @@ export const deviceModelColumns: ColumnDef<SelectDeviceModel>[] = [
       return <Badge>{row.original.name}</Badge>;
     },
   },
+  // {
+  //   accessorKey: "parts",
+  //   header: "Components",
+  //   cell: ({ row }) => {
+  //     return (
+  //       <div className="flex flex-col gap-2">
+  //         {row.original.components.map((p) => (
+  //           <div className="flex gap-2" key={p.name}>
+  //             <Badge>{p.name}</Badge>
+  //             <div className="font-medium">x{p.count}</div>
+  //           </div>
+  //         ))}
+  //       </div>
+  //     );
+  //   },
+  // },
   {
     id: "actions",
     header: "Actions",
@@ -359,56 +376,7 @@ export const deviceModelColumns: ColumnDef<SelectDeviceModel>[] = [
             isOpen={isOpen}
             setIsOpen={setIsOpen}
             model={row.original}
-            onSuccess={() => void utils.model.getAllDeviceModels.invalidate()}
-          />
-          <Actions elem={row.original}>
-            <DropdownMenuItem onClick={() => setIsOpen(true)}>
-              Delete
-            </DropdownMenuItem>
-          </Actions>
-        </>
-      );
-    },
-  },
-];
-
-export const systemModelColumns: ColumnDef<SelectSystemModel>[] = [
-  {
-    accessorKey: "name",
-    header: "Model Name",
-    cell: ({ row }) => {
-      return <Badge>{row.original.name}</Badge>;
-    },
-  },
-  {
-    accessorKey: "parts",
-    header: "Components",
-    cell: ({ row }) => {
-      return (
-        <div className="flex flex-col gap-2">
-          {row.original.parts.map((p) => (
-            <div className="flex gap-2" key={p.name}>
-              <Badge>{p.name}</Badge>
-              <div className="font-medium">x{p.count}</div>
-            </div>
-          ))}
-        </div>
-      );
-    },
-  },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => {
-      const [isOpen, setIsOpen] = useState(false);
-      const utils = api.useUtils();
-      return (
-        <>
-          <DeleteDialog
-            isOpen={isOpen}
-            setIsOpen={setIsOpen}
-            model={row.original}
-            onSuccess={() => void utils.model.getAllSystemModels.invalidate()}
+            onSuccess={() => void utils.model.getAllModels.invalidate()}
           />
           <Actions elem={row.original}>
             <DropdownMenuItem onClick={() => setIsOpen(true)}>

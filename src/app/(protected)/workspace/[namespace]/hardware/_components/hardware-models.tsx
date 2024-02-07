@@ -1,8 +1,5 @@
 "use client";
-import {
-  deviceModelColumns,
-  systemModelColumns,
-} from "~/components/hardware/columns";
+import { modelColumns } from "~/components/hardware/columns";
 import { DataTable } from "~/components/ui/data-table";
 import { api } from "~/trpc/react";
 // import { type SelectDeviceModel, type SelectSystemModel } from "~/types/model";
@@ -40,7 +37,7 @@ export default function HardwareModels(props: Props) {
             This is a standalone model.
           </div>
           <div className="py-2" />
-          {/* <DataTable columns={deviceModelColumns} data={deviceModels} /> */}
+          <DataTable columns={modelColumns} data={models} />
           <div className="py-4" />
         </div>
         <div className="col-span-2 grid">
