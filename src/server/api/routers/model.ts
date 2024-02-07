@@ -67,16 +67,18 @@ export const modelRouter = createTRPCRouter({
               }),
           );
 
-        await ctx.db
-          .insertInto("model_relation")
-          .values(
-            components.map((c) => ({
-              parentModelId: model.id,
-              childModelId: c.modelId,
-              count: c.count,
-            })),
-          )
-          .execute();
+        if (components.length > 0) {
+          await ctx.db
+            .insertInto("model_relation")
+            .values(
+              components.map((c) => ({
+                parentModelId: model.id,
+                childModelId: c.modelId,
+                count: c.count,
+              })),
+            )
+            .execute();
+        }
 
         await markUpdatedAt(tx, "workspace", input.workspaceId);
 
@@ -114,57 +116,55 @@ export const modelRouter = createTRPCRouter({
         modelId: z.string(),
       }),
     )
-    .output(selectModelTreeSchema)
+    .output(z.void())
     .use(modelAccessMiddlware)
     .query(async ({ input, ctx }) => {
-      const model = await ctx.db
-        .selectFrom("model")
-        .selectAll("model")
-        .where("model.id", "=", input.modelId)
-        .executeTakeFirst();
-
-      if (!model) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Model not found",
-        });
-      }
-
-      const tree = await ctx.db
-        .withRecursive("model_tree", (qb) =>
-          qb
-            .selectFrom("model_relation as mr")
-            .innerJoin("model", "mr.childModelId", "model.id")
-            .select([
-              "parentModelId",
-              "childModelId as modelId",
-              "model.name as name",
-            ])
-            .where("parentModelId", "=", model.id)
-            .unionAll((eb) =>
-              eb
-                .selectFrom("model_relation as mr")
-                .innerJoin("model", "mr.childModelId", "model.id")
-                .innerJoin(
-                  "model_tree",
-                  "model_tree.modelId",
-                  "mr.parentModelId",
-                )
-                .select([
-                  "mr.parentModelId",
-                  "mr.childModelId as modelId",
-                  "model.name as name",
-                ]),
-            ),
-        )
-        .selectFrom("model_tree")
-        .selectAll()
-        .execute();
+      // const model = await ctx.db
+      //   .selectFrom("model")
+      //   .selectAll("model")
+      //   .where("model.id", "=", input.modelId)
+      //   .executeTakeFirst();
+      //
+      // if (!model) {
+      //   throw new TRPCError({
+      //     code: "BAD_REQUEST",
+      //     message: "Model not found",
+      //   });
+      // }
+      //
+      // const tree = await ctx.db
+      //   .withRecursive("model_tree", (qb) =>
+      //     qb
+      //       .selectFrom("model_relation as mr")
+      //       .innerJoin("model", "mr.childModelId", "model.id")
+      //       .select([
+      //         "parentModelId",
+      //         "childModelId as modelId",
+      //         "model.name as name",
+      //       ])
+      //       .where("parentModelId", "=", model.id)
+      //       .unionAll((eb) =>
+      //         eb
+      //           .selectFrom("model_relation as mr")
+      //           .innerJoin("model", "mr.childModelId", "model.id")
+      //           .innerJoin(
+      //             "model_tree",
+      //             "model_tree.modelId",
+      //             "mr.parentModelId",
+      //           )
+      //           .select([
+      //             "mr.parentModelId",
+      //             "mr.childModelId as modelId",
+      //             "model.name as name",
+      //           ]),
+      //       ),
+      //   )
+      //   .selectFrom("model_tree")
+      //   .selectAll()
+      //   .execute();
 
       // create tree somehow
       throw new Error("Not implemented");
-
-      return model;
     }),
 
   deleteModel: workspaceProcedure
