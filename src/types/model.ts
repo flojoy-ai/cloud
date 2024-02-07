@@ -7,21 +7,19 @@ export const modelPartSchema = z.object({
   count: z.number().min(1),
 });
 
-type ModelPart = z.infer<typeof modelPartSchema>;
-
 export const insertModelSchema = model.extend({
   name: z.string().min(1),
   components: z.array(modelPartSchema.omit({ name: true })),
 });
 
 type ModelTree = z.infer<typeof model> & {
-  components: (ModelPart & { model: ModelTree })[];
+  components: { count: number; model: ModelTree }[];
 };
 
 export const selectModelTreeSchema: z.ZodType<ModelTree> = model.extend({
   name: z.string().min(1),
   components: z.lazy(() =>
-    modelPartSchema.extend({ model: selectModelTreeSchema }).array(),
+    z.object({ count: z.number(), model: selectModelTreeSchema }).array(),
   ),
 });
 
