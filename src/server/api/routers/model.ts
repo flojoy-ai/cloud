@@ -127,27 +127,38 @@ export const modelRouter = createTRPCRouter({
       }
 
       const tree = await ctx.db
-        .withRecursive("model_tree", (eb) =>
-          eb
-            .selectFrom(["model_relation as mr", "model"])
-            .selectAll()
-            .where("mr.parentModelId", "=", model.id)
-            .innerJoin("model as m", "m.id", "mr.childModelId")
+        .withRecursive("model_tree", (qb) =>
+          qb
+            .selectFrom("model_relation as mr")
+            .innerJoin("model", "mr.childModelId", "model.id")
+            .select([
+              "parentModelId",
+              "childModelId as modelId",
+              "model.name as name",
+            ])
+            .where("parentModelId", "=", model.id)
             .unionAll((eb) =>
               eb
-                .selectFrom(["model_relation as mr", "model"])
-                .selectAll()
-                .innerJoin("model", "model.id", "mr.childModelId")
+                .selectFrom("model_relation as mr")
+                .innerJoin("model", "mr.childModelId", "model.id")
                 .innerJoin(
-                  "model_tree as mt",
-                  "mt.childModelId",
-                  "mr.parantModelId",
-                ),
+                  "model_tree",
+                  "model_tree.modelId",
+                  "mr.parentModelId",
+                )
+                .select([
+                  "mr.parentModelId",
+                  "mr.childModelId as modelId",
+                  "model.name as name",
+                ]),
             ),
         )
-        .selectFrom(["model_tree"])
+        .selectFrom("model_tree")
         .selectAll()
         .execute();
+
+      // create tree somehow
+      throw new Error("Not implemented");
 
       return model;
     }),

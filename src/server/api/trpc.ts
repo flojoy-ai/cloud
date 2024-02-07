@@ -142,8 +142,8 @@ export const workspaceProcedure = t.procedure.use(async ({ ctx, next }) => {
     }
 
     const [workspace] = await ctx.db
-      .selectFrom("cloud_workspace")
-      .selectAll("cloud_workspace")
+      .selectFrom("workspace")
+      .selectAll("workspace")
       .where("id", "=", workspaceId)
       .execute();
 
@@ -195,12 +195,12 @@ export const workspaceProcedure = t.procedure.use(async ({ ctx, next }) => {
     workspaceId = parsed.data.workspaceId;
 
     await ctx.db
-      .updateTable("cloud_secret")
+      .updateTable("secret")
       .set({
-        last_used_at: new Date(),
+        lastUsedAt: new Date(),
       })
-      .where("cloud_secret.workspace_id", "=", workspaceId)
-      .where("cloud_secret.user_id", "=", userId)
+      .where("secret.workspaceId", "=", workspaceId)
+      .where("secret.userId", "=", userId)
       .execute();
   } else {
     throw new TRPCError({

@@ -58,12 +58,14 @@ export const workspaceRouter = createTRPCRouter({
     .input(createWorkspace)
     .output(workspace)
     .mutation(async ({ ctx, input }) => {
+      const { populateData, ...data } = input;
+
       const newWorkspace = await ctx.db.transaction().execute(async (tx) => {
         const newWorkspace = await tx
           .insertInto("workspace")
           .values({
             id: generateDatabaseId("workspace"),
-            ...input,
+            ...data,
             planType: "enterprise",
           })
           .returningAll()
@@ -90,7 +92,7 @@ export const workspaceRouter = createTRPCRouter({
         return newWorkspace;
       });
 
-      if (!input.populateData) {
+      if (!populateData) {
         return newWorkspace;
       }
 
@@ -180,7 +182,7 @@ export const workspaceRouter = createTRPCRouter({
     .query(async ({ ctx }) => {
       const result = await ctx.db
         .selectFrom("workspace_user as wu")
-        .innerJoin("workspace as w", "w.id", "wu.userId")
+        .innerJoin("workspace as w", "w.id", "wu.workspaceId")
         .innerJoin("user as u", "u.id", "wu.userId")
         .where("wu.userId", "=", ctx.user.id)
         .selectAll("w")
@@ -196,14 +198,14 @@ export const workspaceRouter = createTRPCRouter({
         .selectFrom("workspace")
         .selectAll()
         .where("workspace.id", "=", input.workspaceId)
-        .executeTakeFirst();
+        .executeTakeFirstOrThrow(
+          () =>
+            new TRPCError({
+              code: "NOT_FOUND",
+              message: "Workspace not found",
+            }),
+        );
 
-      if (!result) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Workspace not found",
-        });
-      }
       return result;
     }),
 
