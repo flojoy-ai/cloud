@@ -33,7 +33,7 @@ const WorkspaceForm = ({
   });
   const mutate = api.secret._createSecret.useMutation();
   const handleContinue = async () => {
-    let workspaceSecret = query.data?.value;
+    let workspaceSecret = (await query.refetch()).data?.value;
 
     if (!workspaceSecret) {
       workspaceSecret = (
