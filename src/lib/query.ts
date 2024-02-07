@@ -19,6 +19,8 @@ export async function getHardwareById(id: string) {
     .selectFrom("hardware")
     .selectAll("hardware")
     .where("hardware.id", "=", id)
+    .select((eb) => withHardwareModel(eb))
+    .$narrowType<{ model: Model }>()
     .executeTakeFirst();
 }
 
