@@ -85,7 +85,7 @@ const AllHardwares = ({
       />
       {hardwares.length === 0 && (
         <div className="">
-          No hardare instance found, get started by registering your hardware
+          No hardware instance found, get started by registering your hardware
           instance.
         </div>
       )}

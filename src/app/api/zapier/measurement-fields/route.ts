@@ -34,33 +34,15 @@ export const GET = async (req: NextRequest) => {
         });
       }
     }
-    // const projectFields = projects.map((project) => {
-    //   const tests = await api.test.getAllTestsByProjectId.query({
-    //     projectId: project.id,
-    //   });
-    //   return {
-    //     key: project.id,
-    //     label: project.name,
-    //     value: project.id,
-    //   };
-    // });
-    // let testFields: Array<{ key: string; label: string; value: string }> = ({} =
-    //   []);
-    // if (projects.length > 0) {
-    //   const tests = await api.test.getAllTestsByProjectId.query({
-    //     projectId: projects[0]?.id ?? "",
-    //   });
-    //   testFields = tests.map((test) => {
-    //     return {
-    //       key: test.id,
-    //       label: test.name,
-    //       value: test.id,
-    //     };
-    //   });
-    // }
+
     const res = [
-      { key: "hardwareId", label: "Hardware", choices: hardwareFields },
-      { key: "testId", label: "Test", choices: testFields },
+      {
+        key: "hardwareId",
+        label: "Hardware",
+        required: true,
+        choices: hardwareFields,
+      },
+      { key: "testId", label: "Test", required: true, choices: testFields },
     ];
     return new Response(JSON.stringify(res), {
       status: 200,
