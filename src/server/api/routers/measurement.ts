@@ -70,7 +70,7 @@ export const measurementRouter = createTRPCRouter({
     .input(publicInsertMeasurementSchema)
     .use(hardwareAccessMiddleware)
     .use(testAccessMiddleware)
-    .output(z.void())
+    .output(selectMeasurementSchema)
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.transaction(async (tx) => {
         const [measurementCreateResult] = await tx
@@ -97,6 +97,8 @@ export const measurementRouter = createTRPCRouter({
           .update(hardwareTable)
           .set({ updatedAt: new Date() })
           .where(eq(hardwareTable.id, input.hardwareId));
+
+        return measurementCreateResult;
       });
     }),
 
