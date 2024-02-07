@@ -7,6 +7,7 @@ import { workspaceAccessMiddleware } from "./workspace";
 import { getModelById, markUpdatedAt } from "~/lib/query";
 import { insertModelSchema, selectModelTreeSchema } from "~/types/model";
 import { model } from "~/schemas/public/Model";
+import { generateDatabaseId } from "~/lib/id";
 
 export const modelAccessMiddlware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
@@ -53,7 +54,10 @@ export const modelRouter = createTRPCRouter({
         const { components, ...newModel } = input;
         const model = await tx
           .insertInto("model")
-          .values(newModel)
+          .values({
+            id: generateDatabaseId("model"),
+            ...newModel,
+          })
           .returningAll()
           .executeTakeFirstOrThrow(
             () =>

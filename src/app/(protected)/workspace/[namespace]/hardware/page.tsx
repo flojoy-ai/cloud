@@ -20,19 +20,19 @@ export default async function HardwareInventory({
     namespace: params.namespace,
   });
 
-  const devices = await api.hardware.getAllDevices.query({
+  // const devices = await api.hardware.getAllDevices.query({
+  //   workspaceId,
+  // });
+  // const systems = await api.hardware.getAllSystems.query({
+  //   workspaceId,
+  // });
+  //
+  const models = await api.model.getAllModels.query({
     workspaceId,
   });
-  const systems = await api.hardware.getAllSystems.query({
-    workspaceId,
-  });
-
-  const deviceModels = await api.model.getAllDeviceModels.query({
-    workspaceId,
-  });
-  const systemModels = await api.model.getAllSystemModels.query({
-    workspaceId,
-  });
+  // const systemModels = await api.model.getAllSystemModels.query({
+  //   workspaceId,
+  // });
 
   return (
     <div className="container max-w-screen-2xl">
@@ -48,21 +48,17 @@ export default async function HardwareInventory({
 
       <Separator />
 
-      <HardwareModels
-        deviceModels={deviceModels}
-        systemModels={systemModels}
-        workspaceId={workspaceId}
-      />
+      <HardwareModels models={models} workspaceId={workspaceId} />
 
       <Separator />
 
-      <HardwareInstances
-        devices={devices}
-        systems={systems}
-        deviceModels={deviceModels}
-        systemModels={systemModels}
-        workspaceId={workspaceId}
-      />
+      {/* <HardwareInstances */}
+      {/*   devices={devices} */}
+      {/*   systems={systems} */}
+      {/*   deviceModels={deviceModels} */}
+      {/*   systemModels={systemModels} */}
+      {/*   workspaceId={workspaceId} */}
+      {/* /> */}
       <div className="py-4" />
     </div>
   );

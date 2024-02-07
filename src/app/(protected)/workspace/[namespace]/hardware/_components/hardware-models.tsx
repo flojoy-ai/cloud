@@ -5,27 +5,22 @@ import {
 } from "~/components/hardware/columns";
 import { DataTable } from "~/components/ui/data-table";
 import { api } from "~/trpc/react";
-import { type SelectDeviceModel, type SelectSystemModel } from "~/types/model";
+// import { type SelectDeviceModel, type SelectSystemModel } from "~/types/model";
 import CreateModel from "./create-model";
+import { Model } from "~/schemas/public/Model";
 
 type Props = {
   workspaceId: string;
-  deviceModels: SelectDeviceModel[];
-  systemModels: SelectSystemModel[];
+  models: Model[];
+  // systemModels: SelectSystemModel[];
 };
 
 export default function HardwareModels(props: Props) {
-  const { data: deviceModels } = api.model.getAllDeviceModels.useQuery(
+  const { data: models } = api.model.getAllModels.useQuery(
     {
       workspaceId: props.workspaceId,
     },
-    { initialData: props.deviceModels },
-  );
-  const { data: systemModels } = api.model.getAllSystemModels.useQuery(
-    {
-      workspaceId: props.workspaceId,
-    },
-    { initialData: props.systemModels },
+    { initialData: props.models },
   );
 
   return (
@@ -34,10 +29,7 @@ export default function HardwareModels(props: Props) {
 
       <h1 className="text-2xl font-bold">Hardware Models</h1>
       <div className="py-1" />
-      <CreateModel
-        workspaceId={props.workspaceId}
-        deviceModels={deviceModels}
-      />
+      <CreateModel workspaceId={props.workspaceId} models={models} />
       <div className="py-4" />
       <div className="grid grid-cols-3 items-start gap-4">
         <div className="col-span-1 grid">
@@ -48,7 +40,7 @@ export default function HardwareModels(props: Props) {
             This is a standalone model.
           </div>
           <div className="py-2" />
-          <DataTable columns={deviceModelColumns} data={deviceModels} />
+          {/* <DataTable columns={deviceModelColumns} data={deviceModels} /> */}
           <div className="py-4" />
         </div>
         <div className="col-span-2 grid">
@@ -59,7 +51,7 @@ export default function HardwareModels(props: Props) {
             A system model is composed of multiple device models.
           </div>
           <div className="py-2" />
-          <DataTable columns={systemModelColumns} data={systemModels} />
+          {/* <DataTable columns={systemModelColumns} data={systemModels} /> */}
           <div className="py-4" />
         </div>
       </div>

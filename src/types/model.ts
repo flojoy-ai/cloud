@@ -7,10 +7,12 @@ export const modelPartSchema = z.object({
   count: z.number().min(1),
 });
 
-export const insertModelSchema = model.extend({
-  name: z.string().min(1),
-  components: z.array(modelPartSchema.omit({ name: true })),
-});
+export const insertModelSchema = model
+  .pick({ name: true, workspaceId: true })
+  .extend({
+    name: z.string().min(1),
+    components: z.array(modelPartSchema.omit({ name: true })),
+  });
 
 type ModelTree = z.infer<typeof model> & {
   components: { count: number; model: ModelTree }[];
