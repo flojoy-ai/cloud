@@ -4,23 +4,27 @@ import { DataTable } from "~/components/ui/data-table";
 import { api } from "~/trpc/react";
 import CreateModel from "./create-model";
 import { Model } from "~/schemas/public/Model";
+import { useRouter } from "next/navigation";
 
 type Props = {
   workspaceId: string;
+  namespace: string;
   models: Model[];
 };
 
-export default function HardwareModels(props: Props) {
+export default function HardwareModels({
+  workspaceId,
+  models: initialData,
+  namespace,
+}: Props) {
   const { data: models } = api.model.getAllModels.useQuery(
     {
-      workspaceId: props.workspaceId,
+      workspaceId,
     },
-    { initialData: props.models },
+    { initialData },
   );
-  const { data: model } = api.model.getModelById.useQuery({
-    modelId: models[4]!.id,
-  });
-  console.log(model);
+
+  const router = useRouter();
 
   return (
     <div>
@@ -28,7 +32,7 @@ export default function HardwareModels(props: Props) {
 
       <h1 className="text-2xl font-bold">Hardware Models</h1>
       <div className="py-1" />
-      <CreateModel workspaceId={props.workspaceId} models={models} />
+      <CreateModel workspaceId={workspaceId} models={models} />
       <div className="py-4" />
       <div className="grid grid-cols-3 items-start gap-4">
         <div className="col-span-3 grid">
@@ -39,7 +43,13 @@ export default function HardwareModels(props: Props) {
             This is a standalone model.
           </div>
           <div className="py-2" />
-          <DataTable columns={modelColumns} data={models} />
+          <DataTable
+            columns={modelColumns}
+            data={models}
+            onRowClick={(row) =>
+              router.push(`/workspace/${namespace}/model/${row.id}`)
+            }
+          />
           <div className="py-4" />
         </div>
         {/* <div className="col-span-2 grid"> */}

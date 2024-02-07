@@ -20,19 +20,9 @@ export default async function HardwareInventory({
     namespace: params.namespace,
   });
 
-  // const devices = await api.hardware.getAllDevices.query({
-  //   workspaceId,
-  // });
-  // const systems = await api.hardware.getAllSystems.query({
-  //   workspaceId,
-  // });
-  //
   const models = await api.model.getAllModels.query({
     workspaceId,
   });
-  // const systemModels = await api.model.getAllSystemModels.query({
-  //   workspaceId,
-  // });
 
   return (
     <div className="container max-w-screen-2xl">
@@ -48,7 +38,11 @@ export default async function HardwareInventory({
 
       <Separator />
 
-      <HardwareModels models={models} workspaceId={workspaceId} />
+      <HardwareModels
+        models={models}
+        workspaceId={workspaceId}
+        namespace={params.namespace}
+      />
 
       <Separator />
 
