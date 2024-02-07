@@ -74,6 +74,8 @@ export default function HardwareMeasurements({
     },
   );
 
+  const status = useMemo(() => computePassingStatus(data), [data]);
+
   if (data.length === 0) {
     return (
       <div className="mt-24 flex flex-col items-center justify-center text-center text-muted-foreground">
@@ -93,8 +95,6 @@ export default function HardwareMeasurements({
       </div>
     );
   }
-
-  const status = useMemo(() => computePassingStatus(data), [data]);
 
   return (
     <div>

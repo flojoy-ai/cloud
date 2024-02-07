@@ -31,7 +31,8 @@ export default async function Hardware({
         {searchParams.back && <BackButton />}
         <PageHeaderHeading className="">{device.name}</PageHeaderHeading>
         <PageHeaderDescription>
-          All tests that have been performed on "{device.name}" are listed here.
+          All tests that have been performed on &quot;{device.name}&quot; are
+          listed here.
         </PageHeaderDescription>
       </PageHeader>
 

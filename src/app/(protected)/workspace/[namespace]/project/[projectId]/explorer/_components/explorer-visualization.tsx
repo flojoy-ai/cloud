@@ -142,8 +142,8 @@ measurements = client.get_all_measurements_by_hardware_id("HARDWARE_ID")
       <div>
         <h3 className="text-lg font-medium">Python Client</h3>
         <p className="text-sm text-muted-foreground">
-          To do further analysis, download this data with Flojoy Cloud's Python
-          client.
+          To do further analysis, download this data with Flojoy Cloud&apos;s
+          Python client.
         </p>
       </div>
       <div>

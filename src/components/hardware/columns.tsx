@@ -164,7 +164,7 @@ export const deviceColumns: ColumnDef<
 ];
 
 export const systemColumns: ColumnDef<
-  SelectSystem & { projects: SelectProject[] }
+  SelectSystem & { projects: Project[] }
 >[] = [
   {
     accessorKey: "name",
@@ -206,8 +206,8 @@ export const systemColumns: ColumnDef<
 
       return (
         <div className="flex flex-col gap-2">
-          {Object.entries(byModel).map(([modelName, devices]) => (
-            <div className="flex items-start gap-1">
+          {Object.entries(byModel).map(([modelName, devices], idx) => (
+            <div className="flex items-start gap-1" key={idx}>
               <Badge className="">{modelName}</Badge>
               <div className="flex flex-col gap-1">
                 {devices.map((d) => (

@@ -192,7 +192,7 @@ const CreateModel = ({ workspaceId, deviceModels }: Props) => {
                 <FormDescription>
                   You can pick the components that make up this system from
                   existing device models. This will help you build the
-                  'blueprint' of the system.
+                  &apos;blueprint&apos; of the system.
                 </FormDescription>
                 {fields.map((field, index) => (
                   <div className="flex gap-2 " key={field.modelId}>

@@ -161,8 +161,8 @@ export default function NewProjectButton({ workspace, models }: Props) {
                       )}
                     </FormControl>
                     <FormDescription>
-                      Which hardware model is this project testing? <br /> Don't
-                      have a hardware model yet?{" "}
+                      Which hardware model is this project testing? <br />{" "}
+                      Don&apos;t have a hardware model yet?{" "}
                       <Link
                         href="/workspace"
                         className="underline hover:text-primary"

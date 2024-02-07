@@ -30,7 +30,7 @@ export default async function Test({
 
         <PageHeaderHeading className="">{test.name}</PageHeaderHeading>
         <PageHeaderDescription>
-          All measurements for the "{test.name}" test are listed here.
+          All measurements for the &quot;{test.name}&quot; test are listed here.
         </PageHeaderDescription>
       </PageHeader>
 

@@ -60,7 +60,7 @@ client.upload(data, test_id, device_id)
       <div>
         <h3 className="text-lg font-medium">Python Client</h3>
         <p className="text-sm text-muted-foreground">
-          Upload measurement with Flojoy Cloud's Python client
+          Upload measurement with Flojoy Cloud&apos;s Python client
         </p>
       </div>
       <div className="grid grid-cols-2 gap-x-4">
