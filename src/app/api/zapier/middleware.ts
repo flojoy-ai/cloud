@@ -2,14 +2,18 @@ import { type NextRequest } from "next/server";
 import * as jose from "jose";
 import { env } from "~/env";
 import { z } from "zod";
-
-export const GET = async (req: NextRequest) => {
+export class ErrorWithCode extends Error {
+  code: number;
+  constructor(message: string, code: number) {
+    super(message);
+    this.code = code;
+  }
+}
+export const zapierUserAuthMiddleware = async (req: NextRequest) => {
   const authorization = req.headers.get("Authorization");
   const jwt = authorization?.replace("Bearer ", "");
   if (!jwt) {
-    return new Response(JSON.stringify({ message: "missing JWT!" }), {
-      status: 401,
-    });
+    throw new ErrorWithCode("missing JWT!", 401);
   }
   const { payload } = await jose.jwtVerify(
     jwt,
@@ -17,12 +21,7 @@ export const GET = async (req: NextRequest) => {
   );
 
   if (!payload) {
-    return new Response(
-      JSON.stringify({ message: "the given JWT is invalid" }),
-      {
-        status: 401,
-      },
-    );
+    throw new ErrorWithCode("the given JWT is invalid", 401);
   }
   const parsed = z
     .object({
@@ -32,18 +31,8 @@ export const GET = async (req: NextRequest) => {
     .safeParse(payload);
 
   if (!parsed.success) {
-    return new Response(
-      JSON.stringify({
-        message: "the given JWT is invalid, parsing failed",
-      }),
-      {
-        status: 401,
-      },
-    );
+    throw new ErrorWithCode("the given JWT is invalid, parsing failed", 401);
   }
 
-  const { userId, workspaceId } = parsed.data;
-  return new Response(JSON.stringify({ userId, workspaceId }), {
-    status: 200,
-  });
+  return parsed.data;
 };
