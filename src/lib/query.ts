@@ -4,6 +4,8 @@ import { jsonObjectFrom } from "kysely/helpers/postgres";
 import { type Model } from "~/schemas/public/Model";
 import { db } from "~/server/db";
 import { ModelTree } from "~/types/model";
+import { Hardware } from "~/schemas/public/Hardware";
+import { HardwareTree } from "~/types/hardware";
 
 export async function getProjectById(id: string) {
   return await db
@@ -40,6 +42,12 @@ type ModelEdge = {
   count: number;
 };
 
+type HardwareEdge = {
+  name: string;
+  hardwareId: string;
+  parentHardwareId: string;
+};
+
 export async function getModelTree(model: Model): Promise<ModelTree> {
   const edges = await db
     .withRecursive("model_tree", (qb) =>
@@ -70,10 +78,47 @@ export async function getModelTree(model: Model): Promise<ModelTree> {
     .selectAll()
     .execute();
 
-  return buildTree(model, edges);
+  return buildModelTree(model, edges);
 }
 
-export function buildTree(root: Model, edges: ModelEdge[]) {
+export async function getHardwareTree(
+  hardware: Hardware,
+): Promise<HardwareTree> {
+  const edges = await db
+    .withRecursive("hardware_tree", (qb) =>
+      qb
+        .selectFrom("hardware_relation as hr")
+        .innerJoin("hardware", "hr.childHardwareId", "hardware.id")
+        .select([
+          "parentHardwareId",
+          "childHardwareId as hardwareId",
+          "hardware.name as name",
+        ])
+        .where("parentHardwareId", "=", hardware.id)
+        .unionAll((eb) =>
+          eb
+            .selectFrom("hardware_relation as hr")
+            .innerJoin("hardware", "hr.childHardwareId", "hardware.id")
+            .innerJoin(
+              "hardware_tree",
+              "hardware_tree.hardwareId",
+              "hr.parentHardwareId",
+            )
+            .select([
+              "hr.parentHardwareId",
+              "hr.childHardwareId as hardwareId",
+              "hardware.name as name",
+            ]),
+        ),
+    )
+    .selectFrom("hardware_tree")
+    .selectAll()
+    .execute();
+
+  return buildHardwareTree(hardware, edges);
+}
+
+export function buildModelTree(root: Model, edges: ModelEdge[]) {
   const nodes = new Map<string, ModelTree>();
   nodes.set(root.id, { id: root.id, name: root.name, components: [] });
 
@@ -90,6 +135,28 @@ export function buildTree(root: Model, edges: ModelEdge[]) {
     }
 
     parent.components.push({ count: edge.count, model: cur });
+  }
+
+  return nodes.get(root.id)!;
+}
+
+export function buildHardwareTree(root: Hardware, edges: HardwareEdge[]) {
+  const nodes = new Map<string, HardwareTree>();
+  nodes.set(root.id, { id: root.id, name: root.name, components: [] });
+
+  for (const edge of edges) {
+    let parent = nodes.get(edge.parentHardwareId);
+    if (!parent) {
+      throw new Error("Shouldn't happen");
+    }
+    let cur = nodes.get(edge.hardwareId);
+
+    if (!cur) {
+      cur = { id: edge.hardwareId, name: edge.name, components: [] };
+      nodes.set(edge.hardwareId, cur);
+    }
+
+    parent.components.push({ hardware: cur });
   }
 
   return nodes.get(root.id)!;

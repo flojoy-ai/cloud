@@ -1,30 +1,25 @@
 import { z } from "zod";
-import {
-  hardware,
-  hardwareInitializer,
-  hardwareMutator,
-} from "~/schemas/public/Hardware";
-import { model } from "~/schemas/public/Model";
+import { Hardware, hardware } from "~/schemas/public/Hardware";
 
-export const selectHardwareSchema = hardware.extend({ model: model });
-export type SelectHardware = z.infer<typeof selectHardwareSchema>;
+export const hardwareComponentSchema = z.object({
+  hardwareId: z.string(),
+  name: z.string(),
+});
 
-export const insertHardwareSchema = hardwareInitializer
-  .pick({
-    name: true,
-    modelId: true,
-    workspaceId: true,
-  })
+export const insertHardwareSchema = hardware
+  .pick({ name: true, workspaceId: true, modelId: true })
   .extend({
     name: z.string().min(1),
-    parts: z.string().array(),
+    components: z.array(hardwareComponentSchema.omit({ name: true })),
   });
 
-export const updateHardwareSchema = insertHardwareSchema
-  .pick({
-    name: true,
-    workspaceId: true,
-  })
-  .extend({
-    hardwareId: z.string(),
-  });
+export type HardwareTree = Pick<Hardware, "name" | "id"> & {
+  components: { hardware: HardwareTree }[];
+};
+
+export const hardwareTreeSchema: z.ZodType<HardwareTree> = z.object({
+  id: z.string(),
+  name: z.string().min(1),
+  modelId: z.string().min(1),
+  components: z.lazy(() => z.object({ hardware: hardwareTreeSchema }).array()),
+});

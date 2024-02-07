@@ -7,12 +7,19 @@ import { checkWorkspaceAccess } from "~/lib/auth";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
 import { workspaceAccessMiddleware } from "./workspace";
-import { getHardwareById, getModelById, markUpdatedAt } from "~/lib/query";
+import {
+  getHardwareById,
+  getHardwareTree,
+  getModelById,
+  markUpdatedAt,
+} from "~/lib/query";
 import {
   insertHardwareSchema,
   selectHardwareSchema,
   updateHardwareSchema,
 } from "~/types/hardware";
+import { generateDatabaseId } from "~/lib/id";
+import { hardware } from "~/schemas/public/Hardware";
 
 export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
@@ -128,22 +135,47 @@ export const hardwareRouter = createTRPCRouter({
     .meta({
       openapi: {
         method: "POST",
-        path: "/v1/hardware/",
+        path: "/v1/hardwares/",
         tags: ["hardwares"],
       },
     })
     .input(insertHardwareSchema)
     .use(workspaceAccessMiddleware)
-    .output(z.void())
+    .output(hardware)
     .mutation(async ({ ctx, input }) => {
-      const model = await getModelById(input.modelId);
+      return await ctx.db.transaction().execute(async (tx) => {
+        const { components, ...newHardware } = input;
+        const hardware = await tx
+          .insertInto("hardware")
+          .values({
+            id: generateDatabaseId("hardware"),
+            ...newHardware,
+          })
+          .returningAll()
+          .executeTakeFirstOrThrow(
+            () =>
+              new TRPCError({
+                code: "INTERNAL_SERVER_ERROR",
+                message: "Failed to create model",
+              }),
+          );
 
-      if (model === undefined) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Invalid model ID",
-        });
-      }
+        if (components.length > 0) {
+          await tx
+            .insertInto("hardware_relation")
+            .values(
+              components.map((c) => ({
+                parentHardwareId: hardware.id,
+                childHardwareId: c.hardwareId,
+              })),
+            )
+            .execute();
+        }
+
+        await markUpdatedAt(tx, "workspace", input.workspaceId);
+
+        return hardware;
+      });
     }),
 
   getHardwareById: workspaceProcedure
@@ -158,7 +190,7 @@ export const hardwareRouter = createTRPCRouter({
     .use(hardwareAccessMiddleware)
     .output(selectHardwareSchema)
     .query(async ({ ctx }) => {
-      return ctx.hardware;
+      return await getHardwareTree(ctx.hardware);
     }),
 
   getAllHardware: workspaceProcedure
@@ -167,8 +199,16 @@ export const hardwareRouter = createTRPCRouter({
     })
     .input(deviceQueryOptions)
     .use(workspaceAccessMiddleware)
-    .output(z.void())
-    .query(async ({ input }) => {}),
+    .output(z.array(hardware))
+    .query(async ({ input, ctx }) => {
+      const hardwares = await ctx.db
+        .selectFrom("hardware")
+        .selectAll()
+        .where("hardware.workspaceId", "=", input.workspaceId)
+        .execute();
+
+      return hardwares;
+    }),
 
   deleteHardwareById: workspaceProcedure
     .meta({

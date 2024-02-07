@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { Model, model } from "~/schemas/public/Model";
 
-export const modelPartSchema = z.object({
+export const modelComponentSchema = z.object({
   modelId: z.string(),
   name: z.string(),
   count: z.number().min(1),
@@ -11,7 +11,7 @@ export const insertModelSchema = model
   .pick({ name: true, workspaceId: true })
   .extend({
     name: z.string().min(1),
-    components: z.array(modelPartSchema.omit({ name: true })),
+    components: z.array(modelComponentSchema.omit({ name: true })),
   });
 
 export type ModelTree = Pick<Model, "name" | "id"> & {
