@@ -19,25 +19,20 @@ export const GET = async (req: NextRequest) => {
     const projects = await api.project.getAllProjectsByWorkspaceId.query({
       workspaceId,
     });
-    const projectFields = [];
+    const testFields: Array<{ key: string; label: string; value: string }> = [];
     for (const project of projects) {
       const tests = await api.test.getAllTestsByProjectId.query({
         projectId: project.id,
       });
-      projectFields.push({
-        key: project.id,
-        label: project.name,
-        value: project.id,
-        ...(tests.length > 0 && {
-          children: tests.map((test) => {
-            return {
-              key: test.id,
-              label: test.name,
-              value: test.id,
-            };
-          }),
-        }),
-      });
+      if (tests.length > 0) {
+        tests.forEach((test) => {
+          testFields.push({
+            key: test.id,
+            label: `${test.name} (${project.name})`,
+            value: test.id,
+          });
+        });
+      }
     }
     // const projectFields = projects.map((project) => {
     //   const tests = await api.test.getAllTestsByProjectId.query({
@@ -63,16 +58,13 @@ export const GET = async (req: NextRequest) => {
     //     };
     //   });
     // }
-
-    return new Response(
-      JSON.stringify([
-        { key: "hardwareId", label: "Hardware", choices: hardwareFields },
-        { key: "projectId", label: "Project", choices: projectFields },
-      ]),
-      {
-        status: 200,
-      },
-    );
+    const res = [
+      { key: "hardwareId", label: "Hardware", choices: hardwareFields },
+      { key: "testId", label: "Test", choices: testFields },
+    ];
+    return new Response(JSON.stringify(res), {
+      status: 200,
+    });
   } catch (error) {
     if (error instanceof ErrorWithCode) {
       return new Response(JSON.stringify({ message: error.message }), {
