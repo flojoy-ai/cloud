@@ -141,11 +141,11 @@ export const workspaceProcedure = t.procedure.use(async ({ ctx, next }) => {
       });
     }
 
-    const [workspace] = await ctx.db
+    const workspace = await ctx.db
       .selectFrom("workspace")
       .selectAll("workspace")
-      .where("id", "=", workspaceId)
-      .execute();
+      .where("workspace.id", "=", workspaceId)
+      .executeTakeFirst();
 
     if (!workspace) {
       throw new TRPCError({
