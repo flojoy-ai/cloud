@@ -21,13 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { type ColumnDef } from "@tanstack/react-table";
-import { type SelectSystem, type SelectDevice } from "~/types/hardware";
 import { toast } from "sonner";
-import {
-  type SelectSystemModel,
-  type SelectDeviceModel,
-  type SelectModel,
-} from "~/types/model";
 import { Badge } from "../ui/badge";
 import _ from "lodash";
 import { useState } from "react";

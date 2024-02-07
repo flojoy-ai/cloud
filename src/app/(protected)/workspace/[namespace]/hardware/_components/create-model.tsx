@@ -92,12 +92,6 @@ const CreateModel = ({ workspaceId, deviceModels }: Props) => {
     remove(index);
   };
 
-  useEffect(() => {
-    if (isDialogOpen) {
-      form.reset();
-    }
-  }, [isDialogOpen]);
-
   function onSubmit(values: FormSchema) {
     if (values.type === "device") {
       toast.promise(createDeviceModel.mutateAsync(values), {
@@ -130,7 +124,15 @@ const CreateModel = ({ workspaceId, deviceModels }: Props) => {
   }
 
   return (
-    <Dialog open={isDialogOpen} onOpenChange={(open) => setIsDialogOpen(open)}>
+    <Dialog
+      open={isDialogOpen}
+      onOpenChange={(open) => {
+        setIsDialogOpen(open);
+        if (!open) {
+          form.reset();
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button variant="default" size="sm">
           <Cpu className="mr-2 text-muted" size={20} />
