@@ -4,12 +4,12 @@ import { checkWorkspaceAccess } from "~/lib/auth";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
 import { workspaceAccessMiddleware } from "./workspace";
-import { getModelById, markUpdatedAt } from "~/lib/query";
-import { insertModelSchema } from "~/types/model";
+import { getModelById, getModelTree, markUpdatedAt } from "~/lib/query";
+import { insertModelSchema, modelTreeSchema } from "~/types/model";
 import { model } from "~/schemas/public/Model";
 import { generateDatabaseId } from "~/lib/id";
 
-export const modelAccessMiddlware = experimental_standaloneMiddleware<{
+export const modelAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
   input: { modelId: string };
 }>().create(async (opts) => {
@@ -120,55 +120,22 @@ export const modelRouter = createTRPCRouter({
         modelId: z.string(),
       }),
     )
-    .output(z.void())
-    .use(modelAccessMiddlware)
+    .output(modelTreeSchema)
+    .use(modelAccessMiddleware)
     .query(async ({ input, ctx }) => {
-      // const model = await ctx.db
-      //   .selectFrom("model")
-      //   .selectAll("model")
-      //   .where("model.id", "=", input.modelId)
-      //   .executeTakeFirst();
-      //
-      // if (!model) {
-      //   throw new TRPCError({
-      //     code: "BAD_REQUEST",
-      //     message: "Model not found",
-      //   });
-      // }
-      //
-      // const tree = await ctx.db
-      //   .withRecursive("model_tree", (qb) =>
-      //     qb
-      //       .selectFrom("model_relation as mr")
-      //       .innerJoin("model", "mr.childModelId", "model.id")
-      //       .select([
-      //         "parentModelId",
-      //         "childModelId as modelId",
-      //         "model.name as name",
-      //       ])
-      //       .where("parentModelId", "=", model.id)
-      //       .unionAll((eb) =>
-      //         eb
-      //           .selectFrom("model_relation as mr")
-      //           .innerJoin("model", "mr.childModelId", "model.id")
-      //           .innerJoin(
-      //             "model_tree",
-      //             "model_tree.modelId",
-      //             "mr.parentModelId",
-      //           )
-      //           .select([
-      //             "mr.parentModelId",
-      //             "mr.childModelId as modelId",
-      //             "model.name as name",
-      //           ]),
-      //       ),
-      //   )
-      //   .selectFrom("model_tree")
-      //   .selectAll()
-      //   .execute();
+      const model = await ctx.db
+        .selectFrom("model")
+        .selectAll("model")
+        .where("model.id", "=", input.modelId)
+        .executeTakeFirstOrThrow(
+          () =>
+            new TRPCError({
+              code: "NOT_FOUND",
+              message: "Model not found",
+            }),
+        );
 
-      // create tree somehow
-      throw new Error("Not implemented");
+      return await getModelTree(model);
     }),
 
   deleteModel: workspaceProcedure
@@ -185,7 +152,7 @@ export const modelRouter = createTRPCRouter({
       }),
     )
     .output(z.void())
-    .use(modelAccessMiddlware)
+    .use(modelAccessMiddleware)
     .mutation(async ({ ctx, input }) => {
       if (ctx.workspaceUser.role !== "owner") {
         throw new TRPCError({

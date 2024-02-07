@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { model } from "~/schemas/public/Model";
+import { Model, model } from "~/schemas/public/Model";
 
 export const modelPartSchema = z.object({
   modelId: z.string(),
@@ -14,14 +14,15 @@ export const insertModelSchema = model
     components: z.array(modelPartSchema.omit({ name: true })),
   });
 
-type ModelTree = z.infer<typeof model> & {
+export type ModelTree = Pick<Model, "name" | "id"> & {
   components: { count: number; model: ModelTree }[];
 };
 
-export const selectModelTreeSchema: z.ZodType<ModelTree> = model.extend({
+export const modelTreeSchema: z.ZodType<ModelTree> = z.object({
+  id: z.string(),
   name: z.string().min(1),
   components: z.lazy(() =>
-    z.object({ count: z.number(), model: selectModelTreeSchema }).array(),
+    z.object({ count: z.number(), model: modelTreeSchema }).array(),
   ),
 });
 
