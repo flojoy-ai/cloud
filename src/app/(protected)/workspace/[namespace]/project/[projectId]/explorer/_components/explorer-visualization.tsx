@@ -9,7 +9,6 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
-import { type SelectTest } from "~/types/test";
 import { useExplorerStore } from "~/store/explorer";
 import { useShallow } from "zustand/react/shallow";
 import BooleanViz from "~/components/visualization/boolean-viz";
@@ -23,9 +22,10 @@ import { WorkspaceSecretReminder } from "~/components/workspace-secret-reminder"
 import { Checkbox } from "~/components/ui/checkbox";
 import { Label } from "~/components/ui/label";
 import _ from "lodash";
+import { Test } from "~/schemas/public/Test";
 
 type Props = {
-  tests: SelectTest[];
+  tests: Test[];
   workspaceId: string;
   namespace: string;
 };
