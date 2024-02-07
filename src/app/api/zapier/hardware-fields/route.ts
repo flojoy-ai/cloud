@@ -15,9 +15,14 @@ export const GET = async (req: NextRequest) => {
         value: hardware.id,
       };
     });
-    return new Response(JSON.stringify(hardwareFields), {
-      status: 200,
-    });
+    return new Response(
+      JSON.stringify([
+        { key: "hardwareId", label: "Hardware ID", choices: hardwareFields },
+      ]),
+      {
+        status: 200,
+      },
+    );
   } catch (error) {
     if (error instanceof ErrorWithCode) {
       return new Response(JSON.stringify({ message: error.message }), {
