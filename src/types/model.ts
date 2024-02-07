@@ -1,25 +1,27 @@
 import { z } from "zod";
 import { model } from "~/schemas/public/Model";
 
-export const systemModelPartSchema = z.object({
+export const modelPartSchema = z.object({
   modelId: z.string(),
   name: z.string(),
   count: z.number().min(1),
 });
 
+type ModelPart = z.infer<typeof modelPartSchema>;
+
 export const insertModelSchema = model.extend({
   name: z.string().min(1),
-  components: z.array(systemModelPartSchema.omit({ name: true })),
+  components: z.array(modelPartSchema.omit({ name: true })),
 });
 
 type ModelTree = z.infer<typeof model> & {
-  components: { count: number; model: ModelTree }[];
+  components: (ModelPart & { model: ModelTree })[];
 };
 
 export const selectModelTreeSchema: z.ZodType<ModelTree> = model.extend({
   name: z.string().min(1),
   components: z.lazy(() =>
-    z.object({ count: z.number(), model: selectModelTreeSchema }).array(),
+    modelPartSchema.extend({ model: selectModelTreeSchema }).array(),
   ),
 });
 
