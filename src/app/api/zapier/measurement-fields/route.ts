@@ -53,5 +53,8 @@ export const GET = async (req: NextRequest) => {
         status: error.code,
       });
     }
+    return new Response("An unknown error occurred: " + String(error), {
+      status: 500,
+    });
   }
 };
