@@ -56,7 +56,7 @@ export const projectAccessMiddleware = experimental_standaloneMiddleware<{
 export const projectRouter = createTRPCRouter({
   createProject: workspaceProcedure
     .meta({
-      openapi: { method: "POST", path: "/v1/projects/", tags: ["project"] },
+      openapi: { method: "POST", path: "/v1/projects/", tags: ["projects"] },
     })
     .input(insertProjectSchema)
     .output(project)
@@ -101,7 +101,7 @@ export const projectRouter = createTRPCRouter({
       openapi: {
         method: "GET",
         path: "/v1/projects/{projectId}",
-        tags: ["project"],
+        tags: ["projects"],
       },
     })
     .input(z.object({ projectId: z.string() }))
@@ -122,7 +122,7 @@ export const projectRouter = createTRPCRouter({
 
   getAllProjectsByWorkspaceId: workspaceProcedure
     .meta({
-      openapi: { method: "GET", path: "/v1/projects/", tags: ["project"] },
+      openapi: { method: "GET", path: "/v1/projects/", tags: ["projects"] },
     })
     .input(z.object({ workspaceId: z.string() }))
     .use(workspaceAccessMiddleware)
@@ -139,8 +139,8 @@ export const projectRouter = createTRPCRouter({
     .meta({
       openapi: {
         method: "PUT",
-        path: "/v1/projects/{projectId}/hardware/{hardwareId}",
-        tags: ["project", "hardware"],
+        path: "/v1/projects/{projectId}/hardwares/{hardwareId}",
+        tags: ["projects", "hardwares"],
       },
     })
     .input(
@@ -191,8 +191,8 @@ export const projectRouter = createTRPCRouter({
     .meta({
       openapi: {
         method: "DELETE",
-        path: "/v1/projects/{projectId}/hardware/{hardwareId}",
-        tags: ["project", "hardware"],
+        path: "/v1/projects/{projectId}/hardwares/{hardwareId}",
+        tags: ["projects", "hardwares"],
       },
     })
     .input(
@@ -212,12 +212,12 @@ export const projectRouter = createTRPCRouter({
         .execute();
     }),
 
-  setProjectHardware: workspaceProcedure
+  setProjectHardwares: workspaceProcedure
     .meta({
       openapi: {
         method: "PUT",
-        path: "/v1/projects/{projectId}/hardware",
-        tags: ["project", "hardware"],
+        path: "/v1/projects/{projectId}/hardwares",
+        tags: ["projects", "hardwares"],
       },
     })
     .input(
@@ -290,7 +290,7 @@ export const projectRouter = createTRPCRouter({
       openapi: {
         method: "PATCH",
         path: "/v1/projects/{projectId}",
-        tags: ["project"],
+        tags: ["projects"],
       },
     })
     .input(publicUpdateProjectSchema)
@@ -311,7 +311,7 @@ export const projectRouter = createTRPCRouter({
       openapi: {
         method: "DELETE",
         path: "/v1/projects/{projectId}",
-        tags: ["project"],
+        tags: ["projects"],
       },
     })
     .input(z.object({ projectId: z.string() }))

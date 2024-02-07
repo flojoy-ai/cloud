@@ -61,7 +61,7 @@ export const measurementRouter = createTRPCRouter({
       openapi: {
         method: "POST",
         path: "/v1/measurements/",
-        tags: ["measurement"],
+        tags: ["measurements"],
       },
     })
     .input(insertMeasurementSchema)
@@ -97,7 +97,7 @@ export const measurementRouter = createTRPCRouter({
       openapi: {
         method: "GET",
         path: "/v1/measurements/test/{testId}",
-        tags: ["measurement"],
+        tags: ["measurements"],
       },
     })
     .input(
@@ -131,7 +131,7 @@ export const measurementRouter = createTRPCRouter({
       openapi: {
         method: "GET",
         path: "/v1/measurements/hardware/{hardwareId}",
-        tags: ["measurement"],
+        tags: ["measurements"],
       },
     })
     .input(
@@ -176,7 +176,7 @@ export const measurementRouter = createTRPCRouter({
       openapi: {
         method: "GET",
         path: "/v1/measurements/{measurementId}",
-        tags: ["measurement"],
+        tags: ["measurements"],
       },
     })
     .input(
@@ -210,7 +210,7 @@ export const measurementRouter = createTRPCRouter({
       openapi: {
         method: "DELETE",
         path: "/v1/measurements/{measurementId}",
-        tags: ["measurement"],
+        tags: ["measurements"],
       },
     })
     .input(

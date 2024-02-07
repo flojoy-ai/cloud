@@ -124,12 +124,12 @@ type HardwareQueryOptions = z.infer<typeof hardwareQueryOptions>;
 type DeviceQueryOptions = z.infer<typeof deviceQueryOptions>;
 
 export const hardwareRouter = createTRPCRouter({
-  createDevice: workspaceProcedure
+  createHardware: workspaceProcedure
     .meta({
       openapi: {
         method: "POST",
-        path: "/v1/hardware/devices",
-        tags: ["hardware", "device"],
+        path: "/v1/hardware/",
+        tags: ["hardwares"],
       },
     })
     .input(insertHardwareSchema)
@@ -150,8 +150,8 @@ export const hardwareRouter = createTRPCRouter({
     .meta({
       openapi: {
         method: "GET",
-        path: "/v1/hardware/{hardwareId}",
-        tags: ["device"],
+        path: "/v1/hardwares/{hardwareId}",
+        tags: ["hardwares"],
       },
     })
     .input(z.object({ hardwareId: z.string() }))
@@ -172,20 +172,7 @@ export const hardwareRouter = createTRPCRouter({
 
   getAllHardware: workspaceProcedure
     .meta({
-      openapi: { method: "GET", path: "/v1/hardware", tags: ["hardware"] },
-    })
-    .input(deviceQueryOptions)
-    .use(workspaceAccessMiddleware)
-    .output(z.void())
-    .query(async ({ input }) => {}),
-
-  getAllDevices: workspaceProcedure
-    .meta({
-      openapi: {
-        method: "GET",
-        path: "/v1/hardware/all/devices",
-        tags: ["hardware"],
-      },
+      openapi: { method: "GET", path: "/v1/hardwares", tags: ["hardwares"] },
     })
     .input(deviceQueryOptions)
     .use(workspaceAccessMiddleware)
@@ -196,8 +183,8 @@ export const hardwareRouter = createTRPCRouter({
     .meta({
       openapi: {
         method: "DELETE",
-        path: "/v1/hardware/{hardwareId}",
-        tags: ["hardware"],
+        path: "/v1/hardwares/{hardwareId}",
+        tags: ["hardwares"],
       },
     })
     .input(z.object({ hardwareId: z.string() }))
@@ -221,8 +208,8 @@ export const hardwareRouter = createTRPCRouter({
     .meta({
       openapi: {
         method: "PATCH",
-        path: "/v1/hardware/{hardwareId}",
-        tags: ["hardware"],
+        path: "/v1/hardwares/{hardwareId}",
+        tags: ["hardwares"],
       },
     })
     .input(updateHardwareSchema)

@@ -14,16 +14,16 @@ import {
 } from "~/components/ui/dialog";
 import { hardwareColumns } from "./columns";
 import { api } from "~/trpc/react";
-import { type SelectProject } from "~/types/project";
 import { type SelectHardware } from "~/types/hardware";
 import { toast } from "sonner";
 import { ArchiveRestore } from "lucide-react";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { ControlledDataTable } from "~/components/ui/controlled-data-table";
+import { Project } from "~/schemas/public/Project";
 
 type Props = {
   workspaceId: string;
-  project: SelectProject;
+  project: Project;
   initialHardware: SelectHardware[];
   projectHardware: SelectHardware[];
 };
@@ -56,7 +56,7 @@ const ImportHardware = ({
     { initialData: initialHardware },
   );
 
-  const setProjectHardware = api.project.setProjectHardware.useMutation();
+  const setProjectHardware = api.project.addHardwaresToProject.useMutation();
 
   const table = useReactTable({
     data: hardware,

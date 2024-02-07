@@ -5,7 +5,7 @@ import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
 import { workspaceAccessMiddleware } from "./workspace";
 import { getModelById, markUpdatedAt } from "~/lib/query";
-import { insertModelSchema, selectModelTreeSchema } from "~/types/model";
+import { insertModelSchema } from "~/types/model";
 import { model } from "~/schemas/public/Model";
 import { generateDatabaseId } from "~/lib/id";
 
@@ -44,7 +44,7 @@ export const modelAccessMiddlware = experimental_standaloneMiddleware<{
 export const modelRouter = createTRPCRouter({
   createModel: workspaceProcedure
     .meta({
-      openapi: { method: "POST", path: "/v1/models/devices", tags: ["model"] },
+      openapi: { method: "POST", path: "/v1/models/", tags: ["models"] },
     })
     .input(insertModelSchema)
     .output(model)
@@ -88,7 +88,7 @@ export const modelRouter = createTRPCRouter({
 
   getAllModels: workspaceProcedure
     .meta({
-      openapi: { method: "GET", path: "/v1/models/", tags: ["model"] },
+      openapi: { method: "GET", path: "/v1/models/", tags: ["models"] },
     })
     .input(
       z.object({
@@ -109,7 +109,11 @@ export const modelRouter = createTRPCRouter({
 
   getModelById: workspaceProcedure
     .meta({
-      openapi: { method: "GET", path: "/v1/models/{modelId}", tags: ["model"] },
+      openapi: {
+        method: "GET",
+        path: "/v1/models/{modelId}",
+        tags: ["models"],
+      },
     })
     .input(
       z.object({
@@ -172,7 +176,7 @@ export const modelRouter = createTRPCRouter({
       openapi: {
         method: "DELETE",
         path: "/v1/models/{modelId}",
-        tags: ["model"],
+        tags: ["models"],
       },
     })
     .input(
