@@ -7,7 +7,7 @@ export const GET = async (req: NextRequest) => {
   const authorization = req.headers.get("Authorization");
   const jwt = authorization?.replace("Bearer ", "");
   if (!jwt) {
-    return new Response(null, {
+    return new Response(JSON.stringify({ message: "missing JWT!" }), {
       status: 401,
     });
   }
