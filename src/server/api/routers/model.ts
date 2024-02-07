@@ -68,7 +68,7 @@ export const modelRouter = createTRPCRouter({
           );
 
         if (components.length > 0) {
-          await ctx.db
+          await tx
             .insertInto("model_relation")
             .values(
               components.map((c) => ({
