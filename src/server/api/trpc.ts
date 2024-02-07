@@ -144,7 +144,7 @@ export const workspaceProcedure = t.procedure.use(async ({ ctx, next }) => {
     const workspace = await ctx.db
       .selectFrom("workspace")
       .selectAll("workspace")
-      .where("workspace.id", "=", workspaceId)
+      .where("workspace.namespace", "=", scopeCookie.value)
       .executeTakeFirst();
 
     if (!workspace) {
