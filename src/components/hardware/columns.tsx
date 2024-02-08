@@ -298,7 +298,7 @@ const DeleteDialog = ({
   const deleteModel = api.model.deleteModel.useMutation();
   return (
     <AlertDialog open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
-      <AlertDialogContent>
+      <AlertDialogContent onClick={(e) => e.stopPropagation()}>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>

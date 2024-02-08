@@ -5,7 +5,6 @@ import { api } from "~/trpc/react";
 import CreateModel from "./create-model";
 import { Model } from "~/schemas/public/Model";
 import { useRouter } from "next/navigation";
-import { Row } from "@tanstack/react-table";
 import TreeVisualization from "../../model/_components/tree-visualization";
 import { Icons } from "~/components/icons";
 

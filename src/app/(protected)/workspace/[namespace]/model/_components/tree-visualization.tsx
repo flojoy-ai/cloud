@@ -14,7 +14,7 @@ const nodeWidth = 172;
 const nodeHeight = 36;
 
 const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
-  dagreGraph.setGraph({ rankdir: "TB" });
+  dagreGraph.setGraph({ rankdir: "LR" });
 
   nodes.forEach((node) => {
     dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
@@ -28,8 +28,8 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
 
   nodes.forEach((node) => {
     const nodeWithPosition = dagreGraph.node(node.id);
-    node.targetPosition = Position.Top;
-    node.sourcePosition = Position.Bottom;
+    node.targetPosition = Position.Left;
+    node.sourcePosition = Position.Right;
 
     // We are shifting the dagre node position (anchor=center center) to the top left
     // so it matches the React Flow node anchor point (top left).
