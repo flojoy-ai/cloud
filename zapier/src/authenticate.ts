@@ -13,7 +13,7 @@ interface CustomBundle<T> extends Bundle<T> {
   };
 }
 
-const accessTokenUrl = `${baseURL}/api/oauth/access-token`;
+const accessTokenUrl = `${baseURL}/api/zapier/oauth/access-token`;
 const getAccessToken = async (
   z: ZObject,
   bundle: CustomBundle<{
