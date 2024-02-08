@@ -1,9 +1,9 @@
 "use client";
+
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "~/components/ui/button";
-
 import {
   Form,
   FormControl,
@@ -13,10 +13,8 @@ import {
   FormLabel,
   FormMessage,
 } from "~/components/ui/form";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
-
 import {
   Dialog,
   DialogClose,
@@ -27,7 +25,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
-
 import { Input } from "~/components/ui/input";
 import { api } from "~/trpc/react";
 import { z } from "zod";
@@ -55,12 +52,15 @@ type Props = {
 
 const CreateModel = ({ workspaceId, models }: Props) => {
   const router = useRouter();
+  const utils = api.useUtils();
 
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
   const createModel = api.model.createModel.useMutation({
     onSuccess: () => {
       router.refresh();
+      utils.model.getAllModels.invalidate();
+
       setIsDialogOpen(false);
     },
   });
