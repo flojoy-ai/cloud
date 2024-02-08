@@ -40,8 +40,8 @@ export const user = z.object({
   emailVerified: z.boolean().nullable(),
   email: z.string(),
   hashedPassword: z.string().nullable(),
-  createdAt: z.date().coerce(),
-  updatedAt: z.date().coerce(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
 });
 
 export const userInitializer = z.object({
@@ -49,8 +49,8 @@ export const userInitializer = z.object({
   emailVerified: z.boolean().optional().nullable(),
   email: z.string(),
   hashedPassword: z.string().optional().nullable(),
-  createdAt: z.date().coerce().optional(),
-  updatedAt: z.date().coerce().optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
 });
 
 export const userMutator = z.object({
@@ -58,6 +58,6 @@ export const userMutator = z.object({
   emailVerified: z.boolean().optional().nullable(),
   email: z.string().optional(),
   hashedPassword: z.string().optional().nullable(),
-  createdAt: z.date().coerce().optional(),
-  updatedAt: z.date().coerce().optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
 });

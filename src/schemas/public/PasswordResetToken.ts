@@ -34,19 +34,19 @@ export const passwordResetToken = z.object({
   id: passwordResetTokenId,
   userId: userId,
   token: z.string(),
-  expiresAt: z.date().coerce(),
+  expiresAt: z.coerce.date(),
 });
 
 export const passwordResetTokenInitializer = z.object({
   id: passwordResetTokenId,
   userId: userId,
   token: z.string(),
-  expiresAt: z.date().coerce(),
+  expiresAt: z.coerce.date(),
 });
 
 export const passwordResetTokenMutator = z.object({
   id: passwordResetTokenId.optional(),
   userId: userId.optional(),
   token: z.string().optional(),
-  expiresAt: z.date().coerce().optional(),
+  expiresAt: z.coerce.date().optional(),
 });

@@ -34,19 +34,19 @@ export const tag = z.object({
   id: tagId,
   name: z.string(),
   measurementId: measurementId,
-  createdAt: z.date().coerce(),
+  createdAt: z.coerce.date(),
 });
 
 export const tagInitializer = z.object({
   id: tagId,
   name: z.string(),
   measurementId: measurementId,
-  createdAt: z.date().coerce().optional(),
+  createdAt: z.coerce.date().optional(),
 });
 
 export const tagMutator = z.object({
   id: tagId.optional(),
   name: z.string().optional(),
   measurementId: measurementId.optional(),
-  createdAt: z.date().coerce().optional(),
+  createdAt: z.coerce.date().optional(),
 });

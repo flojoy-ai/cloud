@@ -15,7 +15,7 @@ const generateZodSchemas = makeGenerateZodSchemas({
   getZodIdentifierMetadata: defaultGetZodIdentifierMetadata,
   zodTypeMap: {
     ...defaultZodTypeMap,
-    "pg_catalog.timestamptz": "z.date().coerce()",
+    "pg_catalog.timestamptz": "z.coerce.date()",
   },
   castToSchema: false,
 });
