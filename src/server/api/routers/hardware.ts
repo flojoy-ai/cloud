@@ -15,11 +15,7 @@ import {
   getModelTree,
   markUpdatedAt,
 } from "~/lib/query";
-import {
-  insertHardwareSchema,
-  selectHardwareSchema,
-  updateHardwareSchema,
-} from "~/types/hardware";
+import { hardwareTreeSchema, insertHardwareSchema } from "~/types/hardware";
 import { generateDatabaseId } from "~/lib/id";
 import { hardware } from "~/schemas/public/Hardware";
 
@@ -212,7 +208,7 @@ export const hardwareRouter = createTRPCRouter({
     })
     .input(z.object({ hardwareId: z.string() }))
     .use(hardwareAccessMiddleware)
-    .output(selectHardwareSchema)
+    .output(hardwareTreeSchema)
     .query(async ({ ctx }) => {
       return await getHardwareTree(ctx.hardware);
     }),
@@ -259,28 +255,28 @@ export const hardwareRouter = createTRPCRouter({
         .execute();
     }),
 
-  updateHardwareById: workspaceProcedure
-    .meta({
-      openapi: {
-        method: "PATCH",
-        path: "/v1/hardwares/{hardwareId}",
-        tags: ["hardwares"],
-      },
-    })
-    .input(updateHardwareSchema)
-    .use(hardwareAccessMiddleware)
-    .output(z.void())
-    .mutation(async ({ input, ctx }) => {
-      await ctx.db.transaction().execute(async (tx) => {
-        await tx
-          .updateTable("hardware")
-          .set(input)
-          .where("id", "=", input.hardwareId)
-          .execute();
-
-        await markUpdatedAt(tx, "hardware", input.hardwareId);
-      });
-    }),
-
-  // TODO: Add update remove system components
+  // TODO: hardware "commit history" to track component changes
+  //
+  // updateHardwareById: workspaceProcedure
+  //   .meta({
+  //     openapi: {
+  //       method: "PATCH",
+  //       path: "/v1/hardwares/{hardwareId}",
+  //       tags: ["hardwares"],
+  //     },
+  //   })
+  //   .input(updateHardwareSchema)
+  //   .use(hardwareAccessMiddleware)
+  //   .output(z.void())
+  //   .mutation(async ({ input, ctx }) => {
+  //     await ctx.db.transaction().execute(async (tx) => {
+  //       await tx
+  //         .updateTable("hardware")
+  //         .set(input)
+  //         .where("id", "=", input.hardwareId)
+  //         .execute();
+  //
+  //       await markUpdatedAt(tx, "hardware", input.hardwareId);
+  //     });
+  //   }),
 });
