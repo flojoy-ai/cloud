@@ -20,14 +20,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { type ColumnDef } from "@tanstack/react-table";
+import { Row, type ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
 import { Badge } from "../ui/badge";
 import _ from "lodash";
 import { useState } from "react";
 import { api } from "~/trpc/react";
-import Project from "~/schemas/public/Project";
+import { Project } from "~/schemas/public/Project";
 import { Model } from "~/schemas/public/Model";
+import { Hardware } from "~/schemas/public/Hardware";
 
 type ActionsProps = {
   elem: { id: string };
@@ -61,105 +62,103 @@ const Actions = ({ elem, children }: ActionsProps) => {
   );
 };
 
-export const deviceColumns: ColumnDef<
-  SelectDevice & { projects: Project[] }
->[] = [
-  {
-    accessorKey: "name",
-    header: "Device Name",
-    cell: ({ row }) => {
-      return <Badge variant="secondary">{row.original.name}</Badge>;
-    },
-  },
-  {
-    accessorKey: "model",
-    header: "Model",
-    cell: ({ row }) => {
-      return <Badge>{row.original.model.name}</Badge>;
-    },
-  },
-
-  {
-    accessorKey: "project",
-    header: "Project",
-    cell: ({ row }) => {
-      const projects = row.original.projects;
-
-      return (
-        <div>
-          {projects.map((p) => (
-            <Badge key={p.id} variant="outline">
-              {p.name}
-            </Badge>
-          ))}
-        </div>
-      );
-    },
-  },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => {
-      const [isOpen, setIsOpen] = useState(false);
-      const deleteHardware = api.hardware.deleteHardwareById.useMutation();
-      const utils = api.useUtils();
-      return (
-        <>
-          <AlertDialog open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete
-                  your device instance and remove your data from our servers.{" "}
-                  <br /> This device instance can only be deleted if it is{" "}
-                  <b>not within a system.</b>
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogContent>
-                {/* TODO: Show a list of systems that use this device*/}
-              </AlertDialogContent>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() =>
-                    toast.promise(
-                      deleteHardware.mutateAsync(
-                        {
-                          hardwareId: row.original.id,
-                        },
-                        {
-                          onSuccess: () => {
-                            void utils.hardware.getAllDevices.invalidate();
-                          },
-                        },
-                      ),
-                      {
-                        loading: "Deleting your device instance...",
-                        success: "Your device instance has been deleted.",
-                        error: "Something went wrong :(",
-                      },
-                    )
-                  }
-                >
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-          <Actions elem={row.original}>
-            <DropdownMenuItem onClick={() => setIsOpen(true)}>
-              Delete
-            </DropdownMenuItem>
-          </Actions>
-        </>
-      );
-    },
-  },
-];
+// export const deviceColumns: ColumnDef<Hardware & { projects: Project[] }>[] = [
+//   {
+//     accessorKey: "name",
+//     header: "Device Name",
+//     cell: ({ row }) => {
+//       return <Badge variant="secondary">{row.original.name}</Badge>;
+//     },
+//   },
+//   {
+//     accessorKey: "model",
+//     header: "Model",
+//     cell: ({ row }) => {
+//       return <Badge>{row.original.model.name}</Badge>;
+//     },
+//   },
+//
+//   {
+//     accessorKey: "project",
+//     header: "Project",
+//     cell: ({ row }) => {
+//       const projects = row.original.projects;
+//
+//       return (
+//         <div>
+//           {projects.map((p) => (
+//             <Badge key={p.id} variant="outline">
+//               {p.name}
+//             </Badge>
+//           ))}
+//         </div>
+//       );
+//     },
+//   },
+//   {
+//     id: "actions",
+//     header: "Actions",
+//     cell: ({ row }) => {
+//       const [isOpen, setIsOpen] = useState(false);
+//       const deleteHardware = api.hardware.deleteHardwareById.useMutation();
+//       const utils = api.useUtils();
+//       return (
+//         <>
+//           <AlertDialog open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
+//             <AlertDialogContent>
+//               <AlertDialogHeader>
+//                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+//                 <AlertDialogDescription>
+//                   This action cannot be undone. This will permanently delete
+//                   your device instance and remove your data from our servers.{" "}
+//                   <br /> This device instance can only be deleted if it is{" "}
+//                   <b>not within a system.</b>
+//                 </AlertDialogDescription>
+//               </AlertDialogHeader>
+//               <AlertDialogContent>
+//                 {/* TODO: Show a list of systems that use this device*/}
+//               </AlertDialogContent>
+//               <AlertDialogFooter>
+//                 <AlertDialogCancel>Cancel</AlertDialogCancel>
+//                 <AlertDialogAction
+//                   onClick={() =>
+//                     toast.promise(
+//                       deleteHardware.mutateAsync(
+//                         {
+//                           hardwareId: row.original.id,
+//                         },
+//                         {
+//                           onSuccess: () => {
+//                             void utils.hardware.getAllDevices.invalidate();
+//                           },
+//                         },
+//                       ),
+//                       {
+//                         loading: "Deleting your device instance...",
+//                         success: "Your device instance has been deleted.",
+//                         error: "Something went wrong :(",
+//                       },
+//                     )
+//                   }
+//                 >
+//                   Delete
+//                 </AlertDialogAction>
+//               </AlertDialogFooter>
+//             </AlertDialogContent>
+//           </AlertDialog>
+//           <Actions elem={row.original}>
+//             <DropdownMenuItem onClick={() => setIsOpen(true)}>
+//               Delete
+//             </DropdownMenuItem>
+//           </Actions>
+//         </>
+//       );
+//     },
+//   },
+// ];
 
 export const systemColumns: ColumnDef<
-  SelectSystem & { projects: Project[] }
+  Hardware & { projects: Project[]; model: Model }
 >[] = [
   {
     accessorKey: "name",
@@ -175,7 +174,6 @@ export const systemColumns: ColumnDef<
       return <Badge>{row.original.model.name}</Badge>;
     },
   },
-
   {
     accessorKey: "project",
     header: "Project",
@@ -193,90 +191,96 @@ export const systemColumns: ColumnDef<
       );
     },
   },
-  {
-    accessorKey: "parts",
-    header: "Components",
-    cell: ({ row }) => {
-      const byModel = _.groupBy(row.original.parts, (p) => p.model.name);
-
-      return (
-        <div className="flex flex-col gap-2">
-          {Object.entries(byModel).map(([modelName, devices], idx) => (
-            <div className="flex items-start gap-1" key={idx}>
-              <Badge className="">{modelName}</Badge>
-              <div className="flex flex-col gap-1">
-                {devices.map((d) => (
-                  <Badge variant="secondary" key={d.id}>
-                    {d.name}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      );
-    },
-  },
+  // TODO: Finish display of components
+  // {
+  //   accessorKey: "parts",
+  //   header: "Components",
+  //   cell: ({ row }) => {
+  //     const byModel = _.groupBy(row.original.parts, (p) => p.model.name);
+  //
+  //     return (
+  //       <div className="flex flex-col gap-2">
+  //         {Object.entries(byModel).map(([modelName, devices], idx) => (
+  //           <div className="flex items-start gap-1" key={idx}>
+  //             <Badge className="">{modelName}</Badge>
+  //             <div className="flex flex-col gap-1">
+  //               {devices.map((d) => (
+  //                 <Badge variant="secondary" key={d.id}>
+  //                   {d.name}
+  //                 </Badge>
+  //               ))}
+  //             </div>
+  //           </div>
+  //         ))}
+  //       </div>
+  //     );
+  //   },
+  // },
   {
     id: "actions",
     header: "Actions",
-    cell: ({ row }) => {
-      const [isOpen, setIsOpen] = useState(false);
-      const deleteHardware = api.hardware.deleteHardwareById.useMutation();
-      const utils = api.useUtils();
-      return (
-        <>
-          <AlertDialog open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete
-                  your system instance and remove your data from our servers.{" "}
-                  <br />
-                  The device instances within this system{" "}
-                  <b>will not be removed.</b>
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogContent></AlertDialogContent>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() =>
-                    toast.promise(
-                      deleteHardware.mutateAsync(
-                        {
-                          hardwareId: row.original.id,
-                        },
-                        {
-                          onSuccess: () => {
-                            void utils.hardware.getAllSystems.invalidate();
-                          },
-                        },
-                      ),
-                      {
-                        loading: "Deleting your system instance...",
-                        success: "Your system instance has been deleted.",
-                        error: "Something went wrong :(",
-                      },
-                    )
-                  }
-                >
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-          <Actions elem={row.original}>
-            <DropdownMenuItem onClick={() => setIsOpen(true)}>
-              Delete
-            </DropdownMenuItem>
-          </Actions>
-        </>
-      );
-    },
+    cell: HardwareActions,
   },
 ];
+
+function HardwareActions({
+  row,
+}: {
+  row: Row<Hardware & { projects: Project[]; model: Model }>;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const deleteHardware = api.hardware.deleteHardwareById.useMutation();
+  const utils = api.useUtils();
+  return (
+    <>
+      <AlertDialog open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete your
+              system instance and remove your data from our servers. <br />
+              The device instances within this system{" "}
+              <b>will not be removed.</b>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogContent></AlertDialogContent>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() =>
+                toast.promise(
+                  deleteHardware.mutateAsync(
+                    {
+                      hardwareId: row.original.id,
+                    },
+                    {
+                      onSuccess: () => {
+                        void utils.hardware.getAllHardware.invalidate();
+                      },
+                    },
+                  ),
+                  {
+                    loading: "Deleting your system instance...",
+                    success: "Your system instance has been deleted.",
+                    error: "Something went wrong :(",
+                  },
+                )
+              }
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      <Actions elem={row.original}>
+        <DropdownMenuItem onClick={() => setIsOpen(true)}>
+          Delete
+        </DropdownMenuItem>
+      </Actions>
+    </>
+  );
+}
 
 type DeleteDialogProps = {
   isOpen: boolean;
@@ -367,24 +371,27 @@ export const modelColumns: ColumnDef<Model>[] = [
   {
     id: "actions",
     header: "Actions",
-    cell: ({ row }) => {
-      const [isOpen, setIsOpen] = useState(false);
-      const utils = api.useUtils();
-      return (
-        <>
-          <DeleteDialog
-            isOpen={isOpen}
-            setIsOpen={setIsOpen}
-            model={row.original}
-            onSuccess={() => void utils.model.getAllModels.invalidate()}
-          />
-          <Actions elem={row.original}>
-            <DropdownMenuItem onClick={() => setIsOpen(true)}>
-              Delete
-            </DropdownMenuItem>
-          </Actions>
-        </>
-      );
-    },
+    cell: ModelActions,
   },
 ];
+
+function ModelActions({ row }: { row: Row<Model> }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const deleteModel = api.model.deleteModel.useMutation();
+  const utils = api.useUtils();
+  return (
+    <>
+      <DeleteDialog
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        model={row.original}
+        onSuccess={() => void utils.model.getAllModels.invalidate()}
+      />
+      <Actions elem={row.original}>
+        <DropdownMenuItem onClick={() => setIsOpen(true)}>
+          Delete
+        </DropdownMenuItem>
+      </Actions>
+    </>
+  );
+}

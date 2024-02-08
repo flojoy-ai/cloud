@@ -141,9 +141,10 @@ export default function NewProjectButton({ workspace, models }: Props) {
                             {models.map((model) => (
                               <SelectItem value={model.id} key={model.id}>
                                 {model.name}
-                                <Badge className="ml-2" variant="outline">
-                                  {model.type}
-                                </Badge>
+                                {/* TODO: display model type */}
+                                {/* <Badge className="ml-2" variant="outline"> */}
+                                {/*   {model.type} */}
+                                {/* </Badge> */}
                               </SelectItem>
                             ))}
                           </SelectContent>

@@ -14,24 +14,21 @@ import {
 } from "~/components/ui/dialog";
 import { hardwareColumns } from "./columns";
 import { api } from "~/trpc/react";
-import { type SelectHardware } from "~/types/hardware";
 import { toast } from "sonner";
 import { ArchiveRestore } from "lucide-react";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { ControlledDataTable } from "~/components/ui/controlled-data-table";
 import { Project } from "~/schemas/public/Project";
+import { Hardware } from "~/schemas/public/Hardware";
 
 type Props = {
   workspaceId: string;
   project: Project;
-  initialHardware: SelectHardware[];
-  projectHardware: SelectHardware[];
+  initialHardware: Hardware[];
+  projectHardware: Hardware[];
 };
 
-const getSelectionState = (
-  hardware: SelectHardware[],
-  projectHardware: SelectHardware[],
-) =>
+const getSelectionState = (hardware: Hardware[], projectHardware: Hardware[]) =>
   Object.fromEntries(
     hardware.map((h, i) => [
       i.toString(),
@@ -56,7 +53,7 @@ const ImportHardware = ({
     { initialData: initialHardware },
   );
 
-  const setProjectHardware = api.project.addHardwaresToProject.useMutation();
+  const setProjectHardware = api.project.addHardwareToProject.useMutation();
 
   const table = useReactTable({
     data: hardware,
