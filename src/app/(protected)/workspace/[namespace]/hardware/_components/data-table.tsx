@@ -1,11 +1,11 @@
 "use client";
 
+import { Model } from "~/schemas/public/Model";
 import {
   type ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
-  Row,
   getExpandedRowModel,
 } from "@tanstack/react-table";
 
@@ -18,20 +18,19 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import { cn } from "~/lib/utils";
+import { RenderSubComponent } from "./hardware-models";
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
+interface DataTableProps<TData> {
+  columns: ColumnDef<TData>[];
   data: TData[];
   onRowClick?: (row: TData) => void;
-  renderSubComponent: (props: { row: Row<TData> }) => React.ReactElement;
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable({
   columns,
   data,
   onRowClick,
-  renderSubComponent,
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps<Model>) {
   const table = useReactTable({
     data,
     columns,
@@ -83,7 +82,8 @@ export function DataTable<TData, TValue>({
                 {row.getIsExpanded() && (
                   <TableRow>
                     <td colSpan={row.getVisibleCells().length}>
-                      {renderSubComponent({ row })}
+                      {/* {renderSubComponent({ row })} */}
+                      <RenderSubComponent row={row.original} />
                     </td>
                   </TableRow>
                 )}

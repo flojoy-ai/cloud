@@ -6,6 +6,8 @@ import CreateModel from "./create-model";
 import { Model } from "~/schemas/public/Model";
 import { useRouter } from "next/navigation";
 import { Row } from "@tanstack/react-table";
+import TreeVisualization from "../../model/_components/tree-visualization";
+import { Icons } from "~/components/icons";
 
 type Props = {
   workspaceId: string;
@@ -42,16 +44,23 @@ export default function HardwareModels({
         onRowClick={(row) =>
           router.push(`/workspace/${namespace}/model/${row.id}`)
         }
-        renderSubComponent={renderSubComponent}
+        // renderSubComponent={renderSubComponent}
       />
     </div>
   );
 }
 
-const renderSubComponent = ({ row }: { row: Row<Model> }) => {
+export const RenderSubComponent = ({ row }: { row: Model }) => {
+  const { data: model, isLoading } = api.model.getModelById.useQuery({
+    modelId: row.id,
+  });
+
+  if (isLoading) return <Icons.spinner className="animate-spin" />;
+  if (!model) return <div>Visualization is not available</div>;
+
   return (
-    <pre style={{ fontSize: "10px" }}>
-      <code>{JSON.stringify(row.original, null, 2)}</code>
-    </pre>
+    <div className="h-96 w-full">
+      <TreeVisualization tree={model} />
+    </div>
   );
 };
