@@ -55,7 +55,7 @@ export const measurement = z.object({
   hardwareId: hardwareId,
   testId: testId,
   storageProvider: storageProvider,
-  createdAt: z.date(),
+  createdAt: z.date().coerce(),
   isDeleted: z.boolean().nullable(),
 });
 
@@ -67,7 +67,7 @@ export const measurementInitializer = z.object({
   hardwareId: hardwareId,
   testId: testId,
   storageProvider: storageProvider,
-  createdAt: z.date().optional(),
+  createdAt: z.date().coerce().optional(),
   isDeleted: z.boolean().optional().nullable(),
 });
 
@@ -79,6 +79,6 @@ export const measurementMutator = z.object({
   hardwareId: hardwareId.optional(),
   testId: testId.optional(),
   storageProvider: storageProvider.optional(),
-  createdAt: z.date().optional(),
+  createdAt: z.date().coerce().optional(),
   isDeleted: z.boolean().optional().nullable(),
 });

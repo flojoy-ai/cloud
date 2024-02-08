@@ -13,7 +13,10 @@ const { tryParse } = require("tagged-comment-parser");
 const generateZodSchemas = makeGenerateZodSchemas({
   getZodSchemaMetadata: defaultGetZodSchemaMetadata,
   getZodIdentifierMetadata: defaultGetZodIdentifierMetadata,
-  zodTypeMap: defaultZodTypeMap,
+  zodTypeMap: {
+    ...defaultZodTypeMap,
+    "pg_catalog.timestamptz": "z.date().coerce()",
+  },
   castToSchema: false,
 });
 

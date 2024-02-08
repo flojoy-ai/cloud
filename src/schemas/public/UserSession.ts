@@ -30,17 +30,17 @@ export const userSessionId = z.string();
 export const userSession = z.object({
   id: userSessionId,
   userId: userId,
-  expiresAt: z.date(),
+  expiresAt: z.date().coerce(),
 });
 
 export const userSessionInitializer = z.object({
   id: userSessionId,
   userId: userId,
-  expiresAt: z.date(),
+  expiresAt: z.date().coerce(),
 });
 
 export const userSessionMutator = z.object({
   id: userSessionId.optional(),
   userId: userId.optional(),
-  expiresAt: z.date().optional(),
+  expiresAt: z.date().coerce().optional(),
 });

@@ -42,8 +42,8 @@ export const hardware = z.object({
   name: z.string(),
   workspaceId: workspaceId,
   modelId: modelId,
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: z.date().coerce(),
+  updatedAt: z.date().coerce(),
 });
 
 export const hardwareInitializer = z.object({
@@ -51,8 +51,8 @@ export const hardwareInitializer = z.object({
   name: z.string(),
   workspaceId: workspaceId,
   modelId: modelId,
-  createdAt: z.date().optional(),
-  updatedAt: z.date().optional(),
+  createdAt: z.date().coerce().optional(),
+  updatedAt: z.date().coerce().optional(),
 });
 
 export const hardwareMutator = z.object({
@@ -60,6 +60,6 @@ export const hardwareMutator = z.object({
   name: z.string().optional(),
   workspaceId: workspaceId.optional(),
   modelId: modelId.optional(),
-  createdAt: z.date().optional(),
-  updatedAt: z.date().optional(),
+  createdAt: z.date().coerce().optional(),
+  updatedAt: z.date().coerce().optional(),
 });

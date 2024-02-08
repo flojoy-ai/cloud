@@ -41,8 +41,8 @@ export const workspace = z.object({
   name: z.string(),
   namespace: z.string(),
   planType: planType,
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: z.date().coerce(),
+  updatedAt: z.date().coerce(),
 });
 
 export const workspaceInitializer = z.object({
@@ -50,8 +50,8 @@ export const workspaceInitializer = z.object({
   name: z.string(),
   namespace: z.string(),
   planType: planType,
-  createdAt: z.date().optional(),
-  updatedAt: z.date().optional(),
+  createdAt: z.date().coerce().optional(),
+  updatedAt: z.date().coerce().optional(),
 });
 
 export const workspaceMutator = z.object({
@@ -59,6 +59,6 @@ export const workspaceMutator = z.object({
   name: z.string().optional(),
   namespace: z.string().optional(),
   planType: planType.optional(),
-  createdAt: z.date().optional(),
-  updatedAt: z.date().optional(),
+  createdAt: z.date().coerce().optional(),
+  updatedAt: z.date().coerce().optional(),
 });

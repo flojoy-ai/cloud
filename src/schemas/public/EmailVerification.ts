@@ -38,7 +38,7 @@ export const emailVerification = z.object({
   code: z.string(),
   userId: userId,
   email: z.string(),
-  expiresAt: z.date(),
+  expiresAt: z.date().coerce(),
 });
 
 export const emailVerificationInitializer = z.object({
@@ -46,7 +46,7 @@ export const emailVerificationInitializer = z.object({
   code: z.string(),
   userId: userId,
   email: z.string(),
-  expiresAt: z.date(),
+  expiresAt: z.date().coerce(),
 });
 
 export const emailVerificationMutator = z.object({
@@ -54,5 +54,5 @@ export const emailVerificationMutator = z.object({
   code: z.string().optional(),
   userId: userId.optional(),
   email: z.string().optional(),
-  expiresAt: z.date().optional(),
+  expiresAt: z.date().coerce().optional(),
 });

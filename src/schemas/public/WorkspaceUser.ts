@@ -32,19 +32,19 @@ export const workspaceUser = z.object({
   userId: userId,
   workspaceId: workspaceId,
   role: workspaceRole,
-  createdAt: z.date(),
+  createdAt: z.date().coerce(),
 });
 
 export const workspaceUserInitializer = z.object({
   userId: userId,
   workspaceId: workspaceId,
   role: workspaceRole,
-  createdAt: z.date().optional(),
+  createdAt: z.date().coerce().optional(),
 });
 
 export const workspaceUserMutator = z.object({
   userId: userId.optional(),
   workspaceId: workspaceId.optional(),
   role: workspaceRole.optional(),
-  createdAt: z.date().optional(),
+  createdAt: z.date().coerce().optional(),
 });

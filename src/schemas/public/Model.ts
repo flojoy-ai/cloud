@@ -34,19 +34,19 @@ export const model = z.object({
   id: modelId,
   name: z.string(),
   workspaceId: workspaceId,
-  createdAt: z.date(),
+  createdAt: z.date().coerce(),
 });
 
 export const modelInitializer = z.object({
   id: modelId,
   name: z.string(),
   workspaceId: workspaceId,
-  createdAt: z.date().optional(),
+  createdAt: z.date().coerce().optional(),
 });
 
 export const modelMutator = z.object({
   id: modelId.optional(),
   name: z.string().optional(),
   workspaceId: workspaceId.optional(),
-  createdAt: z.date().optional(),
+  createdAt: z.date().coerce().optional(),
 });

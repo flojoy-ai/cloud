@@ -42,8 +42,8 @@ export const test = z.object({
   measurementType: measurementType,
   name: z.string(),
   projectId: projectId,
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: z.date().coerce(),
+  updatedAt: z.date().coerce(),
 });
 
 export const testInitializer = z.object({
@@ -51,8 +51,8 @@ export const testInitializer = z.object({
   measurementType: measurementType,
   name: z.string(),
   projectId: projectId,
-  createdAt: z.date().optional(),
-  updatedAt: z.date().optional(),
+  createdAt: z.date().coerce().optional(),
+  updatedAt: z.date().coerce().optional(),
 });
 
 export const testMutator = z.object({
@@ -60,6 +60,6 @@ export const testMutator = z.object({
   measurementType: measurementType.optional(),
   name: z.string().optional(),
   projectId: projectId.optional(),
-  createdAt: z.date().optional(),
-  updatedAt: z.date().optional(),
+  createdAt: z.date().coerce().optional(),
+  updatedAt: z.date().coerce().optional(),
 });
