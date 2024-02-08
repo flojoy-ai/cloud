@@ -1,10 +1,10 @@
 import { measurementDataSchema } from "~/types/data";
-import { selectHardwareSchema } from "./hardware";
 import {
   measurement,
   measurementInitializer,
 } from "~/schemas/public/Measurement";
 import { type z } from "zod";
+import { hardware } from "~/schemas/public/Hardware";
 
 export const insertMeasurementSchema = measurementInitializer
   .pick({
@@ -20,7 +20,7 @@ export const insertMeasurementSchema = measurementInitializer
   });
 
 export const selectMeasurementSchema = measurement.extend({
-  hardware: selectHardwareSchema,
+  hardware: hardware,
 });
 
 export type SelectMeasurement = z.infer<typeof selectMeasurementSchema>;

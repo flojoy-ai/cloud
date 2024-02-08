@@ -53,7 +53,7 @@ const ImportHardware = ({
     { initialData: initialHardware },
   );
 
-  const setProjectHardware = api.project.addHardwareToProject.useMutation();
+  const setProjectHardware = api.project.setProjectHardwares.useMutation();
 
   const table = useReactTable({
     data: hardware,
