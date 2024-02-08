@@ -33,7 +33,7 @@ NEXT_PUBLIC_URL_ORIGIN="<cloud domain>"
 ```
 
 - Build and deploy
-  
+
 ```sh
     zapier build
     zapier upload
