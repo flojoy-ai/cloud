@@ -8,16 +8,16 @@ import { Checkbox } from "~/components/ui/checkbox";
 import { Label } from "~/components/ui/label";
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/react";
-import { type MeasurementWithHardware } from "~/types/measurement";
+import { SelectMeasurement } from "~/types/measurement";
 import { Check, X, Upload } from "lucide-react";
 
 type Props = {
   hardwareId: string;
   namespace: string;
-  initialMeasurements: MeasurementWithHardware[];
+  initialMeasurements: SelectMeasurement[];
 };
 
-const computePassingStatus = (measurements: MeasurementWithHardware[]) => {
+const computePassingStatus = (measurements: SelectMeasurement[]) => {
   const latest = _.values(_.groupBy(measurements, (meas) => meas.testId)).map(
     (meas) => meas[0]!,
   );

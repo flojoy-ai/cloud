@@ -284,9 +284,6 @@ export const hardwareRouter = createTRPCRouter({
         query = query.where("hardware.modelId", "=", input.modelId);
       }
 
-      console.log(input);
-      console.log(query.compile());
-
       const data = query.execute();
 
       return data;
