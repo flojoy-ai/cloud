@@ -9,7 +9,6 @@ import { workspaceAccessMiddleware } from "./workspace";
 import {
   getHardwareById,
   getHardwareTree,
-  getHardwaresByIds,
   getModelById,
   getModelComponents,
   markUpdatedAt,
@@ -179,7 +178,6 @@ export const hardwareRouter = createTRPCRouter({
             });
           }
 
-          // FIXME: Filter doesn't work
           const hardwares = await db
             .selectFrom("hardware")
             .selectAll("hardware")
@@ -278,7 +276,6 @@ export const hardwareRouter = createTRPCRouter({
         )
         .$narrowType<{ model: Model }>();
 
-      // FIXME: Filtering doesn't work yet
       if (input.onlyAvailable) {
         query = query.where(notInUse);
       }
@@ -287,7 +284,12 @@ export const hardwareRouter = createTRPCRouter({
         query = query.where("hardware.modelId", "=", input.modelId);
       }
 
-      return query.execute();
+      console.log(input);
+      console.log(query.compile());
+
+      const data = query.execute();
+
+      return data;
     }),
 
   deleteHardwareById: workspaceProcedure

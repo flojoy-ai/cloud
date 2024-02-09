@@ -14,6 +14,7 @@ import { Project } from "~/schemas/public/Project";
 
 type Props = {
   hardwares: (Hardware & { model: Model; projects: Project[] })[];
+  models: Model[];
   modelHardware: Hardware[];
   workspaceId: string;
   namespace: string;
@@ -24,6 +25,7 @@ const AllHardwares = ({
   workspaceId,
   hardwares: initialHardwares,
   modelHardware,
+  models: initialModels,
   namespace,
   project,
 }: Props) => {
@@ -36,9 +38,14 @@ const AllHardwares = ({
       initialData: initialHardwares,
     },
   );
-  const { data: models } = api.model.getAllModels.useQuery({
-    workspaceId,
-  });
+  const { data: models } = api.model.getAllModels.useQuery(
+    {
+      workspaceId,
+    },
+    {
+      initialData: initialModels,
+    },
+  );
 
   const [searchTerm, setSearchTerm] = useState("");
 

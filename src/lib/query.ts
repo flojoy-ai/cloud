@@ -35,9 +35,9 @@ export const notInUse = ({
 }: ExpressionBuilder<DB, "hardware">) => {
   return not(
     exists(
-      selectFrom("hardware_relation")
-        .select("parentHardwareId")
-        .where("childHardwareId", "=", "hardware.id"),
+      selectFrom("hardware_relation as hr")
+        .selectAll()
+        .whereRef("hr.childHardwareId", "=", "hardware.id"),
     ),
   );
 };

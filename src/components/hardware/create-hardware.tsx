@@ -85,7 +85,6 @@ const CreateHardware = ({
     workspaceId: workspaceId,
     onlyAvailable: true,
   });
-  console.log(hardware);
 
   const form = useForm<FormSchema>({
     resolver: zodResolver(insertHardwareSchema),

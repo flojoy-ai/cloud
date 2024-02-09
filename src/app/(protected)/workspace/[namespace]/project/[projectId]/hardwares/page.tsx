@@ -24,6 +24,9 @@ const DevicesView = async ({
     workspaceId,
     modelId: project.modelId,
   });
+  const models = await api.model.getAllModels.query({
+    workspaceId,
+  });
 
   return (
     <div>
@@ -41,6 +44,7 @@ const DevicesView = async ({
 
       <AllHardwares
         hardwares={hardwares}
+        models={models}
         modelHardware={modelHardware}
         workspaceId={workspaceId}
         project={project}
