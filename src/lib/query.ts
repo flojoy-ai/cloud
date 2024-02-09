@@ -1,11 +1,12 @@
 import type DB from "~/schemas/Database";
 import { type ExpressionBuilder, type Kysely } from "kysely";
-import { jsonObjectFrom } from "kysely/helpers/postgres";
+import { jsonArrayFrom, jsonObjectFrom } from "kysely/helpers/postgres";
 import { type Model } from "~/schemas/public/Model";
 import { db } from "~/server/db";
 import { ModelTree } from "~/types/model";
 import { Hardware } from "~/schemas/public/Hardware";
 import { HardwareTree } from "~/types/hardware";
+import { Project } from "~/schemas/public/Project";
 
 export async function getProjectById(id: string) {
   return await db
@@ -27,14 +28,29 @@ export async function getHardwareById(id: string) {
     .executeTakeFirst();
 }
 
+export const notInUse = ({
+  not,
+  exists,
+  selectFrom,
+}: ExpressionBuilder<DB, "hardware">) => {
+  return not(
+    exists(
+      selectFrom("hardware_relation")
+        .select("parentHardwareId")
+        .where("childHardwareId", "=", "hardware.id"),
+    ),
+  );
+};
+
 export async function getHardwaresByIds(ids: string[]) {
-  return await db
+  let query = db
     .selectFrom("hardware")
     .selectAll("hardware")
     .where("hardware.id", "in", ids)
     .select((eb) => withHardwareModel(eb))
-    .$narrowType<{ model: Model }>()
-    .execute();
+    .$narrowType<{ model: Model }>();
+
+  return await query.execute();
 }
 
 export async function getModelById(id: string) {
@@ -172,6 +188,14 @@ export function buildHardwareTree(root: Hardware, edges: HardwareEdge[]) {
   return nodes.get(root.id)!;
 }
 
+export async function getModelComponents(id: string) {
+  return await db
+    .selectFrom("model_relation")
+    .select(["childModelId as modelId", "count"])
+    .where("parentModelId", "=", id)
+    .execute();
+}
+
 export async function markUpdatedAt(
   db: Kysely<DB>,
   table: "project" | "hardware" | "test" | "workspace",
@@ -213,40 +237,12 @@ export function withHardware(eb: ExpressionBuilder<DB, "measurement">) {
   ).as("hardware");
 }
 
-// export function partsFrom(modelId: Column, name: Column, count: Column) {
-//   return sql<
-//     SystemModelPart[]
-//   >`json_agg(json_build_object('modelId', ${modelId}, 'name', ${name}, 'count', ${count}))`;
-// }
-//
-// export async function getSystemModelParts(modelId: string) {
-//   const sq = db
-//     .select({ id: modelTable.id, name: modelTable.name })
-//     .from(modelTable)
-//     .innerJoin(deviceModelTable, eq(deviceModelTable.id, modelTable.id))
-//     .as("sq");
-//
-//   const [parts] = await db
-//     .select({
-//       parts: partsFrom(
-//         deviceModelTable.id,
-//         sq.name,
-//         systemModelDeviceModelTable.count,
-//       ),
-//     })
-//     .from(modelTable)
-//     .innerJoin(systemModelTable, eq(systemModelTable.id, modelTable.id))
-//     .innerJoin(
-//       systemModelDeviceModelTable,
-//       eq(systemModelTable.id, systemModelDeviceModelTable.systemModelId),
-//     )
-//     .innerJoin(
-//       deviceModelTable,
-//       eq(deviceModelTable.id, systemModelDeviceModelTable.deviceModelId),
-//     )
-//     .innerJoin(sq, eq(sq.id, deviceModelTable.id))
-//     .groupBy(systemModelTable.id)
-//     .where(eq(modelTable.id, modelId));
-//
-//   return parts?.parts;
-// }
+export function withProjects(eb: ExpressionBuilder<DB, "hardware">) {
+  return jsonArrayFrom(
+    eb
+      .selectFrom("project_hardware as ph")
+      .whereRef("ph.hardwareId", "=", "hardware.id")
+      .innerJoin("project", "ph.projectId", "project.id")
+      .selectAll("project"),
+  ).as("projects");
+}

@@ -3,7 +3,6 @@ import { z } from "zod";
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
 import _ from "lodash";
 import { checkWorkspaceAccess } from "~/lib/auth";
-// import { getSystemModelParts } from "~/lib/query";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
 import { workspaceAccessMiddleware } from "./workspace";
@@ -12,12 +11,19 @@ import {
   getHardwareTree,
   getHardwaresByIds,
   getModelById,
-  getModelTree,
+  getModelComponents,
   markUpdatedAt,
+  notInUse,
+  withHardwareModel,
+  withProjects,
 } from "~/lib/query";
 import { hardwareTreeSchema, insertHardwareSchema } from "~/types/hardware";
 import { generateDatabaseId } from "~/lib/id";
 import { hardware } from "~/schemas/public/Hardware";
+import { Model, model } from "~/schemas/public/Model";
+import { project } from "~/schemas/public/Project";
+import { ExpressionBuilder } from "kysely";
+import DB from "~/schemas/public/PublicSchema";
 
 export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
@@ -161,20 +167,40 @@ export const hardwareRouter = createTRPCRouter({
             message: "Model not found",
           });
         }
-        const modelTree = await getModelTree(model);
 
-        if (modelTree.components.length > 0) {
-          const hardwares = await getHardwaresByIds(
-            components.map((c) => c.hardwareId),
-          );
+        const modelComponents = await getModelComponents(model.id);
+
+        if (modelComponents.length > 0) {
+          const ids = components.map((c) => c.hardwareId);
+          if (_.uniq(ids).length !== ids.length) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Duplicate hardware devices",
+            });
+          }
+
+          // FIXME: Filter doesn't work
+          const hardwares = await db
+            .selectFrom("hardware")
+            .selectAll("hardware")
+            .where("hardware.id", "in", ids)
+            .where(notInUse)
+            .execute();
+
+          if (hardwares.length !== components.length) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Some hardware devices are already in use!",
+            });
+          }
 
           const modelCount = _.countBy(hardwares, (h) => h.modelId);
-
-          const satisfy = _.every(
-            modelTree.components.map((c) => c.count === modelCount[c.model.id]),
+          const matches = _.every(
+            modelComponents,
+            (c) => modelCount[c.modelId] === c.count,
           );
 
-          if (!satisfy) {
+          if (!matches) {
             throw new TRPCError({
               code: "BAD_REQUEST",
               message: "Components do not satisfy model requirements",
@@ -189,6 +215,16 @@ export const hardwareRouter = createTRPCRouter({
                 childHardwareId: c.hardwareId,
               })),
             )
+            .execute();
+        }
+
+        if (input.projectId !== undefined) {
+          await tx
+            .insertInto("project_hardware")
+            .values({
+              hardwareId: hardware.id,
+              projectId: input.projectId,
+            })
             .execute();
         }
 
@@ -219,15 +255,39 @@ export const hardwareRouter = createTRPCRouter({
     })
     .input(deviceQueryOptions)
     .use(workspaceAccessMiddleware)
-    .output(z.array(hardware))
+    .output(
+      z.array(hardware.extend({ model: model, projects: project.array() })),
+    )
     .query(async ({ input, ctx }) => {
-      const hardwares = await ctx.db
+      let query = ctx.db
         .selectFrom("hardware")
-        .selectAll()
+        .selectAll("hardware")
         .where("hardware.workspaceId", "=", input.workspaceId)
-        .execute();
+        .select((eb) => [withHardwareModel(eb), withProjects(eb)])
+        .$if(input.projectId !== undefined, (qb) =>
+          qb.innerJoin(
+            // FIXME: Kysely can't infer the type of this expression builder for some reason
+            (eb: ExpressionBuilder<DB, "hardware">) =>
+              eb
+                .selectFrom("project_hardware")
+                .select("project_hardware.hardwareId")
+                .where("project_hardware.projectId", "=", input.projectId!)
+                .as("ph"),
+            (join) => join.onRef("ph.hardwareId", "=", "hardware.id"),
+          ),
+        )
+        .$narrowType<{ model: Model }>();
 
-      return hardwares;
+      // FIXME: Filtering doesn't work yet
+      if (input.onlyAvailable) {
+        query = query.where(notInUse);
+      }
+
+      if (input.modelId) {
+        query = query.where("hardware.modelId", "=", input.modelId);
+      }
+
+      return query.execute();
     }),
 
   deleteHardwareById: workspaceProcedure

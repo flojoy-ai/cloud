@@ -16,7 +16,7 @@ import { Badge } from "~/components/ui/badge";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { publicInsertSystemSchema } from "~/types/hardware";
+import { insertHardwareSchema } from "~/types/hardware";
 
 import {
   Dialog,
@@ -32,7 +32,6 @@ import {
 import { Input } from "~/components/ui/input";
 import { api } from "~/trpc/react";
 import { z } from "zod";
-import { type SelectSystemModel } from "~/types/model";
 import {
   Select,
   SelectContent,
@@ -40,38 +39,41 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import { Model } from "~/schemas/public/Model";
+import { ModelTree } from "~/types/model";
+import { Icons } from "../icons";
 
-const systemFormSchema = publicInsertSystemSchema.extend({
-  deviceIds: z.object({ value: z.string() }).array(),
-});
-
-type FormSchema = z.infer<typeof systemFormSchema>;
+type FormSchema = z.infer<typeof insertHardwareSchema>;
 
 type Props = {
   workspaceId: string;
-  model?: SelectSystemModel;
+  model?: Model;
+  models?: Model[];
   projectId?: string;
-  systemModels?: SelectSystemModel[];
   children?: React.ReactNode;
 };
 
-const getSystemPartModels = (model: SelectSystemModel) =>
-  model.parts.flatMap((m) => new Array<string>(m.count).fill(m.modelId));
+const getComponentModelIds = (tree: ModelTree) => {
+  // TODO: Only get depth 1
+  return tree.components.flatMap((m) =>
+    new Array<string>(m.count).fill(m.model.id),
+  );
+};
 
-const CreateSystem = ({
+const CreateHardware = ({
   children,
   workspaceId,
   model,
-  systemModels,
+  models,
   projectId,
 }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const utils = api.useUtils();
   const [deviceModels, setDeviceModels] = useState<string[] | undefined>(
-    model ? getSystemPartModels(model) : undefined,
+    undefined,
   );
 
-  const createSystem = api.hardware.createSystem.useMutation({
+  const createHardware = api.hardware.createHardware.useMutation({
     onSuccess: () => {
       void utils.hardware.getAllHardware.invalidate();
 
@@ -79,52 +81,57 @@ const CreateSystem = ({
     },
   });
 
-  const { data: devices } = api.hardware.getAllHardware.useQuery({
+  const { data: hardware } = api.hardware.getAllHardware.useQuery({
     workspaceId: workspaceId,
+    onlyAvailable: true,
   });
-
-  const { data: models } = api.model.getAllModels.useQuery({
-    workspaceId: workspaceId,
-  });
+  console.log(hardware);
 
   const form = useForm<FormSchema>({
-    resolver: zodResolver(systemFormSchema),
+    resolver: zodResolver(insertHardwareSchema),
     defaultValues: {
       workspaceId: workspaceId,
       modelId: model?.id,
       projectId: projectId,
-      deviceIds: [],
+      components: [],
     },
   });
 
+  const modelId = form.watch("modelId");
+
+  // TODO: Server fetch this somehow?
+  // Maybe attach the immediate children to each model only
+  const { data: modelTree, isLoading: treeLoading } =
+    api.model.getModelById.useQuery(
+      {
+        modelId: modelId,
+      },
+      { enabled: !!modelId },
+    );
+
   useEffect(() => {
-    if (model !== undefined || form.watch("modelId") === undefined) {
+    if (modelId === undefined || modelTree === undefined) {
       return;
     }
 
-    if (systemModels === undefined) {
+    if (models === undefined) {
       throw new Error(
         "Must define system models to pick from if no model is passed",
       );
     }
 
-    const m = systemModels.find((m) => m.id === form.watch("modelId"));
-    if (m === undefined) {
-      throw new Error("System model not found, this shouldn't happen");
-    }
-
-    const deviceModels = getSystemPartModels(m);
+    const deviceModels = getComponentModelIds(modelTree);
 
     form.setValue(
-      "deviceIds",
+      "components",
       deviceModels.map((_) => ({
-        value: "",
+        hardwareId: "",
       })),
     );
     setDeviceModels(deviceModels);
-  }, [form.watch("modelId")]);
+  }, [modelId, form, modelTree, models]);
 
-  if (!devices || !models) {
+  if (!hardware || !models) {
     return (
       <Button variant="default" size="sm" disabled={true}>
         {children}
@@ -133,18 +140,11 @@ const CreateSystem = ({
   }
 
   function onSubmit(values: FormSchema) {
-    const deviceIds = values.deviceIds.map((d) => d.value);
-    toast.promise(
-      createSystem.mutateAsync({
-        ...values,
-        deviceIds,
-      }),
-      {
-        loading: "Creating your system instance...",
-        success: "Your system is ready.",
-        error: (err) => `${err}`,
-      },
-    );
+    toast.promise(createHardware.mutateAsync(values), {
+      loading: "Creating your hardware instance...",
+      success: "Your hardware is ready.",
+      error: (err) => `${err}`,
+    });
   }
 
   return (
@@ -164,9 +164,9 @@ const CreateSystem = ({
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Register a new system</DialogTitle>
+          <DialogTitle>Register new hardware</DialogTitle>
           <DialogDescription>
-            Which hardware system of yours do you want to register?
+            Which hardware of yours do you want to register?
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -176,7 +176,7 @@ const CreateSystem = ({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>System Identifier</FormLabel>
+                  <FormLabel>Identifier</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="e.g. SN4321"
@@ -185,14 +185,14 @@ const CreateSystem = ({
                     />
                   </FormControl>
                   <FormDescription>
-                    How do you identity this system instance? This is usually a
-                    serial number like SN4321.
+                    How do you identify this hardware instance? This is usually
+                    a serial number like SN4321.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            {model === undefined && systemModels !== undefined && (
+            {model === undefined && models !== undefined && (
               <FormField
                 control={form.control}
                 name="modelId"
@@ -208,7 +208,7 @@ const CreateSystem = ({
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {systemModels.map((m) => (
+                          {models.map((m) => (
                             <SelectItem value={m.id} key={m.id}>
                               {m.name}
                             </SelectItem>
@@ -225,61 +225,65 @@ const CreateSystem = ({
               />
             )}
 
-            {form.watch("modelId") && deviceModels !== undefined && (
-              <div>
-                <FormLabel>Parts</FormLabel>
-                <FormDescription>
-                  What are the device instances that make up this system?
-                </FormDescription>
+            {modelId && treeLoading ? (
+              <Icons.spinner className="mx-auto animate-spin" />
+            ) : (
+              modelId &&
+              deviceModels !== undefined &&
+              deviceModels.length > 0 && (
                 <div>
-                  <div className="mt-4 flex items-center gap-2">
-                    <div className="flex w-fit flex-col gap-y-6">
-                      {deviceModels.sort().map((part, index) => (
-                        <Badge key={index}>
-                          {models.find((m) => m.id === part)?.name}
-                        </Badge>
-                      ))}
-                    </div>
-                    <div className="flex w-fit flex-col gap-y-1.5">
-                      {deviceModels.sort().map((part, index) => (
-                        <FormField
-                          control={form.control}
-                          key={`${part}-${index}`}
-                          name={`deviceIds.${index}.value` as const}
-                          render={({ field }) => (
-                            <FormItem className="flex items-center gap-2">
-                              <FormControl>
-                                <Select
-                                  value={field.value}
-                                  onValueChange={field.onChange}
-                                >
-                                  <SelectTrigger className="w-[180px]">
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {devices
-                                      .filter((d) => d.modelId === part)
-                                      .map((device) => (
-                                        <SelectItem
-                                          value={device.id}
-                                          key={device.id}
-                                        >
-                                          {device.name}
-                                        </SelectItem>
-                                      ))}
-                                  </SelectContent>
-                                </Select>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      ))}
+                  <FormLabel>Parts</FormLabel>
+                  <FormDescription>
+                    What are the device instances that make up this system?
+                  </FormDescription>
+                  <div>
+                    <div className="mt-4 flex items-center gap-2">
+                      <div className="flex w-fit flex-col gap-y-6">
+                        {deviceModels.sort().map((part, index) => (
+                          <Badge key={index}>
+                            {models.find((m) => m.id === part)?.name}
+                          </Badge>
+                        ))}
+                      </div>
+                      <div className="flex w-fit flex-col gap-y-1.5">
+                        {deviceModels.sort().map((part, index) => (
+                          <FormField
+                            control={form.control}
+                            key={`${part}-${index}`}
+                            name={`components.${index}.hardwareId` as const}
+                            render={({ field }) => (
+                              <FormItem className="flex items-center gap-2">
+                                <FormControl>
+                                  <Select
+                                    value={field.value}
+                                    onValueChange={field.onChange}
+                                  >
+                                    <SelectTrigger className="w-[180px]">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {hardware
+                                        .filter((hw) => hw.modelId === part)
+                                        .map((hw) => (
+                                          <SelectItem value={hw.id} key={hw.id}>
+                                            {hw.name}
+                                          </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                  </Select>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              )
             )}
+
             <DialogFooter className="">
               <DialogClose asChild>
                 <Button type="button" variant="secondary">
@@ -295,4 +299,4 @@ const CreateSystem = ({
   );
 };
 
-export default CreateSystem;
+export default CreateHardware;

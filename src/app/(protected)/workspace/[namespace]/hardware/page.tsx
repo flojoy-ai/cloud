@@ -24,6 +24,10 @@ export default async function HardwareInventory({
     workspaceId,
   });
 
+  const hardware = await api.hardware.getAllHardware.query({
+    workspaceId,
+  });
+
   return (
     <div className="container max-w-screen-2xl">
       {searchParams.back && <Button>Back</Button>}
@@ -46,13 +50,11 @@ export default async function HardwareInventory({
 
       <Separator />
 
-      {/* <HardwareInstances */}
-      {/*   devices={devices} */}
-      {/*   systems={systems} */}
-      {/*   deviceModels={deviceModels} */}
-      {/*   systemModels={systemModels} */}
-      {/*   workspaceId={workspaceId} */}
-      {/* /> */}
+      <HardwareInstances
+        hardware={hardware}
+        models={models}
+        workspaceId={workspaceId}
+      />
       <div className="py-4" />
     </div>
   );

@@ -157,7 +157,7 @@ const Actions = ({ elem, children }: ActionsProps) => {
 //   },
 // ];
 
-export const systemColumns: ColumnDef<
+export const hardwareColumns: ColumnDef<
   Hardware & { projects: Project[]; model: Model }
 >[] = [
   {

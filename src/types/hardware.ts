@@ -11,6 +11,7 @@ export const insertHardwareSchema = hardware
   .extend({
     name: z.string().min(1),
     components: z.array(hardwareComponentSchema.omit({ name: true })),
+    projectId: z.string().optional(),
   });
 
 export type HardwareTree = Pick<Hardware, "name" | "id"> & {
