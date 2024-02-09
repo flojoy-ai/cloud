@@ -9,17 +9,20 @@ import { Plus } from "lucide-react";
 import { Model } from "~/schemas/public/Model";
 import { Hardware } from "~/schemas/public/Hardware";
 import { Project } from "~/schemas/public/Project";
+import { useRouter } from "next/navigation";
 
 type Props = {
   hardware: (Hardware & { model: Model; projects: Project[] })[];
   models: Model[];
   workspaceId: string;
+  namespace: string;
 };
 
 export default function HardwareInstances({
   hardware: initialData,
   models,
   workspaceId,
+  namespace,
 }: Props) {
   const { data: hardware } = api.hardware.getAllHardware.useQuery(
     {
@@ -27,18 +30,27 @@ export default function HardwareInstances({
     },
     { initialData },
   );
+  const router = useRouter();
 
   return (
     <div className="">
       <div className="py-2" />
-      <h1 className="text-2xl font-bold">Hardware</h1>
+      <h1 className="text-xl font-bold">Hardware</h1>
+      <div className="py-1" />
       <CreateHardware workspaceId={workspaceId} models={models}>
         <div className="flex items-center gap-1">
           <Plus size={20} />
           <div>Create</div>
         </div>
       </CreateHardware>
-      <DataTable columns={hardwareColumns} data={hardware} />
+      <div className="py-4" />
+      <DataTable
+        columns={hardwareColumns}
+        data={hardware}
+        onRowClick={(row) =>
+          router.push(`/workspace/${namespace}/hardware/${row.id}`)
+        }
+      />
       <div className="py-4" />
     </div>
   );

@@ -32,7 +32,7 @@ export default function HardwareModels({
     <div>
       <div className="py-2" />
 
-      <h1 className="text-2xl font-bold">Hardware Models</h1>
+      <h1 className="text-xl font-bold">Models</h1>
       <div className="py-1" />
       <CreateModel workspaceId={workspaceId} models={models} />
       <div className="py-4" />
@@ -43,7 +43,6 @@ export default function HardwareModels({
         onRowClick={(row) =>
           router.push(`/workspace/${namespace}/model/${row.id}`)
         }
-        // renderSubComponent={renderSubComponent}
       />
     </div>
   );
@@ -54,7 +53,7 @@ export const RenderSubComponent = ({ row }: { row: Model }) => {
     modelId: row.id,
   });
 
-  if (isLoading) return <Icons.spinner className="animate-spin" />;
+  if (isLoading) return <Icons.spinner className="mx-auto animate-spin" />;
   if (!model) return <div>Visualization is not available</div>;
 
   return (

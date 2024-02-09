@@ -72,6 +72,7 @@ type HardwareEdge = {
   name: string;
   hardwareId: string;
   parentHardwareId: string;
+  modelId: string;
 };
 
 export async function getModelTree(model: Model): Promise<ModelTree> {
@@ -119,6 +120,7 @@ export async function getHardwareTree(
           "parentHardwareId",
           "childHardwareId as hardwareId",
           "hardware.name as name",
+          "hardware.modelId as modelId",
         ])
         .where("parentHardwareId", "=", hardware.id)
         .unionAll((eb) =>
@@ -134,6 +136,7 @@ export async function getHardwareTree(
               "hr.parentHardwareId",
               "hr.childHardwareId as hardwareId",
               "hardware.name as name",
+              "hardware.modelId as modelId",
             ]),
         ),
     )
@@ -168,7 +171,7 @@ export function buildModelTree(root: Model, edges: ModelEdge[]) {
 
 export function buildHardwareTree(root: Hardware, edges: HardwareEdge[]) {
   const nodes = new Map<string, HardwareTree>();
-  nodes.set(root.id, { id: root.id, name: root.name, components: [] });
+  nodes.set(root.id, { ...root, components: [] });
 
   for (const edge of edges) {
     let parent = nodes.get(edge.parentHardwareId);
@@ -178,7 +181,12 @@ export function buildHardwareTree(root: Hardware, edges: HardwareEdge[]) {
     let cur = nodes.get(edge.hardwareId);
 
     if (!cur) {
-      cur = { id: edge.hardwareId, name: edge.name, components: [] };
+      cur = {
+        id: edge.hardwareId,
+        name: edge.name,
+        modelId: edge.modelId,
+        components: [],
+      };
       nodes.set(edge.hardwareId, cur);
     }
 

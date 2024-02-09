@@ -48,12 +48,15 @@ export default async function HardwareInventory({
         namespace={params.namespace}
       />
 
+      <div className="py-4" />
+
       <Separator />
 
       <HardwareInstances
         hardware={hardware}
         models={models}
         workspaceId={workspaceId}
+        namespace={params.namespace}
       />
       <div className="py-4" />
     </div>

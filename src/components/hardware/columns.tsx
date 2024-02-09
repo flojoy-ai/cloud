@@ -62,101 +62,6 @@ const Actions = ({ elem, children }: ActionsProps) => {
   );
 };
 
-// export const deviceColumns: ColumnDef<Hardware & { projects: Project[] }>[] = [
-//   {
-//     accessorKey: "name",
-//     header: "Device Name",
-//     cell: ({ row }) => {
-//       return <Badge variant="secondary">{row.original.name}</Badge>;
-//     },
-//   },
-//   {
-//     accessorKey: "model",
-//     header: "Model",
-//     cell: ({ row }) => {
-//       return <Badge>{row.original.model.name}</Badge>;
-//     },
-//   },
-//
-//   {
-//     accessorKey: "project",
-//     header: "Project",
-//     cell: ({ row }) => {
-//       const projects = row.original.projects;
-//
-//       return (
-//         <div>
-//           {projects.map((p) => (
-//             <Badge key={p.id} variant="outline">
-//               {p.name}
-//             </Badge>
-//           ))}
-//         </div>
-//       );
-//     },
-//   },
-//   {
-//     id: "actions",
-//     header: "Actions",
-//     cell: ({ row }) => {
-//       const [isOpen, setIsOpen] = useState(false);
-//       const deleteHardware = api.hardware.deleteHardwareById.useMutation();
-//       const utils = api.useUtils();
-//       return (
-//         <>
-//           <AlertDialog open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
-//             <AlertDialogContent>
-//               <AlertDialogHeader>
-//                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-//                 <AlertDialogDescription>
-//                   This action cannot be undone. This will permanently delete
-//                   your device instance and remove your data from our servers.{" "}
-//                   <br /> This device instance can only be deleted if it is{" "}
-//                   <b>not within a system.</b>
-//                 </AlertDialogDescription>
-//               </AlertDialogHeader>
-//               <AlertDialogContent>
-//                 {/* TODO: Show a list of systems that use this device*/}
-//               </AlertDialogContent>
-//               <AlertDialogFooter>
-//                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-//                 <AlertDialogAction
-//                   onClick={() =>
-//                     toast.promise(
-//                       deleteHardware.mutateAsync(
-//                         {
-//                           hardwareId: row.original.id,
-//                         },
-//                         {
-//                           onSuccess: () => {
-//                             void utils.hardware.getAllDevices.invalidate();
-//                           },
-//                         },
-//                       ),
-//                       {
-//                         loading: "Deleting your device instance...",
-//                         success: "Your device instance has been deleted.",
-//                         error: "Something went wrong :(",
-//                       },
-//                     )
-//                   }
-//                 >
-//                   Delete
-//                 </AlertDialogAction>
-//               </AlertDialogFooter>
-//             </AlertDialogContent>
-//           </AlertDialog>
-//           <Actions elem={row.original}>
-//             <DropdownMenuItem onClick={() => setIsOpen(true)}>
-//               Delete
-//             </DropdownMenuItem>
-//           </Actions>
-//         </>
-//       );
-//     },
-//   },
-// ];
-
 export const hardwareColumns: ColumnDef<
   Hardware & { projects: Project[]; model: Model }
 >[] = [
@@ -352,22 +257,6 @@ export const modelColumns: ColumnDef<Model>[] = [
       return <Badge>{row.original.name}</Badge>;
     },
   },
-  // {
-  //   accessorKey: "parts",
-  //   header: "Components",
-  //   cell: ({ row }) => {
-  //     return (
-  //       <div className="flex flex-col gap-2">
-  //         {row.original.components.map((p) => (
-  //           <div className="flex gap-2" key={p.name}>
-  //             <Badge>{p.name}</Badge>
-  //             <div className="font-medium">x{p.count}</div>
-  //           </div>
-  //         ))}
-  //       </div>
-  //     );
-  //   },
-  // },
   {
     id: "actions",
     header: "Actions",
@@ -377,7 +266,6 @@ export const modelColumns: ColumnDef<Model>[] = [
 
 function ModelActions({ row }: { row: Row<Model> }) {
   const [isOpen, setIsOpen] = useState(false);
-  const deleteModel = api.model.deleteModel.useMutation();
   const utils = api.useUtils();
   return (
     <>

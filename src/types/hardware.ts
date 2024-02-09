@@ -14,7 +14,7 @@ export const insertHardwareSchema = hardware
     projectId: z.string().optional(),
   });
 
-export type HardwareTree = Pick<Hardware, "name" | "id"> & {
+export type HardwareTree = Pick<Hardware, "name" | "id" | "modelId"> & {
   components: { hardware: HardwareTree }[];
 };
 
