@@ -1,4 +1,3 @@
-import React from "react";
 import { api } from "~/trpc/server";
 import { Icons } from "~/components/icons";
 import { siteConfig } from "~/config/site";

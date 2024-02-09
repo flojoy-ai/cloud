@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import { useState } from "react";
 import {
   Select,
   SelectContent,
@@ -26,7 +26,7 @@ const WorkspaceForm = ({
   workspaces,
   searchParams: { redirect_uri, state },
 }: WorkspaceFormProps) => {
-  const [selectedWorkspace, setSelectedWorkspace] = React.useState<string>("");
+  const [selectedWorkspace, setSelectedWorkspace] = useState<string>("");
   const router = useRouter();
   const query = api.secret._getSecret.useQuery({
     workspaceId: selectedWorkspace,
