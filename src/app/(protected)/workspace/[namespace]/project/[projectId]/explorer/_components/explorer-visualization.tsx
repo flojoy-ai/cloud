@@ -9,8 +9,6 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
-import { useExplorerStore } from "~/store/explorer";
-import { useShallow } from "zustand/react/shallow";
 import BooleanViz from "~/components/visualization/boolean-viz";
 import DataFrameViz from "~/components/visualization/dataframe-viz";
 import { useState } from "react";
@@ -34,12 +32,7 @@ const ExplorerVisualization = ({ tests, workspaceId, namespace }: Props) => {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [onlyShowLatest, setOnlyShowLatest] = useState<boolean>(false);
 
-  const { selectedTest, setSelectedTest } = useExplorerStore(
-    useShallow((state) => ({
-      selectedTest: state.selectedTest,
-      setSelectedTest: state.setSelectedTest,
-    })),
-  );
+  const [selectedTest, setSelectedTest] = useState<Test | undefined>(undefined);
 
   const { data } = api.measurement.getAllMeasurementsByTestId.useQuery(
     {

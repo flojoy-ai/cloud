@@ -38,11 +38,10 @@ import {
 } from "~/components/ui/select";
 import _ from "lodash";
 import { X } from "lucide-react";
-import { Measurement } from "~/schemas/public/Measurement";
-import { Hardware } from "~/schemas/public/Hardware";
+import { SelectMeasurement } from "~/types/measurement";
 
 type Props = {
-  measurements: (Measurement & { hardware: Hardware })[];
+  measurements: SelectMeasurement[];
   title: string;
   workspaceId: string;
 };

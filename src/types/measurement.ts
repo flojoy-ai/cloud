@@ -21,6 +21,7 @@ export const insertMeasurementSchema = measurementInitializer
 
 export const selectMeasurementSchema = measurement.extend({
   hardware: hardware,
+  data: measurementDataSchema,
 });
 
 export type SelectMeasurement = z.infer<typeof selectMeasurementSchema>;

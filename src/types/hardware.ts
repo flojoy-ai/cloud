@@ -1,5 +1,8 @@
 import { z } from "zod";
 import { Hardware, hardware, hardwareMutator } from "~/schemas/public/Hardware";
+import { Model } from "~/schemas/public/Model";
+
+export type SelectHardware = Hardware & { model: Model };
 
 export const hardwareComponentSchema = z.object({
   hardwareId: z.string(),

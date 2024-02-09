@@ -15,6 +15,7 @@ import { measurement } from "~/schemas/public/Measurement";
 import { generateDatabaseId } from "~/lib/id";
 import { markUpdatedAt, withHardware } from "~/lib/query";
 import { type SelectHardware } from "~/types/hardware";
+import { MeasurementData } from "~/types/data";
 
 export const measurementAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
@@ -108,12 +109,15 @@ export const measurementRouter = createTRPCRouter({
       }),
     )
     .use(testAccessMiddleware)
-    .output(z.array(measurement))
+    .output(z.array(selectMeasurementSchema))
     .query(async ({ ctx, input }) => {
       let query = ctx.db
         .selectFrom("measurement")
         .selectAll("measurement")
-        .where("testId", "=", input.testId);
+        .select(withHardware)
+        .where("testId", "=", input.testId)
+        .$narrowType<{ hardware: SelectHardware }>()
+        .$narrowType<{ data: MeasurementData }>();
 
       if (input.startDate) {
         query = query.where("createdAt", ">=", input.startDate);
@@ -149,8 +153,9 @@ export const measurementRouter = createTRPCRouter({
         .selectFrom("measurement")
         .selectAll("measurement")
         .where("hardwareId", "=", input.hardwareId)
-        .select((eb) => withHardware(eb))
-        .$narrowType<{ hardware: SelectHardware }>();
+        .select(withHardware)
+        .$narrowType<{ hardware: SelectHardware }>()
+        .$narrowType<{ data: MeasurementData }>();
 
       if (input.startDate) {
         query = query.where("createdAt", ">=", input.startDate);
@@ -193,6 +198,7 @@ export const measurementRouter = createTRPCRouter({
         .where("id", "=", input.measurementId)
         .select((eb) => withHardware(eb))
         .$narrowType<{ hardware: SelectHardware }>()
+        .$narrowType<{ data: MeasurementData }>()
         .executeTakeFirst();
 
       if (result === undefined) {
