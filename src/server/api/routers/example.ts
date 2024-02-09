@@ -7,6 +7,7 @@ import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 
 import { TRPCError } from "@trpc/server";
 import { api } from "~/trpc/server";
+import { generateDatabaseId } from "~/lib/id";
 
 const generateRandomNumbers = () => {
   const randomNumbers = [];
@@ -25,92 +26,83 @@ export const exampleRouter = createTRPCRouter({
     .use(workspaceAccessMiddleware)
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
-      return await ctx.db.transaction(async (tx) => {
-        const newDeviceModel1 = await api.model.createDeviceModel.mutate({
+      return await ctx.db.transaction().execute(async (tx) => {
+        const deviceModel1 = await api.model.createModel.mutate({
           name: "HL1234",
           workspaceId: input.workspaceId,
+          components: [],
         });
 
-        const newDeviceModel2 = await api.model.createDeviceModel.mutate({
+        const deviceModel2 = await api.model.createModel.mutate({
           name: "HL2345",
           workspaceId: input.workspaceId,
+          components: [],
         });
 
-        const newSystemModel = await api.model.createSystemModel.mutate({
+        const systemModel = await api.model.createModel.mutate({
           name: "HL9876",
           workspaceId: input.workspaceId,
-          parts: [
-            { modelId: newDeviceModel1.id, count: 2 },
-            { modelId: newDeviceModel2.id, count: 2 },
+          components: [
+            { modelId: deviceModel1.id, count: 2 },
+            { modelId: deviceModel2.id, count: 2 },
           ],
         });
 
-        const newDeviceProject = await api.project.createProject.mutate({
+        const deviceProject = await api.project.createProject.mutate({
           name: "HL1234 Testing Project",
-          modelId: newDeviceModel1.id,
+          modelId: deviceModel1.id,
           workspaceId: input.workspaceId,
         });
 
         const booleanTest = await api.test.createTest.mutate({
           name: "Pass/Fail Test",
-          projectId: newDeviceProject.id,
+          projectId: deviceProject.id,
           measurementType: "boolean",
         });
 
         const dataframeTest = await api.test.createTest.mutate({
           name: "Expected vs Measured",
-          projectId: newDeviceProject.id,
+          projectId: deviceProject.id,
           measurementType: "dataframe",
         });
 
         const insertDevices = _.times(9, (i) => ({
+          id: generateDatabaseId("hardware"),
           name: `SN000${i + 1}`,
-          modelId: newDeviceModel1.id,
+          modelId: deviceModel1.id,
           workspaceId: input.workspaceId,
         }));
 
-        const hardwareEntries = await tx
-          .insert(hardwareTable)
+        const hardwares = await tx
+          .insertInto("hardware")
           .values([...insertDevices])
-          .returning();
+          .returningAll()
+          .execute();
 
-        if (!hardwareEntries) {
+        if (!hardwares) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message: "Failed to create hardware entries",
           });
         }
 
-        const devices = await tx
-          .insert(deviceTable)
+        await tx
+          .insertInto("project_hardware")
           .values(
-            hardwareEntries.map((h) => ({
-              id: h.id,
+            hardwares.map((hw) => ({
+              hardwareId: hw.id,
+              projectId: deviceProject.id,
             })),
           )
-          .returning();
+          .execute();
 
-        if (!hardwareEntries) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create hardware entries",
-          });
-        }
-
-        for (const device of devices) {
-          await tx.insert(projectHardwareTable).values({
-            hardwareId: device.id,
-            projectId: newDeviceProject.id,
-          });
-        }
-
-        const boolMeas = devices.map((device, i) => {
+        const boolMeas = hardwares.map((hardware, i) => {
           const val = Math.random() < 0.8;
           return {
+            id: generateDatabaseId("measurement"),
             name: "Did Power On",
-            hardwareId: device.id,
+            hardwareId: hardware.id,
             testId: booleanTest.id,
-            measurementType: "boolean" as const,
             createdAt: new Date(new Date().getTime() + i * 20000),
             data: { type: "boolean" as const, value: val },
             pass: val,
@@ -119,9 +111,10 @@ export const exampleRouter = createTRPCRouter({
         });
 
         const boolMeasCreateResult = await tx
-          .insert(measurementTable)
-          .values([...boolMeas])
-          .returning();
+          .insertInto("measurement")
+          .values(boolMeas)
+          .returningAll()
+          .execute();
 
         if (!boolMeasCreateResult) {
           throw new TRPCError({
@@ -130,11 +123,11 @@ export const exampleRouter = createTRPCRouter({
           });
         }
 
-        const dataframeMeas = devices.map((device, i) => ({
+        const dataframeMeas = hardwares.map((hardware, i) => ({
+          id: generateDatabaseId("measurement"),
           name: "Data Point",
-          hardwareId: device.id,
+          hardwareId: hardware.id,
           testId: dataframeTest.id,
-          measurementType: "dataframe" as const,
           createdAt: new Date(new Date().getTime() + i * 20000),
           data: {
             type: "dataframe" as const,
@@ -148,9 +141,10 @@ export const exampleRouter = createTRPCRouter({
         }));
 
         const dataframeMeasCreateResult = await tx
-          .insert(measurementTable)
-          .values([...dataframeMeas])
-          .returning();
+          .insertInto("measurement")
+          .values(dataframeMeas)
+          .returningAll()
+          .execute();
 
         if (!dataframeMeasCreateResult) {
           throw new TRPCError({
