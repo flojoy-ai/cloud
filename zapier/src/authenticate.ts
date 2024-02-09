@@ -55,7 +55,7 @@ export default {
   },
   oauth2Config: {
     authorizeUrl: {
-      url: `${baseURL}/api/zapier/oauth`,
+      url: `${baseURL}/zapier/oauth`,
       params: {
         client_id: "{{process.env.CLIENT_ID}}",
         state: "{{bundle.inputData.state}}",

@@ -4,6 +4,8 @@ Create a `.env` file in with cloud domain
 
 ```text
 NEXT_PUBLIC_URL_ORIGIN="<cloud domain>"
+CLIENT_ID=""
+CLIENT_SECRET=""
 ```
 
 - Install dependencies
@@ -35,6 +37,6 @@ NEXT_PUBLIC_URL_ORIGIN="<cloud domain>"
 - Build and deploy
 
 ```sh
-    zapier build
-    zapier upload
+    zapier register <integration name>
+    zapier push
 ```

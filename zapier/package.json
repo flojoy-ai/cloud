@@ -1,6 +1,6 @@
 {
   "name": "flojoy-cloud",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "Integrate with Flojoy Cloud",
   "main": "dist/index.js",
   "private": true,
