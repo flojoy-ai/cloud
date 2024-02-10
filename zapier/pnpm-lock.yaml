@@ -11,7 +11,7 @@ dependencies:
 
 devDependencies:
   '@types/jest':
-    specifier: ^26.0.23
+    specifier: ^26.0.24
     version: 26.0.24
   '@types/node':
     specifier: ^14

@@ -12,5 +12,5 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
   },
-  "exclude": ["node_modules", "cloud_app", "test"],
+  "exclude": ["node_modules"],
 }

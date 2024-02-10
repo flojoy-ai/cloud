@@ -47,5 +47,4 @@ terraform/.**
 terraform/terraform.tfstate*
 zapier/node_modules/**
 zapier/dist
-zapier/test
 zapier/build

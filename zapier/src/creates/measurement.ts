@@ -5,6 +5,15 @@ import {
   type ZObject,
 } from "zapier-platform-core";
 
+export type MeasurementInputData = {
+  hardwareId: string;
+  testId: string;
+  name: string;
+  type: string;
+  data: string;
+  pass: boolean;
+};
+
 const inputFieldUrl = `${baseURL}/api/zapier/measurement-fields`;
 const inputFields = async (z: ZObject, bundle: Bundle) => {
   const options: HttpRequestOptions = {
@@ -24,17 +33,7 @@ const inputFields = async (z: ZObject, bundle: Bundle) => {
 };
 
 const performURL = `${baseURL}/api/v1/measurements`;
-const perform = async (
-  z: ZObject,
-  bundle: Bundle<{
-    hardwareId: string;
-    testId: string;
-    name: string;
-    type: string;
-    data: string;
-    pass: boolean;
-  }>,
-) => {
+const perform = async (z: ZObject, bundle: Bundle<MeasurementInputData>) => {
   const options: HttpRequestOptions = {
     method: "POST",
     headers: {
