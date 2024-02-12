@@ -15,8 +15,12 @@ const bundleAnalyzer = withBundleAnalyzer({
 /** @type {import("next").NextConfig} */
 const config = {
   logging: { fetches: { fullUrl: true } },
+  webpack: (config) => {
+    config.externals.push("@node-rs/argon2", "@node-rs/bcrypt");
+    return config;
+  },
   experimental: {
-    serverComponentsExternalPackages: ["oslo", "@highlight-run/node"],
+    serverComponentsExternalPackages: ["@highlight-run/node"],
     instrumentationHook: true,
   },
 };
