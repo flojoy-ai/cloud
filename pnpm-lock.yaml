@@ -121,6 +121,9 @@ dependencies:
   '@trpc/server':
     specifier: ^10.45.1
     version: 10.45.1
+  '@ts-rest/core':
+    specifier: ^3.33.0
+    version: 3.33.0(zod@3.22.4)
   arctic:
     specifier: ^1.1.4
     version: 1.1.4
@@ -5798,6 +5801,17 @@ packages:
       mkdirp: 1.0.4
       path-browserify: 1.0.1
     dev: true
+
+  /@ts-rest/core@3.33.0(zod@3.22.4):
+    resolution: {integrity: sha512-EUV+VmHWXrtvjBcGURrAuW29ajKhteGGgbf//KcrEhq0pYuENJfxfg4mx23OXVOliuceY/kSXO4HiEYs9jH79g==}
+    peerDependencies:
+      zod: ^3.22.3
+    peerDependenciesMeta:
+      zod:
+        optional: true
+    dependencies:
+      zod: 3.22.4
+    dev: false
 
   /@tsconfig/node10@1.0.9:
     resolution: {integrity: sha512-jNsYVVxU8v5g43Erja32laIDHXeoNvFEpX33OK4d6hljo3jDhCBDhx5dhCCTMWUojscpAagGiRkBKxpdl9fxqA==}
