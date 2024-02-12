@@ -66,6 +66,9 @@ export const TreeVisualization = ({ nodes, edges }: Props) => {
       proOptions={{
         hideAttribution: true,
       }}
+      // allows the user to scroll the page normally
+      // even when the pointer is in the reactflow canvas
+      preventScrolling={false}
     />
   );
 };
