@@ -155,7 +155,8 @@ export const measurementRouter = createTRPCRouter({
         .where("hardwareId", "=", input.hardwareId)
         .select(withHardware)
         .$narrowType<{ hardware: SelectHardware }>()
-        .$narrowType<{ data: MeasurementData }>();
+        .$narrowType<{ data: MeasurementData }>()
+        .orderBy("createdAt");
 
       if (input.startDate) {
         query = query.where("createdAt", ">=", input.startDate);
