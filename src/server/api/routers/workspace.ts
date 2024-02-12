@@ -59,27 +59,19 @@ export const workspaceRouter = createTRPCRouter({
     .input(createWorkspace)
     .output(workspace)
     .mutation(async ({ ctx, input }) => {
-<<<<<<< HEAD
       try {
-        const newWorkspace = await ctx.db.transaction(async (tx) => {
-          const [newWorkspace] = await tx
-            .insert(workspaceTable)
-            .values({ planType: "enterprise", ...input })
-            .returning();
-=======
-      const { populateData, ...data } = input;
+        const { populateData, ...data } = input;
 
-      const newWorkspace = await ctx.db.transaction().execute(async (tx) => {
-        const newWorkspace = await tx
-          .insertInto("workspace")
-          .values({
-            id: generateDatabaseId("workspace"),
-            ...data,
-            planType: "enterprise",
-          })
-          .returningAll()
-          .executeTakeFirst();
->>>>>>> main
+        const newWorkspace = await ctx.db.transaction().execute(async (tx) => {
+          const newWorkspace = await tx
+            .insertInto("workspace")
+            .values({
+              id: generateDatabaseId("workspace"),
+              ...data,
+              planType: "enterprise",
+            })
+            .returningAll()
+            .executeTakeFirst();
 
           if (!newWorkspace) {
             throw new TRPCError({
@@ -88,29 +80,21 @@ export const workspaceRouter = createTRPCRouter({
             });
           }
 
-          await tx.insert(workspaceUserTable).values({
-            workspaceId: newWorkspace.id,
-            userId: ctx.user.id,
-            role: "owner" as const,
-          });
+          await tx
+            .insertInto("workspace_user")
+            .values({
+              workspaceId: newWorkspace.id,
+              userId: ctx.user.id,
+              role: "owner" as const,
+            })
+            .execute();
 
-<<<<<<< HEAD
           cookies().set("scope", newWorkspace.namespace);
 
           return newWorkspace;
         });
-=======
-        await tx
-          .insertInto("workspace_user")
-          .values({
-            workspaceId: newWorkspace.id,
-            userId: ctx.user.id,
-            role: "owner" as const,
-          })
-          .execute();
->>>>>>> main
 
-        if (!input.populateData) {
+        if (!populateData) {
           return newWorkspace;
         }
 
@@ -119,31 +103,22 @@ export const workspaceRouter = createTRPCRouter({
         });
 
         return newWorkspace;
-<<<<<<< HEAD
       } catch (error) {
         if (error instanceof TRPCError) {
           throw error;
         }
         throw handleNamespaceConflict(error as DatabaseError, input.namespace);
-=======
-      });
-
-      if (!populateData) {
-        return newWorkspace;
->>>>>>> main
       }
     }),
-
   updateWorkspace: workspaceProcedure
     .input(
       z.object({
         workspaceId: z.string(),
-        data: updateWorkspace,
+        data: updateWorkspace.required(),
       }),
     )
     .use(workspaceAccessMiddleware)
-<<<<<<< HEAD
-    .output(selectWorkspaceSchema)
+    .output(workspace)
     .mutation(async ({ ctx, input }) => {
       try {
         if (ctx.workspaceUser.role === "member") {
@@ -152,45 +127,30 @@ export const workspaceRouter = createTRPCRouter({
             message: "You do not have permission to update this workspace",
           });
         }
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { workspaceId, ...updatedWorkspace } = input;
-        const [result] = await ctx.db
-          .update(workspaceTable)
-          .set(updatedWorkspace)
-          .where(eq(workspaceTable.id, ctx.workspaceId))
-          .returning();
-        if (!result) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to update workspace",
-          });
-        }
-=======
-    .output(workspace)
-    .mutation(async ({ ctx, input }) => {
-      const result = await ctx.db
-        .updateTable("workspace")
-        .set({
-          ...input.data,
-        })
-        .where("workspace.id", "=", ctx.workspaceId)
-        .returningAll()
-        .executeTakeFirst();
 
-      if (!result) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to update workspace",
-        });
-      }
->>>>>>> main
-
+        const result = await ctx.db
+          .updateTable("workspace")
+          .set({
+            ...input.data,
+          })
+          .where("workspace.id", "=", ctx.workspaceId)
+          .returningAll()
+          .executeTakeFirstOrThrow(
+            () =>
+              new TRPCError({
+                code: "INTERNAL_SERVER_ERROR",
+                message: "Failed to update workspace",
+              }),
+          );
         return result;
       } catch (error) {
         if (error instanceof TRPCError) {
           throw error;
         }
-        throw handleNamespaceConflict(error as DatabaseError, input.namespace);
+        throw handleNamespaceConflict(
+          error as DatabaseError,
+          input.data.namespace,
+        );
       }
     }),
 
@@ -208,6 +168,7 @@ export const workspaceRouter = createTRPCRouter({
 
       return await ctx.db.transaction().execute(async (tx) => {
         // TODO: need to verify if this is correct
+        // FIX: this is not working
         await tx
           .deleteFrom("project")
           .where("project.workspaceId", "=", input.workspaceId)
@@ -261,33 +222,17 @@ export const workspaceRouter = createTRPCRouter({
 
   getWorkspaceById: workspaceProcedure
     .input(z.object({ workspaceId: z.string() }))
-<<<<<<< HEAD
-    .output(selectWorkspaceSchema)
-    .query(async ({ input }) => {
-      const result = await db.query.workspaceTable.findFirst({
-        where: (workspace, { eq }) => eq(workspace.id, input.workspaceId),
-      });
-
-      if (!result) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Workspace not found",
-        });
-      }
-      return result;
-=======
     .output(workspace)
     .use(workspaceAccessMiddleware)
     .query(async ({ ctx }) => {
       return ctx.workspace;
->>>>>>> main
     }),
 
   getWorkspaceIdByNamespace: protectedProcedure
     .input(z.object({ namespace: z.string() }))
     .output(z.string())
     .query(async ({ input, ctx }) => {
-      // FIXME: auth check is needded here
+      // FIXME: auth check is needed here
       const result = await ctx.db
         .selectFrom("workspace")
         .selectAll()

@@ -99,10 +99,7 @@ export const projectRouter = createTRPCRouter({
             throw error;
           }
           const err = error as DatabaseError;
-          if (
-            err.code === "23505" &&
-            err.constraint?.includes("project_workspace_id_name")
-          ) {
+          if (err.code === "23505") {
             throw new TRPCError({
               code: "CONFLICT",
               message: `A project with name "${input.name}" for workspace "${ctx.workspace.namespace}" already exists!`,

@@ -45,7 +45,7 @@ export const POST = async (request: NextRequest) => {
 
     if (userExists) {
       return new Response("User already exists, please login!", {
-        status: 400,
+        status: 409,
       });
     }
 
@@ -82,16 +82,7 @@ export const POST = async (request: NextRequest) => {
       status: 302,
     });
   } catch (e: any) {
-    // this part depends on the database you're using
-    // check for unique constraint error in user table
-
-    if ((e as DatabaseError).code === "23505") {
-      return new Response(
-        "Seems like this email already exists! Try logging in :)",
-        { status: 400 },
-      );
-    }
-
+    console.log("e: ", e);
     return new Response("Internal server error", {
       status: 500,
     });

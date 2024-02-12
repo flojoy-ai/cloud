@@ -90,10 +90,7 @@ export const modelRouter = createTRPCRouter({
             throw error;
           }
           const err = error as DatabaseError;
-          if (
-            err.code === "23505" &&
-            err.constraint?.includes("workspace_id_name")
-          ) {
+          if (err.code === "23505") {
             throw new TRPCError({
               code: "CONFLICT",
               message: `A model with identifier "${input.name}" already exists!`,

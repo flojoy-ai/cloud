@@ -36,8 +36,8 @@ export const POST = async (request: NextRequest) => {
       .executeTakeFirst();
 
     if (!existingUser) {
-      return new Response("Wrong password or user does not exist!", {
-        status: 400,
+      return new Response("User does not exist!", {
+        status: 404,
       });
     }
 
@@ -56,7 +56,7 @@ export const POST = async (request: NextRequest) => {
     );
 
     if (!validPassword) {
-      return new Response("Wrong password or user does not exist!", {
+      return new Response("Wrong password!", {
         status: 400,
       });
     }

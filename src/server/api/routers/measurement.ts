@@ -11,7 +11,6 @@ import { hardwareAccessMiddleware } from "./hardware";
 import { testAccessMiddleware } from "./test";
 import { checkWorkspaceAccess } from "~/lib/auth";
 import _ from "lodash";
-import { measurement } from "~/schemas/public/Measurement";
 import { generateDatabaseId } from "~/lib/id";
 import { markUpdatedAt, withHardware } from "~/lib/query";
 import { type SelectHardware } from "~/types/hardware";

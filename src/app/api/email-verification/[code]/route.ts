@@ -22,10 +22,6 @@ export const GET = async (
   }
 
   await db.transaction().execute(async (tx) => {
-    // const emailVerification = await tx.query.emailVerificationTable.findFirst({
-    //   where: (fields, { eq }) => eq(fields.userId, user.id),
-    // });
-
     const emailVerification = await tx
       .selectFrom("email_verification as ev")
       .where("ev.userId", "=", user.id)
@@ -51,7 +47,7 @@ export const GET = async (
     }
     if (user.email !== emailVerification.email) {
       return new Response("Invalid verification code!", {
-        status: 422,
+        status: 400,
       });
     }
   });

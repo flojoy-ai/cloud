@@ -151,7 +151,7 @@ export const userRouter = createTRPCRouter({
     .query(async ({ ctx }) => {
       const result = ctx.db
         .selectFrom("user_invite as ui")
-        .where("ui.email", "=", "ctx.user.email")
+        .where("ui.email", "=", ctx.user.email)
         .innerJoin("workspace as w", "w.id", "ui.workspaceId")
         .selectAll("ui")
         .select("w.name as workspaceName")

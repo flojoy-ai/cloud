@@ -145,6 +145,7 @@ export const hardwareRouter = createTRPCRouter({
     .use(workspaceAccessMiddleware)
     .output(hardware)
     .mutation(async ({ ctx, input }) => {
+      // TODO: Not working for now
       return await ctx.db.transaction().execute(async (tx) => {
         try {
           const { components, ...newHardware } = input;
@@ -237,10 +238,7 @@ export const hardwareRouter = createTRPCRouter({
             throw error;
           }
           const err = error as DatabaseError;
-          if (
-            err.code === "23505" &&
-            err.constraint?.includes("hardware_workspace_id_name")
-          ) {
+          if (err.code === "23505") {
             throw new TRPCError({
               code: "CONFLICT",
               message: `A system for selected model already exists!`,
