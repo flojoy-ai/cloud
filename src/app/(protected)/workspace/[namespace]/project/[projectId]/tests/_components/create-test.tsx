@@ -1,6 +1,5 @@
 "use client";
 
-import { type SelectProject } from "~/types/project";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 
 import { toast } from "sonner";
@@ -36,9 +35,10 @@ import { insertTestSchema } from "~/types/test";
 import { type z } from "zod";
 import { allMeasurementDataTypes } from "~/types/data";
 import { handleTrpcError } from "~/lib/utils";
+import { Project } from "~/schemas/public/Project";
 
 type Props = {
-  project: SelectProject;
+  project: Project;
 };
 
 const CreateTest = ({ project }: Props) => {

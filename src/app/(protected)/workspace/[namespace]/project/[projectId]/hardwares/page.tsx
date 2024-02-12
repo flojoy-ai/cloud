@@ -1,8 +1,6 @@
 import { api } from "~/trpc/server";
 import AllHardwares from "./_components/all-hardwares";
 import { Separator } from "~/components/ui/separator";
-import CodeBlock from "~/components/code-block";
-import { WorkspaceSecretReminder } from "~/components/workspace-secret-reminder";
 
 const DevicesView = async ({
   params,
@@ -27,29 +25,9 @@ const DevicesView = async ({
     modelId: project.modelId,
   });
 
-  const code = `from flojoy.cloud import FlojoyCloud
-
-# Create a device
-device = client.create_device("${workspaceId}", "DEVICE_NAME", "MODEL_ID", "PROJECT_ID")
-
-# Get an existing device
-device = client.get_device_by_id("DEVICE_ID")
-
-# Get all devices from this workspace
-devices = client.get_all_devices("${workspaceId}")
-
-# Get all devices from this project
-devices = client.get_all_devices("${workspaceId}", "${params.projectId}")
-
-# Add device to this project
-client.add_device_to_project("DEVICE_ID", "${params.projectId}")
-
-# Remove device from this project
-client.remove_device_from_project("DEVICE_ID", "${params.projectId}")
-
-# Delete a device
-client.delete_device_by_id("DEVICE_ID")
-  `;
+  const models = await api.model.getAllModels.query({
+    workspaceId,
+  });
 
   return (
     <div>
@@ -62,29 +40,18 @@ client.delete_device_by_id("DEVICE_ID")
           testing in this project.
         </p>
       </div>
-      <Separator className="my-6" />
 
-      <div className="py-2"></div>
+      <Separator className="my-6" />
 
       <AllHardwares
         hardwares={hardwares}
+        models={models}
         modelHardware={modelHardware}
         workspaceId={workspaceId}
         project={project}
         namespace={params.namespace}
       />
 
-      <div className="py-8" />
-      <div>
-        <h3 className="text-lg font-medium">Python Client</h3>
-        <p className="text-sm text-muted-foreground">
-          Create hardware instances with Flojoy Cloud's Python client
-        </p>
-      </div>
-      <div>
-        <CodeBlock code={code} />
-        <WorkspaceSecretReminder namespace={params.namespace} />
-      </div>
       <div className="py-8" />
     </div>
   );

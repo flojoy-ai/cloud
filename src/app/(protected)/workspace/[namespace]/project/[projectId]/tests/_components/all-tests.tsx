@@ -1,9 +1,9 @@
-import { type SelectProject } from "~/types/project";
+import { Project } from "~/schemas/public/Project";
 import TestCard from "./test-card";
 import { api } from "~/trpc/server";
 
 type Props = {
-  project: SelectProject;
+  project: Project;
   namespace: string;
 };
 

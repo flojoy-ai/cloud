@@ -26,14 +26,16 @@ import {
 import { Input } from "~/components/ui/input";
 
 import { api } from "~/trpc/react";
-import { publicInsertWorkspaceSchema } from "~/types/workspace";
 import { type z } from "zod";
 import { handleTrpcError } from "~/lib/utils";
+import { createWorkspace } from "~/types/workspace";
 
 type Props = {
   isDialogOpen: boolean;
   setIsDialogOpen: (isOpen: boolean) => void;
 };
+
+const formSchema = createWorkspace;
 
 export default function NewWorkspace({ isDialogOpen, setIsDialogOpen }: Props) {
   const router = useRouter();
@@ -46,12 +48,12 @@ export default function NewWorkspace({ isDialogOpen, setIsDialogOpen }: Props) {
     },
   });
 
-  const form = useForm<z.infer<typeof publicInsertWorkspaceSchema>>({
-    resolver: zodResolver(publicInsertWorkspaceSchema),
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
     defaultValues: {},
   });
 
-  function onSubmit(values: z.infer<typeof publicInsertWorkspaceSchema>) {
+  function onSubmit(values: z.infer<typeof formSchema>) {
     toast.promise(
       createWorkspace.mutateAsync({
         ...values,

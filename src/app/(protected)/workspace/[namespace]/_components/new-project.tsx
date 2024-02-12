@@ -32,7 +32,6 @@ import {
 
 import { Input } from "~/components/ui/input";
 import { api } from "~/trpc/react";
-import { type SelectWorkspace } from "~/types/workspace";
 import { type z } from "zod";
 import {
   Select,
@@ -41,14 +40,15 @@ import {
   SelectContent,
   SelectItem,
 } from "~/components/ui/select";
-import { type SelectModel } from "~/types/model";
 import Link from "next/link";
 import { Badge } from "~/components/ui/badge";
 import { handleTrpcError } from "~/lib/utils";
+import { Workspace } from "~/schemas/public/Workspace";
+import { Model } from "~/schemas/public/Model";
 
 type Props = {
-  workspace: SelectWorkspace;
-  models: SelectModel[];
+  workspace: Workspace;
+  models: Model[];
 };
 
 export default function NewProjectButton({ workspace, models }: Props) {
@@ -142,9 +142,10 @@ export default function NewProjectButton({ workspace, models }: Props) {
                             {models.map((model) => (
                               <SelectItem value={model.id} key={model.id}>
                                 {model.name}
-                                <Badge className="ml-2" variant="outline">
-                                  {model.type}
-                                </Badge>
+                                {/* TODO: display model type */}
+                                {/* <Badge className="ml-2" variant="outline"> */}
+                                {/*   {model.type} */}
+                                {/* </Badge> */}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -162,8 +163,8 @@ export default function NewProjectButton({ workspace, models }: Props) {
                       )}
                     </FormControl>
                     <FormDescription>
-                      Which hardware model is this project testing? <br /> Don't
-                      have a hardware model yet?{" "}
+                      Which hardware model is this project testing? <br />{" "}
+                      Don&apos;t have a hardware model yet?{" "}
                       <Link
                         href="/workspace"
                         className="underline hover:text-primary"

@@ -16,9 +16,11 @@ export const POST = async (request: NextRequest) => {
   }
 
   try {
-    const storedUser = await db.query.userTable.findFirst({
-      where: (u, { eq }) => eq(u.email, parsedEmail.data),
-    });
+    const storedUser = await db
+      .selectFrom("user")
+      .selectAll()
+      .where("email", "=", parsedEmail.data)
+      .executeTakeFirst();
 
     if (!storedUser) {
       return new Response("User does not exist!", {

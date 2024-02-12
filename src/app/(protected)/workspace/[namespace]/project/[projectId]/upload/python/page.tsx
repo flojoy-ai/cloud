@@ -3,17 +3,17 @@
 import { Separator } from "~/components/ui/separator";
 import { api } from "~/trpc/react";
 import { useState } from "react";
-import { type SelectTest } from "~/types/test";
 import { Label } from "~/components/ui/label";
 import { Combobox } from "~/components/combobox";
 import { type MeasurementDataType } from "~/types/data";
 import CodeBlock from "~/components/code-block";
 import { WorkspaceSecretReminder } from "~/components/workspace-secret-reminder";
-import { type SelectHardware } from "~/types/hardware";
+import { Test } from "~/schemas/public/Test";
+import { Hardware } from "~/schemas/public/Hardware";
 
 const EXAMPLE_DATA: Record<MeasurementDataType, string> = {
-  boolean: "Boolean(passed=True)",
-  dataframe: "Dataframe(dataframe={'x': [1,2,3,4,5], 'y': [2,4,6,8,10]})",
+  boolean: "True",
+  dataframe: "pd.DataFrame(dataframe={'x': [1,2,3,4,5], 'y': [2,4,6,8,10]})",
 };
 
 const UploadView = ({
@@ -35,14 +35,12 @@ const UploadView = ({
     projectId: params.projectId,
   });
 
-  const [selectedTest, setSelectedTest] = useState<SelectTest | undefined>(
+  const [selectedTest, setSelectedTest] = useState<Test | undefined>(undefined);
+  const [selectedDevice, setSelectedDevice] = useState<Hardware | undefined>(
     undefined,
   );
-  const [selectedDevice, setSelectedDevice] = useState<
-    SelectHardware | undefined
-  >(undefined);
 
-  const code = `from flojoy.cloud import FlojoyCloud, Boolean, Dataframe
+  const code = `from flojoy.cloud import FlojoyCloud${selectedTest?.measurementType === "dataframe" ? "\nimport pandas as pd" : ""}
 
 client = FlojoyCloud(workspace_secret="YOUR_WORKSPACE_SECRET")
 
@@ -60,7 +58,7 @@ client.upload(data, test_id, device_id)
       <div>
         <h3 className="text-lg font-medium">Python Client</h3>
         <p className="text-sm text-muted-foreground">
-          Upload measurement with Flojoy Cloud's Python client
+          Upload measurement with Flojoy Cloud&apos;s Python client
         </p>
       </div>
       <div className="grid grid-cols-2 gap-x-4">

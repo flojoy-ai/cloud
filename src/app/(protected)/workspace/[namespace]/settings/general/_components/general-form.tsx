@@ -15,10 +15,6 @@ import { useForm } from "react-hook-form";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 
-import {
-  publicUpdateWorkspaceSchema,
-  type selectWorkspaceSchema,
-} from "~/types/workspace";
 import { type z } from "zod";
 import DeleteWorkspace from "./delete-workspace";
 import { api } from "~/trpc/react";
@@ -27,12 +23,19 @@ import { toast } from "sonner";
 import { useWorkspace } from "../../../workspace-provider";
 import { env } from "~/env";
 import { handleTrpcError } from "~/lib/utils";
+import { updateWorkspace } from "~/types/workspace";
 
 type Props = {
-  workspace: z.infer<typeof selectWorkspaceSchema>;
+  workspaceId: string;
 };
 
-const GeneralForm = ({ workspace }: Props) => {
+const formSchema = updateWorkspace;
+
+const GeneralForm = ({ workspaceId }: Props) => {
+  const { data: workspace } = api.workspace.getWorkspaceById.useQuery({
+    workspaceId,
+  });
+
   const router = useRouter();
   const namespace = useWorkspace();
 
@@ -42,8 +45,8 @@ const GeneralForm = ({ workspace }: Props) => {
     namespace,
   };
 
-  const form = useForm<z.infer<typeof publicUpdateWorkspaceSchema>>({
-    resolver: zodResolver(publicUpdateWorkspaceSchema),
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
     defaultValues,
   });
 
@@ -55,10 +58,11 @@ const GeneralForm = ({ workspace }: Props) => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof publicUpdateWorkspaceSchema>) {
+  function onSubmit(values: z.infer<typeof formSchema>) {
     toast.promise(
       updateWorkspace.mutateAsync({
-        ...values,
+        workspaceId,
+        data: values,
       }),
       {
         loading: "Updating your workspace...",
@@ -78,10 +82,10 @@ const GeneralForm = ({ workspace }: Props) => {
             <FormItem>
               <FormLabel>Workspace Name</FormLabel>
               <FormControl>
-                <Input {...field} data-1p-ignore />
+                <Input {...field} placeholder={workspace.name} data-1p-ignore />
               </FormControl>
               <FormDescription>
-                This is your workspace&apos;s visible name within Flojoy.
+                This is your workspace&apos;s visible name within Flojoy Cloud.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -103,7 +107,7 @@ const GeneralForm = ({ workspace }: Props) => {
                 </div>
               </FormControl>
               <FormDescription>
-                This is your workspace’s URL namespace on Flojoy.
+                This is your workspace’s URL namespace on Flojoy Cloud.
               </FormDescription>
               <FormMessage />
             </FormItem>

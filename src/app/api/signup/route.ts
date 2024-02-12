@@ -3,14 +3,13 @@ import { Argon2id } from "oslo/password";
 
 import type { NextRequest } from "next/server";
 import { z } from "zod";
-import { type DatabaseError } from "@neondatabase/serverless";
 import { generateEmailVerificationToken } from "~/lib/token";
 import { sendEmailVerificationLink } from "~/lib/email";
 import { env } from "~/env";
-import { createId } from "@paralleldrive/cuid2";
 import { db } from "~/server/db";
-import { userTable } from "~/server/db/schema";
 import { cookies } from "next/headers";
+import { generateDatabaseId } from "~/lib/id";
+import { DatabaseError } from "pg";
 
 export const POST = async (request: NextRequest) => {
   const formData = await request.formData();
@@ -35,24 +34,30 @@ export const POST = async (request: NextRequest) => {
   }
 
   try {
-    const userId = "user_" + createId();
+    const userId = generateDatabaseId("user");
     const hashedPassword = await new Argon2id().hash(password);
 
-    const userExists = await db.query.userTable.findFirst({
-      where: (u, { eq }) => eq(u.email, parsedEmail.data),
-    });
+    const userExists = await db
+      .selectFrom("user")
+      .selectAll()
+      .where("email", "=", parsedEmail.data)
+      .executeTakeFirst();
+
     if (userExists) {
       return new Response("User already exists, please login!", {
         status: 400,
       });
     }
 
-    await db.insert(userTable).values({
-      id: userId,
-      email: parsedEmail.data,
-      hashedPassword,
-      emailVerified: false,
-    });
+    await db
+      .insertInto("user")
+      .values({
+        id: userId,
+        email: parsedEmail.data,
+        hashedPassword: hashedPassword,
+        emailVerified: false,
+      })
+      .execute();
 
     const token = await generateEmailVerificationToken(
       userId,
@@ -76,8 +81,6 @@ export const POST = async (request: NextRequest) => {
       },
       status: 302,
     });
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     // this part depends on the database you're using
     // check for unique constraint error in user table

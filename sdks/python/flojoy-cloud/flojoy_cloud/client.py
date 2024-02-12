@@ -13,7 +13,6 @@ from flojoy_cloud.dtypes import (
     Device,
     DeviceModel,
     Hardware,
-    HardwareWithMeasurements,
     MeasurementWithHardware,
     Project,
     ProjectWithModel,
@@ -21,7 +20,6 @@ from flojoy_cloud.dtypes import (
     SystemModel,
     SystemModelPart,
     Test,
-    TestWithMeasurements,
 )
 from flojoy_cloud.measurement import MeasurementData, MeasurementType, make_payload
 
@@ -139,8 +137,8 @@ class FlojoyCloud:
             },
         )
 
-    @query(model=TestWithMeasurements)
-    def get_test_by_id(self, test_id: str):
+    @query(model=Test)
+    def get_test(self, test_id: str):
         return self.client.get(f"/tests/{test_id}")
 
     @query(model=TypeAdapter(list[Test]))
@@ -241,13 +239,9 @@ class FlojoyCloud:
 
         return self.client.post("/hardware/systems", json=body)
 
-    @query(model=HardwareWithMeasurements)
-    def get_hardware_by_id(self, hardware_id: str):
+    @query(model=Hardware)
+    def get_hardware(self, hardware_id: str):
         return self.client.get(f"/hardware/{hardware_id}")
-
-    @query(model=None)
-    def update_hardware_by_id(self, hardware_id: str, name: str):
-        return self.client.patch(f"/hardware/{hardware_id}", json={"name": name})
 
     @query(model=TypeAdapter(list[Hardware]))
     def get_all_hardware(
@@ -292,8 +286,12 @@ class FlojoyCloud:
         return self.client.get("/hardware/all/systems", params=params)
 
     @query(model=None)
-    def delete_hardware_by_id(self, hardware_id: str):
+    def delete_hardware(self, hardware_id: str):
         return self.client.delete(f"/hardware/{hardware_id}")
+
+    @query(model=None)
+    def update_hardware(self, hardware_id: str, name: str):
+        return self.client.patch(f"/hardware/{hardware_id}", json={"name": name})
 
     """Measurement Endpoints"""
 
@@ -334,25 +332,44 @@ class FlojoyCloud:
         start_date: datetime.datetime | None = None,
         end_date: datetime.datetime | None = None,
     ):
-        query_params: dict[str, int | str] = {
-            "testId": test_id,
-        }
+        query_params = {}
         if start_date is not None:
             query_params["startDate"] = start_date.isoformat()
         if end_date is not None:
             query_params["endDate"] = end_date.isoformat()
 
         return self.client.get(
-            "/measurements",
+            f"/measurements/test/{test_id}",
+            params=query_params,
+        )
+
+    @query(model=TypeAdapter(list[MeasurementWithHardware]))
+    def get_all_measurements_by_hardware_id(
+        self,
+        hardware_id: str,
+        start_date: datetime.datetime | None = None,
+        end_date: datetime.datetime | None = None,
+        latest: bool | None = None,
+    ):
+        query_params = {}
+        if start_date is not None:
+            query_params["startDate"] = start_date.isoformat()
+        if end_date is not None:
+            query_params["endDate"] = end_date.isoformat()
+        if latest is not None:
+            query_params["latest"] = latest
+
+        return self.client.get(
+            f"/measurements/hardware/{hardware_id}",
             params=query_params,
         )
 
     @query(model=MeasurementWithHardware)
-    def get_measurement_by_id(self, measurement_id: str):
+    def get_measurement(self, measurement_id: str):
         return self.client.get(f"/measurements/{measurement_id}")
 
     @query(model=None)
-    def delete_measurement_by_id(self, measurement_id: str):
+    def delete_measurement(self, measurement_id: str):
         return self.client.delete(f"/measurements/{measurement_id}")
 
     """Project Routes"""
@@ -365,7 +382,7 @@ class FlojoyCloud:
         )
 
     @query(model=ProjectWithModel)
-    def get_project_by_id(self, project_id: str):
+    def get_project(self, project_id: str):
         return self.client.get(f"/projects/{project_id}")
 
     @query(model=TypeAdapter(list[Project]))
@@ -385,6 +402,12 @@ class FlojoyCloud:
     def remove_hardware_from_project(self, hardware_id: str, project_id: str):
         return self.client.delete(
             f"/projects/{project_id}/hardware/{hardware_id}",
+        )
+
+    @query(model=None)
+    def set_project_hardware(self, hardware_ids: list[str], project_id: str):
+        return self.client.put(
+            f"/projects/{project_id}/hardware", json={"hardwareIds": hardware_ids}
         )
 
     @query(model=None)

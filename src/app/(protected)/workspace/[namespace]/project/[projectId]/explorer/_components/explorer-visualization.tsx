@@ -9,9 +9,6 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
-import { type SelectTest } from "~/types/test";
-import { useExplorerStore } from "~/store/explorer";
-import { useShallow } from "zustand/react/shallow";
 import BooleanViz from "~/components/visualization/boolean-viz";
 import DataFrameViz from "~/components/visualization/dataframe-viz";
 import { useState } from "react";
@@ -23,9 +20,10 @@ import { WorkspaceSecretReminder } from "~/components/workspace-secret-reminder"
 import { Checkbox } from "~/components/ui/checkbox";
 import { Label } from "~/components/ui/label";
 import _ from "lodash";
+import { Test } from "~/schemas/public/Test";
 
 type Props = {
-  tests: SelectTest[];
+  tests: Test[];
   workspaceId: string;
   namespace: string;
 };
@@ -34,12 +32,7 @@ const ExplorerVisualization = ({ tests, workspaceId, namespace }: Props) => {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [onlyShowLatest, setOnlyShowLatest] = useState<boolean>(false);
 
-  const { selectedTest, setSelectedTest } = useExplorerStore(
-    useShallow((state) => ({
-      selectedTest: state.selectedTest,
-      setSelectedTest: state.setSelectedTest,
-    })),
-  );
+  const [selectedTest, setSelectedTest] = useState<Test | undefined>(undefined);
 
   const { data } = api.measurement.getAllMeasurementsByTestId.useQuery(
     {
@@ -63,9 +56,13 @@ const ExplorerVisualization = ({ tests, workspaceId, namespace }: Props) => {
 
 client = FlojoyCloud(workspace_secret="YOUR_WORKSPACE_SECRET")
 
+# Per test
 measurements = client.get_all_measurements_by_test_id("${
     selectedTest?.id ?? "TEST_ID"
   }")
+
+# Per device
+measurements = client.get_all_measurements_by_hardware_id("HARDWARE_ID")
 `;
 
   return (
@@ -138,8 +135,8 @@ measurements = client.get_all_measurements_by_test_id("${
       <div>
         <h3 className="text-lg font-medium">Python Client</h3>
         <p className="text-sm text-muted-foreground">
-          To do further analysis, download this data with Flojoy Cloud's Python
-          client.
+          To do further analysis, download this data with Flojoy Cloud&apos;s
+          Python client.
         </p>
       </div>
       <div>

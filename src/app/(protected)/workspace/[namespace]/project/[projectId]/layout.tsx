@@ -2,7 +2,7 @@ import {
   PageHeader,
   PageHeaderDescription,
   PageHeaderHeading,
-} from "~/components/page-header";
+} from "~/components/small-header";
 import { api } from "~/trpc/server";
 import { type ReactNode } from "react";
 import { TabNav } from "~/components/tab-nav";
@@ -50,6 +50,8 @@ export default async function Project({
           View all the hardwares, tests, and their data for this project.
         </PageHeaderDescription>
       </PageHeader>
+
+      <div className="py-2"></div>
 
       <TabNav items={sidebarNavItems} />
 

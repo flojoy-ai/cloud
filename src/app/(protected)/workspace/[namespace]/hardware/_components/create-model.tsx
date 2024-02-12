@@ -1,9 +1,9 @@
 "use client";
+
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "~/components/ui/button";
-
 import {
   Form,
   FormControl,
@@ -13,10 +13,8 @@ import {
   FormLabel,
   FormMessage,
 } from "~/components/ui/form";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
-
 import {
   Dialog,
   DialogClose,
@@ -27,11 +25,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
-
 import { Input } from "~/components/ui/input";
 import { api } from "~/trpc/react";
 import { z } from "zod";
-import { publicInsertSystemModelSchema, type SelectModel } from "~/types/model";
+import { insertModelSchema } from "~/types/model";
 import {
   Select,
   SelectContent,
@@ -41,8 +38,9 @@ import {
 } from "~/components/ui/select";
 import { Cpu, Plus, Trash2 } from "lucide-react";
 import { handleTrpcError } from "~/lib/utils";
+import { Model } from "~/schemas/public/Model";
 
-const modelFormSchema = publicInsertSystemModelSchema.extend({
+const modelFormSchema = insertModelSchema.extend({
   type: z.enum(["device", "system"]),
 });
 
@@ -50,24 +48,20 @@ type FormSchema = z.infer<typeof modelFormSchema>;
 
 type Props = {
   workspaceId: string;
-  deviceModels: SelectModel[];
+  models: Model[];
 };
 
-const CreateModel = ({ workspaceId, deviceModels }: Props) => {
+const CreateModel = ({ workspaceId, models }: Props) => {
   const router = useRouter();
+  const utils = api.useUtils();
 
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
-  const createDeviceModel = api.model.createDeviceModel.useMutation({
+  const createModel = api.model.createModel.useMutation({
     onSuccess: () => {
       router.refresh();
-      setIsDialogOpen(false);
-    },
-  });
+      utils.model.getAllModels.invalidate();
 
-  const createSystemModel = api.model.createSystemModel.useMutation({
-    onSuccess: () => {
-      router.refresh();
       setIsDialogOpen(false);
     },
   });
@@ -77,12 +71,12 @@ const CreateModel = ({ workspaceId, deviceModels }: Props) => {
     defaultValues: {
       workspaceId,
       type: "device",
-      parts: [{ modelId: "", count: 1 }],
+      components: [{ modelId: "", count: 1 }],
     },
   });
   const { fields, insert, remove } = useFieldArray({
     control: form.control,
-    name: "parts",
+    name: "components",
     keyName: "modelId",
   });
 
@@ -93,26 +87,26 @@ const CreateModel = ({ workspaceId, deviceModels }: Props) => {
     remove(index);
   };
 
-  useEffect(() => {
-    if (isDialogOpen) {
-      form.reset();
-    }
-  }, [isDialogOpen]);
-
   function onSubmit(values: FormSchema) {
     if (values.type === "device") {
-      toast.promise(createDeviceModel.mutateAsync(values), {
-        loading: "Creating your model...",
-        success: "Model created.",
-        error: handleTrpcError,
-      });
+      toast.promise(
+        createModel.mutateAsync({
+          ...values,
+          components: [],
+        }),
+        {
+          loading: "Creating your model...",
+          success: "Model created.",
+          error: handleTrpcError,
+        },
+      );
     }
 
     if (values.type === "system") {
       let hasError = false;
-      for (let i = 0; i < values.parts.length; i++) {
-        if (values.parts[i]?.modelId === "") {
-          form.setError(`parts.${i}.modelId` as const, {
+      for (let i = 0; i < values.components.length; i++) {
+        if (values.components[i]?.modelId === "") {
+          form.setError(`components.${i}.modelId` as const, {
             message: "Cannot have empty component model",
           });
           hasError = true;
@@ -122,7 +116,7 @@ const CreateModel = ({ workspaceId, deviceModels }: Props) => {
         return;
       }
 
-      toast.promise(createSystemModel.mutateAsync(values), {
+      toast.promise(createModel.mutateAsync(values), {
         loading: "Creating your model...",
         success: "Model created.",
         error: handleTrpcError,
@@ -131,7 +125,15 @@ const CreateModel = ({ workspaceId, deviceModels }: Props) => {
   }
 
   return (
-    <Dialog open={isDialogOpen} onOpenChange={(open) => setIsDialogOpen(open)}>
+    <Dialog
+      open={isDialogOpen}
+      onOpenChange={(open) => {
+        setIsDialogOpen(open);
+        if (!open) {
+          form.reset();
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button variant="default" size="sm">
           <Cpu className="mr-2 text-muted" size={20} />
@@ -146,7 +148,10 @@ const CreateModel = ({ workspaceId, deviceModels }: Props) => {
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit, (e) => console.log(e))}
+            className="space-y-4"
+          >
             <FormField
               control={form.control}
               name="name"
@@ -193,14 +198,14 @@ const CreateModel = ({ workspaceId, deviceModels }: Props) => {
                 <FormDescription>
                   You can pick the components that make up this system from
                   existing device models. This will help you build the
-                  'blueprint' of the system.
+                  &apos;blueprint&apos; of the system.
                 </FormDescription>
                 {fields.map((field, index) => (
                   <div className="flex gap-2 " key={field.modelId}>
                     <FormField
                       control={form.control}
                       key={field.modelId}
-                      name={`parts.${index}.modelId` as const}
+                      name={`components.${index}.modelId` as const}
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
@@ -212,7 +217,7 @@ const CreateModel = ({ workspaceId, deviceModels }: Props) => {
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                {deviceModels.map((model) => (
+                                {models.map((model) => (
                                   <SelectItem value={model.id} key={model.id}>
                                     {model.name}
                                   </SelectItem>
@@ -227,7 +232,7 @@ const CreateModel = ({ workspaceId, deviceModels }: Props) => {
                     <FormField
                       control={form.control}
                       key={field.modelId}
-                      name={`parts.${index}.count` as const}
+                      name={`components.${index}.count` as const}
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
@@ -237,7 +242,7 @@ const CreateModel = ({ workspaceId, deviceModels }: Props) => {
                               min={1}
                               className="w-20"
                               {...form.register(
-                                `parts.${index}.count` as const,
+                                `components.${index}.count` as const,
                                 {
                                   valueAsNumber: true,
                                 },

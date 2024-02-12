@@ -4,35 +4,33 @@ import {
   PageHeaderHeading,
 } from "~/components/small-header";
 import { api } from "~/trpc/server";
-import CreateModel from "./_components/create-model";
 import HardwareInstances from "./_components/hardware-instances";
 import HardwareModels from "./_components/hardware-models";
+import { Separator } from "~/components/ui/separator";
+import { Button } from "~/components/ui/button";
 
 export default async function HardwareInventory({
   params,
+  searchParams,
 }: {
   params: { namespace: string };
+  searchParams: { back?: string };
 }) {
   const workspaceId = await api.workspace.getWorkspaceIdByNamespace.query({
     namespace: params.namespace,
   });
 
-  const devices = await api.hardware.getAllDevices.query({
-    workspaceId,
-  });
-  const systems = await api.hardware.getAllSystems.query({
+  const models = await api.model.getAllModels.query({
     workspaceId,
   });
 
-  const deviceModels = await api.model.getAllDeviceModels.query({
-    workspaceId,
-  });
-  const systemModels = await api.model.getAllSystemModels.query({
+  const hardware = await api.hardware.getAllHardware.query({
     workspaceId,
   });
 
   return (
     <div className="container max-w-screen-2xl">
+      {searchParams.back && <Button>Back</Button>}
       <PageHeader>
         <PageHeaderHeading>Hardware Inventory</PageHeaderHeading>
         <PageHeaderDescription>
@@ -42,23 +40,23 @@ export default async function HardwareInventory({
       </PageHeader>
       <div className="py-4" />
 
-      <h1 className="text-2xl font-bold">Hardware Models</h1>
-      <div className="py-1" />
-      <CreateModel workspaceId={workspaceId} deviceModels={deviceModels} />
-      <div className="py-4" />
+      <Separator />
 
       <HardwareModels
-        deviceModels={deviceModels}
-        systemModels={systemModels}
+        models={models}
         workspaceId={workspaceId}
+        namespace={params.namespace}
       />
 
+      <div className="py-4" />
+
+      <Separator />
+
       <HardwareInstances
-        devices={devices}
-        systems={systems}
-        deviceModels={deviceModels}
-        systemModels={systemModels}
+        hardware={hardware}
+        models={models}
         workspaceId={workspaceId}
+        namespace={params.namespace}
       />
       <div className="py-4" />
     </div>

@@ -1,66 +1,56 @@
 "use client";
 
-import { deviceColumns, systemColumns } from "~/components/hardware/columns";
+import { hardwareColumns } from "~/components/hardware/columns";
 import { DataTable } from "~/components/ui/data-table";
 import { api } from "~/trpc/react";
 
-import { type SelectSystem, type SelectDevice } from "~/types/hardware";
-import { type SelectProject } from "~/types/project";
-import CreateDevice from "~/components/hardware/create-device";
-import CreateSystem from "~/components/hardware/create-system";
-import { type SelectDeviceModel, type SelectSystemModel } from "~/types/model";
+import CreateHardware from "~/components/hardware/create-hardware";
 import { Plus } from "lucide-react";
+import { Model } from "~/schemas/public/Model";
+import { Hardware } from "~/schemas/public/Hardware";
+import { Project } from "~/schemas/public/Project";
+import { useRouter } from "next/navigation";
 
 type Props = {
-  devices: (SelectDevice & { projects: SelectProject[] })[];
-  systems: (SelectSystem & { projects: SelectProject[] })[];
-  deviceModels: SelectDeviceModel[];
-  systemModels: SelectSystemModel[];
+  hardware: (Hardware & { model: Model; projects: Project[] })[];
+  models: Model[];
   workspaceId: string;
+  namespace: string;
 };
 
-export default function HardwareInstances(props: Props) {
-  const { data: devices } = api.hardware.getAllDevices.useQuery(
+export default function HardwareInstances({
+  hardware: initialData,
+  models,
+  workspaceId,
+  namespace,
+}: Props) {
+  const { data: hardware } = api.hardware.getAllHardware.useQuery(
     {
-      workspaceId: props.workspaceId,
+      workspaceId: workspaceId,
     },
-    { initialData: props.devices },
+    { initialData },
   );
-  const { data: systems } = api.hardware.getAllSystems.useQuery(
-    {
-      workspaceId: props.workspaceId,
-    },
-    { initialData: props.systems },
-  );
+  const router = useRouter();
 
   return (
     <div className="">
-      <h1 className="text-2xl font-bold">Hardware Instances</h1>
-      <div className="py-4" />
-      <h1 className="text-lg font-bold text-muted-foreground">Devices</h1>
+      <div className="py-2" />
+      <h1 className="text-xl font-bold">Hardware Instances</h1>
       <div className="py-1" />
-      <CreateDevice workspaceId={props.workspaceId} models={props.deviceModels}>
+      <CreateHardware workspaceId={workspaceId} models={models}>
         <div className="flex items-center gap-1">
           <Plus size={20} />
           <div>Create</div>
         </div>
-      </CreateDevice>
-      <div className="py-2" />
-      <DataTable columns={deviceColumns} data={devices} />
+      </CreateHardware>
       <div className="py-4" />
-      <h1 className="text-lg font-bold text-muted-foreground">Systems</h1>
-      <div className="py-1" />
-      <CreateSystem
-        workspaceId={props.workspaceId}
-        systemModels={props.systemModels}
-      >
-        <div className="flex items-center gap-1">
-          <Plus size={20} />
-          <div>Create</div>
-        </div>
-      </CreateSystem>
-      <div className="py-2" />
-      <DataTable columns={systemColumns} data={systems} />
+      <DataTable
+        columns={hardwareColumns}
+        data={hardware}
+        onRowClick={(row) =>
+          router.push(`/workspace/${namespace}/hardware/${row.id}`)
+        }
+      />
       <div className="py-4" />
     </div>
   );

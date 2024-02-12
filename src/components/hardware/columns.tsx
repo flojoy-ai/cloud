@@ -20,20 +20,16 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { type ColumnDef } from "@tanstack/react-table";
-import { type SelectSystem, type SelectDevice } from "~/types/hardware";
+import { Row, type ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
-import {
-  type SelectSystemModel,
-  type SelectDeviceModel,
-  type SelectModel,
-} from "~/types/model";
 import { Badge } from "../ui/badge";
 import _ from "lodash";
 import { useState } from "react";
 import { api } from "~/trpc/react";
-import { type SelectProject } from "~/types/project";
 import { handleTrpcError } from "~/lib/utils";
+import { Project } from "~/schemas/public/Project";
+import { Model } from "~/schemas/public/Model";
+import { Hardware } from "~/schemas/public/Hardware";
 
 type ActionsProps = {
   elem: { id: string };
@@ -49,7 +45,7 @@ const Actions = ({ elem, children }: ActionsProps) => {
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent onClick={(e) => e.stopPropagation()} align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuItem
           onClick={() =>
@@ -67,12 +63,12 @@ const Actions = ({ elem, children }: ActionsProps) => {
   );
 };
 
-export const deviceColumns: ColumnDef<
-  SelectDevice & { projects: SelectProject[] }
+export const hardwareColumns: ColumnDef<
+  Hardware & { projects: Project[]; model: Model }
 >[] = [
   {
     accessorKey: "name",
-    header: "Device Name",
+    header: "Instance SN",
     cell: ({ row }) => {
       return <Badge variant="secondary">{row.original.name}</Badge>;
     },
@@ -84,7 +80,6 @@ export const deviceColumns: ColumnDef<
       return <Badge>{row.original.model.name}</Badge>;
     },
   },
-
   {
     accessorKey: "project",
     header: "Project",
@@ -102,192 +97,101 @@ export const deviceColumns: ColumnDef<
       );
     },
   },
+  // TODO: Finish display of components
+  // {
+  //   accessorKey: "parts",
+  //   header: "Components",
+  //   cell: ({ row }) => {
+  //     const byModel = _.groupBy(row.original.parts, (p) => p.model.name);
+  //
+  //     return (
+  //       <div className="flex flex-col gap-2">
+  //         {Object.entries(byModel).map(([modelName, devices], idx) => (
+  //           <div className="flex items-start gap-1" key={idx}>
+  //             <Badge className="">{modelName}</Badge>
+  //             <div className="flex flex-col gap-1">
+  //               {devices.map((d) => (
+  //                 <Badge variant="secondary" key={d.id}>
+  //                   {d.name}
+  //                 </Badge>
+  //               ))}
+  //             </div>
+  //           </div>
+  //         ))}
+  //       </div>
+  //     );
+  //   },
+  // },
   {
     id: "actions",
     header: "Actions",
-    cell: ({ row }) => {
-      const [isOpen, setIsOpen] = useState(false);
-      const deleteHardware = api.hardware.deleteHardwareById.useMutation();
-      const utils = api.useUtils();
-      return (
-        <>
-          <AlertDialog open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete
-                  your device instance and remove your data from our servers.{" "}
-                  <br /> This device instance can only be deleted if it is{" "}
-                  <b>not within a system.</b>
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogContent>
-                {/* TODO: Show a list of systems that use this device*/}
-              </AlertDialogContent>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() =>
-                    toast.promise(
-                      deleteHardware.mutateAsync(
-                        {
-                          hardwareId: row.original.id,
-                        },
-                        {
-                          onSuccess: () => {
-                            void utils.hardware.getAllDevices.invalidate();
-                          },
-                        },
-                      ),
-                      {
-                        loading: "Deleting your device instance...",
-                        success: "Your device instance has been deleted.",
-                        error: handleTrpcError,
-                      },
-                    )
-                  }
-                >
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-          <Actions elem={row.original}>
-            <DropdownMenuItem onClick={() => setIsOpen(true)}>
-              Delete
-            </DropdownMenuItem>
-          </Actions>
-        </>
-      );
-    },
+    cell: HardwareActions,
   },
 ];
 
-export const systemColumns: ColumnDef<
-  SelectSystem & { projects: SelectProject[] }
->[] = [
-  {
-    accessorKey: "name",
-    header: "System Name",
-    cell: ({ row }) => {
-      return <Badge variant="secondary">{row.original.name}</Badge>;
-    },
-  },
-  {
-    accessorKey: "model",
-    header: "Model",
-    cell: ({ row }) => {
-      return <Badge>{row.original.model.name}</Badge>;
-    },
-  },
-
-  {
-    accessorKey: "project",
-    header: "Project",
-    cell: ({ row }) => {
-      const projects = row.original.projects;
-
-      return (
-        <div>
-          {projects.map((p) => (
-            <Badge key={p.id} variant="outline">
-              {p.name}
-            </Badge>
-          ))}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "parts",
-    header: "Components",
-    cell: ({ row }) => {
-      const byModel = _.groupBy(row.original.parts, (p) => p.model.name);
-
-      return (
-        <div className="flex flex-col gap-2">
-          {Object.entries(byModel).map(([modelName, devices]) => (
-            <div className="flex items-start gap-1">
-              <Badge className="">{modelName}</Badge>
-              <div className="flex flex-col gap-1">
-                {devices.map((d) => (
-                  <Badge variant="secondary" key={d.id}>
-                    {d.name}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      );
-    },
-  },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => {
-      const [isOpen, setIsOpen] = useState(false);
-      const deleteHardware = api.hardware.deleteHardwareById.useMutation();
-      const utils = api.useUtils();
-      return (
-        <>
-          <AlertDialog open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete
-                  your system instance and remove your data from our servers.{" "}
-                  <br />
-                  The device instances within this system{" "}
-                  <b>will not be removed.</b>
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogContent></AlertDialogContent>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() =>
-                    toast.promise(
-                      deleteHardware.mutateAsync(
-                        {
-                          hardwareId: row.original.id,
-                        },
-                        {
-                          onSuccess: () => {
-                            void utils.hardware.getAllSystems.invalidate();
-                          },
-                        },
-                      ),
-                      {
-                        loading: "Deleting your system instance...",
-                        success: "Your system instance has been deleted.",
-                        error: handleTrpcError,
+function HardwareActions({
+  row,
+}: {
+  row: Row<Hardware & { projects: Project[]; model: Model }>;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const deleteHardware = api.hardware.deleteHardwareById.useMutation();
+  const utils = api.useUtils();
+  return (
+    <>
+      <AlertDialog open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete your
+              system instance and remove your data from our servers. <br />
+              The device instances within this system{" "}
+              <b>will not be removed.</b>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogContent></AlertDialogContent>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() =>
+                toast.promise(
+                  deleteHardware.mutateAsync(
+                    {
+                      hardwareId: row.original.id,
+                    },
+                    {
+                      onSuccess: () => {
+                        void utils.hardware.getAllHardware.invalidate();
                       },
-                    )
-                  }
-                >
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-          <Actions elem={row.original}>
-            <DropdownMenuItem onClick={() => setIsOpen(true)}>
+                    },
+                  ),
+                  {
+                    loading: "Deleting your system instance...",
+                    success: "Your system instance has been deleted.",
+                    error: handleTrpcError,
+                  },
+                )
+              }
+            >
               Delete
-            </DropdownMenuItem>
-          </Actions>
-        </>
-      );
-    },
-  },
-];
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      <Actions elem={row.original}>
+        <DropdownMenuItem onClick={() => setIsOpen(true)}>
+          Delete
+        </DropdownMenuItem>
+      </Actions>
+    </>
+  );
+}
 
 type DeleteDialogProps = {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
-  model: SelectModel;
+  model: Model;
   onSuccess: () => void;
 };
 
@@ -300,7 +204,7 @@ const DeleteDialog = ({
   const deleteModel = api.model.deleteModel.useMutation();
   return (
     <AlertDialog open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
-      <AlertDialogContent>
+      <AlertDialogContent onClick={(e) => e.stopPropagation()}>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
@@ -346,7 +250,7 @@ const DeleteDialog = ({
   );
 };
 
-export const deviceModelColumns: ColumnDef<SelectDeviceModel>[] = [
+export const modelColumns: ColumnDef<Model>[] = [
   {
     accessorKey: "name",
     header: "Model Name",
@@ -357,73 +261,26 @@ export const deviceModelColumns: ColumnDef<SelectDeviceModel>[] = [
   {
     id: "actions",
     header: "Actions",
-    cell: ({ row }) => {
-      const [isOpen, setIsOpen] = useState(false);
-      const utils = api.useUtils();
-      return (
-        <>
-          <DeleteDialog
-            isOpen={isOpen}
-            setIsOpen={setIsOpen}
-            model={row.original}
-            onSuccess={() => void utils.model.getAllDeviceModels.invalidate()}
-          />
-          <Actions elem={row.original}>
-            <DropdownMenuItem onClick={() => setIsOpen(true)}>
-              Delete
-            </DropdownMenuItem>
-          </Actions>
-        </>
-      );
-    },
+    cell: ModelActions,
   },
 ];
 
-export const systemModelColumns: ColumnDef<SelectSystemModel>[] = [
-  {
-    accessorKey: "name",
-    header: "Model Name",
-    cell: ({ row }) => {
-      return <Badge>{row.original.name}</Badge>;
-    },
-  },
-  {
-    accessorKey: "parts",
-    header: "Components",
-    cell: ({ row }) => {
-      return (
-        <div className="flex flex-col gap-2">
-          {row.original.parts.map((p) => (
-            <div className="flex gap-2" key={p.name}>
-              <Badge>{p.name}</Badge>
-              <div className="font-medium">x{p.count}</div>
-            </div>
-          ))}
-        </div>
-      );
-    },
-  },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => {
-      const [isOpen, setIsOpen] = useState(false);
-      const utils = api.useUtils();
-      return (
-        <>
-          <DeleteDialog
-            isOpen={isOpen}
-            setIsOpen={setIsOpen}
-            model={row.original}
-            onSuccess={() => void utils.model.getAllSystemModels.invalidate()}
-          />
-          <Actions elem={row.original}>
-            <DropdownMenuItem onClick={() => setIsOpen(true)}>
-              Delete
-            </DropdownMenuItem>
-          </Actions>
-        </>
-      );
-    },
-  },
-];
+function ModelActions({ row }: { row: Row<Model> }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const utils = api.useUtils();
+  return (
+    <>
+      <DeleteDialog
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        model={row.original}
+        onSuccess={() => void utils.model.getAllModels.invalidate()}
+      />
+      <Actions elem={row.original}>
+        <DropdownMenuItem onClick={() => setIsOpen(true)}>
+          Delete
+        </DropdownMenuItem>
+      </Actions>
+    </>
+  );
+}

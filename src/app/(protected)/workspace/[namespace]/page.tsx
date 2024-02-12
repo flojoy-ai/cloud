@@ -6,8 +6,6 @@ import {
 } from "~/components/small-header";
 import NewProject from "./_components/new-project";
 import ProjectCard from "./_components/project-card";
-import CodeBlock from "~/components/code-block";
-import { WorkspaceSecretReminder } from "~/components/workspace-secret-reminder";
 
 export default async function Page({
   params,
@@ -26,20 +24,6 @@ export default async function Page({
   const models = await api.model.getAllModels.query({
     workspaceId: workspace.id,
   });
-
-  const code = `from flojoy.cloud import FlojoyCloud
-
-client = FlojoyCloud(workspace_secret="YOUR_WORKSPACE_SECRET")
-
-# Create a project
-project = client.create_project("PROJECT_NAME", "MODEL_ID", "${workspace.id}")
-
-# Get an existing project
-project = client.get_project_by_id("PROJECT_ID")
-
-# Get every project in your workspace
-project = client.get_all_projects("${workspace.id}")
-`;
 
   return (
     <div className="container max-w-screen-2xl">
@@ -79,17 +63,6 @@ project = client.get_all_projects("${workspace.id}")
         )}
       </div>
 
-      <div className="py-8" />
-      <div>
-        <h3 className="text-lg font-medium">Python Client</h3>
-        <p className="text-sm text-muted-foreground">
-          Create a project with Flojoy Cloud's Python client
-        </p>
-      </div>
-      <div>
-        <CodeBlock code={code} />
-        <WorkspaceSecretReminder namespace={params.namespace} />
-      </div>
       <div className="py-8" />
     </div>
   );

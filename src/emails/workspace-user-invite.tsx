@@ -41,8 +41,8 @@ export const WorkspaceUserInvite = ({
         <Container>
           <Heading>Invite to join workspace</Heading>
           <Text>
-            Hey there! {fromEmail} just sent you an invite to join the "
-            {workspaceName}" workspace
+            Hey there! {fromEmail} just sent you an invite to join the &quot;
+            {workspaceName}&quot; workspace
           </Text>
           <Button
             href={inviteLink}

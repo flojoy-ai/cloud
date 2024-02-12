@@ -8,16 +8,18 @@ import { Checkbox } from "~/components/ui/checkbox";
 import { Label } from "~/components/ui/label";
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/react";
-import { type MeasurementWithHardware } from "~/types/measurement";
-import { HelpCircle, Check, X } from "lucide-react";
+import { SelectMeasurement } from "~/types/measurement";
+import { Check, X, Upload } from "lucide-react";
+import { HardwareTree } from "~/types/hardware";
 
 type Props = {
   hardwareId: string;
+  hardware: HardwareTree;
   namespace: string;
-  initialMeasurements: MeasurementWithHardware[];
+  initialMeasurements: SelectMeasurement[];
 };
 
-const computePassingStatus = (measurements: MeasurementWithHardware[]) => {
+const computePassingStatus = (measurements: SelectMeasurement[]) => {
   const latest = _.values(_.groupBy(measurements, (meas) => meas.testId)).map(
     (meas) => meas[0]!,
   );
@@ -76,9 +78,29 @@ export default function HardwareMeasurements({
 
   const status = useMemo(() => computePassingStatus(data), [data]);
 
+  if (data.length === 0) {
+    return (
+      <div className="mt-24 flex flex-col items-center justify-center text-center text-muted-foreground">
+        <Upload size={40} />
+        <div className="py-1" />
+        <div>
+          No tests have been performed on this hardware yet, try uploading some
+          through the{" "}
+          <a
+            href="https://rest.flojoy.ai/api-reference"
+            className="underline hover:text-muted-foreground/70"
+          >
+            REST API
+          </a>
+          .
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
-      <Card className="mx-auto w-fit p-4 text-center">
+      <Card className="w-fit p-4 text-center">
         <div
           className={cn(
             "flex items-center justify-center gap-2 text-2xl font-bold",
@@ -100,7 +122,9 @@ export default function HardwareMeasurements({
           <span>{status.unevaluatedCount} unevaluated</span>
         </div>
       </Card>
+
       <div className="py-4" />
+
       <Card className="p-4">
         <div className="flex items-center gap-2">
           <Checkbox

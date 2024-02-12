@@ -17,8 +17,6 @@ import * as context from "next/headers";
 import { type OpenApiMeta } from "trpc-openapi";
 import * as jose from "jose";
 import { env } from "~/env";
-import { secretTable } from "../db/schema";
-import { and, eq } from "drizzle-orm";
 import { tryCatch } from "~/types/result";
 
 /**
@@ -143,12 +141,11 @@ export const workspaceProcedure = t.procedure.use(async ({ ctx, next }) => {
       });
     }
 
-    const workspace = await ctx.db.query.workspaceTable.findFirst({
-      columns: {
-        id: true,
-      },
-      where: (workspace, { eq }) => eq(workspace.namespace, scopeCookie.value),
-    });
+    const workspace = await ctx.db
+      .selectFrom("workspace")
+      .selectAll("workspace")
+      .where("workspace.namespace", "=", scopeCookie.value)
+      .executeTakeFirst();
 
     if (!workspace) {
       throw new TRPCError({
@@ -198,14 +195,13 @@ export const workspaceProcedure = t.procedure.use(async ({ ctx, next }) => {
     workspaceId = parsed.data.workspaceId;
 
     await ctx.db
-      .update(secretTable)
-      .set({ lastUsedAt: new Date() })
-      .where(
-        and(
-          eq(secretTable.userId, userId),
-          eq(secretTable.workspaceId, workspaceId),
-        ),
-      );
+      .updateTable("secret")
+      .set({
+        lastUsedAt: new Date(),
+      })
+      .where("secret.workspaceId", "=", workspaceId)
+      .where("secret.userId", "=", userId)
+      .execute();
   } else {
     throw new TRPCError({
       code: "UNAUTHORIZED",

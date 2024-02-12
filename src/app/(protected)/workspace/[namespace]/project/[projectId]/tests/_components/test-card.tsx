@@ -1,11 +1,8 @@
-import { type SelectTest } from "~/types/test";
-
 import Link from "next/link";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
@@ -17,9 +14,10 @@ import {
   ContextMenuContent,
 } from "~/components/ui/context-menu";
 import CopyIdContextMenuItem from "~/components/copy-id-context-menu";
+import { Test } from "~/schemas/public/Test";
 
 type Props = {
-  test: SelectTest;
+  test: Test;
   namespace: string;
 };
 
@@ -27,7 +25,12 @@ const TestCard = ({ test, namespace }: Props) => {
   return (
     <ContextMenu>
       <ContextMenuTrigger>
-        <Link href={`/workspace/${namespace}/test/${test.id}`}>
+        <Link
+          href={{
+            pathname: `/workspace/${namespace}/test/${test.id}`,
+            query: { back: true },
+          }}
+        >
           <Card className="transition-all duration-300 hover:bg-secondary/80">
             <CardHeader>
               <CardTitle>{test.name}</CardTitle>
@@ -36,12 +39,6 @@ const TestCard = ({ test, namespace }: Props) => {
             <CardContent>
               <Badge>{test.measurementType}</Badge>
             </CardContent>
-            <CardFooter>
-              {/* <div> */}
-              {/*   Last updated:{" "} */}
-              {/*   {test.updatedAt ? getPrettyTime(test.updatedAt) : "Never"} */}
-              {/* </div> */}
-            </CardFooter>
           </Card>
         </Link>
       </ContextMenuTrigger>

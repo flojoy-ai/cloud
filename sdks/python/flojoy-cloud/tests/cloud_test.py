@@ -15,6 +15,7 @@ API_URL = "http://localhost:3000/api/v1"
 WORKSPACE_ID = ""
 
 runnable = WORKSPACE_SECRET != "" and API_URL != "" and WORKSPACE_ID != ""
+pytestmark = pytest.mark.skipif(not runnable, reason="Need environment setup")
 
 
 @pytest.fixture
@@ -24,16 +25,31 @@ def workspace():
 
 
 @pytest.fixture
-def model_teardown(workspace: WorkspaceInfo):
+def reset(workspace: WorkspaceInfo):
+    client, workspace_id = workspace
+    # Clear hardware
+    for system in client.get_all_systems(workspace_id):
+        client.delete_hardware(system.id)
+    for device in client.get_all_devices(workspace_id):
+        client.delete_hardware(device.id)
+
+    # Clear projects
+    for project in client.get_all_projects(workspace_id):
+        client.delete_project(project.id)
+
+    # Clear models
+    for model in client.get_all_models(workspace_id):
+        client.delete_model(model.id)
+
+
+@pytest.fixture
+def model_teardown(reset, workspace: WorkspaceInfo):
     yield
     client, workspace_id = workspace
-    for model in client.get_all_system_models(workspace_id):
-        client.delete_model(model.id)
-    for model in client.get_all_device_models(workspace_id):
+    for model in client.get_all_models(workspace_id):
         client.delete_model(model.id)
 
 
-@pytest.mark.skipif(not runnable, reason="Need environment setup")
 def test_model_routes(workspace: WorkspaceInfo, model_teardown):
     client, workspace_id = workspace
     device_model = client.create_device_model(
@@ -86,7 +102,7 @@ def test_model_routes(workspace: WorkspaceInfo, model_teardown):
 
 
 @pytest.fixture
-def project_setup(workspace: WorkspaceInfo):
+def project_setup(reset, workspace: WorkspaceInfo):
     client, workspace_id = workspace
     model = client.create_device_model("test-model", workspace_id)
     yield model
@@ -95,7 +111,6 @@ def project_setup(workspace: WorkspaceInfo):
     client.delete_model(model.id)
 
 
-@pytest.mark.skipif(not runnable, reason="Need environment setup")
 def test_project_routes(workspace: WorkspaceInfo, project_setup):
     client, workspace_id = workspace
     model = project_setup
@@ -103,7 +118,7 @@ def test_project_routes(workspace: WorkspaceInfo, project_setup):
     project1 = client.create_project(
         name="test-project1", model_id=model.id, workspace_id=workspace_id
     )
-    get_result = client.get_project_by_id(project1.id)
+    get_result = client.get_project(project1.id)
 
     assert get_result.id == project1.id
     assert get_result.name == project1.name
@@ -118,14 +133,14 @@ def test_project_routes(workspace: WorkspaceInfo, project_setup):
     )
     assert [project1, project2] == workspace_projects
 
-    get_result = client.get_project_by_id(project2.id)
+    get_result = client.get_project(project2.id)
 
     assert get_result.id == project2.id
     assert get_result.name == "test-project2"
 
     client.update_project(name="test-project2-updated", project_id=project2.id)
 
-    get_result = client.get_project_by_id(project2.id)
+    get_result = client.get_project(project2.id)
 
     assert get_result.id == project2.id
     assert get_result.name == "test-project2-updated"
@@ -138,7 +153,7 @@ def test_project_routes(workspace: WorkspaceInfo, project_setup):
 
 
 @pytest.fixture
-def hardware_setup(workspace: WorkspaceInfo):
+def hardware_setup(reset, workspace: WorkspaceInfo):
     client, workspace_id = workspace
     device_model = client.create_device_model("test-device-model", workspace_id)
     system_model = client.create_system_model(
@@ -159,13 +174,12 @@ def hardware_setup(workspace: WorkspaceInfo):
     client.delete_project(system_project.id)
 
     for hardware in client.get_all_hardware(workspace_id):
-        client.delete_hardware_by_id(hardware.id)
+        client.delete_hardware(hardware.id)
 
     client.delete_model(system_model.id)
     client.delete_model(device_model.id)
 
 
-@pytest.mark.skipif(not runnable, reason="Need environment setup")
 def test_hardware_routes(workspace: WorkspaceInfo, hardware_setup):
     client, workspace_id = workspace
     device_model, system_model, device_project, system_project = hardware_setup
@@ -177,7 +191,7 @@ def test_hardware_routes(workspace: WorkspaceInfo, hardware_setup):
         model_id=device_model.id,
     )
 
-    res = client.get_hardware_by_id(device1.id)
+    res = client.get_hardware(device1.id)
     assert res.id == device1.id
     assert res.name == device1.name
 
@@ -187,7 +201,7 @@ def test_hardware_routes(workspace: WorkspaceInfo, hardware_setup):
         model_id=device_model.id,
     )
 
-    res = client.get_hardware_by_id(device2.id)
+    res = client.get_hardware(device2.id)
     assert res.id == device2.id
     assert res.name == device2.name
 
@@ -199,7 +213,7 @@ def test_hardware_routes(workspace: WorkspaceInfo, hardware_setup):
         device_ids=[device1.id, device2.id],
     )
 
-    res = client.get_hardware_by_id(system.id)
+    res = client.get_hardware(system.id)
     assert res.id == system.id
     assert res.name == system.name
 
@@ -227,10 +241,21 @@ def test_hardware_routes(workspace: WorkspaceInfo, hardware_setup):
     devices = client.get_all_devices(workspace_id, project_id=device_project.id)
     assert len(devices) == 1
 
-    # Then remove and check again
+    # Set it
+    client.set_project_hardware(
+        project_id=device_project.id, hardware_ids=[device1.id, device2.id]
+    )
+    devices = client.get_all_devices(workspace_id, project_id=device_project.id)
+    assert len(devices) == 2
+
+    # Then remove both and check again
     client.remove_hardware_from_project(
         project_id=device_project.id,
         hardware_id=device1.id,
+    )
+    client.remove_hardware_from_project(
+        project_id=device_project.id,
+        hardware_id=device2.id,
     )
 
     devices = client.get_all_devices(workspace_id, project_id=device_project.id)
@@ -248,22 +273,22 @@ def test_hardware_routes(workspace: WorkspaceInfo, hardware_setup):
     systems = client.get_all_systems(workspace_id, project_id=system_project.id)
     assert len(systems) == 1
 
-    client.delete_hardware_by_id(system.id)
+    client.delete_hardware(system.id)
     hardware = client.get_all_hardware(workspace_id)
     assert len(hardware) == 2
     systems = client.get_all_systems(workspace_id)
     assert len(systems) == 0
 
-    client.delete_hardware_by_id(device1.id)
+    client.delete_hardware(device1.id)
     devices = client.get_all_devices(workspace_id)
     assert len(devices) == 1
-    client.delete_hardware_by_id(device2.id)
+    client.delete_hardware(device2.id)
     devices = client.get_all_devices(workspace_id)
     assert len(devices) == 0
 
 
 @pytest.fixture
-def test_setup(workspace: WorkspaceInfo):
+def test_setup(reset, workspace: WorkspaceInfo):
     client, workspace_id = workspace
     model = client.create_device_model("model", workspace_id)
     project = client.create_project("project", model.id, workspace_id)
@@ -277,7 +302,6 @@ def test_setup(workspace: WorkspaceInfo):
     client.delete_model(model.id)
 
 
-@pytest.mark.skipif(not runnable, reason="Need environment setup")
 def test_test_routes(workspace: WorkspaceInfo, test_setup):
     client, _ = workspace
     project = test_setup
@@ -286,7 +310,7 @@ def test_test_routes(workspace: WorkspaceInfo, test_setup):
         name="test1", project_id=project.id, measurement_type="boolean"
     )
 
-    res = client.get_test_by_id(test1.id)
+    res = client.get_test(test1.id)
     assert res.name == test1.name
     assert res.id == test1.id
 
@@ -294,12 +318,12 @@ def test_test_routes(workspace: WorkspaceInfo, test_setup):
         name="test2", project_id=project.id, measurement_type="dataframe"
     )
 
-    res = client.get_test_by_id(test2.id)
+    res = client.get_test(test2.id)
     assert res.name == test2.name
     assert res.id == test2.id
 
     client.update_test(name="test2-updated", test_id=test2.id)
-    res = client.get_test_by_id(test2.id)
+    res = client.get_test(test2.id)
     assert res.name == "test2-updated"
 
     tests = client.get_all_tests_by_project_id(project.id)
@@ -317,12 +341,15 @@ def test_test_routes(workspace: WorkspaceInfo, test_setup):
 
 
 @pytest.fixture
-def measurement_setup(workspace: WorkspaceInfo):
+def measurement_setup(reset, workspace: WorkspaceInfo):
     client, workspace_id = workspace
     model = client.create_device_model("model", workspace_id)
     project = client.create_project("project", model.id, workspace_id)
-    device = client.create_device(
-        workspace_id, "device", model.id, project_id=project.id
+    device1 = client.create_device(
+        workspace_id, "device1", model.id, project_id=project.id
+    )
+    device2 = client.create_device(
+        workspace_id, "device2", model.id, project_id=project.id
     )
 
     bool_test = client.create_test(
@@ -332,60 +359,73 @@ def measurement_setup(workspace: WorkspaceInfo):
         "dataframe-test", project.id, measurement_type="dataframe"
     )
 
-    yield bool_test, df_test, device
+    yield bool_test, df_test, device1, device2
 
     for measurement in client.get_all_measurements_by_test_id(bool_test.id):
-        client.delete_measurement_by_id(measurement.id)
+        client.delete_measurement(measurement.id)
     for measurement in client.get_all_measurements_by_test_id(df_test.id):
-        client.delete_measurement_by_id(measurement.id)
+        client.delete_measurement(measurement.id)
 
     client.delete_test(bool_test.id)
     client.delete_test(df_test.id)
 
     client.delete_project(project.id)
-    client.delete_hardware_by_id(device.id)
+    client.delete_hardware(device1.id)
+    client.delete_hardware(device2.id)
     client.delete_model(model.id)
 
 
-@pytest.mark.skipif(not runnable, reason="Need environment setup")
 def test_measurement_routes(workspace: WorkspaceInfo, measurement_setup):
     client, workspace_id = workspace
-    bool_test, df_test, device = measurement_setup
+    bool_test, df_test, device1, device2 = measurement_setup
 
     client.upload(
         data=True,
         test_id=bool_test.id,
-        hardware_id=device.id,
+        hardware_id=device1.id,
         name="bool",
     )
 
     client.upload(
         data=pd.DataFrame({"col1": [1, 2, 3], "col2": [4, 5, 6], "col3": [7, 8, 9]}),
         test_id=df_test.id,
-        hardware_id=device.id,
+        hardware_id=device1.id,
         name="df",
     )
 
+    client.upload(
+        data=False,
+        test_id=bool_test.id,
+        hardware_id=device2.id,
+        name="bool 2",
+    )
+
     bool_measurements = client.get_all_measurements_by_test_id(bool_test.id)
-    assert len(bool_measurements) == 1
+    assert len(bool_measurements) == 2
 
     df_measurements = client.get_all_measurements_by_test_id(df_test.id)
     assert len(df_measurements) == 1
 
-    bool_meas = client.get_measurement_by_id(bool_measurements[0].id)
+    d1_measurements = client.get_all_measurements_by_hardware_id(device1.id)
+    assert len(d1_measurements) == 2
+
+    d2_measurements = client.get_all_measurements_by_hardware_id(device2.id)
+    assert len(d2_measurements) == 1
+
+    bool_meas = client.get_measurement(bool_measurements[0].id)
     assert bool_meas.name == "bool"
     assert bool_meas.data["value"]
     assert bool_meas.id == bool_measurements[0].id
 
-    df_meas = client.get_measurement_by_id(df_measurements[0].id)
+    df_meas = client.get_measurement(df_measurements[0].id)
     assert df_meas.name == "df"
 
-    client.delete_measurement_by_id(bool_meas.id)
+    client.delete_measurement(bool_meas.id)
 
     bool_measurements = client.get_all_measurements_by_test_id(bool_test.id)
-    assert len(bool_measurements) == 0
+    assert len(bool_measurements) == 1
 
-    client.delete_measurement_by_id(df_meas.id)
+    client.delete_measurement(df_meas.id)
 
     df_measurements = client.get_all_measurements_by_test_id(df_test.id)
     assert len(df_measurements) == 0

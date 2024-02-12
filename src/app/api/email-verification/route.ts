@@ -2,6 +2,7 @@ import { validateRequest } from "~/auth/lucia";
 import { env } from "~/env";
 import { sendEmailVerificationLink } from "~/lib/email";
 import { generateEmailVerificationToken } from "~/lib/token";
+import { type UserId } from "~/schemas/public/User";
 
 export const POST = async () => {
   const { user } = await validateRequest();

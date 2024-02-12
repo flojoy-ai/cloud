@@ -3,7 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import type * as z from "zod";
-import { publicInsertWorkspaceSchema } from "~/types/workspace";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -21,8 +20,9 @@ import { toast } from "sonner";
 import { Checkbox } from "~/components/ui/checkbox";
 import { env } from "~/env";
 import { handleTrpcError } from "~/lib/utils";
+import { createWorkspace } from "~/types/workspace";
 
-const formSchema = publicInsertWorkspaceSchema;
+const formSchema = createWorkspace;
 
 const CreateWorkspaceForm = () => {
   const router = useRouter();

@@ -5,69 +5,48 @@ import {
   workspaceProcedure,
 } from "~/server/api/trpc";
 import { workspaceAccessMiddleware } from "./workspace";
-import { selectWorkspaceUserSchema } from "~/types/workspace_user";
-import {
-  userInviteTable,
-  userTable,
-  workspaceTable,
-  workspaceUserTable,
-} from "~/server/db/schema";
-import { and, eq, getTableColumns } from "drizzle-orm";
-import {
-  insertUserInviteSchema,
-  selectUserInviteSchema,
-  selectUserSchema,
-} from "~/types/user";
-import { selectWorkspaceSchema } from "~/types/workspace";
 import { render } from "@react-email/render";
 import { WorkspaceUserInvite } from "~/emails/workspace-user-invite";
 import { sendEmailWithSES } from "~/lib/email";
 import { TRPCError } from "@trpc/server";
 import { env } from "~/env";
 import _ from "lodash";
+import { userInvite } from "~/schemas/public/UserInvite";
+import { generateDatabaseId } from "~/lib/id";
+import { createUserInvite } from "~/types/user";
+import { user } from "~/schemas/public/User";
+import { workspaceUser } from "~/schemas/public/WorkspaceUser";
 
 export const userRouter = createTRPCRouter({
   getUsersInWorkspace: workspaceProcedure
     .input(z.object({ workspaceId: z.string() }))
     .use(workspaceAccessMiddleware)
-    .output(
-      z.array(
-        z.object({
-          user: selectUserSchema,
-          workspaceUser: selectWorkspaceUserSchema,
-        }),
-      ),
-    )
-    .query(({ ctx, input }) => {
-      const result = ctx.db
-        .select({
-          user: { ...getTableColumns(userTable) },
-          workspaceUser: { ...getTableColumns(workspaceUserTable) },
-        })
-        .from(workspaceUserTable)
-        .where(eq(workspaceUserTable.workspaceId, input.workspaceId))
-        .innerJoin(userTable, eq(userTable.id, workspaceUserTable.userId))
-        .innerJoin(
-          workspaceTable,
-          eq(workspaceTable.id, workspaceUserTable.workspaceId),
-        );
+    .output(z.array(user.merge(workspaceUser.pick({ role: true }))))
+    .query(async ({ ctx, input }) => {
+      const result = await ctx.db
+        .selectFrom("workspace_user as wu")
+        .where("wu.workspaceId", "=", input.workspaceId)
+        .innerJoin("user as u", "u.id", "wu.userId")
+        .innerJoin("workspace as w", "w.id", "wu.workspaceId")
+        .selectAll("u")
+        .select("wu.role as role")
+        .execute();
+
       return result;
     }),
 
   addUserToWorkspace: protectedProcedure
-    .input(insertUserInviteSchema)
+    .input(createUserInvite)
     .use(workspaceAccessMiddleware)
     .output(z.void())
     .mutation(async ({ ctx, input }) => {
       try {
-        const currentWorkspaceUser =
-          await ctx.db.query.workspaceUserTable.findFirst({
-            where: (wu, { and, eq }) =>
-              and(
-                eq(wu.userId, ctx.user.id),
-                eq(wu.workspaceId, ctx.workspace.id),
-              ),
-          });
+        const currentWorkspaceUser = await ctx.db
+          .selectFrom("workspace_user")
+          .where("userId", "=", ctx.user.id)
+          .where("workspaceId", "=", ctx.workspace.id)
+          .selectAll()
+          .executeTakeFirst();
 
         if (!currentWorkspaceUser) {
           throw new TRPCError({
@@ -76,7 +55,6 @@ export const userRouter = createTRPCRouter({
               "Could not find workspace user, reload the page and try again",
           });
         }
-
         if (!_.includes(["admin", "owner"], currentWorkspaceUser.role)) {
           throw new TRPCError({
             code: "FORBIDDEN",
@@ -85,21 +63,22 @@ export const userRouter = createTRPCRouter({
           });
         }
 
-        await ctx.db.transaction(async (trx) => {
+        await ctx.db.transaction().execute(async (trx) => {
           await trx
-            .delete(userInviteTable)
-            .where(
-              and(
-                eq(userInviteTable.email, input.email),
-                eq(userInviteTable.workspaceId, ctx.workspace.id),
-              ),
-            );
+            .deleteFrom("user_invite")
+            .where("email", "=", input.email)
+            .where("workspaceId", "=", ctx.workspace.id)
+            .execute();
 
-          await trx.insert(userInviteTable).values({
-            email: input.email,
-            workspaceId: ctx.workspace.id,
-            role: input.role,
-          });
+          await trx
+            .insertInto("user_invite")
+            .values({
+              id: generateDatabaseId("user_invite"),
+              email: input.email,
+              workspaceId: ctx.workspace.id,
+              role: input.role,
+            })
+            .execute();
         });
 
         const emailHtml = render(
@@ -132,14 +111,12 @@ export const userRouter = createTRPCRouter({
     .use(workspaceAccessMiddleware)
     .output(z.void())
     .mutation(async ({ ctx, input }) => {
-      const currentWorkspaceUser =
-        await ctx.db.query.workspaceUserTable.findFirst({
-          where: (wu, { and, eq }) =>
-            and(
-              eq(wu.userId, ctx.user.id),
-              eq(wu.workspaceId, input.workspaceId),
-            ),
-        });
+      const currentWorkspaceUser = await ctx.db
+        .selectFrom("workspace_user")
+        .where("userId", "=", ctx.user.id)
+        .where("workspaceId", "=", input.workspaceId)
+        .selectAll()
+        .executeTakeFirst();
 
       if (
         currentWorkspaceUser?.role !== "owner" &&
@@ -152,29 +129,33 @@ export const userRouter = createTRPCRouter({
         });
       }
 
+      if (
+        currentWorkspaceUser.role === "owner" &&
+        input.userId === currentWorkspaceUser.userId
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You cannot remove yourself from the workspace",
+        });
+      }
+
       await ctx.db
-        .delete(workspaceUserTable)
-        .where(
-          and(
-            eq(workspaceUserTable.userId, input.userId),
-            eq(workspaceUserTable.workspaceId, input.workspaceId),
-          ),
-        );
+        .deleteFrom("workspace_user")
+        .where("userId", "=", input.userId)
+        .where("workspaceId", "=", input.workspaceId)
+        .execute();
     }),
 
   getAllWorkspaceInvites: protectedProcedure
-    .output(
-      z.array(
-        selectUserInviteSchema.extend({ workspace: selectWorkspaceSchema }),
-      ),
-    )
+    .output(z.array(userInvite.extend({ workspaceName: z.string() })))
     .query(async ({ ctx }) => {
-      const result = ctx.db.query.userInviteTable.findMany({
-        where: (ui) => eq(ui.email, ctx.user.email),
-        with: {
-          workspace: true,
-        },
-      });
+      const result = ctx.db
+        .selectFrom("user_invite as ui")
+        .where("ui.email", "=", "ctx.user.email")
+        .innerJoin("workspace as w", "w.id", "ui.workspaceId")
+        .selectAll("ui")
+        .select("w.name as workspaceName")
+        .execute();
       return result;
     }),
 
@@ -185,13 +166,12 @@ export const userRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const invite = await ctx.db.query.userInviteTable.findFirst({
-        where: (ui) =>
-          and(
-            eq(ui.email, ctx.user.email),
-            eq(ui.workspaceId, input.workspaceId),
-          ),
-      });
+      const invite = await ctx.db
+        .selectFrom("user_invite as ui")
+        .where("ui.email", "=", ctx.user.email)
+        .where("ui.workspaceId", "=", input.workspaceId)
+        .selectAll()
+        .executeTakeFirst();
 
       if (!invite) {
         throw new TRPCError({
@@ -200,21 +180,21 @@ export const userRouter = createTRPCRouter({
         });
       }
 
-      await ctx.db.transaction(async (trx) => {
-        await trx.insert(workspaceUserTable).values({
-          userId: ctx.user.id,
-          workspaceId: input.workspaceId,
-          role: invite.role,
-        });
+      await ctx.db.transaction().execute(async (trx) => {
+        await trx
+          .insertInto("workspace_user")
+          .values({
+            userId: ctx.user.id,
+            workspaceId: input.workspaceId,
+            role: invite.role,
+          })
+          .execute();
 
         await trx
-          .delete(userInviteTable)
-          .where(
-            and(
-              eq(userInviteTable.email, ctx.user.email),
-              eq(userInviteTable.workspaceId, input.workspaceId),
-            ),
-          );
+          .deleteFrom("user_invite as ui")
+          .where("ui.email", "=", ctx.user.email)
+          .where("ui.workspaceId", "=", input.workspaceId)
+          .execute();
       });
     }),
 
@@ -227,12 +207,9 @@ export const userRouter = createTRPCRouter({
     .output(z.void())
     .mutation(async ({ ctx, input }) => {
       await ctx.db
-        .delete(userInviteTable)
-        .where(
-          and(
-            eq(userInviteTable.email, ctx.user.email),
-            eq(userInviteTable.workspaceId, input.workspaceId),
-          ),
-        );
+        .deleteFrom("user_invite as ui")
+        .where("ui.email", "=", ctx.user.email)
+        .where("ui.workspaceId", "=", input.workspaceId)
+        .execute();
     }),
 });
