@@ -160,6 +160,21 @@ export const workspaceRouter = createTRPCRouter({
           .where("hardware.workspaceId", "=", input.workspaceId)
           .execute();
 
+        const models = await tx
+          .selectFrom("model")
+          .select("id")
+          .where("model.workspaceId", "=", input.workspaceId)
+          .execute();
+
+        await tx
+          .deleteFrom("model_relation")
+          .where(
+            "parentModelId",
+            "in",
+            models.map((m) => m.id),
+          )
+          .execute();
+
         await tx
           .deleteFrom("model")
           .where("model.workspaceId", "=", input.workspaceId)
