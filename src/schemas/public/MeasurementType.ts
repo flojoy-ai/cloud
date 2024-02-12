@@ -6,7 +6,8 @@ import { z } from 'zod';
 /** Represents the enum public.measurement_type */
 type MeasurementType = 
   | 'boolean'
-  | 'dataframe';
+  | 'dataframe'
+  | 'scalar';
 
 export default MeasurementType;
 
@@ -14,4 +15,5 @@ export default MeasurementType;
 export const measurementType = z.enum([
   'boolean',
   'dataframe',
+  'scalar',
 ]);;

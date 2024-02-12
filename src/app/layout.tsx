@@ -10,6 +10,9 @@ import { Toaster } from "~/components/ui/sonner";
 import { TRPCReactProvider } from "~/trpc/react";
 import { ThemeProvider } from "~/components/theme-provider";
 import { TailwindIndicator } from "~/components/tailwind-indicator";
+import { ErrorBoundary } from "~/components/error-boundary";
+import { env } from "~/env";
+import { CustomHighlightStart } from "~/components/custom-highlight-start";
 
 export const metadata = {
   title: "Flojoy Cloud",
@@ -26,31 +29,35 @@ export default async function RootLayout({
   return (
     <>
       <HighlightInit
-        projectId={"6gl9mxzg"}
-        serviceName="cloud"
+        projectId={env.HIGHLIGHT_PROJECT_ID}
+        serviceName="cloud-frontend"
         tracingOrigins
         networkRecording={{
           enabled: true,
           recordHeadersAndBody: true,
           urlBlocklist: [],
         }}
+        manualStart
       />
+      <CustomHighlightStart />
       <html lang="en">
         <body
           className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}
         >
-          <TRPCReactProvider>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-            >
-              <main>{children}</main>
-              <Toaster />
-              <TailwindIndicator />
-            </ThemeProvider>
-          </TRPCReactProvider>
+          <ErrorBoundary>
+            <TRPCReactProvider>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+                disableTransitionOnChange
+              >
+                <main>{children}</main>
+                <Toaster />
+                <TailwindIndicator />
+              </ThemeProvider>
+            </TRPCReactProvider>
+          </ErrorBoundary>
         </body>
       </html>
     </>

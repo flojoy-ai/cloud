@@ -4,8 +4,9 @@ import { db } from "~/server/db";
 import { createPasswordResetToken } from "~/lib/token";
 import { sendPasswordResetLink } from "~/lib/email";
 import { env } from "~/env";
+import { withAppRouterHighlight } from "~/lib/highlight";
 
-export const POST = async (request: NextRequest) => {
+export const POST = withAppRouterHighlight(async (request: NextRequest) => {
   const formData = await request.formData();
   const email = formData.get("email");
   const parsedEmail = z.string().email().safeParse(email);
@@ -46,4 +47,4 @@ export const POST = async (request: NextRequest) => {
       status: 400,
     });
   }
-};
+});
