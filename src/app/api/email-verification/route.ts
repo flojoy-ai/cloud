@@ -3,8 +3,9 @@ import { validateRequest } from "~/auth/lucia";
 import { sendEmailVerificationLink } from "~/lib/email";
 import { generateEmailVerificationToken } from "~/lib/token";
 import { type UserId } from "~/schemas/public/User";
+import { withAppRouterHighlight } from "~/lib/highlight";
 
-export const POST = async (request: NextRequest) => {
+export const POST = withAppRouterHighlight(async (request: NextRequest) => {
   const { user } = await validateRequest();
   if (!user) {
     return new Response(null, {
@@ -32,4 +33,4 @@ export const POST = async (request: NextRequest) => {
       status: 500,
     });
   }
-};
+});
