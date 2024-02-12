@@ -67,7 +67,7 @@ export const hardwareColumns: ColumnDef<
 >[] = [
   {
     accessorKey: "name",
-    header: "System Name",
+    header: "Instance SN",
     cell: ({ row }) => {
       return <Badge variant="secondary">{row.original.name}</Badge>;
     },

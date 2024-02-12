@@ -35,7 +35,7 @@ export default function HardwareInstances({
   return (
     <div className="">
       <div className="py-2" />
-      <h1 className="text-xl font-bold">Hardware</h1>
+      <h1 className="text-xl font-bold">Hardware Instances</h1>
       <div className="py-1" />
       <CreateHardware workspaceId={workspaceId} models={models}>
         <div className="flex items-center gap-1">

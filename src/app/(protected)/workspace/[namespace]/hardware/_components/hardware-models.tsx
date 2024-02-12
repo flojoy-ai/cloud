@@ -32,7 +32,7 @@ export default function HardwareModels({
     <div>
       <div className="py-2" />
 
-      <h1 className="text-xl font-bold">Models</h1>
+      <h1 className="text-xl font-bold">Hardware Models</h1>
       <div className="py-1" />
       <CreateModel workspaceId={workspaceId} models={models} />
       <div className="py-4" />
