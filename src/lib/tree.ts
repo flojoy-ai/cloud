@@ -58,7 +58,7 @@ export const makeHardwareGraph = (root: HardwareTree) => {
       nodes.push({
         id,
         data: {
-          label: node.name,
+          label: `${node.name}\n(${node.modelName})`,
         },
         position: { x: 0, y: 0 },
       });
