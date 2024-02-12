@@ -1,5 +1,7 @@
 import "~/styles/globals.css";
 
+import { HighlightInit } from "@highlight-run/next/client";
+
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 
@@ -22,21 +24,35 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
-        <TRPCReactProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <main>{children}</main>
-            <Toaster />
-            <TailwindIndicator />
-          </ThemeProvider>
-        </TRPCReactProvider>
-      </body>
-    </html>
+    <>
+      <HighlightInit
+        projectId={"6gl9mxzg"}
+        serviceName="cloud"
+        tracingOrigins
+        networkRecording={{
+          enabled: true,
+          recordHeadersAndBody: true,
+          urlBlocklist: [],
+        }}
+      />
+      <html lang="en">
+        <body
+          className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}
+        >
+          <TRPCReactProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <main>{children}</main>
+              <Toaster />
+              <TailwindIndicator />
+            </ThemeProvider>
+          </TRPCReactProvider>
+        </body>
+      </html>
+    </>
   );
 }
