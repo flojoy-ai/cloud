@@ -6,7 +6,6 @@ import { db } from "~/server/db";
 import { ModelTree } from "~/types/model";
 import { Hardware } from "~/schemas/public/Hardware";
 import { HardwareTree } from "~/types/hardware";
-import { Project } from "~/schemas/public/Project";
 
 export async function getProjectById(id: string) {
   return await db
