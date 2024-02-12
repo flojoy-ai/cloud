@@ -29,6 +29,7 @@ export default async function RootLayout({
   return (
     <>
       <HighlightInit
+        excludedHostnames={["localhost"]}
         projectId={env.HIGHLIGHT_PROJECT_ID}
         serviceName="cloud-frontend"
         tracingOrigins
@@ -37,6 +38,8 @@ export default async function RootLayout({
           recordHeadersAndBody: true,
           urlBlocklist: [],
         }}
+        // https://github.com/highlight/highlight/issues/5677
+        inlineImages={false}
         manualStart
       />
       <CustomHighlightStart />
