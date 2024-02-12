@@ -23,7 +23,7 @@ export const POST = async (request: NextRequest) => {
     password.length < 1 ||
     password.length > 255
   ) {
-    return new Response("Invalid password!", {
+    return new Response("Wrong password or user does not exist!", {
       status: 400,
     });
   }
@@ -36,7 +36,7 @@ export const POST = async (request: NextRequest) => {
       .executeTakeFirst();
 
     if (!existingUser) {
-      return new Response("This user does not exist :(", {
+      return new Response("Wrong password or user does not exist!", {
         status: 400,
       });
     }
@@ -56,7 +56,7 @@ export const POST = async (request: NextRequest) => {
     );
 
     if (!validPassword) {
-      return new Response("Wrong password!", {
+      return new Response("Wrong password or user does not exist!", {
         status: 400,
       });
     }
