@@ -6,14 +6,14 @@ export const makeModelGraph = (root: ModelTree) => {
   const nodes: Node[] = [];
   const edges: Edge[] = [];
 
-  const traverse = (node: ModelTree): string => {
+  const traverse = (node: ModelTree, count?: number): string => {
     const duplicates = nodes.filter((n) => n.id.startsWith(node.id)).length;
     const id = duplicates === 0 ? node.id : `${node.id}_${duplicates}`;
     if (node.components.length === 0) {
       nodes.push({
         id,
         data: {
-          label: node.name,
+          label: node.name + (count ? ` (x${count})` : ""),
         },
         position: { x: 0, y: 0 },
       });
@@ -21,7 +21,9 @@ export const makeModelGraph = (root: ModelTree) => {
       return id;
     }
 
-    const childIds = node.components.map((group) => traverse(group.model));
+    const childIds = node.components.map((group) =>
+      traverse(group.model, group.count),
+    );
 
     nodes.push({
       id,
