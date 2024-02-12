@@ -3,7 +3,7 @@ import {
   measurement,
   measurementInitializer,
 } from "~/schemas/public/Measurement";
-import { type z } from "zod";
+import { z } from "zod";
 import { hardware } from "~/schemas/public/Hardware";
 
 export const insertMeasurementSchema = measurementInitializer
@@ -17,6 +17,7 @@ export const insertMeasurementSchema = measurementInitializer
   })
   .extend({
     data: measurementDataSchema,
+    name: z.string().default("Untitled Measurement"),
   });
 
 export const selectMeasurementSchema = measurement.extend({
