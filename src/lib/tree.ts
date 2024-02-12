@@ -28,7 +28,7 @@ export const makeModelGraph = (root: ModelTree) => {
     nodes.push({
       id,
       data: {
-        label: node.name,
+        label: node.name + (count ? ` (x${count})` : ""),
       },
       position: { x: 0, y: 0 },
     });
