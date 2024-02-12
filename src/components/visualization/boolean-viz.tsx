@@ -63,7 +63,7 @@ const BooleanViz = ({ measurements, title, workspaceId }: Props) => {
         `/workspace/${workspaceId}/hardware/${measurement.hardwareId}`,
       );
     },
-    [measurements, router],
+    [measurements, router, workspaceId],
   );
 
   return (
