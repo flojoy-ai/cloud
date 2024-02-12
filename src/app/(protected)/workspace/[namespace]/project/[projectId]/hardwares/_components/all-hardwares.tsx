@@ -1,30 +1,31 @@
 "use client";
 
-import CreateDevice from "~/components/hardware/create-device";
-import CreateSystem from "~/components/hardware/create-system";
-import { type SelectModel } from "~/types/model";
+import CreateHardware from "~/components/hardware/create-hardware";
 import DeviceCard from "./device-card";
-import { type SelectHardware } from "~/types/hardware";
 import { api } from "~/trpc/react";
 import { Input } from "~/components/ui/input";
 import { useState } from "react";
-import { type SelectProject } from "~/types/project";
 import { Badge } from "~/components/ui/badge";
 import { PlusCircle } from "lucide-react";
 import ImportHardware from "./import-hardware";
+import { Hardware } from "~/schemas/public/Hardware";
+import { Model } from "~/schemas/public/Model";
+import { Project } from "~/schemas/public/Project";
 
 type Props = {
-  hardwares: SelectHardware[];
-  modelHardware: SelectHardware[];
+  hardwares: (Hardware & { model: Model; projects: Project[] })[];
+  models: Model[];
+  modelHardware: (Hardware & { model: Model; projects: Project[] })[];
   workspaceId: string;
   namespace: string;
-  project: SelectProject & { model: SelectModel };
+  project: Project & { model: Model };
 };
 
 const AllHardwares = ({
   workspaceId,
   hardwares: initialHardwares,
   modelHardware,
+  models: initialModels,
   namespace,
   project,
 }: Props) => {
@@ -35,6 +36,14 @@ const AllHardwares = ({
     },
     {
       initialData: initialHardwares,
+    },
+  );
+  const { data: models } = api.model.getAllModels.useQuery(
+    {
+      workspaceId,
+    },
+    {
+      initialData: initialModels,
     },
   );
 
@@ -49,29 +58,17 @@ const AllHardwares = ({
           initialHardware={modelHardware}
           projectHardware={hardwares}
         />
-        {project.model.type === "system" ? (
-          <CreateSystem
-            workspaceId={workspaceId}
-            model={project.model}
-            projectId={project.id}
-          >
-            <div className="flex items-center gap-2">
-              <PlusCircle size={20} />
-              <div>Register System Instance</div>
-            </div>
-          </CreateSystem>
-        ) : (
-          <CreateDevice
-            workspaceId={workspaceId}
-            model={project.model}
-            projectId={project.id}
-          >
-            <div className="flex items-center gap-2">
-              <PlusCircle size={20} />
-              <div>Register Device Instance</div>
-            </div>
-          </CreateDevice>
-        )}
+        <CreateHardware
+          workspaceId={workspaceId}
+          model={project.model}
+          models={models}
+          projectId={project.id}
+        >
+          <div className="flex items-center gap-2">
+            <PlusCircle size={20} />
+            <div>Register Instance</div>
+          </div>
+        </CreateHardware>
       </div>
       <div className="text-muted-foreground">
         You can only register instances of <Badge>{project.model.name}</Badge>{" "}

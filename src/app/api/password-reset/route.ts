@@ -16,21 +16,31 @@ export const POST = async (request: NextRequest) => {
   }
 
   try {
-    const storedUser = await db.query.userTable.findFirst({
-      where: (u, { eq }) => eq(u.email, parsedEmail.data),
-    });
+    const storedUser = await db
+      .selectFrom("user")
+      .selectAll()
+      .where("email", "=", parsedEmail.data)
+      .executeTakeFirst();
 
     if (!storedUser) {
-      return new Response("User does not exist!", {
-        status: 400,
-      });
+      return new Response(
+        "A password reset email will be sent if you have a Flojoy Cloud account. Please check your inbox :)",
+        {
+          status: 200,
+        },
+      );
     }
 
     const token = await createPasswordResetToken(storedUser.id);
     const resetLink = `${env.NEXT_PUBLIC_URL_ORIGIN}/password-reset/${token}`;
     await sendPasswordResetLink(storedUser.email, resetLink);
 
-    return new Response(null, { status: 200 });
+    return new Response(
+      "A password reset email will be sent if you have a Flojoy Cloud account. Please check your inbox :)",
+      {
+        status: 200,
+      },
+    );
   } catch (e) {
     return new Response(String(e), {
       status: 400,

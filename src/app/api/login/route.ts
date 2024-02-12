@@ -1,7 +1,6 @@
 // app/api/login/route.ts
 import { Argon2id } from "oslo/password";
 import { lucia } from "~/auth/lucia";
-import { NextResponse } from "next/server";
 
 import type { NextRequest } from "next/server";
 import { z } from "zod";
@@ -24,17 +23,20 @@ export const POST = async (request: NextRequest) => {
     password.length < 1 ||
     password.length > 255
   ) {
-    return new Response("Invalid password!", {
+    return new Response("Wrong password or user does not exist!", {
       status: 400,
     });
   }
 
   try {
-    const existingUser = await db.query.userTable.findFirst({
-      where: (user, { eq }) => eq(user.email, parsedEmail.data),
-    });
+    const existingUser = await db
+      .selectFrom("user")
+      .selectAll()
+      .where("email", "=", parsedEmail.data)
+      .executeTakeFirst();
+
     if (!existingUser) {
-      return new Response("This user does not exist :(", {
+      return new Response("Wrong password or user does not exist!", {
         status: 400,
       });
     }
@@ -54,7 +56,7 @@ export const POST = async (request: NextRequest) => {
     );
 
     if (!validPassword) {
-      return new Response("Wrong password!", {
+      return new Response("Wrong password or user does not exist!", {
         status: 400,
       });
     }

@@ -8,16 +8,18 @@ import { Checkbox } from "~/components/ui/checkbox";
 import { Label } from "~/components/ui/label";
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/react";
-import { type MeasurementWithHardware } from "~/types/measurement";
+import { SelectMeasurement } from "~/types/measurement";
 import { Check, X, Upload } from "lucide-react";
+import { HardwareTree } from "~/types/hardware";
 
 type Props = {
   hardwareId: string;
+  hardware: HardwareTree;
   namespace: string;
-  initialMeasurements: MeasurementWithHardware[];
+  initialMeasurements: SelectMeasurement[];
 };
 
-const computePassingStatus = (measurements: MeasurementWithHardware[]) => {
+const computePassingStatus = (measurements: SelectMeasurement[]) => {
   const latest = _.values(_.groupBy(measurements, (meas) => meas.testId)).map(
     (meas) => meas[0]!,
   );
@@ -74,6 +76,8 @@ export default function HardwareMeasurements({
     },
   );
 
+  const status = useMemo(() => computePassingStatus(data), [data]);
+
   if (data.length === 0) {
     return (
       <div className="mt-24 flex flex-col items-center justify-center text-center text-muted-foreground">
@@ -93,8 +97,6 @@ export default function HardwareMeasurements({
       </div>
     );
   }
-
-  const status = useMemo(() => computePassingStatus(data), [data]);
 
   return (
     <div>

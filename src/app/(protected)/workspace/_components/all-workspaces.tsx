@@ -1,8 +1,8 @@
-import { type SelectWorkspace } from "~/types/workspace";
+import { Workspace } from "~/schemas/public/Workspace";
 import WorkspaceCard from "./workspace-card";
 
 type Props = {
-  workspaces: SelectWorkspace[];
+  workspaces: Workspace[];
 };
 
 export default async function AllWorkspaces({ workspaces }: Props) {

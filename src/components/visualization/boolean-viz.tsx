@@ -23,12 +23,11 @@ import {
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Button } from "../ui/button";
 import { useCallback, useState } from "react";
-import { type SelectHardware } from "~/types/hardware";
 import { type PlotMouseEvent } from "plotly.js";
 import { useRouter } from "next/navigation";
 
 type Props = {
-  measurements: (SelectMeasurement & { hardware: SelectHardware })[];
+  measurements: SelectMeasurement[];
   title?: string;
   workspaceId: string;
 };

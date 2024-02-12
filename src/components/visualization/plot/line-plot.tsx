@@ -165,7 +165,7 @@ const LinePlot = ({ lineGroups, title, config, onTraceClick }: Props) => {
         "UCL",
         resolvedTheme,
       ),
-    [config.upperControlLimitTransform, minX, maxX],
+    [config.upperControlLimitTransform, minX, maxX, resolvedTheme],
   );
 
   const lclTrace = useMemo(
@@ -177,7 +177,7 @@ const LinePlot = ({ lineGroups, title, config, onTraceClick }: Props) => {
         "LCL",
         resolvedTheme,
       ),
-    [config.lowerControlLimitTransform, minX, maxX],
+    [config.lowerControlLimitTransform, minX, maxX, resolvedTheme],
   );
 
   const extraTraces: Partial<PlotData>[] = [];

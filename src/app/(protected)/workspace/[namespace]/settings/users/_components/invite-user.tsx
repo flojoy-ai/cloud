@@ -32,11 +32,11 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { insertUserInviteSchema } from "~/types/user";
+import { createUserInvite } from "~/types/user";
 import { workspaceRoles } from "~/config/workspace_user";
 import { toast } from "sonner";
 
-const formSchema = insertUserInviteSchema;
+const formSchema = createUserInvite;
 
 type Props = {
   workspaceId: string;
@@ -51,10 +51,12 @@ const InviteUser = ({ workspaceId }: Props) => {
   });
   const [open, setOpen] = useState(false);
 
+  const utils = api.useUtils();
   const inviteUser = api.user.addUserToWorkspace.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       setOpen(false);
       toast.message("User invited, an email has been sent.");
+      void utils.user.getUsersInWorkspace.invalidate();
     },
   });
 

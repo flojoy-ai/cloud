@@ -45,6 +45,9 @@ export default async function Measurement({
   const workspaceId = await api.workspace.getWorkspaceIdByNamespace.query({
     namespace: params.namespace,
   });
+  const model = await api.model.getModelById.query({
+    modelId: measurement.hardware.modelId,
+  });
 
   let visualization;
 
@@ -82,7 +85,7 @@ export default async function Measurement({
             <Link
               href={`/workspace/${params.namespace}/hardware/${measurement.hardware.id}`}
             >
-              {measurement.hardware.model.name} {measurement.hardware.name}
+              {model.name} {measurement.hardware.name}
             </Link>
           </Badge>
         </div>

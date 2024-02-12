@@ -8,7 +8,6 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import LinePlot from "~/components/visualization/plot/line-plot";
-import { type SelectMeasurement } from "~/types/measurement";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type SubmitHandler, useForm, useFieldArray } from "react-hook-form";
@@ -37,12 +36,12 @@ import {
   SelectContent,
   SelectItem,
 } from "~/components/ui/select";
-import { type SelectHardware } from "~/types/hardware";
 import _ from "lodash";
 import { X } from "lucide-react";
+import { SelectMeasurement } from "~/types/measurement";
 
 type Props = {
-  measurements: (SelectMeasurement & { hardware: SelectHardware })[];
+  measurements: SelectMeasurement[];
   title: string;
   workspaceId: string;
 };
@@ -131,8 +130,10 @@ const DataFrameViz = ({ measurements, title, workspaceId }: Props) => {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            {xCols.map((col) => (
-                              <SelectItem value={col}>{col}</SelectItem>
+                            {xCols.map((col, idx) => (
+                              <SelectItem key={idx} value={col}>
+                                {col}
+                              </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
@@ -143,7 +144,7 @@ const DataFrameViz = ({ measurements, title, workspaceId }: Props) => {
                 />
                 <div className="py-2" />
                 {fields.map((field, index) => (
-                  <div className="mb-2 flex items-end gap-2">
+                  <div className="mb-2 flex items-end gap-2" key={index}>
                     <FormField
                       control={form.control}
                       name={`traces.${index}.yAxisColumn` as const}
@@ -159,8 +160,10 @@ const DataFrameViz = ({ measurements, title, workspaceId }: Props) => {
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                {yCols.map((col) => (
-                                  <SelectItem value={col}>{col}</SelectItem>
+                                {yCols.map((col, idx) => (
+                                  <SelectItem key={idx} value={col}>
+                                    {col}
+                                  </SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>

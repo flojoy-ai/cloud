@@ -25,6 +25,10 @@ const DevicesView = async ({
     modelId: project.modelId,
   });
 
+  const models = await api.model.getAllModels.query({
+    workspaceId,
+  });
+
   return (
     <div>
       <div className="space-y-0.5">
@@ -41,6 +45,7 @@ const DevicesView = async ({
 
       <AllHardwares
         hardwares={hardwares}
+        models={models}
         modelHardware={modelHardware}
         workspaceId={workspaceId}
         project={project}

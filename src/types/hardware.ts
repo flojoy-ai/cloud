@@ -1,73 +1,31 @@
-import { hardwareTable } from "~/server/db/schema";
-import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
-import { selectModelBaseSchema } from "./model";
+import { Hardware, hardware } from "~/schemas/public/Hardware";
+import { Model } from "~/schemas/public/Model";
 
-export const insertHardwareSchema = createInsertSchema(hardwareTable, {
+export type SelectHardware = Hardware & { model: Model };
+
+export const hardwareComponentSchema = z.object({
+  hardwareId: z.string(),
   name: z.string().min(1),
 });
 
-export const publicInsertDeviceSchema = insertHardwareSchema
-  .pick({
-    name: true,
-    workspaceId: true,
-    modelId: true,
-  })
+export const insertHardwareSchema = hardware
+  .pick({ name: true, workspaceId: true, modelId: true })
   .extend({
+    name: z.string().min(1),
+    components: z.array(hardwareComponentSchema.omit({ name: true })),
     projectId: z.string().optional(),
   });
 
-export const publicUpdateHardwareSchema = insertHardwareSchema
-  .pick({
-    name: true,
-  })
-  .extend({
-    hardwareId: z.string(),
-  });
+export type HardwareTree = Pick<Hardware, "name" | "id" | "modelId"> & {
+  modelName: string;
+  components: { hardware: HardwareTree }[];
+};
 
-export const publicInsertSystemSchema = publicInsertDeviceSchema.extend({
-  deviceIds: z
-    .string()
-    .array()
-    .min(1)
-    .superRefine((val, ctx) => {
-      if (val.length !== new Set(val).size) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: `Device IDs cannot have duplicates.`,
-        });
-      }
-    }),
-});
-
-export const systemPartSchema = z.object({
+export const hardwareTreeSchema: z.ZodType<HardwareTree> = z.object({
   id: z.string(),
-  name: z.string(),
-  model: selectModelBaseSchema,
+  name: z.string().min(1),
+  modelId: z.string().min(1),
+  modelName: z.string().min(1),
+  components: z.lazy(() => z.object({ hardware: hardwareTreeSchema }).array()),
 });
-
-export const selectHardwareBaseSchema = createSelectSchema(
-  hardwareTable,
-).extend({
-  model: selectModelBaseSchema,
-});
-
-export const selectDeviceSchema = selectHardwareBaseSchema.extend({
-  type: z.literal("device").default("device"),
-});
-
-export const selectSystemSchema = selectHardwareBaseSchema.extend({
-  type: z.literal("system").default("system"),
-  parts: z.array(systemPartSchema),
-});
-
-export const selectHardwareSchema = z.union([
-  selectDeviceSchema,
-  selectSystemSchema,
-]);
-
-export type SelectSystem = z.infer<typeof selectSystemSchema>;
-export type SelectDevice = z.infer<typeof selectDeviceSchema>;
-export type SelectHardware = z.infer<typeof selectHardwareSchema>;
-export type SelectHardwareBase = z.infer<typeof selectHardwareBaseSchema>;
-export type SystemPart = z.infer<typeof systemPartSchema>;
