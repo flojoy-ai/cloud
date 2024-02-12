@@ -15,7 +15,7 @@ import { Project } from "~/schemas/public/Project";
 type Props = {
   hardwares: (Hardware & { model: Model; projects: Project[] })[];
   models: Model[];
-  modelHardware: Hardware[];
+  modelHardware: (Hardware & { model: Model; projects: Project[] })[];
   workspaceId: string;
   namespace: string;
   project: Project & { model: Model };

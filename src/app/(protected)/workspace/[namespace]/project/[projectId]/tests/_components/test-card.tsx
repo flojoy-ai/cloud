@@ -1,5 +1,3 @@
-import { type SelectTest } from "~/types/test";
-
 import Link from "next/link";
 import {
   Card,
@@ -16,9 +14,10 @@ import {
   ContextMenuContent,
 } from "~/components/ui/context-menu";
 import CopyIdContextMenuItem from "~/components/copy-id-context-menu";
+import { Test } from "~/schemas/public/Test";
 
 type Props = {
-  test: SelectTest;
+  test: Test;
   namespace: string;
 };
 

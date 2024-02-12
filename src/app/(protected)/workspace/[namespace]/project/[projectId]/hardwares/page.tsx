@@ -24,6 +24,7 @@ const DevicesView = async ({
     workspaceId,
     modelId: project.modelId,
   });
+
   const models = await api.model.getAllModels.query({
     workspaceId,
   });

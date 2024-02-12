@@ -20,11 +20,12 @@ import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { ControlledDataTable } from "~/components/ui/controlled-data-table";
 import { Project } from "~/schemas/public/Project";
 import { Hardware } from "~/schemas/public/Hardware";
+import { Model } from "~/schemas/public/Model";
 
 type Props = {
   workspaceId: string;
   project: Project;
-  initialHardware: Hardware[];
+  initialHardware: (Hardware & { model: Model; projects: Project[] })[];
   projectHardware: Hardware[];
 };
 
