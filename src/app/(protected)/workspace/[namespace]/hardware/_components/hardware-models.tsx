@@ -5,8 +5,8 @@ import { api } from "~/trpc/react";
 import CreateModel from "./create-model";
 import { Model } from "~/schemas/public/Model";
 import { useRouter } from "next/navigation";
-import TreeVisualization from "../../model/_components/tree-visualization";
 import { Icons } from "~/components/icons";
+import { ModelTreeVisualization } from "~/components/visualization/tree-visualization";
 
 type Props = {
   workspaceId: string;
@@ -58,7 +58,7 @@ export const RenderSubComponent = ({ row }: { row: Model }) => {
 
   return (
     <div className="h-96 w-full">
-      <TreeVisualization tree={model} />
+      <ModelTreeVisualization tree={model} />
     </div>
   );
 };

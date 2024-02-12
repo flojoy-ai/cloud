@@ -5,7 +5,7 @@ import { type Model } from "~/schemas/public/Model";
 import { db } from "~/server/db";
 import { ModelTree } from "~/types/model";
 import { Hardware } from "~/schemas/public/Hardware";
-import { HardwareTree } from "~/types/hardware";
+import { HardwareTree, SelectHardware } from "~/types/hardware";
 
 export async function getProjectById(id: string) {
   return await db
@@ -72,6 +72,7 @@ type HardwareEdge = {
   hardwareId: string;
   parentHardwareId: string;
   modelId: string;
+  modelName: string;
 };
 
 export async function getModelTree(model: Model): Promise<ModelTree> {
@@ -108,18 +109,20 @@ export async function getModelTree(model: Model): Promise<ModelTree> {
 }
 
 export async function getHardwareTree(
-  hardware: Hardware,
+  hardware: SelectHardware,
 ): Promise<HardwareTree> {
   const edges = await db
     .withRecursive("hardware_tree", (qb) =>
       qb
         .selectFrom("hardware_relation as hr")
         .innerJoin("hardware", "hr.childHardwareId", "hardware.id")
+        .innerJoin("model", "hardware.modelId", "model.id")
         .select([
           "parentHardwareId",
           "childHardwareId as hardwareId",
           "hardware.name as name",
           "hardware.modelId as modelId",
+          "model.name as modelName",
         ])
         .where("parentHardwareId", "=", hardware.id)
         .unionAll((eb) =>
@@ -131,11 +134,13 @@ export async function getHardwareTree(
               "hardware_tree.hardwareId",
               "hr.parentHardwareId",
             )
+            .innerJoin("model", "hardware.modelId", "model.id")
             .select([
               "hr.parentHardwareId",
               "hr.childHardwareId as hardwareId",
               "hardware.name as name",
               "hardware.modelId as modelId",
+              "model.name as modelName",
             ]),
         ),
     )
@@ -168,9 +173,9 @@ export function buildModelTree(root: Model, edges: ModelEdge[]) {
   return nodes.get(root.id)!;
 }
 
-export function buildHardwareTree(root: Hardware, edges: HardwareEdge[]) {
+export function buildHardwareTree(root: SelectHardware, edges: HardwareEdge[]) {
   const nodes = new Map<string, HardwareTree>();
-  nodes.set(root.id, { ...root, components: [] });
+  nodes.set(root.id, { ...root, modelName: root.model.name, components: [] });
 
   for (const edge of edges) {
     let parent = nodes.get(edge.parentHardwareId);
@@ -184,6 +189,7 @@ export function buildHardwareTree(root: Hardware, edges: HardwareEdge[]) {
         id: edge.hardwareId,
         name: edge.name,
         modelId: edge.modelId,
+        modelName: edge.modelName,
         components: [],
       };
       nodes.set(edge.hardwareId, cur);

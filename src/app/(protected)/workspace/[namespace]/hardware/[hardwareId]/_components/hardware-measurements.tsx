@@ -10,9 +10,11 @@ import { cn } from "~/lib/utils";
 import { api } from "~/trpc/react";
 import { SelectMeasurement } from "~/types/measurement";
 import { Check, X, Upload } from "lucide-react";
+import { HardwareTree } from "~/types/hardware";
 
 type Props = {
   hardwareId: string;
+  hardware: HardwareTree;
   namespace: string;
   initialMeasurements: SelectMeasurement[];
 };

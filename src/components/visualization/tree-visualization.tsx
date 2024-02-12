@@ -6,6 +6,8 @@ import dagre from "@dagrejs/dagre";
 
 import "reactflow/dist/style.css";
 import { ModelTree } from "~/types/model";
+import { makeHardwareGraph, makeModelGraph } from "~/lib/tree";
+import { HardwareTree } from "~/types/hardware";
 
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
@@ -44,58 +46,12 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
   return { nodes, edges };
 };
 
-const makeGraph = (root: ModelTree) => {
-  const nodes: Node[] = [];
-  const edges: Edge[] = [];
-
-  const traverse = (node: ModelTree): string => {
-    const duplicates = nodes.filter((n) => n.id.startsWith(node.id)).length;
-    const id = duplicates === 0 ? node.id : `${node.id}_${duplicates}`;
-    if (node.components.length === 0) {
-      nodes.push({
-        id,
-        data: {
-          label: node.name,
-        },
-        position: { x: 0, y: 0 },
-      });
-
-      return id;
-    }
-
-    const childIds = node.components.map((group) => traverse(group.model));
-
-    nodes.push({
-      id,
-      data: {
-        label: node.name,
-      },
-      position: { x: 0, y: 0 },
-    });
-
-    for (const childId of childIds)
-      edges.push({
-        id: id + childId,
-        source: id,
-        target: childId,
-        type: "smoothstep",
-      });
-
-    return id;
-  };
-
-  traverse(root);
-
-  return { nodes, edges };
-};
-
 type Props = {
-  tree: ModelTree;
+  nodes: Node[];
+  edges: Edge[];
 };
 
-const TreeVisualization = ({ tree }: Props) => {
-  const { nodes, edges } = useMemo(() => makeGraph(tree), [tree]);
-
+export const TreeVisualization = ({ nodes, edges }: Props) => {
   const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
     nodes,
     edges,
@@ -107,8 +63,35 @@ const TreeVisualization = ({ tree }: Props) => {
       edges={layoutedEdges}
       connectionLineType={ConnectionLineType.SmoothStep}
       fitView
+      proOptions={{
+        hideAttribution: true,
+      }}
     />
   );
+};
+
+type ModelTreeVisualizationProps = {
+  tree: ModelTree;
+};
+
+export const ModelTreeVisualization = ({
+  tree,
+}: ModelTreeVisualizationProps) => {
+  const { nodes, edges } = useMemo(() => makeModelGraph(tree), [tree]);
+
+  return <TreeVisualization nodes={nodes} edges={edges} />;
+};
+
+type HardwareTreeVisualizationProps = {
+  tree: HardwareTree;
+};
+
+export const HardwareTreeVisualization = ({
+  tree,
+}: HardwareTreeVisualizationProps) => {
+  const { nodes, edges } = useMemo(() => makeHardwareGraph(tree), [tree]);
+
+  return <TreeVisualization nodes={nodes} edges={edges} />;
 };
 
 export default TreeVisualization;

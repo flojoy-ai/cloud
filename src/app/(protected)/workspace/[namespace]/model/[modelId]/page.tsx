@@ -4,7 +4,9 @@ import {
   PageHeaderHeading,
 } from "~/components/small-header";
 import { api } from "~/trpc/server";
-import TreeVisualization from "../_components/tree-visualization";
+import TreeVisualization, {
+  ModelTreeVisualization,
+} from "~/components/visualization/tree-visualization";
 
 export default async function ModelInfo({
   params,
@@ -23,7 +25,7 @@ export default async function ModelInfo({
       </PageHeader>
 
       <div className="h-screen w-screen">
-        <TreeVisualization tree={model} />
+        <ModelTreeVisualization tree={model} />
       </div>
 
       <div className="py-4" />

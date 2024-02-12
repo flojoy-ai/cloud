@@ -27,6 +27,7 @@
     "@hookform/resolvers": "^3.3.4",
     "@lucia-auth/adapter-postgresql": "^3.1.0",
     "@paralleldrive/cuid2": "^2.2.2",
+    "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-alert-dialog": "^1.0.5",
     "@radix-ui/react-avatar": "^1.0.4",
     "@radix-ui/react-checkbox": "^1.0.4",
