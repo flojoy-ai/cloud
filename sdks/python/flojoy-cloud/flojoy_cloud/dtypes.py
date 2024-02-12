@@ -59,6 +59,10 @@ class System(Hardware):
 StorageProvider = Literal["s3", "postgres"]
 
 
+class MeasurementCreateResult(BaseModel):
+    id: str
+
+
 class Measurement(CloudModel):
     name: str
     hardware_id: str

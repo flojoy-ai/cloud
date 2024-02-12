@@ -72,14 +72,16 @@ def start_watch(
             try:
                 res = handle_file(path, handlers)
                 console.log("[cyan2]Uploading data to Flojoy Cloud.[/cyan2]")
-                client.upload(
+                upload_res = client.upload(
                     res.data,
                     test_id=test_id,
                     hardware_id=hardware_id,
                     passed=res.passed,
                     name=res.name,
                 )
-                console.log("[cyan2]Data uploaded successfully.[/cyan2]")
+                console.log(
+                    f"[cyan2]Data uploaded successfully to {upload_res.id}.[/cyan2]"
+                )
             except Exception as e:
                 console.log(f"[bold red]{e}[/bold red]")
 
