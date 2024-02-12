@@ -295,7 +295,8 @@ export const hardwareRouter = createTRPCRouter({
             (join) => join.onRef("ph.hardwareId", "=", "hardware.id"),
           ),
         )
-        .$narrowType<{ model: Model }>();
+        .$narrowType<{ model: Model }>()
+        .orderBy("createdAt");
 
       if (input.onlyAvailable) {
         query = query.where(notInUse);

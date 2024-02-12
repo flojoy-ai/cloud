@@ -4,6 +4,7 @@
  */
 
 import withBundleAnalyzer from "@next/bundle-analyzer";
+import { withHighlightConfig } from "@highlight-run/next/config";
 
 await import("./src/env.js");
 
@@ -15,8 +16,9 @@ const bundleAnalyzer = withBundleAnalyzer({
 const config = {
   logging: { fetches: { fullUrl: true } },
   experimental: {
-    serverComponentsExternalPackages: ["oslo"],
+    serverComponentsExternalPackages: ["oslo", "@highlight-run/node"],
+    instrumentationHook: true,
   },
 };
 
-export default bundleAnalyzer(config);
+export default bundleAnalyzer(withHighlightConfig(config));

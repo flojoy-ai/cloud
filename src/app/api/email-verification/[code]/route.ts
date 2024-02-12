@@ -2,12 +2,11 @@ import { type NextRequest } from "next/server";
 import { lucia, validateRequest } from "~/auth/lucia";
 import { isWithinExpirationDate } from "oslo";
 import { db } from "~/server/db";
+import { withAppRouterHighlight } from "~/lib/highlight";
 
-export const GET = async (
-  _: NextRequest,
-  { params }: { params: { code: string } },
-) => {
-  const code = params.code;
+export const GET = withAppRouterHighlight(async (req: NextRequest) => {
+  const code = req.nextUrl.searchParams.get("code");
+
   const { user } = await validateRequest();
   if (!user) {
     return new Response("Unauthorized", {
@@ -69,4 +68,4 @@ export const GET = async (
       "Set-Cookie": sessionCookie.serialize(),
     },
   });
-};
+});

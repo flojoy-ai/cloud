@@ -3,8 +3,9 @@ import { env } from "~/env";
 import { sendEmailVerificationLink } from "~/lib/email";
 import { generateEmailVerificationToken } from "~/lib/token";
 import { type UserId } from "~/schemas/public/User";
+import { withAppRouterHighlight } from "~/lib/highlight";
 
-export const POST = async () => {
+export const POST = withAppRouterHighlight(async () => {
   const { user } = await validateRequest();
   if (!user) {
     return new Response("Unauthorized", {
@@ -30,4 +31,4 @@ export const POST = async () => {
       status: 400,
     });
   }
-};
+});

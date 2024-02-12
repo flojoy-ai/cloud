@@ -41,6 +41,7 @@ export const env = createEnv({
       .optional()
       // transform to boolean using preferred coercion logic
       .transform((s) => s !== undefined && s !== "false" && s !== "0"),
+    HIGHLIGHT_PROJECT_ID: z.string().default("6gl9mxzg"),
   },
 
   /**
@@ -82,6 +83,7 @@ export const env = createEnv({
     JWT_SECRET: process.env.JWT_SECRET,
     AWS_AMI: process.env.AWS_AMI,
     NEXT_PUBLIC_URL_ORIGIN: process.env.NEXT_PUBLIC_URL_ORIGIN,
+    HIGHLIGHT_PROJECT_ID: process.env.HIGHLIGHT_PROJECT_ID,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
