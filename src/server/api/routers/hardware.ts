@@ -319,6 +319,13 @@ export const hardwareRouter = createTRPCRouter({
   getRevisions: workspaceProcedure
     .input(z.object({ hardwareId: z.string() }))
     .use(hardwareAccessMiddleware)
-    .output(hardwareRevision)
-    .query(async ({ ctx, input }) => {}),
+    .output(z.array(hardwareRevision))
+    .query(async ({ ctx, input }) => {
+      const revisions = await ctx.db
+        .selectFrom("hardware_revision as hr")
+        .selectAll()
+        .where("hr.hardwareId", "=", input.hardwareId)
+        .execute();
+      return revisions;
+    }),
 });
