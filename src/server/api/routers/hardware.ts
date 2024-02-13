@@ -317,6 +317,13 @@ export const hardwareRouter = createTRPCRouter({
     }),
 
   getRevisions: workspaceProcedure
+    .meta({
+      openapi: {
+        method: "GET",
+        path: "/v1/hardwares/{hardwareId}/revisions",
+        tags: ["hardwares"],
+      },
+    })
     .input(z.object({ hardwareId: z.string() }))
     .use(hardwareAccessMiddleware)
     .output(z.array(hardwareRevision))
