@@ -153,7 +153,11 @@ const SwapHardware = ({ workspaceId, hardware }: Props) => {
                 <FormItem>
                   <FormLabel>New Component</FormLabel>
                   <FormControl>
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      disabled={selectedModel === undefined}
+                    >
                       <SelectTrigger className="w-[180px]">
                         <SelectValue />
                       </SelectTrigger>
