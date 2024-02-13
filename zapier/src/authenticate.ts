@@ -3,7 +3,7 @@ import {
   type Bundle,
   type ZObject,
 } from "zapier-platform-core";
-import { baseURL } from "./utils";
+import { CLIENT_ID, CLIENT_SECRET, baseURL } from "./utils";
 
 interface CustomBundle<T> extends Bundle<T> {
   cleanedRequest: {
@@ -31,8 +31,8 @@ const getAccessToken = async (
     params: {},
     body: {
       code: bundle.inputData.code,
-      client_id: process.env.CLIENT_ID,
-      client_secret: process.env.CLIENT_SECRET,
+      client_id: CLIENT_ID,
+      client_secret: CLIENT_SECRET,
       grant_type: "authorization_code",
       redirect_uri: bundle.inputData.redirect_uri,
       workspace_secret: bundle.cleanedRequest.querystring.workspace_secret,
@@ -51,11 +51,11 @@ export default {
   type: "oauth2",
   test: {
     headers: { Authorization: "Bearer {{bundle.authData.access_token}}" },
-    url: `${baseURL}/api/zapier/oauth/user`,
+    url: "{{process.env.URL_ORIGIN}}/api/zapier/oauth/user",
   },
   oauth2Config: {
     authorizeUrl: {
-      url: `${baseURL}/zapier/oauth`,
+      url: "{{process.env.URL_ORIGIN}}/zapier/oauth",
       params: {
         client_id: "{{process.env.CLIENT_ID}}",
         state: "{{bundle.inputData.state}}",

@@ -1,14 +1,6 @@
 # To create a Zapier app with for Flojoy Cloud manually
 
-Create a `.env` file in with cloud domain
-
-```text
-NEXT_PUBLIC_URL_ORIGIN="<cloud domain>"
-CLIENT_ID=""
-CLIENT_SECRET=""
-```
-
-- Install dependencies
+## Install dependencies
 
 ```shell
     pnpm install
@@ -20,9 +12,9 @@ CLIENT_SECRET=""
     pnpm build
 ```
 
-- Upload to Zapier
+## Upload to Zapier
 
-  - Install Zapier CLI globally
+- Install Zapier CLI globally
 
 ```sh
     npm install -g zapier-platform-cli
@@ -34,9 +26,22 @@ CLIENT_SECRET=""
     zapier login
 ```
 
+- Register the app
+
+```sh
+    zapier register <app name>
+```
+
 - Build and deploy
 
 ```sh
-    zapier register <integration name>
     zapier push
 ```
+
+- Setup env values
+
+```sh
+    zapier env:set 1.0.0 CLIENT_ID=<zapier_client_id> CLIENT_SECRET=<zapier_client_secret> URL_ORIGIN=<cloud_domain>
+```
+
+__NOTE__: You must set `ZAPIER_CLIENT_ID` and `ZAPIER_CLIENT_SECRET` env in cloud app and use same values here for `CLIENT_ID` and `CLIENT_SECRET` for authorization to work.
