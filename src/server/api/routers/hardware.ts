@@ -8,6 +8,7 @@ import { db } from "~/server/db";
 import { workspaceAccessMiddleware } from "./workspace";
 import {
   getHardwareById,
+  getHardwareComponentsWithModel,
   getHardwareTree,
   getModelById,
   getModelComponents,
@@ -16,7 +17,11 @@ import {
   withHardwareModel,
   withProjects,
 } from "~/lib/query";
-import { hardwareTreeSchema, insertHardwareSchema } from "~/types/hardware";
+import {
+  hardwareTreeSchema,
+  insertHardwareSchema,
+  swapHardwareComponentSchema,
+} from "~/types/hardware";
 import { generateDatabaseId } from "~/lib/id";
 import { hardware } from "~/schemas/public/Hardware";
 import { Model, model } from "~/schemas/public/Model";
@@ -216,16 +221,18 @@ export const hardwareRouter = createTRPCRouter({
             )
             .execute();
 
-          await tx.insertInto("hardware_revision").values(
-            components
-              .map((c) => ({
+          await tx
+            .insertInto("hardware_revision")
+            .values(
+              components.map((c) => ({
                 hardwareId: hardware.id,
                 revisionType: "init",
                 componentId: c.hardwareId,
                 reason: "Initial hardware creation",
                 userId: ctx.user.id,
-              }))
-          ).execute();
+              })),
+            )
+            .execute();
         }
 
         if (input.projectId !== undefined) {
@@ -314,10 +321,10 @@ export const hardwareRouter = createTRPCRouter({
     .use(hardwareAccessMiddleware)
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
-      if (ctx.workspaceUser.role !== "owner") {
+      if (ctx.workspaceUser.role === "member") {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: "You do not have permission to delete this workspace",
+          message: "You do not have permission to delete this hardware",
         });
       }
 
@@ -345,5 +352,108 @@ export const hardwareRouter = createTRPCRouter({
         .where("hr.hardwareId", "=", input.hardwareId)
         .execute();
       return revisions;
+    }),
+
+  swapHardwareComponent: workspaceProcedure
+    .meta({
+      openapi: {
+        method: "PATCH",
+        path: "/v1/hardwares/{hardwareId}",
+        tags: ["hardwares"],
+      },
+    })
+    .input(swapHardwareComponentSchema)
+    .use(hardwareAccessMiddleware)
+    .output(z.void())
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.workspaceUser.role === "member") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message:
+            "You do not have permission to update the components of this hardware",
+        });
+      }
+
+      const hardwareComponents = await getHardwareComponentsWithModel(
+        ctx.hardware.id,
+      );
+
+      await ctx.db.transaction().execute(async (tx) => {
+        const oldHardwareComponent = await tx
+          .selectFrom("hardware")
+          .selectAll()
+          .where("hardware.id", "=", input.oldHardwareComponentId)
+          .executeTakeFirstOrThrow(
+            () =>
+              new TRPCError({
+                code: "BAD_REQUEST",
+                message: "old hardware not found",
+              }),
+          );
+
+        const newHardwareComponent = await tx
+          .selectFrom("hardware")
+          .selectAll()
+          .where("hardware.id", "=", input.newHardwareComponentId)
+          .executeTakeFirstOrThrow(
+            () =>
+              new TRPCError({
+                code: "BAD_REQUEST",
+                message: "new hardware not found",
+              }),
+          );
+
+        if (oldHardwareComponent.modelId !== newHardwareComponent.modelId) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Model mismatch",
+          });
+        }
+
+        if (
+          !hardwareComponents.some(
+            (hc) => hc.hardwareId === input.oldHardwareComponentId,
+          )
+        ) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Old component is not a part of the hardware",
+          });
+        }
+
+        await tx
+          .deleteFrom("hardware_relation as hr")
+          .where("hr.parentHardwareId", "=", ctx.hardware.id)
+          .where("hr.childHardwareId", "=", input.oldHardwareComponentId)
+          .execute();
+
+        await tx
+          .insertInto("hardware_relation")
+          .values({
+            parentHardwareId: ctx.hardware.id,
+            childHardwareId: input.newHardwareComponentId,
+          })
+          .execute();
+
+        await tx
+          .insertInto("hardware_revision")
+          .values([
+            {
+              revisionType: "remove",
+              userId: ctx.user.id,
+              hardwareId: ctx.hardware.id,
+              componentId: input.oldHardwareComponentId,
+              reason: input.reason ?? "Component swap",
+            },
+            {
+              revisionType: "add",
+              userId: ctx.user.id,
+              hardwareId: ctx.hardware.id,
+              componentId: input.newHardwareComponentId,
+              reason: input.reason ?? "Component swap",
+            },
+          ])
+          .execute();
+      });
     }),
 });

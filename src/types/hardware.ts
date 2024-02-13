@@ -17,6 +17,15 @@ export const insertHardwareSchema = hardware
     projectId: z.string().optional(),
   });
 
+export const swapHardwareComponentSchema = hardware
+  .pick({ workspaceId: true })
+  .extend({
+    hardwareId: z.string(),
+    oldHardwareComponentId: z.string(),
+    newHardwareComponentId: z.string(),
+    reason: z.string().optional(),
+  });
+
 export type HardwareTree = Pick<Hardware, "name" | "id" | "modelId"> & {
   modelName: string;
   components: { hardware: HardwareTree }[];

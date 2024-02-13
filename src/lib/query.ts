@@ -209,6 +209,16 @@ export async function getModelComponents(id: string) {
     .execute();
 }
 
+export async function getHardwareComponentsWithModel(id: string) {
+  return await db
+    .selectFrom("hardware_relation as hr")
+    .innerJoin("hardware", "hardware.id", "hr.childHardwareId")
+    .innerJoin("model", "model.id", "hardware.id")
+    .select(["hr.childHardwareId as hardwareId", "model.id as modelId"])
+    .where("hr.parentHardwareId", "=", id)
+    .execute();
+}
+
 export async function markUpdatedAt(
   db: Kysely<DB>,
   table: "project" | "hardware" | "test" | "workspace",
