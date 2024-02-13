@@ -44,4 +44,4 @@
     zapier env:set 1.0.0 CLIENT_ID=<zapier_client_id> CLIENT_SECRET=<zapier_client_secret> URL_ORIGIN=<cloud_domain>
 ```
 
-__NOTE__: You must set `ZAPIER_CLIENT_ID` and `ZAPIER_CLIENT_SECRET` env in cloud app and use same values here for `CLIENT_ID` and `CLIENT_SECRET` for authorization to work.
+**NOTE**: You must set `ZAPIER_CLIENT_ID` and `ZAPIER_CLIENT_SECRET` env in cloud app and use same values here for `CLIENT_ID` and `CLIENT_SECRET` for authorization to work.

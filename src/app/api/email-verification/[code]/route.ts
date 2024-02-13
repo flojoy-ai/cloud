@@ -3,9 +3,7 @@ import { isWithinExpirationDate } from "oslo";
 import { db } from "~/server/db";
 import { withAppRouterHighlight } from "~/lib/highlight";
 
-export const GET = withAppRouterHighlight(async (_, 
- ctx
-  ) => {
+export const GET = withAppRouterHighlight(async (_, ctx) => {
   const code = ctx.params.code;
   const { user } = await validateRequest();
   if (!user) {
