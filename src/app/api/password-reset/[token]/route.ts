@@ -6,10 +6,10 @@ import { db } from "~/server/db";
 
 import { withAppRouterHighlight } from "~/lib/highlight";
 
-export const POST = withAppRouterHighlight(async (request: NextRequest) => {
+export const POST = withAppRouterHighlight(async (request, ctx) => {
   const formData = await request.formData();
   const password = formData.get("password");
-  const tokenFromUser = request.nextUrl.searchParams.get("token");
+  const tokenFromUser = ctx.params.token;
   if (!tokenFromUser) {
     return new Response("Invalid or expired password reset link", {
       status: 400,
