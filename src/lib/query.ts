@@ -4,7 +4,7 @@ import { jsonArrayFrom, jsonObjectFrom } from "kysely/helpers/postgres";
 import { type Model } from "~/schemas/public/Model";
 import { db } from "~/server/db";
 import { ModelTree } from "~/types/model";
-import { Hardware } from "~/schemas/public/Hardware";
+import _ from "lodash";
 import { HardwareTree, SelectHardware } from "~/types/hardware";
 import { Tag } from "~/schemas/public/Tag";
 import { generateDatabaseId } from "./id";
@@ -281,9 +281,11 @@ export async function getTagsByNames(
     createIfNotExists: boolean;
   },
 ): Promise<Tag[]> {
+  const uniqueNames = _.uniq(tagNames)
+
   if (opts.createIfNotExists) {
     return await Promise.all(
-      tagNames.map(async (name) => {
+      uniqueNames.map(async (name) => {
         const tag = await db
           .selectFrom("tag")
           .selectAll()
@@ -317,7 +319,7 @@ export async function getTagsByNames(
       .selectFrom("tag")
       .selectAll()
       .where("workspaceId", "=", opts.workspaceId)
-      .where("tag.name", "in", tagNames)
+      .where("tag.name", "in", uniqueNames)
       .execute();
   }
 }
