@@ -11,7 +11,7 @@ export const GET = async (req: NextRequest) => {
     const hardwareFields = hardwares.map((hardware) => {
       return {
         key: hardware.id,
-        label: `${hardware.name} (${hardware.type})`,
+        label: `${hardware.name} (${hardware.model.name})`,
         value: hardware.id,
       };
     });

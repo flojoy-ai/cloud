@@ -8,18 +8,13 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { Button } from "~/components/ui/button";
-import { z } from "zod";
-import { selectWorkspaceSchema } from "~/types/workspace";
-import { selectWorkspaceUserSchema } from "~/types/workspace_user";
 import { useRouter } from "next/navigation";
 import { type OAuthSearchParams } from "./page";
 import { api } from "~/trpc/react";
+import { Workspace } from "~/schemas/public/Workspace";
 
-const workspaceSchema = z.array(
-  selectWorkspaceSchema.merge(selectWorkspaceUserSchema.pick({ role: true })),
-);
 type WorkspaceFormProps = {
-  workspaces: z.infer<typeof workspaceSchema>;
+  workspaces: Workspace[];
   searchParams: OAuthSearchParams;
 };
 const WorkspaceForm = ({
