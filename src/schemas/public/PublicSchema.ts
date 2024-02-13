@@ -21,6 +21,7 @@ import { type default as ProjectHardwareTable } from './ProjectHardware';
 import { type default as MeasurementTable } from './Measurement';
 import { type default as TagTable } from './Tag';
 import { type default as SecretTable } from './Secret';
+import { type default as HardwareRevisionTable } from './HardwareRevision';
 
 export default interface PublicSchema {
   kysely_migration: KyselyMigrationTable;
@@ -62,4 +63,6 @@ export default interface PublicSchema {
   tag: TagTable;
 
   secret: SecretTable;
+
+  hardware_revision: HardwareRevisionTable;
 }

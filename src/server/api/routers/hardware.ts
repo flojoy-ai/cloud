@@ -23,6 +23,7 @@ import { Model, model } from "~/schemas/public/Model";
 import { project } from "~/schemas/public/Project";
 import { ExpressionBuilder } from "kysely";
 import DB from "~/schemas/public/PublicSchema";
+import { hardwareRevision } from "~/schemas/public/HardwareRevision";
 
 export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
@@ -315,28 +316,9 @@ export const hardwareRouter = createTRPCRouter({
         .execute();
     }),
 
-  // TODO: hardware "commit history" to track component changes
-  //
-  // updateHardwareById: workspaceProcedure
-  //   .meta({
-  //     openapi: {
-  //       method: "PATCH",
-  //       path: "/v1/hardwares/{hardwareId}",
-  //       tags: ["hardwares"],
-  //     },
-  //   })
-  //   .input(updateHardwareSchema)
-  //   .use(hardwareAccessMiddleware)
-  //   .output(z.void())
-  //   .mutation(async ({ input, ctx }) => {
-  //     await ctx.db.transaction().execute(async (tx) => {
-  //       await tx
-  //         .updateTable("hardware")
-  //         .set(input)
-  //         .where("id", "=", input.hardwareId)
-  //         .execute();
-  //
-  //       await markUpdatedAt(tx, "hardware", input.hardwareId);
-  //     });
-  //   }),
+  getRevisions: workspaceProcedure
+    .input(z.object({ hardwareId: z.string() }))
+    .use(hardwareAccessMiddleware)
+    .output(hardwareRevision)
+    .query(async ({ ctx, input }) => {}),
 });
