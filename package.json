@@ -60,6 +60,8 @@
     "@trpc/react-query": "^10.45.1",
     "@trpc/server": "^10.45.1",
     "@ts-rest/core": "^3.33.0",
+    "@ts-rest/next": "^3.33.0",
+    "@ts-rest/react-query": "^3.33.0",
     "arctic": "^1.1.4",
     "axios": "^1.6.7",
     "class-variance-authority": "^0.7.0",
