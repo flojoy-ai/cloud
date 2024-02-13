@@ -1,18 +1,10 @@
-import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
 import { type AccessContext, checkWorkspaceAccess } from "~/lib/auth";
-import { getSystemModelParts } from "~/lib/query";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import {
-  projectTable,
-  projectHardwareTable,
-  workspaceTable,
-} from "~/server/db/schema";
-import { selectModelSchema } from "~/types/model";
-import {
-  publicInsertProjectSchema,
+  insertProjectSchema,
   publicUpdateProjectSchema,
   selectProjectSchema,
 } from "~/types/project";
@@ -21,27 +13,28 @@ import {
   multiHardwareAccessMiddleware,
 } from "./hardware";
 import { workspaceAccessMiddleware } from "./workspace";
+import { type ProjectId, project } from "~/schemas/public/Project";
+import { generateDatabaseId } from "~/lib/id";
+import { markUpdatedAt, getProjectById, getHardwareById } from "~/lib/query";
 
 export const projectAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: AccessContext;
-  input: { projectId: string };
+  input: { projectId: ProjectId };
 }>().create(async (opts) => {
-  const project = await opts.ctx.db.query.projectTable.findFirst({
-    where: (project, { eq }) => eq(project.id, opts.input.projectId),
-    with: { workspace: true },
-  });
+  const project = await getProjectById(opts.input.projectId);
 
   if (!project) {
     throw new TRPCError({
-      code: "BAD_REQUEST",
+      code: "NOT_FOUND",
       message: "Project not found",
     });
   }
 
   const workspaceUser = await checkWorkspaceAccess(
     opts.ctx,
-    project.workspace.id,
+    project.workspaceId,
   );
+
   if (!workspaceUser) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
@@ -62,41 +55,43 @@ export const projectAccessMiddleware = experimental_standaloneMiddleware<{
 export const projectRouter = createTRPCRouter({
   createProject: workspaceProcedure
     .meta({
-      openapi: { method: "POST", path: "/v1/projects/", tags: ["project"] },
+      openapi: { method: "POST", path: "/v1/projects/", tags: ["projects"] },
     })
-    .input(publicInsertProjectSchema)
-    .output(selectProjectSchema)
+    .input(insertProjectSchema)
+    .output(project)
     .use(workspaceAccessMiddleware)
     .mutation(async ({ ctx, input }) => {
-      const model = await ctx.db.query.modelTable.findFirst({
-        where: (model, { eq }) => eq(model.id, input.modelId),
-      });
+      await ctx.db
+        .selectFrom("model")
+        .selectAll("model")
+        .where("model.id", "=", input.modelId)
+        .executeTakeFirstOrThrow(
+          () =>
+            new TRPCError({
+              code: "NOT_FOUND",
+              message: "Model not found",
+            }),
+        );
 
-      if (model === undefined) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Model not found",
-        });
-      }
+      return await ctx.db.transaction().execute(async (tx) => {
+        const project = await tx
+          .insertInto("project")
+          .values({
+            id: generateDatabaseId("project"),
+            ...input,
+          })
+          .returningAll()
+          .executeTakeFirstOrThrow(
+            () =>
+              new TRPCError({
+                code: "INTERNAL_SERVER_ERROR",
+                message: "Failed to create project",
+              }),
+          );
 
-      return await ctx.db.transaction(async (tx) => {
-        const [projectCreateResult] = await tx
-          .insert(projectTable)
-          .values(input)
-          .returning();
+        await markUpdatedAt(tx, "workspace", input.workspaceId);
 
-        if (!projectCreateResult) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create project",
-          });
-        }
-
-        await tx
-          .update(workspaceTable)
-          .set({ updatedAt: new Date() })
-          .where(eq(workspaceTable.id, input.workspaceId));
-        return projectCreateResult;
+        return project;
       });
     }),
 
@@ -105,82 +100,37 @@ export const projectRouter = createTRPCRouter({
       openapi: {
         method: "GET",
         path: "/v1/projects/{projectId}",
-        tags: ["project"],
+        tags: ["projects"],
       },
     })
     .input(z.object({ projectId: z.string() }))
     .use(projectAccessMiddleware)
-    .output(
-      selectProjectSchema.extend({
-        model: selectModelSchema,
-      }),
-    )
-    .query(async ({ input, ctx }) => {
-      const project = await ctx.db.query.projectTable.findFirst({
-        where: (project, { eq }) => eq(project.id, input.projectId),
-        with: { model: true },
-      });
-      if (!project) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Project not found",
-        });
-      }
-
-      // TODO: Is there a clean way to just attach this to the above query somehow?
-      const isDeviceModel =
-        (await ctx.db.query.deviceModelTable.findFirst({
-          where: (deviceModel, { eq }) => eq(deviceModel.id, project.modelId),
-        })) !== undefined;
-
-      if (isDeviceModel) {
-        return {
-          ...project,
-          model: {
-            ...project.model,
-            type: "device",
-          },
-        };
-      }
-
-      const deviceParts = await getSystemModelParts(project.modelId);
-
-      if (!deviceParts) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An error occured when trying to fetch system model",
-        });
-      }
-
-      return {
-        ...project,
-        model: {
-          ...project.model,
-          type: "system",
-          parts: deviceParts,
-        },
-      };
+    .output(selectProjectSchema)
+    .query(async ({ ctx }) => {
+      return ctx.project;
     }),
 
   getAllProjectsByWorkspaceId: workspaceProcedure
     .meta({
-      openapi: { method: "GET", path: "/v1/projects/", tags: ["project"] },
+      openapi: { method: "GET", path: "/v1/projects/", tags: ["projects"] },
     })
     .input(z.object({ workspaceId: z.string() }))
     .use(workspaceAccessMiddleware)
-    .output(z.array(selectProjectSchema))
+    .output(z.array(project))
     .query(async ({ ctx, input }) => {
-      return await ctx.db.query.projectTable.findMany({
-        where: (project, { eq }) => eq(project.workspaceId, input.workspaceId),
-      });
+      return await ctx.db
+        .selectFrom("project")
+        .selectAll("project")
+        .where("workspaceId", "=", input.workspaceId)
+        .execute();
     }),
 
   addHardwareToProject: workspaceProcedure
     .meta({
       openapi: {
         method: "PUT",
-        path: "/v1/projects/{projectId}/hardware/{hardwareId}",
-        tags: ["project", "hardware"],
+        path: "/v1/projects/{projectId}/hardwares/{hardwareId}",
+        tags: ["projects", "hardwares"],
       },
     })
     .input(
@@ -193,24 +143,20 @@ export const projectRouter = createTRPCRouter({
     .use(hardwareAccessMiddleware)
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
-      const project = await ctx.db.query.projectTable.findFirst({
-        where: (project, { eq }) => eq(project.id, input.projectId),
-      });
+      const project = await getProjectById(input.projectId);
 
       if (project === undefined) {
         throw new TRPCError({
-          code: "BAD_REQUEST",
+          code: "NOT_FOUND",
           message: "Project not found",
         });
       }
 
-      const hardware = await ctx.db.query.hardwareTable.findFirst({
-        where: (hardware, { eq }) => eq(hardware.id, input.hardwareId),
-      });
+      const hardware = await getHardwareById(input.hardwareId);
 
       if (hardware === undefined) {
         throw new TRPCError({
-          code: "BAD_REQUEST",
+          code: "NOT_FOUND",
           message: "Hardware not found",
         });
       }
@@ -222,18 +168,21 @@ export const projectRouter = createTRPCRouter({
         });
       }
 
-      await ctx.db.insert(projectHardwareTable).values({
-        hardwareId: input.hardwareId,
-        projectId: input.projectId,
-      });
+      await ctx.db
+        .insertInto("project_hardware")
+        .values({
+          hardwareId: input.hardwareId,
+          projectId: input.projectId,
+        })
+        .execute();
     }),
 
   removeHardwareFromProject: workspaceProcedure
     .meta({
       openapi: {
         method: "DELETE",
-        path: "/v1/projects/{projectId}/hardware/{hardwareId}",
-        tags: ["project", "hardware"],
+        path: "/v1/projects/{projectId}/hardwares/{hardwareId}",
+        tags: ["projects", "hardwares"],
       },
     })
     .input(
@@ -247,21 +196,18 @@ export const projectRouter = createTRPCRouter({
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
       await ctx.db
-        .delete(projectHardwareTable)
-        .where(
-          and(
-            eq(projectHardwareTable.hardwareId, input.hardwareId),
-            eq(projectHardwareTable.projectId, input.projectId),
-          ),
-        );
+        .deleteFrom("project_hardware")
+        .where("projectId", "=", input.projectId)
+        .where("hardwareId", "=", input.hardwareId)
+        .execute();
     }),
 
-  setProjectHardware: workspaceProcedure
+  setProjectHardwares: workspaceProcedure
     .meta({
       openapi: {
         method: "PUT",
-        path: "/v1/projects/{projectId}/hardware",
-        tags: ["project", "hardware"],
+        path: "/v1/projects/{projectId}/hardwares",
+        tags: ["projects", "hardwares"],
       },
     })
     .input(
@@ -274,23 +220,27 @@ export const projectRouter = createTRPCRouter({
     .use(projectAccessMiddleware)
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
-      await ctx.db.transaction(async (tx) => {
+      await ctx.db.transaction().execute(async (tx) => {
         await tx
-          .delete(projectHardwareTable)
-          .where(eq(projectHardwareTable.projectId, input.projectId));
+          .deleteFrom("project_hardware")
+          .where("projectId", "=", input.projectId)
+          .execute();
 
         if (input.hardwareIds.length === 0) {
           return;
         }
 
-        const hardwares = await tx.query.hardwareTable.findMany({
-          where: (hardware, { inArray }) =>
-            inArray(hardware.id, input.hardwareIds),
-        });
+        const hardwares = await tx
+          .selectFrom("hardware")
+          .selectAll("hardware")
+          .where("id", "in", input.hardwareIds)
+          .execute();
 
-        const project = await tx.query.projectTable.findFirst({
-          where: (project, { eq }) => eq(project.id, input.projectId),
-        });
+        // const hardwares = await tx.query.hardwareTable.findMany({
+        //   where: (hardware, { inArray }) =>
+        //     inArray(hardware.id, input.hardwareIds),
+        // });
+        const project = await getProjectById(input.projectId);
 
         if (project === undefined) {
           throw new TRPCError({
@@ -313,12 +263,15 @@ export const projectRouter = createTRPCRouter({
           });
         }
 
-        await tx.insert(projectHardwareTable).values(
-          input.hardwareIds.map((hardwareId) => ({
-            hardwareId,
-            projectId: input.projectId,
-          })),
-        );
+        await tx
+          .insertInto("project_hardware")
+          .values(
+            input.hardwareIds.map((hardwareId) => ({
+              hardwareId,
+              projectId: input.projectId,
+            })),
+          )
+          .execute();
       });
     }),
 
@@ -327,19 +280,20 @@ export const projectRouter = createTRPCRouter({
       openapi: {
         method: "PATCH",
         path: "/v1/projects/{projectId}",
-        tags: ["project"],
+        tags: ["projects"],
       },
     })
     .input(publicUpdateProjectSchema)
     .use(projectAccessMiddleware)
     .output(z.void())
     .mutation(async ({ ctx, input }) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { projectId, ...updatedProject } = input;
+
       await ctx.db
-        .update(projectTable)
+        .updateTable("project")
         .set(updatedProject)
-        .where(eq(projectTable.id, input.projectId));
+        .where("project.id", "=", input.projectId)
+        .execute();
     }),
 
   deleteProjectById: workspaceProcedure
@@ -347,7 +301,7 @@ export const projectRouter = createTRPCRouter({
       openapi: {
         method: "DELETE",
         path: "/v1/projects/{projectId}",
-        tags: ["project"],
+        tags: ["projects"],
       },
     })
     .input(z.object({ projectId: z.string() }))
@@ -362,7 +316,8 @@ export const projectRouter = createTRPCRouter({
       }
 
       await ctx.db
-        .delete(projectTable)
-        .where(eq(projectTable.id, input.projectId));
+        .deleteFrom("project")
+        .where("project.id", "=", input.projectId)
+        .execute();
     }),
 });

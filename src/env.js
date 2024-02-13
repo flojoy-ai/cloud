@@ -44,6 +44,7 @@ export const env = createEnv({
 
     ZAPIER_CLIENT_ID: z.string().optional(),
     ZAPIER_CLIENT_SECRET: z.string().optional(),
+    HIGHLIGHT_PROJECT_ID: z.string().default("6gl9mxzg"),
   },
 
   /**
@@ -88,6 +89,7 @@ export const env = createEnv({
 
     ZAPIER_CLIENT_ID: process.env.ZAPIER_CLIENT_ID,
     ZAPIER_CLIENT_SECRET: process.env.ZAPIER_CLIENT_SECRET,
+    HIGHLIGHT_PROJECT_ID: process.env.HIGHLIGHT_PROJECT_ID
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

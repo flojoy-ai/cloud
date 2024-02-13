@@ -1,28 +1,28 @@
-import { measurementTable } from "~/server/db/schema";
-import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { measurementDataSchema } from "~/types/data";
-import { type SelectHardware } from "./hardware";
+import {
+  measurement,
+  measurementInitializer,
+} from "~/schemas/public/Measurement";
+import { z } from "zod";
+import { hardware } from "~/schemas/public/Hardware";
 
-export type SelectMeasurement = typeof measurementTable.$inferSelect;
+export const insertMeasurementSchema = measurementInitializer
+  .pick({
+    name: true,
+    data: true,
+    pass: true,
+    hardwareId: true,
+    testId: true,
+    createdAt: true,
+  })
+  .extend({
+    data: measurementDataSchema,
+    name: z.string().default("Untitled Measurement"),
+  });
 
-export type InsertMeasurement = typeof measurementTable.$inferSelect;
-
-export type MeasurementWithHardware = SelectMeasurement & {
-  hardware: SelectHardware;
-};
-
-export const insertMeasurementSchema = createInsertSchema(measurementTable, {
+export const selectMeasurementSchema = measurement.extend({
+  hardware: hardware,
   data: measurementDataSchema,
 });
-export const publicInsertMeasurementSchema = insertMeasurementSchema.pick({
-  name: true,
-  pass: true,
-  data: true,
-  hardwareId: true,
-  testId: true,
-  createdAt: true,
-});
 
-export const selectMeasurementSchema = createSelectSchema(measurementTable, {
-  data: measurementDataSchema,
-});
+export type SelectMeasurement = z.infer<typeof selectMeasurementSchema>;

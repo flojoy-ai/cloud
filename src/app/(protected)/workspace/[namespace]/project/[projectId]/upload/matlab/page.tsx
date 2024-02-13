@@ -6,7 +6,7 @@ const UploadView = async ({ params }: { params: { projectId: string } }) => {
       <div>
         <h3 className="text-lg font-medium">MATLAB Client</h3>
         <p className="text-sm text-muted-foreground">
-          Upload measurement with Flojoy Cloud's MATLAB client
+          Upload measurement with Flojoy Cloud&apos;s MATLAB client
         </p>
       </div>
       <Separator />

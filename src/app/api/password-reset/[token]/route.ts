@@ -1,23 +1,20 @@
-import { eq } from "drizzle-orm";
 import { type NextRequest } from "next/server";
 import { isWithinExpirationDate } from "oslo";
 import { Argon2id } from "oslo/password";
 import { lucia } from "~/auth/lucia";
 import { db } from "~/server/db";
-import { userTable } from "~/server/db/schema";
 
-export const POST = async (
-  request: NextRequest,
-  {
-    params,
-  }: {
-    params: {
-      token: string;
-    };
-  },
-) => {
+import { withAppRouterHighlight } from "~/lib/highlight";
+
+export const POST = withAppRouterHighlight(async (request: NextRequest) => {
   const formData = await request.formData();
   const password = formData.get("password");
+  const tokenFromUser = request.nextUrl.searchParams.get("token");
+  if (!tokenFromUser) {
+    return new Response("Invalid or expired password reset link", {
+      status: 400,
+    });
+  }
 
   if (
     typeof password !== "string" ||
@@ -30,9 +27,11 @@ export const POST = async (
   }
 
   try {
-    const token = await db.query.passwordResetTokenTable.findFirst({
-      where: (fields, { eq }) => eq(fields.token, params.token),
-    });
+    const token = await db
+      .selectFrom("password_reset_token")
+      .where("token", "=", tokenFromUser)
+      .selectAll()
+      .executeTakeFirst();
 
     if (!token || !isWithinExpirationDate(token.expiresAt)) {
       return new Response("Invalid or expired password reset link", {
@@ -44,11 +43,12 @@ export const POST = async (
     const hashedPassword = await new Argon2id().hash(password);
 
     await db
-      .update(userTable)
+      .updateTable("user")
       .set({
         hashedPassword,
       })
-      .where(eq(userTable.id, token.userId));
+      .where("id", "=", token.userId)
+      .execute();
 
     const session = await lucia.createSession(token.userId, {});
     const sessionCookie = lucia.createSessionCookie(session.id);
@@ -64,4 +64,4 @@ export const POST = async (
       status: 400,
     });
   }
-};
+});

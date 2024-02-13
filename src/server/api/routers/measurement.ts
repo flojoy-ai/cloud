@@ -1,11 +1,8 @@
-import { type SQL, eq, lte, gte, desc } from "drizzle-orm";
 import { z } from "zod";
 
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
-import { measurementTable, hardwareTable, testTable } from "~/server/db/schema";
-import { selectHardwareSchema } from "~/types/hardware";
 import {
-  publicInsertMeasurementSchema,
+  insertMeasurementSchema,
   selectMeasurementSchema,
 } from "~/types/measurement";
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
@@ -13,33 +10,32 @@ import { hardwareAccessMiddleware } from "./hardware";
 import { testAccessMiddleware } from "./test";
 import { type AccessContext, checkWorkspaceAccess } from "~/lib/auth";
 import _ from "lodash";
+import { generateDatabaseId } from "~/lib/id";
+import { markUpdatedAt, withHardware } from "~/lib/query";
+import { type SelectHardware } from "~/types/hardware";
+import { MeasurementData } from "~/types/data";
 
 export const measurementAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: AccessContext;
   input: { measurementId: string };
 }>().create(async (opts) => {
-  const measurement = await opts.ctx.db.query.measurementTable.findFirst({
-    where: (measurement, { eq }) =>
-      eq(measurement.id, opts.input.measurementId),
-    with: {
-      hardware: {
-        with: {
-          workspace: true,
-        },
-      },
-    },
-  });
-
-  if (!measurement) {
-    throw new TRPCError({
-      code: "BAD_REQUEST",
-      message: "Measurement not found",
-    });
-  }
+  const measurement = await opts.ctx.db
+    .selectFrom("measurement")
+    .where("measurement.id", "=", opts.input.measurementId)
+    .innerJoin("hardware", "measurement.hardwareId", "hardware.id")
+    .selectAll("measurement")
+    .select("hardware.workspaceId")
+    .executeTakeFirstOrThrow(
+      () =>
+        new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Measurement not found",
+        }),
+    );
 
   const workspaceUser = await checkWorkspaceAccess(
     opts.ctx,
-    measurement.hardware.workspace.id,
+    measurement.workspaceId,
   );
   if (!workspaceUser) {
     throw new TRPCError({
@@ -64,41 +60,35 @@ export const measurementRouter = createTRPCRouter({
       openapi: {
         method: "POST",
         path: "/v1/measurements/",
-        tags: ["measurement"],
+        tags: ["measurements"],
       },
     })
-    .input(publicInsertMeasurementSchema)
+    .input(insertMeasurementSchema)
     .use(hardwareAccessMiddleware)
     .use(testAccessMiddleware)
-    .output(selectMeasurementSchema)
+    .output(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      return await ctx.db.transaction(async (tx) => {
-        const [measurementCreateResult] = await tx
-          .insert(measurementTable)
+      return await ctx.db.transaction().execute(async (tx) => {
+        const res = await tx
+          .insertInto("measurement")
           .values({
+            id: generateDatabaseId("measurement"),
+            storageProvider: "postgres",
             ...input,
-            storageProvider: "postgres", // TODO: make this configurable
           })
-          .returning();
+          .returning("id")
+          .executeTakeFirstOrThrow(
+            () =>
+              new TRPCError({
+                code: "INTERNAL_SERVER_ERROR",
+                message: "Failed to create measurement",
+              }),
+          );
 
-        if (!measurementCreateResult) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create measurement",
-          });
-        }
+        await markUpdatedAt(tx, "test", input.testId);
+        await markUpdatedAt(tx, "hardware", input.hardwareId);
 
-        await tx
-          .update(testTable)
-          .set({ updatedAt: new Date() })
-          .where(eq(testTable.id, input.testId));
-
-        await tx
-          .update(hardwareTable)
-          .set({ updatedAt: new Date() })
-          .where(eq(hardwareTable.id, input.hardwareId));
-
-        return measurementCreateResult;
+        return res;
       });
     }),
 
@@ -107,7 +97,7 @@ export const measurementRouter = createTRPCRouter({
       openapi: {
         method: "GET",
         path: "/v1/measurements/test/{testId}",
-        tags: ["measurement"],
+        tags: ["measurements"],
       },
     })
     .input(
@@ -118,36 +108,25 @@ export const measurementRouter = createTRPCRouter({
       }),
     )
     .use(testAccessMiddleware)
-    .output(
-      z.array(
-        selectMeasurementSchema.merge(
-          z.object({
-            hardware: selectHardwareSchema,
-          }),
-        ),
-      ),
-    )
+    .output(z.array(selectMeasurementSchema))
     .query(async ({ ctx, input }) => {
-      const where: SQL[] = [eq(measurementTable.testId, input.testId)];
+      let query = ctx.db
+        .selectFrom("measurement")
+        .selectAll("measurement")
+        .select(withHardware)
+        .where("testId", "=", input.testId)
+        .$narrowType<{ hardware: SelectHardware }>()
+        .$narrowType<{ data: MeasurementData }>();
 
       if (input.startDate) {
-        where.push(gte(measurementTable.createdAt, input.startDate));
-      }
-      if (input.endDate) {
-        where.push(lte(measurementTable.createdAt, input.endDate));
+        query = query.where("createdAt", ">=", input.startDate);
       }
 
-      const result = await ctx.db.query.measurementTable.findMany({
-        where: (_, { and }) => and(...where),
-        with: {
-          hardware: {
-            with: {
-              model: true,
-            },
-          },
-        },
-      });
-      return result;
+      if (input.endDate) {
+        query = query.where("createdAt", "<=", input.endDate);
+      }
+
+      return await query.execute();
     }),
 
   getAllMeasurementsByHardwareId: workspaceProcedure
@@ -155,7 +134,7 @@ export const measurementRouter = createTRPCRouter({
       openapi: {
         method: "GET",
         path: "/v1/measurements/hardware/{hardwareId}",
-        tags: ["measurement"],
+        tags: ["measurements"],
       },
     })
     .input(
@@ -167,36 +146,26 @@ export const measurementRouter = createTRPCRouter({
       }),
     )
     .use(hardwareAccessMiddleware)
-    .output(
-      z.array(
-        selectMeasurementSchema.merge(
-          z.object({
-            hardware: selectHardwareSchema,
-          }),
-        ),
-      ),
-    )
+    .output(z.array(selectMeasurementSchema))
     .query(async ({ ctx, input }) => {
-      const where: SQL[] = [eq(measurementTable.hardwareId, input.hardwareId)];
+      let query = ctx.db
+        .selectFrom("measurement")
+        .selectAll("measurement")
+        .where("hardwareId", "=", input.hardwareId)
+        .select(withHardware)
+        .$narrowType<{ hardware: SelectHardware }>()
+        .$narrowType<{ data: MeasurementData }>()
+        .orderBy("createdAt", "desc");
 
       if (input.startDate) {
-        where.push(gte(measurementTable.createdAt, input.startDate));
-      }
-      if (input.endDate) {
-        where.push(lte(measurementTable.createdAt, input.endDate));
+        query = query.where("createdAt", ">=", input.startDate);
       }
 
-      const result = await ctx.db.query.measurementTable.findMany({
-        where: (_, { and }) => and(...where),
-        orderBy: (row) => desc(row.createdAt),
-        with: {
-          hardware: {
-            with: {
-              model: true,
-            },
-          },
-        },
-      });
+      if (input.endDate) {
+        query = query.where("createdAt", "<=", input.endDate);
+      }
+
+      const result = await query.execute();
 
       if (input.latest) {
         return _.values(_.groupBy(result, (meas) => meas.testId)).map(
@@ -212,7 +181,7 @@ export const measurementRouter = createTRPCRouter({
       openapi: {
         method: "GET",
         path: "/v1/measurements/{measurementId}",
-        tags: ["measurement"],
+        tags: ["measurements"],
       },
     })
     .input(
@@ -221,18 +190,16 @@ export const measurementRouter = createTRPCRouter({
       }),
     )
     .use(measurementAccessMiddleware)
-    .output(
-      selectMeasurementSchema.merge(
-        z.object({ hardware: selectHardwareSchema }),
-      ),
-    )
+    .output(selectMeasurementSchema)
     .query(async ({ ctx, input }) => {
-      const result = await ctx.db.query.measurementTable.findFirst({
-        where: () => eq(measurementTable.id, input.measurementId),
-        with: {
-          hardware: { with: { model: true } },
-        },
-      });
+      const result = await ctx.db
+        .selectFrom("measurement")
+        .selectAll("measurement")
+        .where("id", "=", input.measurementId)
+        .select((eb) => withHardware(eb))
+        .$narrowType<{ hardware: SelectHardware }>()
+        .$narrowType<{ data: MeasurementData }>()
+        .executeTakeFirst();
 
       if (result === undefined) {
         throw new TRPCError({
@@ -240,6 +207,7 @@ export const measurementRouter = createTRPCRouter({
           code: "BAD_REQUEST",
         });
       }
+
       return result;
     }),
 
@@ -248,7 +216,7 @@ export const measurementRouter = createTRPCRouter({
       openapi: {
         method: "DELETE",
         path: "/v1/measurements/{measurementId}",
-        tags: ["measurement"],
+        tags: ["measurements"],
       },
     })
     .input(
@@ -267,7 +235,8 @@ export const measurementRouter = createTRPCRouter({
       }
 
       await ctx.db
-        .delete(measurementTable)
-        .where(eq(measurementTable.id, input.measurementId));
+        .deleteFrom("measurement")
+        .where("measurement.id", "=", input.measurementId)
+        .execute();
     }),
 });

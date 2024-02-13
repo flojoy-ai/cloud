@@ -1,12 +1,11 @@
 import { lucia, google } from "~/auth/lucia";
 import { cookies } from "next/headers";
-import { createId } from "@paralleldrive/cuid2";
 
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { OAuth2RequestError } from "arctic";
 import { db } from "~/server/db";
-import { oauthAccountTable, userTable } from "~/server/db/schema";
+import { generateDatabaseId } from "~/lib/id";
 
 export const GET = async (request: NextRequest) => {
   const storedState = cookies().get("google_oauth_state")?.value;
@@ -42,10 +41,13 @@ export const GET = async (request: NextRequest) => {
       },
     );
     const user = (await response.json()) as GoogleUser;
-    const existingUser = await db.query.oauthAccountTable.findFirst({
-      where: (table, { eq, and }) =>
-        and(eq(table.providerUserId, user.sub), eq(table.providerId, "google")),
-    });
+
+    const existingUser = await db
+      .selectFrom("oauth_account")
+      .selectAll()
+      .where("providerUserId", "=", user.sub)
+      .where("providerId", "=", "google")
+      .executeTakeFirst();
 
     if (existingUser) {
       const session = await lucia.createSession(existingUser.userId, {});
@@ -63,18 +65,26 @@ export const GET = async (request: NextRequest) => {
       });
     }
 
-    const userId = "user_" + createId();
-    await db.transaction(async (tx) => {
-      await tx.insert(userTable).values({
-        id: userId,
-        email: user.email,
-        emailVerified: user.email_verified,
-      });
-      await tx.insert(oauthAccountTable).values({
-        providerId: "google",
-        providerUserId: user.sub,
-        userId,
-      });
+    const userId = generateDatabaseId("user");
+
+    await db.transaction().execute(async (tx) => {
+      await tx
+        .insertInto("user")
+        .values({
+          id: userId,
+          email: user.email,
+          emailVerified: user.email_verified,
+        })
+        .execute();
+
+      await tx
+        .insertInto("oauth_account")
+        .values({
+          providerId: "google",
+          providerUserId: user.sub,
+          userId,
+        })
+        .execute();
     });
 
     const session = await lucia.createSession(userId, {});

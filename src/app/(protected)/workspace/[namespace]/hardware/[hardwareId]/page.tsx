@@ -8,6 +8,13 @@ import { Separator } from "~/components/ui/separator";
 import { api } from "~/trpc/server";
 import HardwareMeasurements from "./_components/hardware-measurements";
 import BackButton from "~/components/back-button";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "~/components/ui/accordion";
+import { HardwareTreeVisualization } from "~/components/visualization/tree-visualization";
 
 export default async function Hardware({
   params,
@@ -31,14 +38,29 @@ export default async function Hardware({
         {searchParams.back && <BackButton />}
         <PageHeaderHeading className="">{device.name}</PageHeaderHeading>
         <PageHeaderDescription>
-          All tests that have been performed on "{device.name}" are listed here.
+          All tests that have been performed on &quot;{device.name}&quot; are
+          listed here.
         </PageHeaderDescription>
       </PageHeader>
 
-      <Separator className="my-6" />
+      <Accordion type="single" collapsible>
+        <AccordionItem value="item-1">
+          <AccordionTrigger className="hover:no-underline">
+            Component graph
+          </AccordionTrigger>
+          <AccordionContent>
+            <div className="h-96 w-screen">
+              <HardwareTreeVisualization tree={device} />
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+
+      <div className="py-4" />
 
       <HardwareMeasurements
         hardwareId={params.hardwareId}
+        hardware={device}
         namespace={params.namespace}
         initialMeasurements={measurements}
       />

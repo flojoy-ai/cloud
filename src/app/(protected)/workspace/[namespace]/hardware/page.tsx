@@ -20,17 +20,11 @@ export default async function HardwareInventory({
     namespace: params.namespace,
   });
 
-  const devices = await api.hardware.getAllDevices.query({
-    workspaceId,
-  });
-  const systems = await api.hardware.getAllSystems.query({
+  const models = await api.model.getAllModels.query({
     workspaceId,
   });
 
-  const deviceModels = await api.model.getAllDeviceModels.query({
-    workspaceId,
-  });
-  const systemModels = await api.model.getAllSystemModels.query({
+  const hardware = await api.hardware.getAllHardware.query({
     workspaceId,
   });
 
@@ -49,19 +43,20 @@ export default async function HardwareInventory({
       <Separator />
 
       <HardwareModels
-        deviceModels={deviceModels}
-        systemModels={systemModels}
+        models={models}
         workspaceId={workspaceId}
+        namespace={params.namespace}
       />
+
+      <div className="py-4" />
 
       <Separator />
 
       <HardwareInstances
-        devices={devices}
-        systems={systems}
-        deviceModels={deviceModels}
-        systemModels={systemModels}
+        hardware={hardware}
+        models={models}
         workspaceId={workspaceId}
+        namespace={params.namespace}
       />
       <div className="py-4" />
     </div>

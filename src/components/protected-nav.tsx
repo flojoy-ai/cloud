@@ -24,12 +24,12 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { CheckIcon, ChevronsUpDown, PlusCircleIcon } from "lucide-react";
-import { type SelectWorkspace } from "~/types/workspace";
 import { useState } from "react";
 import { Badge } from "./ui/badge";
+import { Workspace } from "~/schemas/public/Workspace";
 
 type Props = {
-  workspaces: SelectWorkspace[];
+  workspaces: Workspace[];
 };
 
 export function ProtectedNav({ workspaces }: Props) {

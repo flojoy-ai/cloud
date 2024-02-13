@@ -9,16 +9,16 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 // import { getPrettyTime } from "~/lib/time";
-import { type SelectWorkspace } from "~/types/workspace";
 import {
   ContextMenu,
   ContextMenuTrigger,
   ContextMenuContent,
 } from "~/components/ui/context-menu";
 import CopyIdContextMenuItem from "~/components/copy-id-context-menu";
+import { Workspace } from "~/schemas/public/Workspace";
 
 type Props = {
-  workspace: SelectWorkspace;
+  workspace: Workspace;
 };
 
 export default function WorkspaceCard({ workspace }: Props) {

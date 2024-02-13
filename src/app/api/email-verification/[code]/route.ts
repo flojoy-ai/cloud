@@ -2,14 +2,11 @@ import { type NextRequest } from "next/server";
 import { lucia, validateRequest } from "~/auth/lucia";
 import { isWithinExpirationDate } from "oslo";
 import { db } from "~/server/db";
-import { emailVerificationTable, userTable } from "~/server/db/schema";
-import { eq } from "drizzle-orm";
+import { withAppRouterHighlight } from "~/lib/highlight";
 
-export const GET = async (
-  _: NextRequest,
-  { params }: { params: { code: string } },
-) => {
-  const code = params.code;
+export const GET = withAppRouterHighlight(async (req: NextRequest) => {
+  const code = req.nextUrl.searchParams.get("code");
+
   const { user } = await validateRequest();
   if (!user) {
     return new Response(null, {
@@ -23,14 +20,22 @@ export const GET = async (
     });
   }
 
-  await db.transaction(async (tx) => {
-    const emailVerification = await tx.query.emailVerificationTable.findFirst({
-      where: (fields, { eq }) => eq(fields.userId, user.id),
-    });
+  await db.transaction().execute(async (tx) => {
+    // const emailVerification = await tx.query.emailVerificationTable.findFirst({
+    //   where: (fields, { eq }) => eq(fields.userId, user.id),
+    // });
+
+    const emailVerification = await tx
+      .selectFrom("email_verification as ev")
+      .where("ev.userId", "=", user.id)
+      .selectAll()
+      .executeTakeFirst();
+
     if (emailVerification) {
-      await db
-        .delete(emailVerificationTable)
-        .where(eq(emailVerificationTable.id, emailVerification.id));
+      await tx
+        .deleteFrom("email_verification as ev")
+        .where("ev.id", "=", emailVerification.id)
+        .execute();
     }
 
     if (!emailVerification || emailVerification.code !== code) {
@@ -53,9 +58,10 @@ export const GET = async (
   await lucia.invalidateUserSessions(user.id);
 
   await db
-    .update(userTable)
+    .updateTable("user")
     .set({ emailVerified: true })
-    .where(eq(userTable.id, user.id));
+    .where("user.id", "=", user.id)
+    .execute();
 
   const session = await lucia.createSession(user.id, {});
   const sessionCookie = lucia.createSessionCookie(session.id);
@@ -66,4 +72,4 @@ export const GET = async (
       "Set-Cookie": sessionCookie.serialize(),
     },
   });
-};
+});

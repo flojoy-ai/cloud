@@ -1,18 +1,20 @@
 import { Lucia } from "lucia";
 
-import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle";
-import { db } from "~/server/db";
 import { env } from "~/env";
-import { userTable, sessionTable } from "~/server/db/schema";
 import { Google } from "arctic";
 import { cache } from "react";
 import { cookies } from "next/headers";
 import type { Session, User } from "lucia";
+import { NodePostgresAdapter } from "@lucia-auth/adapter-postgresql";
+import { pool } from "~/server/db";
 
 // import { webcrypto } from "crypto";
 // globalThis.crypto = webcrypto as Crypto;
 
-const adapter = new DrizzlePostgreSQLAdapter(db, sessionTable, userTable);
+const adapter = new NodePostgresAdapter(pool, {
+  user: "user",
+  session: "user_session",
+});
 
 export const lucia = new Lucia(adapter, {
   sessionCookie: {
@@ -24,7 +26,7 @@ export const lucia = new Lucia(adapter, {
 
   getUserAttributes: (user) => {
     return {
-      emailVerified: user.emailVerified,
+      emailVerified: user.email_verified,
       email: user.email,
     };
   },
@@ -84,9 +86,8 @@ declare module "lucia" {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface DatabaseSessionAttributes {}
 interface DatabaseUserAttributes {
-  emailVerified: boolean;
+  email_verified: boolean;
   email: string;
 }
