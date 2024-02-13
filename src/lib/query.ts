@@ -281,7 +281,7 @@ export async function getTagsByNames(
     createIfNotExists: boolean;
   },
 ): Promise<Tag[]> {
-  const uniqueNames = _.uniq(tagNames)
+  const uniqueNames = _.uniq(tagNames);
 
   if (opts.createIfNotExists) {
     return await Promise.all(
@@ -292,6 +292,7 @@ export async function getTagsByNames(
           .where("workspaceId", "=", opts.workspaceId)
           .where("tag.name", "=", name)
           .executeTakeFirst();
+
         if (tag) {
           return tag;
         } else {
