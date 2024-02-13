@@ -19,6 +19,7 @@ const config = {
     serverComponentsExternalPackages: ["oslo", "@highlight-run/node"],
     instrumentationHook: true,
   },
+  productionBrowserSourceMaps: true,
 };
 
 export default bundleAnalyzer(withHighlightConfig(config));
