@@ -48,3 +48,5 @@ terraform/terraform.tfstate*
 zapier/node_modules/**
 zapier/dist
 zapier/build
+zapier/.zapierapprc
+zapier/.env*
