@@ -215,6 +215,17 @@ export const hardwareRouter = createTRPCRouter({
               })),
             )
             .execute();
+
+          await tx.insertInto("hardware_revision").values(
+            components
+              .map((c) => ({
+                hardwareId: hardware.id,
+                revisionType: "init",
+                componentId: c.hardwareId,
+                reason: "Initial hardware creation",
+                userId: ctx.user.id,
+              }))
+          ).execute();
         }
 
         if (input.projectId !== undefined) {
