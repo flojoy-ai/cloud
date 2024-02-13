@@ -9,22 +9,18 @@ export const GET = withAppRouterHighlight(async (req: NextRequest) => {
 
   const { user } = await validateRequest();
   if (!user) {
-    return new Response(null, {
+    return new Response("Unauthorized", {
       status: 401,
     });
   }
   // check for length
   if (typeof code !== "string" || code.length !== 8) {
-    return new Response(null, {
+    return new Response("Invalid verification code!", {
       status: 400,
     });
   }
 
   await db.transaction().execute(async (tx) => {
-    // const emailVerification = await tx.query.emailVerificationTable.findFirst({
-    //   where: (fields, { eq }) => eq(fields.userId, user.id),
-    // });
-
     const emailVerification = await tx
       .selectFrom("email_verification as ev")
       .where("ev.userId", "=", user.id)
@@ -39,17 +35,17 @@ export const GET = withAppRouterHighlight(async (req: NextRequest) => {
     }
 
     if (!emailVerification || emailVerification.code !== code) {
-      return new Response(null, {
+      return new Response("Invalid verification code!", {
         status: 400,
       });
     }
     if (!isWithinExpirationDate(emailVerification.expiresAt)) {
-      return new Response(null, {
+      return new Response("Verification code expired!", {
         status: 400,
       });
     }
-    if (!user || user.email !== emailVerification.email) {
-      return new Response(null, {
+    if (user.email !== emailVerification.email) {
+      return new Response("Invalid verification code!", {
         status: 400,
       });
     }
