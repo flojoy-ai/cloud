@@ -20,6 +20,7 @@ import { type default as HardwareRelationTable } from './HardwareRelation';
 import { type default as ProjectHardwareTable } from './ProjectHardware';
 import { type default as MeasurementTable } from './Measurement';
 import { type default as TagTable } from './Tag';
+import { type default as MeasurementTagTable } from './MeasurementTag';
 import { type default as SecretTable } from './Secret';
 import { type default as HardwareRevisionTable } from './HardwareRevision';
 
@@ -61,6 +62,8 @@ export default interface PublicSchema {
   measurement: MeasurementTable;
 
   tag: TagTable;
+
+  measurement_tag: MeasurementTagTable;
 
   secret: SecretTable;
 
