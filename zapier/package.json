@@ -1,14 +1,14 @@
 {
   "name": "flojoy-cloud",
   "version": "1.0.0",
-  "description": "Integrate with Flojoy Cloud",
+  "description": "Integrate Flojoy Cloud with Zapier",
   "main": "dist/index.js",
   "private": true,
   "scripts": {
-    "test": "npm run build && jest --testTimeout 10000 --rootDir ./dist",
-    "build": "npm run clean && tsc",
+    "test": "pnpm run build && jest --testTimeout 10000 --rootDir ./dist",
+    "build": "pnpm run clean && tsc",
     "clean": "rimraf ./dist ./build",
-    "watch": "npm run clean && tsc --watch"
+    "watch": "pnpm run clean && tsc --watch"
   },
   "engines": {
     "node": ">=v18",
