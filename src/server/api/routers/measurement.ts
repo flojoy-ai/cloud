@@ -68,10 +68,10 @@ export const measurementRouter = createTRPCRouter({
     .input(insertMeasurementSchema)
     .use(hardwareAccessMiddleware)
     .use(testAccessMiddleware)
-    .output(z.void())
+    .output(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.transaction().execute(async (tx) => {
-        const [res] = await tx
+        const res = await tx
           .insertInto("measurement")
           .values({
             id: generateDatabaseId("measurement"),
@@ -79,17 +79,18 @@ export const measurementRouter = createTRPCRouter({
             ...input,
           })
           .returning("id")
-          .execute();
-
-        if (!res) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create measurement",
-          });
-        }
+          .executeTakeFirstOrThrow(
+            () =>
+              new TRPCError({
+                code: "INTERNAL_SERVER_ERROR",
+                message: "Failed to create measurement",
+              }),
+          );
 
         await markUpdatedAt(tx, "test", input.testId);
         await markUpdatedAt(tx, "hardware", input.hardwareId);
+
+        return res;
       });
     }),
 
@@ -155,7 +156,8 @@ export const measurementRouter = createTRPCRouter({
         .where("hardwareId", "=", input.hardwareId)
         .select(withHardware)
         .$narrowType<{ hardware: SelectHardware }>()
-        .$narrowType<{ data: MeasurementData }>();
+        .$narrowType<{ data: MeasurementData }>()
+        .orderBy("createdAt", "desc");
 
       if (input.startDate) {
         query = query.where("createdAt", ">=", input.startDate);

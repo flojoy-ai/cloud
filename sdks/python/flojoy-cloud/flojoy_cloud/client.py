@@ -13,6 +13,7 @@ from flojoy_cloud.dtypes import (
     Device,
     DeviceModel,
     Hardware,
+    MeasurementCreateResult,
     MeasurementWithHardware,
     Project,
     ProjectWithModel,
@@ -295,7 +296,7 @@ class FlojoyCloud:
 
     """Measurement Endpoints"""
 
-    @query(model=None)
+    @query(model=MeasurementCreateResult)
     def upload(
         self,
         data: MeasurementData,

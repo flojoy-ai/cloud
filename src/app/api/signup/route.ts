@@ -11,7 +11,9 @@ import { cookies } from "next/headers";
 import { generateDatabaseId } from "~/lib/id";
 import { DatabaseError } from "pg";
 
-export const POST = async (request: NextRequest) => {
+import { withAppRouterHighlight } from "~/lib/highlight";
+
+export const POST = withAppRouterHighlight(async (request: NextRequest) => {
   const formData = await request.formData();
   const email = formData.get("email");
   const password = formData.get("password");
@@ -89,4 +91,4 @@ export const POST = async (request: NextRequest) => {
       status: 500,
     });
   }
-};
+});

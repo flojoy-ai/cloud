@@ -24,6 +24,7 @@
     "@aws-sdk/client-s3": "^3.511.0",
     "@aws-sdk/client-ses": "^3.511.0",
     "@dagrejs/dagre": "^1.0.4",
+    "@highlight-run/next": "^7.3.5",
     "@hookform/resolvers": "^3.3.4",
     "@lucia-auth/adapter-postgresql": "^3.1.0",
     "@paralleldrive/cuid2": "^2.2.2",

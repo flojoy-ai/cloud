@@ -12,6 +12,8 @@ httpx = "^0.26.0"
 numpy = "^1.26.3"
 pydantic = "^2.5.3"
 pandas = "^2.2.0"
+watchfiles = "^0.21.0"
+rich = "^13.7.0"
 
 
 [tool.poetry.group.dev.dependencies]
