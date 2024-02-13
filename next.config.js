@@ -22,4 +22,7 @@ const config = {
   productionBrowserSourceMaps: true,
 };
 
-export default bundleAnalyzer(withHighlightConfig(config));
+// build will break if you switch the order between
+// `withHighlightConfig` and `bundleAnalyzer`
+// 45 mins of my life was wasted here, so just don't do it :(
+export default withHighlightConfig(bundleAnalyzer(config));
