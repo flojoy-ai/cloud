@@ -18,6 +18,7 @@ export const insertMeasurementSchema = measurementInitializer
   .extend({
     data: measurementDataSchema,
     name: z.string().default("Untitled Measurement"),
+    tagNames: z.string().array().default([]),
   });
 
 export const selectMeasurementSchema = measurement.extend({

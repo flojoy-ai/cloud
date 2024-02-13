@@ -6,6 +6,9 @@ import { db } from "~/server/db";
 import { ModelTree } from "~/types/model";
 import { Hardware } from "~/schemas/public/Hardware";
 import { HardwareTree, SelectHardware } from "~/types/hardware";
+import { Tag } from "~/schemas/public/Tag";
+import { generateDatabaseId } from "./id";
+import { TRPCError } from "@trpc/server";
 
 export async function getProjectById(id: string) {
   return await db
@@ -268,4 +271,53 @@ export function withProjects(eb: ExpressionBuilder<DB, "hardware">) {
       .innerJoin("project", "ph.projectId", "project.id")
       .selectAll("project"),
   ).as("projects");
+}
+
+export async function getTagsByNames(
+  db: Kysely<DB>,
+  tagNames: string[],
+  opts: {
+    workspaceId: string;
+    createIfNotExists: boolean;
+  },
+): Promise<Tag[]> {
+  if (opts.createIfNotExists) {
+    return await Promise.all(
+      tagNames.map(async (name) => {
+        const tag = await db
+          .selectFrom("tag")
+          .selectAll()
+          .where("workspaceId", "=", opts.workspaceId)
+          .where("tag.name", "=", name)
+          .executeTakeFirst();
+        if (tag) {
+          return tag;
+        } else {
+          const newTag = await db
+            .insertInto("tag")
+            .values({
+              id: generateDatabaseId("tag"),
+              name,
+              workspaceId: opts.workspaceId,
+            })
+            .returningAll()
+            .executeTakeFirstOrThrow(
+              () =>
+                new TRPCError({
+                  code: "BAD_REQUEST",
+                  message: "Measurement not found",
+                }),
+            );
+          return newTag;
+        }
+      }),
+    );
+  } else {
+    return await db
+      .selectFrom("tag")
+      .selectAll()
+      .where("workspaceId", "=", opts.workspaceId)
+      .where("tag.name", "in", tagNames)
+      .execute();
+  }
 }

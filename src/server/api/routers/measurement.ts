@@ -11,9 +11,8 @@ import { hardwareAccessMiddleware } from "./hardware";
 import { testAccessMiddleware } from "./test";
 import { checkWorkspaceAccess } from "~/lib/auth";
 import _ from "lodash";
-import { measurement } from "~/schemas/public/Measurement";
 import { generateDatabaseId } from "~/lib/id";
-import { markUpdatedAt, withHardware } from "~/lib/query";
+import { getTagsByNames, markUpdatedAt, withHardware } from "~/lib/query";
 import { type SelectHardware } from "~/types/hardware";
 import { MeasurementData } from "~/types/data";
 
@@ -86,6 +85,21 @@ export const measurementRouter = createTRPCRouter({
                 message: "Failed to create measurement",
               }),
           );
+
+        const tags = await getTagsByNames(tx, input.tagNames, {
+          workspaceId: ctx.workspaceId,
+          createIfNotExists: true,
+        });
+
+        await tx
+          .insertInto("measurement_tag")
+          .values(
+            tags.map((t) => ({
+              tagId: t.id,
+              measurementId: res.id,
+            })),
+          )
+          .execute();
 
         await markUpdatedAt(tx, "test", input.testId);
         await markUpdatedAt(tx, "hardware", input.hardwareId);
