@@ -1,4 +1,4 @@
-# To create a Zapier app with for Flojoy Cloud manually
+# To create a Zapier app integration for Flojoy Cloud manually
 
 ## Install dependencies
 
