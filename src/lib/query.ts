@@ -263,6 +263,16 @@ export function withHardware(eb: ExpressionBuilder<DB, "measurement">) {
   ).as("hardware");
 }
 
+export function withTags(eb: ExpressionBuilder<DB, "measurement">) {
+  return jsonArrayFrom(
+    eb
+      .selectFrom("measurement_tag as mt")
+      .whereRef("mt.measurementId", "=", "measurement.id")
+      .innerJoin("tag", "tag.id", "mt.tagId")
+      .selectAll("tag"),
+  ).as("tags");
+}
+
 export function withProjects(eb: ExpressionBuilder<DB, "hardware">) {
   return jsonArrayFrom(
     eb

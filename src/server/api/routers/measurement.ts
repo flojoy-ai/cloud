@@ -12,7 +12,12 @@ import { testAccessMiddleware } from "./test";
 import { checkWorkspaceAccess } from "~/lib/auth";
 import _ from "lodash";
 import { generateDatabaseId } from "~/lib/id";
-import { getTagsByNames, markUpdatedAt, withHardware } from "~/lib/query";
+import {
+  getTagsByNames,
+  markUpdatedAt,
+  withHardware,
+  withTags,
+} from "~/lib/query";
 import { type SelectHardware } from "~/types/hardware";
 import { MeasurementData } from "~/types/data";
 
@@ -130,6 +135,7 @@ export const measurementRouter = createTRPCRouter({
         .selectFrom("measurement")
         .selectAll("measurement")
         .select(withHardware)
+        .select((eb) => withTags(eb))
         .where("testId", "=", input.testId)
         .$narrowType<{ hardware: SelectHardware }>()
         .$narrowType<{ data: MeasurementData }>();
@@ -169,6 +175,7 @@ export const measurementRouter = createTRPCRouter({
         .selectAll("measurement")
         .where("hardwareId", "=", input.hardwareId)
         .select(withHardware)
+        .select((eb) => withTags(eb))
         .$narrowType<{ hardware: SelectHardware }>()
         .$narrowType<{ data: MeasurementData }>()
         .orderBy("createdAt", "desc");
@@ -213,6 +220,7 @@ export const measurementRouter = createTRPCRouter({
         .selectAll("measurement")
         .where("id", "=", input.measurementId)
         .select((eb) => withHardware(eb))
+        .select((eb) => withTags(eb))
         .$narrowType<{ hardware: SelectHardware }>()
         .$narrowType<{ data: MeasurementData }>()
         .executeTakeFirst();
