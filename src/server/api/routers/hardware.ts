@@ -20,6 +20,7 @@ import {
 import {
   hardwareTreeSchema,
   insertHardwareSchema,
+  selectHardwareRevision,
   swapHardwareComponentSchema,
 } from "~/types/hardware";
 import { generateDatabaseId } from "~/lib/id";
@@ -344,12 +345,17 @@ export const hardwareRouter = createTRPCRouter({
     })
     .input(z.object({ hardwareId: z.string() }))
     .use(hardwareAccessMiddleware)
-    .output(z.array(hardwareRevision))
+    .output(z.array(selectHardwareRevision))
     .query(async ({ ctx, input }) => {
       const revisions = await ctx.db
         .selectFrom("hardware_revision as hr")
-        .selectAll()
+        .selectAll("hr")
+        .innerJoin("hardware", "hardware.id", "hr.componentId")
+        .innerJoin("user", "user.id", "hr.userId")
+        .select("hardware.name as componentName")
+        .select("user.email as userEmail")
         .where("hr.hardwareId", "=", input.hardwareId)
+        .orderBy("hr.createdAt", "desc")
         .execute();
       return revisions;
     }),

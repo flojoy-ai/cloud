@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { Hardware, hardware } from "~/schemas/public/Hardware";
+import { hardwareRevision } from "~/schemas/public/HardwareRevision";
 import { Model } from "~/schemas/public/Model";
 
 export type SelectHardware = Hardware & { model: Model };
@@ -25,6 +26,13 @@ export const swapHardwareComponentSchema = hardware
     newHardwareComponentId: z.string(),
     reason: z.string().optional(),
   });
+
+export const selectHardwareRevision = hardwareRevision.extend({
+  componentName: z.string(),
+  userEmail: z.string(),
+});
+
+export type SelectHardwareRevision = z.infer<typeof selectHardwareRevision>;
 
 export type HardwareTree = Pick<Hardware, "name" | "id" | "modelId"> & {
   modelName: string;

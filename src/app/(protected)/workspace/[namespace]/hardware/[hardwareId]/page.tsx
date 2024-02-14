@@ -15,6 +15,7 @@ import {
 } from "~/components/ui/accordion";
 import { HardwareTreeVisualization } from "~/components/visualization/tree-visualization";
 import SwapHardware from "~/components/hardware/swap-hardware";
+import RevisionHistory from "~/components/hardware/revision-history";
 
 export default async function Hardware({
   params,
@@ -24,6 +25,9 @@ export default async function Hardware({
   searchParams: { back?: string };
 }) {
   const hardware = await api.hardware.getHardwareById.query({
+    hardwareId: params.hardwareId,
+  });
+  const revisions = await api.hardware.getRevisions.query({
     hardwareId: params.hardwareId,
   });
   const measurements =
@@ -42,9 +46,12 @@ export default async function Hardware({
         <PageHeaderHeading className="">
           <div className="flex items-center gap-x-2">
             <div>{hardware.name}</div>
-            <div>
-              <SwapHardware hardware={hardware} workspaceId={workspaceId} />
-            </div>
+            {hardware.components.length > 0 && (
+              <>
+                <SwapHardware hardware={hardware} workspaceId={workspaceId} />
+                <RevisionHistory revisions={revisions} />
+              </>
+            )}
           </div>
         </PageHeaderHeading>
         <PageHeaderDescription>
