@@ -66,8 +66,10 @@ export default async function Hardware({
             Component Graph
           </AccordionTrigger>
           <AccordionContent>
-            <div className="h-96 w-screen">
-              <HardwareTreeVisualization tree={hardware} />
+            <div className="w-full p-1">
+              <div className="h-96 rounded-md border border-muted">
+                <HardwareTreeVisualization tree={hardware} />
+              </div>
             </div>
           </AccordionContent>
         </AccordionItem>
