@@ -11,7 +11,7 @@ import { Separator } from "~/components/ui/separator";
 import DataframeViz from "~/components/visualization/dataframe-viz";
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/server";
-import { type BooleanData } from "~/types/data";
+import { type ScalarData, type BooleanData } from "~/types/data";
 
 type BooleanVizProps = {
   data: BooleanData;
@@ -28,6 +28,18 @@ const BooleanViz = ({ data }: BooleanVizProps) => {
       >
         {data.value.toString()}
       </div>
+    </Card>
+  );
+};
+
+type ScalarVizProps = {
+  data: ScalarData;
+};
+
+const ScalarViz = ({ data }: ScalarVizProps) => {
+  return (
+    <Card className="w-fit p-4">
+      <div className={"text-xl"}>{data.value}</div>
     </Card>
   );
 };
@@ -54,6 +66,9 @@ export default async function Measurement({
   switch (measurement.data.type) {
     case "boolean":
       visualization = <BooleanViz data={measurement.data} />;
+      break;
+    case "scalar":
+      visualization = <ScalarViz data={measurement.data} />;
       break;
     case "dataframe":
       visualization = (

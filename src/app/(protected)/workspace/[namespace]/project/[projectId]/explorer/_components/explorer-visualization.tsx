@@ -21,6 +21,7 @@ import { Checkbox } from "~/components/ui/checkbox";
 import { Label } from "~/components/ui/label";
 import _ from "lodash";
 import { Test } from "~/schemas/public/Test";
+import ScalarViz from "~/components/visualization/scalar-viz";
 
 type Props = {
   tests: Test[];
@@ -125,6 +126,12 @@ measurements = client.get_all_measurements_by_hardware_id("HARDWARE_ID")
         />
       ) : selectedTest?.measurementType === "dataframe" ? (
         <DataFrameViz
+          measurements={measurements ?? []}
+          title={selectedTest?.name}
+          workspaceId={workspaceId}
+        />
+      ) : selectedTest?.measurementType === "scalar" ? (
+        <ScalarViz
           measurements={measurements ?? []}
           title={selectedTest?.name}
           workspaceId={workspaceId}
