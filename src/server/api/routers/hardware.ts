@@ -29,7 +29,7 @@ import { Model, model } from "~/schemas/public/Model";
 import { project } from "~/schemas/public/Project";
 import { ExpressionBuilder } from "kysely";
 import DB from "~/schemas/public/PublicSchema";
-import { withDBErrorCheck } from "~/types/db-utils";
+import { withDBErrorCheck } from "~/lib/db-utils";
 
 export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };

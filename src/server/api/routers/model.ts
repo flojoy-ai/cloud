@@ -9,7 +9,7 @@ import { getModelById, getModelTree, markUpdatedAt } from "~/lib/query";
 import { insertModelSchema, modelTreeSchema } from "~/types/model";
 import { model } from "~/schemas/public/Model";
 import { generateDatabaseId } from "~/lib/id";
-import { withDBErrorCheck } from "~/types/db-utils";
+import { withDBErrorCheck } from "~/lib/db-utils";
 
 export const modelAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };

@@ -9,7 +9,8 @@ import { db } from "~/server/db";
 import { cookies } from "next/headers";
 import { generateDatabaseId } from "~/lib/id";
 import { withAppRouterHighlight } from "~/lib/highlight";
-
+const defaultErrorMsg =
+  "There was an error with your registration. Please try registering again.";
 export const POST = withAppRouterHighlight(async (request: NextRequest) => {
   const formData = await request.formData();
   const email = formData.get("email");
@@ -31,52 +32,57 @@ export const POST = withAppRouterHighlight(async (request: NextRequest) => {
       status: 400,
     });
   }
+  try {
+    const userId = generateDatabaseId("user");
+    const hashedPassword = await new Argon2id().hash(password);
 
-  const userId = generateDatabaseId("user");
-  const hashedPassword = await new Argon2id().hash(password);
+    const userExists = await db
+      .selectFrom("user")
+      .selectAll()
+      .where("email", "=", parsedEmail.data)
+      .executeTakeFirst();
 
-  const userExists = await db
-    .selectFrom("user")
-    .selectAll()
-    .where("email", "=", parsedEmail.data)
-    .executeTakeFirst();
-
-  if (userExists) {
-    return new Response(
-      "There was an error with your registration. Please try registering again.",
-      {
+    if (userExists) {
+      return new Response(defaultErrorMsg, {
         status: 400,
-      },
+      });
+    }
+
+    await db
+      .insertInto("user")
+      .values({
+        id: userId,
+        email: parsedEmail.data,
+        hashedPassword: hashedPassword,
+        emailVerified: false,
+      })
+      .execute();
+
+    const token = await generateEmailVerificationToken(
+      userId,
+      parsedEmail.data,
     );
+    const verificationLink =
+      env.NEXT_PUBLIC_URL_ORIGIN + "/api/email-verification/" + token;
+    await sendEmailVerificationLink(parsedEmail.data, verificationLink);
+
+    const session = await lucia.createSession(userId, {});
+    const sessionCookie = lucia.createSessionCookie(session.id);
+    cookies().set(
+      sessionCookie.name,
+      sessionCookie.value,
+      sessionCookie.attributes,
+    );
+
+    return new Response(null, {
+      headers: {
+        Location: "/verify", // verify page
+      },
+      status: 302,
+    });
+  } catch {
+    return new Response(defaultErrorMsg, {
+      status: 400,
+    });
   }
-
-  await db
-    .insertInto("user")
-    .values({
-      id: userId,
-      email: parsedEmail.data,
-      hashedPassword: hashedPassword,
-      emailVerified: false,
-    })
-    .execute();
-
-  const token = await generateEmailVerificationToken(userId, parsedEmail.data);
-  const verificationLink =
-    env.NEXT_PUBLIC_URL_ORIGIN + "/api/email-verification/" + token;
-  await sendEmailVerificationLink(parsedEmail.data, verificationLink);
-
-  const session = await lucia.createSession(userId, {});
-  const sessionCookie = lucia.createSessionCookie(session.id);
-  cookies().set(
-    sessionCookie.name,
-    sessionCookie.value,
-    sessionCookie.attributes,
-  );
-
-  return new Response(null, {
-    headers: {
-      Location: "/verify", // verify page
-    },
-    status: 302,
-  });
 });

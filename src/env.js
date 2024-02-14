@@ -41,7 +41,7 @@ export const env = createEnv({
       .optional()
       // transform to boolean using preferred coercion logic
       .transform((s) => s !== undefined && s !== "false" && s !== "0"),
-    HIGHLIGHT_PROJECT_ID: z.string().default("jdkmlr3g"),
+    HIGHLIGHT_PROJECT_ID: z.string().default("6gl9mxzg"),
   },
 
   /**

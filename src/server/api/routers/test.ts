@@ -10,7 +10,7 @@ import { test } from "~/schemas/public/Test";
 import { generateDatabaseId } from "~/lib/id";
 import { markUpdatedAt } from "~/lib/query";
 import { DatabaseError } from "pg";
-import { withDBErrorCheck } from "~/types/db-utils";
+import { withDBErrorCheck } from "~/lib/db-utils";
 
 export const testAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };

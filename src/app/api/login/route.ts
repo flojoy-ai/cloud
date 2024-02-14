@@ -8,6 +8,8 @@ import { db } from "~/server/db";
 import { cookies } from "next/headers";
 import { withAppRouterHighlight } from "~/lib/highlight";
 
+const defaultErrorMsg = "Wrong password or user does not exist.";
+
 export const POST = withAppRouterHighlight(async (request: NextRequest) => {
   const formData = await request.formData();
   const email = formData.get("email");
@@ -24,7 +26,7 @@ export const POST = withAppRouterHighlight(async (request: NextRequest) => {
     password.length < 1 ||
     password.length > 255
   ) {
-    return new Response("Wrong password or user does not exist!", {
+    return new Response(defaultErrorMsg, {
       status: 400,
     });
   }
@@ -35,7 +37,7 @@ export const POST = withAppRouterHighlight(async (request: NextRequest) => {
     .executeTakeFirst();
 
   if (!existingUser) {
-    return new Response("Wrong password or user does not exist!", {
+    return new Response(defaultErrorMsg, {
       status: 400,
     });
   }
@@ -55,7 +57,7 @@ export const POST = withAppRouterHighlight(async (request: NextRequest) => {
   );
 
   if (!validPassword) {
-    return new Response("Wrong password or user does not exist!", {
+    return new Response(defaultErrorMsg, {
       status: 400,
     });
   }

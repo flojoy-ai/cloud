@@ -18,7 +18,7 @@ import { type DatabaseError } from "pg";
 import { type ProjectId, project } from "~/schemas/public/Project";
 import { generateDatabaseId } from "~/lib/id";
 import { markUpdatedAt, getProjectById, getHardwareById } from "~/lib/query";
-import { withDBErrorCheck } from "~/types/db-utils";
+import { withDBErrorCheck } from "~/lib/db-utils";
 
 export const projectAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };

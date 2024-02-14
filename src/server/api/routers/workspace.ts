@@ -14,7 +14,7 @@ import { generateDatabaseId } from "~/lib/id";
 import { type db } from "~/server/db";
 import { createWorkspace, updateWorkspace } from "~/types/workspace";
 import { api } from "~/trpc/server";
-import { withDBErrorCheck } from "~/types/db-utils";
+import { withDBErrorCheck } from "~/lib/db-utils";
 
 export const workspaceAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: db; user: { id: string }; workspaceId: string | null };
