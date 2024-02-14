@@ -10,9 +10,9 @@ WorkspaceInfo = Tuple[FlojoyCloud, str]
 
 # Set all of these variables to run the tests
 # This should be run in a completely fresh/empty workspace.
-WORKSPACE_SECRET = "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiJ1c2VyX2tpcDJqY2M5eHc0MnV5NnFvMWN2ZHJ1NSIsIndvcmtzcGFjZUlkIjoid29ya3NwYWNlX25icTM3eHVscmx0anFueXRlejBrbGcweiIsImlhdCI6MTcwNzk0MDk5MH0.s9ZnDqGKWVOW0pg1cA3fN8YeniFY5Oi44QGqprwCiYM"
+WORKSPACE_SECRET = ""
 API_URL = "http://localhost:3000/api/v1"
-WORKSPACE_ID = "workspace_nbq37xulrltjqnytez0klg0z"
+WORKSPACE_ID = ""
 
 runnable = WORKSPACE_SECRET != "" and API_URL != "" and WORKSPACE_ID != ""
 pytestmark = pytest.mark.skipif(not runnable, reason="Need environment setup")
