@@ -53,7 +53,7 @@ const SignupForm = () => {
       toast.error(
         handleError(
           error,
-          "Signup is currently not available, please try again later :)",
+          "Signup is currently not available, please try again later :(",
         ),
       );
     },
