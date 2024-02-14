@@ -3,7 +3,7 @@ import { Argon2id } from "oslo/password";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
 import { generateEmailVerificationToken } from "~/lib/token";
-import { sendEmailVerificationLink } from "~/lib/email";
+import { sendAccountExistsEmail, sendEmailVerificationLink } from "~/lib/email";
 import { env } from "~/env";
 import { db } from "~/server/db";
 import { cookies } from "next/headers";
@@ -43,6 +43,7 @@ export const POST = withAppRouterHighlight(async (request: NextRequest) => {
       .executeTakeFirst();
 
     if (userExists) {
+      await sendAccountExistsEmail(parsedEmail.data);
       return new Response(defaultErrorMsg, {
         status: 400,
       });
