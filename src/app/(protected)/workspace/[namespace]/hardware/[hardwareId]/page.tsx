@@ -7,15 +7,9 @@ import {
 import { api } from "~/trpc/server";
 import HardwareMeasurements from "./_components/hardware-measurements";
 import BackButton from "~/components/back-button";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "~/components/ui/accordion";
-import { HardwareTreeVisualization } from "~/components/visualization/tree-visualization";
 import SwapHardware from "~/components/hardware/swap-hardware";
 import RevisionHistory from "~/components/hardware/revision-history";
+import ComponentGraph from "./_components/component-graph";
 
 export default async function Hardware({
   params,
@@ -49,7 +43,10 @@ export default async function Hardware({
             {hardware.components.length > 0 && (
               <>
                 <SwapHardware hardware={hardware} workspaceId={workspaceId} />
-                <RevisionHistory revisions={revisions} />
+                <RevisionHistory
+                  revisions={revisions}
+                  hardwareId={hardware.id}
+                />
               </>
             )}
           </div>
@@ -60,20 +57,7 @@ export default async function Hardware({
         </PageHeaderDescription>
       </PageHeader>
 
-      <Accordion type="single" collapsible>
-        <AccordionItem value="item-1">
-          <AccordionTrigger className="hover:no-underline">
-            Component Graph
-          </AccordionTrigger>
-          <AccordionContent>
-            <div className="w-full p-1">
-              <div className="h-96 rounded-md border border-muted">
-                <HardwareTreeVisualization tree={hardware} />
-              </div>
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
+      <ComponentGraph tree={hardware} />
 
       <div className="py-4" />
 

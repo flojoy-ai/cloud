@@ -46,9 +46,18 @@ type Props = {
   hardware: HardwareTree;
 };
 
-const SwapHardware = ({ workspaceId, hardware }: Props) => {
+const SwapHardware = ({ workspaceId, ...props }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const utils = api.useUtils();
+
+  const { data: hardware } = api.hardware.getHardwareById.useQuery(
+    {
+      hardwareId: props.hardware.id,
+    },
+    {
+      initialData: props.hardware,
+    },
+  );
 
   const form = useForm<FormSchema>({
     resolver: zodResolver(swapHardwareComponentSchema),

@@ -16,6 +16,7 @@ import {
 import { Cpu, History, MinusCircle, PlusCircle } from "lucide-react";
 import { Card } from "../ui/card";
 import RevisionType from "~/schemas/public/RevisionType";
+import { api } from "~/trpc/react";
 
 const iconMap: Record<RevisionType, JSX.Element> = {
   add: <PlusCircle size={20} className="stroke-green-500/60" />,
@@ -25,10 +26,18 @@ const iconMap: Record<RevisionType, JSX.Element> = {
 
 type Props = {
   revisions: SelectHardwareRevision[];
+  hardwareId: string;
 };
 
-const RevisionHistory = ({ revisions }: Props) => {
+const RevisionHistory = (props: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+
+  const { data: revisions } = api.hardware.getRevisions.useQuery(
+    {
+      hardwareId: props.hardwareId,
+    },
+    { initialData: props.revisions },
+  );
 
   return (
     <Dialog
