@@ -203,7 +203,7 @@ export const projectRouter = createTRPCRouter({
         .execute();
     }),
 
-  setProjectHardwares: workspaceProcedure
+  setProjectHardware: workspaceProcedure
     .meta({
       openapi: {
         method: "PUT",
@@ -237,10 +237,6 @@ export const projectRouter = createTRPCRouter({
           .where("id", "in", input.hardwareIds)
           .execute();
 
-        // const hardwares = await tx.query.hardwareTable.findMany({
-        //   where: (hardware, { inArray }) =>
-        //     inArray(hardware.id, input.hardwareIds),
-        // });
         const project = await getProjectById(input.projectId);
 
         if (project === undefined) {
@@ -297,7 +293,7 @@ export const projectRouter = createTRPCRouter({
         .execute();
     }),
 
-  deleteProjectById: workspaceProcedure
+  deleteProject: workspaceProcedure
     .meta({
       openapi: {
         method: "DELETE",

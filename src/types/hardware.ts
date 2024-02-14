@@ -18,14 +18,12 @@ export const insertHardwareSchema = hardware
     projectId: z.string().optional(),
   });
 
-export const swapHardwareComponentSchema = hardware
-  .pick({ workspaceId: true })
-  .extend({
-    hardwareId: z.string(),
-    oldHardwareComponentId: z.string(),
-    newHardwareComponentId: z.string(),
-    reason: z.string().optional(),
-  });
+export const swapHardwareComponentSchema = z.object({
+  hardwareId: z.string(),
+  oldHardwareComponentId: z.string(),
+  newHardwareComponentId: z.string(),
+  reason: z.string().optional(),
+});
 
 export const selectHardwareRevision = hardwareRevision.extend({
   componentName: z.string(),

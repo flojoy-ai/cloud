@@ -4,7 +4,7 @@ import pytest
 import pandas as pd
 
 from flojoy_cloud import FlojoyCloud
-from flojoy_cloud import SystemModelPart
+from flojoy_cloud import ModelComponent
 
 WorkspaceInfo = Tuple[FlojoyCloud, str]
 
@@ -206,7 +206,7 @@ def test_hardware_routes(workspace: WorkspaceInfo, hardware_setup):
     assert res.name == device2.name
 
     # Create a system
-    system = client.create_system(
+    system = client.create_hardware(
         workspace_id=workspace_id,
         name="test-system",
         model_id=system_model.id,

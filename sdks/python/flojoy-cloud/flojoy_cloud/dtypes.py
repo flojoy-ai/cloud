@@ -7,13 +7,16 @@ from pydantic.alias_generators import to_camel
 from flojoy_cloud.measurement import MeasurementType
 
 
-class CloudModel(BaseModel):
+class CamelModel(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel, protected_namespaces=())
+
+
+class CloudModel(CamelModel):
     id: str
     created_at: datetime.datetime
 
 
-class SystemModelPart(BaseModel):
+class ModelComponent(BaseModel):
     modelId: str
     count: int
     name: str = Field(default="")
@@ -24,36 +27,66 @@ class Model(CloudModel):
     workspace_id: str
 
 
-class DeviceModel(Model):
-    type: Literal["device"]
-
-
-class SystemModel(Model):
-    type: Literal["system"]
-    parts: list[SystemModelPart]
-
-
-class SystemPart(BaseModel):
+class ModelTree(BaseModel):
     id: str
     name: str
+    components: list["ModelTreeComponent"]
+
+
+class ModelTreeComponent(BaseModel):
+    count: int
+    model: ModelTree
+
+
+# Required for recursive types
+ModelTree.model_rebuild()
+
+
+class Project(CloudModel):
+    name: str
+    updated_at: Optional[datetime.datetime]
+    workspace_id: str
+    model_id: str
+
+
+class ProjectWithModel(Project):
     model: Model
 
 
 class Hardware(CloudModel):
     name: str
-    updated_at: Optional[datetime.datetime]
     workspace_id: str
     model_id: str
+    updated_at: Optional[datetime.datetime]
+
+
+class HardwareWithModelAndProjects(Hardware):
     model: Model
+    projects: list[Project]
 
 
-class Device(Hardware):
-    type: Literal["device"]
+class HardwareTree(BaseModel):
+    id: str
+    name: str
+    modelId: str
+    modelName: str
+    components: list["HardwareTree"]
 
 
-class System(Hardware):
-    type: Literal["system"]
-    parts: list[SystemPart]
+HardwareTree.model_rebuild()
+
+RevisionType = Literal["init", "remove", "add"]
+
+
+class HardwareRevision(CamelModel):
+    created_at: datetime.datetime
+    revision_type: RevisionType
+    user_id: str
+    user_email: str
+    hardware_id: str
+    component_id: str
+    component_name: str
+    reason: Optional[str]
 
 
 StorageProvider = Literal["s3", "postgres"]
@@ -81,14 +114,3 @@ class Test(CloudModel):
     updated_at: Optional[datetime.datetime]
     measurement_type: MeasurementType
     project_id: str
-
-
-class Project(CloudModel):
-    name: str
-    updated_at: Optional[datetime.datetime]
-    workspace_id: str
-    model_id: str
-
-
-class ProjectWithModel(Project):
-    model: Model

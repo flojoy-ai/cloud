@@ -310,7 +310,7 @@ export const hardwareRouter = createTRPCRouter({
       return data;
     }),
 
-  deleteHardwareById: workspaceProcedure
+  deleteHardware: workspaceProcedure
     .meta({
       openapi: {
         method: "DELETE",
@@ -389,6 +389,7 @@ export const hardwareRouter = createTRPCRouter({
           .selectFrom("hardware")
           .selectAll()
           .where("hardware.id", "=", input.oldHardwareComponentId)
+          .where("hardware.workspaceId", "=", ctx.workspaceId)
           .executeTakeFirstOrThrow(
             () =>
               new TRPCError({
@@ -401,6 +402,7 @@ export const hardwareRouter = createTRPCRouter({
           .selectFrom("hardware")
           .selectAll()
           .where("hardware.id", "=", input.newHardwareComponentId)
+          .where("hardware.workspaceId", "=", ctx.workspaceId)
           .executeTakeFirstOrThrow(
             () =>
               new TRPCError({
