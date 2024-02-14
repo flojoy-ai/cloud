@@ -45,7 +45,7 @@ const LoginForm = () => {
       toast.error(
         handleError(
           error,
-          "Login is currently not available, please try again later :)",
+          "Login is currently not available, please try again later :(",
         ),
       );
     },
