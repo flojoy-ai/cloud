@@ -21,7 +21,7 @@ async function GeneralPage({ params }: { params: { namespace: string } }) {
         </p>
       </div>
       <Separator />
-      {workspace ? <GeneralForm workspace={workspace} /> : <Icons.spinner />}
+      <GeneralForm workspace={workspace} />
     </div>
   );
 }

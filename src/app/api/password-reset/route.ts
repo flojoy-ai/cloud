@@ -16,29 +16,29 @@ export const POST = withAppRouterHighlight(async (request: NextRequest) => {
     });
   }
 
-  try {
-    const storedUser = await db
-      .selectFrom("user")
-      .selectAll()
-      .where("email", "=", parsedEmail.data)
-      .executeTakeFirst();
+  const storedUser = await db
+    .selectFrom("user")
+    .selectAll()
+    .where("email", "=", parsedEmail.data)
+    .executeTakeFirst();
 
-    if (!storedUser) {
-      return new Response("User does not exist!", {
-        status: 404,
-      });
-    }
-
-    const token = await createPasswordResetToken(storedUser.id);
-    const resetLink = `${env.NEXT_PUBLIC_URL_ORIGIN}/password-reset/${token}`;
-    await sendPasswordResetLink(storedUser.email, resetLink);
-
-    return new Response(`Password reset link sent to ${storedUser.email}`, {
-      status: 200,
-    });
-  } catch (e) {
-    return new Response("Internal server error", {
-      status: 500,
-    });
+  if (!storedUser) {
+    return new Response(
+      "A password reset email will be sent if you have a Flojoy Cloud account. Please check your inbox :)",
+      {
+        status: 200,
+      },
+    );
   }
+
+  const token = await createPasswordResetToken(storedUser.id);
+  const resetLink = `${env.NEXT_PUBLIC_URL_ORIGIN}/password-reset/${token}`;
+  await sendPasswordResetLink(storedUser.email, resetLink);
+
+  return new Response(
+    "A password reset email will be sent if you have a Flojoy Cloud account. Please check your inbox :)",
+    {
+      status: 200,
+    },
+  );
 });

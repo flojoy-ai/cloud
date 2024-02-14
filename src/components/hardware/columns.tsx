@@ -26,7 +26,7 @@ import { Badge } from "../ui/badge";
 import _ from "lodash";
 import { useState } from "react";
 import { api } from "~/trpc/react";
-import { handleTrpcError } from "~/lib/utils";
+import { handleError } from "~/lib/utils";
 import { Project } from "~/schemas/public/Project";
 import { Model } from "~/schemas/public/Model";
 import { Hardware } from "~/schemas/public/Hardware";
@@ -169,7 +169,7 @@ function HardwareActions({
                   {
                     loading: "Deleting your system instance...",
                     success: "Your system instance has been deleted.",
-                    error: handleTrpcError,
+                    error: handleError,
                   },
                 )
               }
@@ -237,7 +237,7 @@ const DeleteDialog = ({
                 {
                   loading: "Deleting your model...",
                   success: "Your model has been deleted.",
-                  error: handleTrpcError,
+                  error: handleError,
                 },
               )
             }

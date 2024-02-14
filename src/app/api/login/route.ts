@@ -12,8 +12,8 @@ export const POST = withAppRouterHighlight(async (request: NextRequest) => {
   const formData = await request.formData();
   const email = formData.get("email");
   const password = formData.get("password");
-
   const parsedEmail = z.string().email().safeParse(email);
+
   if (!parsedEmail.success) {
     return new Response("Invalid email!", {
       status: 400,
@@ -28,56 +28,50 @@ export const POST = withAppRouterHighlight(async (request: NextRequest) => {
       status: 400,
     });
   }
+  const existingUser = await db
+    .selectFrom("user")
+    .selectAll()
+    .where("email", "=", parsedEmail.data)
+    .executeTakeFirst();
 
-  try {
-    const existingUser = await db
-      .selectFrom("user")
-      .selectAll()
-      .where("email", "=", parsedEmail.data)
-      .executeTakeFirst();
-
-    if (!existingUser) {
-      return new Response("User does not exist!", {
-        status: 404,
-      });
-    }
-
-    if (!existingUser.hashedPassword) {
-      return new Response(
-        "This user does not have a password set, please try logging in with another provider.",
-        {
-          status: 400,
-        },
-      );
-    }
-
-    const validPassword = await new Argon2id().verify(
-      existingUser.hashedPassword,
-      password,
-    );
-
-    if (!validPassword) {
-      return new Response("Wrong password!", {
-        status: 400,
-      });
-    }
-
-    const session = await lucia.createSession(existingUser.id, {});
-    const sessionCookie = lucia.createSessionCookie(session.id);
-    cookies().set(
-      sessionCookie.name,
-      sessionCookie.value,
-      sessionCookie.attributes,
-    );
-    return new Response(null, {
-      headers: {
-        Location: "/workspace",
-      },
-      status: 302,
-    });
-  } catch (e) {
-    return new Response("Internal server error", {
-      status: 500,
+  if (!existingUser) {
+    return new Response("Wrong password or user does not exist!", {
+      status: 404,
     });
   }
+
+  if (!existingUser?.hashedPassword) {
+    return new Response(
+      "This user does not have a password set, please try logging in with another provider.",
+      {
+        status: 400,
+      },
+    );
+  }
+
+  const validPassword = await new Argon2id().verify(
+    existingUser.hashedPassword,
+    password,
+  );
+
+  if (!validPassword) {
+    return new Response("Wrong password or user does not exist!", {
+      status: 400,
+    });
+  }
+
+  const session = await lucia.createSession(existingUser.id, {});
+  const sessionCookie = lucia.createSessionCookie(session.id);
+  cookies().set(
+    sessionCookie.name,
+    sessionCookie.value,
+    sessionCookie.attributes,
+  );
+
+  return new Response(null, {
+    headers: {
+      Location: "/workspace",
+    },
+    status: 302,
+  });
 });

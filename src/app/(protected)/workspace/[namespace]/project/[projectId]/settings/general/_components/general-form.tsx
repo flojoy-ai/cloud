@@ -22,7 +22,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Icons } from "~/components/icons";
 import { publicUpdateProjectSchema } from "~/types/project";
-import { handleTrpcError } from "~/lib/utils";
+import { handleError } from "~/lib/utils";
 
 type Props = {
   projectId: string;
@@ -60,7 +60,7 @@ const GeneralForm = ({ projectId }: Props) => {
       {
         loading: "Updating your project...",
         success: "Your project is updated.",
-        error: handleTrpcError,
+        error: handleError,
       },
     );
   }

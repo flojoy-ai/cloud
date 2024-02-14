@@ -41,8 +41,7 @@ import {
   SelectItem,
 } from "~/components/ui/select";
 import Link from "next/link";
-import { Badge } from "~/components/ui/badge";
-import { handleTrpcError } from "~/lib/utils";
+import { handleError } from "~/lib/utils";
 import { Workspace } from "~/schemas/public/Workspace";
 import { Model } from "~/schemas/public/Model";
 
@@ -77,7 +76,7 @@ export default function NewProjectButton({ workspace, models }: Props) {
       {
         loading: "Creating your project...",
         success: "Your project is ready.",
-        error: handleTrpcError,
+        error: handleError,
       },
     );
   }

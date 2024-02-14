@@ -8,6 +8,7 @@ import { secretRouter } from "./routers/secret";
 import { testRouter } from "./routers/test";
 import { workspaceRouter } from "./routers/workspace";
 import { userRouter } from "./routers/user";
+import { emailRouter } from "./routers/email";
 
 /**
  * This is the primary router for your server.
@@ -16,6 +17,7 @@ import { userRouter } from "./routers/user";
  */
 export const appRouter = createTRPCRouter({
   example: exampleRouter,
+  email: emailRouter,
   hardware: hardwareRouter,
   measurement: measurementRouter,
   model: modelRouter,

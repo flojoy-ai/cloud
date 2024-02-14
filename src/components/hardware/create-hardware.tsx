@@ -42,7 +42,7 @@ import {
 import { Model } from "~/schemas/public/Model";
 import { ModelTree } from "~/types/model";
 import { Icons } from "../icons";
-import { handleTrpcError } from "~/lib/utils";
+import { handleError } from "~/lib/utils";
 
 type FormSchema = z.infer<typeof insertHardwareSchema>;
 
@@ -143,7 +143,7 @@ const CreateHardware = ({
     toast.promise(createHardware.mutateAsync(values), {
       loading: "Creating your hardware instance...",
       success: "Your hardware is ready.",
-      error: handleTrpcError,
+      error: handleError,
     });
   }
 

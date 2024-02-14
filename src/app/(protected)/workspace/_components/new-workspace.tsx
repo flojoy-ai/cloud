@@ -27,7 +27,7 @@ import { Input } from "~/components/ui/input";
 
 import { api } from "~/trpc/react";
 import { type z } from "zod";
-import { handleTrpcError } from "~/lib/utils";
+import { handleError } from "~/lib/utils";
 import { createWorkspace } from "~/types/workspace";
 
 type Props = {
@@ -61,7 +61,7 @@ export default function NewWorkspace({ isDialogOpen, setIsDialogOpen }: Props) {
       {
         loading: "Creating your workspace...",
         success: "Your workspace is ready.",
-        error: handleTrpcError,
+        error: handleError,
       },
     );
   }

@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { toast } from "sonner";
+import { handleError } from "~/lib/utils";
 
 const formSchema = z
   .object({
@@ -49,16 +50,12 @@ const SignupForm = () => {
     },
 
     onError(error) {
-      if (!axios.isAxiosError(error)) {
-        return;
-      }
-      if (error.response?.data && typeof error.response?.data === "string") {
-        toast.error(error.response.data);
-      } else {
-        toast.error(
+      toast.error(
+        handleError(
+          error,
           "Signup is currently not available, please try again later :)",
-        );
-      }
+        ),
+      );
     },
 
     onSuccess: () => {

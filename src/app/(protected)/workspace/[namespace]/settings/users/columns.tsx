@@ -15,7 +15,7 @@ import {
 import { toast } from "sonner";
 import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
-import { handleTrpcError } from "~/lib/utils";
+import { handleError } from "~/lib/utils";
 import { User } from "~/schemas/public/User";
 import { WorkspaceUser } from "~/schemas/public/WorkspaceUser";
 
@@ -69,7 +69,7 @@ const UserAction = ({
                   {
                     success: "User removed.",
                     loading: "Removing user...",
-                    error: handleTrpcError,
+                    error: handleError,
                   },
                 );
               }}

@@ -7,7 +7,7 @@ import { useEffect } from "react";
 export function CustomHighlightStart() {
   useEffect(() => {
     const shouldStartHighlight =
-      window.location.hostname === "https://cloud.flojoy.ai";
+      window.location.hostname.startsWith("https://");
 
     if (shouldStartHighlight) {
       H.start();

@@ -19,7 +19,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Checkbox } from "~/components/ui/checkbox";
 import { env } from "~/env";
-import { handleTrpcError } from "~/lib/utils";
+import { handleError } from "~/lib/utils";
 import { createWorkspace } from "~/types/workspace";
 
 const formSchema = createWorkspace;
@@ -45,7 +45,7 @@ const CreateWorkspaceForm = () => {
     toast.promise(createWorkspace.mutateAsync(values), {
       success: "Workspace created",
       loading: "Creating workspace...",
-      error: handleTrpcError,
+      error: handleError,
     });
   }
 

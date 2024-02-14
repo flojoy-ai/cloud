@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
-import { handleTrpcError } from "~/lib/utils";
+import { handleError } from "~/lib/utils";
 import { api } from "~/trpc/react";
 
 type Props = {
@@ -25,7 +25,7 @@ export function AcceptInvite({ workspaceId }: Props) {
       onClick={() =>
         toast.promise(accept.mutateAsync({ workspaceId }), {
           success: "Accepted invite! 🎉",
-          error: handleTrpcError,
+          error: handleError,
         })
       }
     >

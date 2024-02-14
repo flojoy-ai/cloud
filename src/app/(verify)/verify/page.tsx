@@ -1,24 +1,20 @@
 "use client";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
+import { handleError } from "~/lib/utils";
+import { api } from "~/trpc/react";
 
 const Page = () => {
   const [countdown, setCountdown] = useState<number>(0);
+  const mutate = api.email.sendEmailVerification.useMutation();
 
-  const sendEmailVerification = async () => {
-    try {
-      const data = (await axios.post("/api/email-verification", {}))
-        .data as Record<string, string>;
-      toast.message(data.message);
-    } catch (e) {
-      if (axios.isAxiosError(e)) {
-        toast.error(e.response?.data as string);
-      } else {
-        toast.error(String(e));
-      }
-    }
+  const sendEmailVerification = () => {
+    toast.promise(mutate.mutateAsync(), {
+      loading: "Sending verification email...",
+      success: "Verification email sent",
+      error: handleError,
+    });
     setCountdown(60);
   };
 

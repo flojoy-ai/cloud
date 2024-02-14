@@ -1,6 +1,8 @@
 import { TRPCClientError } from "@trpc/client";
+import axios from "axios";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { ZodError } from "zod";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -17,15 +19,23 @@ export function bind<T, U>(
   return action(val);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const handleTrpcError = (error: any) => {
+export const handleError = (error: any, defaultMessage?: string) => {
   if (error instanceof TRPCClientError) {
-    if ((error.data as Record<string, string>)?.zodError) {
+    if (error.data?.zodError) {
       const parsed = JSON.parse(error.message) as Record<string, string>[];
 
       return parsed.map((p) => p.message).join("\n");
     }
     return error.message;
   }
-  return "Internal server error!";
+  if (axios.isAxiosError(error)) {
+    return (
+      (error.response?.data.message || defaultMessage) ??
+      "Internal server error!"
+    );
+  }
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return defaultMessage ?? "Internal server error!";
 };

@@ -22,12 +22,12 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useWorkspace } from "../../../workspace-provider";
 import { env } from "~/env";
-import { handleTrpcError } from "~/lib/utils";
+import { handleError } from "~/lib/utils";
 import { updateWorkspace } from "~/types/workspace";
-import { workspace } from "~/schemas/public/Workspace";
+import { Workspace } from "~/schemas/public/Workspace";
 
 type Props = {
-  workspace: z.infer<typeof workspace>;
+  workspace: Workspace;
 };
 
 const formSchema = updateWorkspace
@@ -73,7 +73,7 @@ const GeneralForm = ({ workspace }: Props) => {
       {
         loading: "Updating your workspace...",
         success: "Your workspace is updated.",
-        error: handleTrpcError,
+        error: handleError,
       },
     );
   }
