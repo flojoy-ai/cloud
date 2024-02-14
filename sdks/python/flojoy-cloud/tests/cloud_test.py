@@ -480,4 +480,4 @@ def test_measurement_routes(workspace: WorkspaceInfo, measurement_setup):
     client.delete_measurement(scalar_meas.id)
 
     scalar_measurements = client.get_all_measurements_by_test_id(scalar_test.id)
-    assert len(scalar_test) == 0
+    assert len(scalar_measurements) == 0

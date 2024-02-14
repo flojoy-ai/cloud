@@ -341,14 +341,14 @@ export async function createMeasurement(
   workspaceId: string,
   meas: InsertMeasurement,
 ) {
-  const { tagNames, ...data } = meas;
+  const { tagNames, ...input } = meas;
 
   const res = await db
     .insertInto("measurement")
     .values({
       id: generateDatabaseId("measurement"),
       storageProvider: "postgres",
-      ...data,
+      ...input,
     })
     .returning("id")
     .executeTakeFirstOrThrow(
@@ -364,18 +364,20 @@ export async function createMeasurement(
     createIfNotExists: true,
   });
 
-  await db
-    .insertInto("measurement_tag")
-    .values(
-      tags.map((t) => ({
-        tagId: t.id,
-        measurementId: res.id,
-      })),
-    )
-    .execute();
+  if (tags.length > 0) {
+    await db
+      .insertInto("measurement_tag")
+      .values(
+        tags.map((t) => ({
+          tagId: t.id,
+          measurementId: res.id,
+        })),
+      )
+      .execute();
+  }
 
-  await markUpdatedAt(db, "test", data.testId);
-  await markUpdatedAt(db, "hardware", data.hardwareId);
+  await markUpdatedAt(db, "test", input.testId);
+  await markUpdatedAt(db, "hardware", input.hardwareId);
 
   return res;
 }
