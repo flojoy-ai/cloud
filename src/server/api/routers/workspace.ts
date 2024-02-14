@@ -14,7 +14,6 @@ import { generateDatabaseId } from "~/lib/id";
 import { type db } from "~/server/db";
 import { createWorkspace, updateWorkspace } from "~/types/workspace";
 import { api } from "~/trpc/server";
-import { type DatabaseError } from "pg";
 import { withDBErrorCheck } from "~/types/db-utils";
 
 export const workspaceAccessMiddleware = experimental_standaloneMiddleware<{
@@ -244,17 +243,3 @@ export const workspaceRouter = createTRPCRouter({
       return result.id;
     }),
 });
-
-const handleNamespaceConflict = (err: DatabaseError, namespace: string) => {
-  if (err.code === "23505") {
-    return new TRPCError({
-      code: "CONFLICT",
-      message: `A workspace with namespace "${namespace}" already exists!`,
-    });
-  }
-  return new TRPCError({
-    code: "INTERNAL_SERVER_ERROR",
-    cause: err,
-    message: err.message ?? "Internal server error",
-  });
-};
