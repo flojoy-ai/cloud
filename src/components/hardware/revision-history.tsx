@@ -1,11 +1,7 @@
 "use client";
-import { toast } from "sonner";
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
-import {
-  SelectHardwareRevision,
-  swapHardwareComponentSchema,
-} from "~/types/hardware";
+import { SelectHardwareRevision } from "~/types/hardware";
 
 import {
   Dialog,
@@ -17,15 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
-import { api } from "~/trpc/react";
-import { z } from "zod";
-import {
-  Cpu,
-  History,
-  LucideIcon,
-  MinusCircle,
-  PlusCircle,
-} from "lucide-react";
+import { Cpu, History, MinusCircle, PlusCircle } from "lucide-react";
 import { Card } from "../ui/card";
 import RevisionType from "~/schemas/public/RevisionType";
 
@@ -36,13 +24,11 @@ const iconMap: Record<RevisionType, JSX.Element> = {
 };
 
 type Props = {
-  workspaceId: string;
   revisions: SelectHardwareRevision[];
 };
 
-const RevisionHistory = ({ workspaceId, revisions }: Props) => {
+const RevisionHistory = ({ revisions }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const utils = api.useUtils();
 
   return (
     <Dialog
