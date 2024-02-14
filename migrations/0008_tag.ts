@@ -11,7 +11,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .addColumn("created_at", "timestamptz", (col) =>
       col.defaultTo(sql`now()`).notNull(),
     )
-    .addUniqueConstraint("tag_name_measurement_id_unique", [
+    .addUniqueConstraint("tag_name_workspace_id_unique", [
       "name",
       "workspace_id",
     ])

@@ -13,6 +13,7 @@ import { checkWorkspaceAccess } from "~/lib/auth";
 import _ from "lodash";
 import { generateDatabaseId } from "~/lib/id";
 import {
+  createMeasurement,
   getTagsByNames,
   markUpdatedAt,
   withHardware,
@@ -75,41 +76,7 @@ export const measurementRouter = createTRPCRouter({
     .output(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.transaction().execute(async (tx) => {
-        const res = await tx
-          .insertInto("measurement")
-          .values({
-            id: generateDatabaseId("measurement"),
-            storageProvider: "postgres",
-            ...input,
-          })
-          .returning("id")
-          .executeTakeFirstOrThrow(
-            () =>
-              new TRPCError({
-                code: "INTERNAL_SERVER_ERROR",
-                message: "Failed to create measurement",
-              }),
-          );
-
-        const tags = await getTagsByNames(tx, input.tagNames, {
-          workspaceId: ctx.workspaceId,
-          createIfNotExists: true,
-        });
-
-        await tx
-          .insertInto("measurement_tag")
-          .values(
-            tags.map((t) => ({
-              tagId: t.id,
-              measurementId: res.id,
-            })),
-          )
-          .execute();
-
-        await markUpdatedAt(tx, "test", input.testId);
-        await markUpdatedAt(tx, "hardware", input.hardwareId);
-
-        return res;
+        return await createMeasurement(tx, ctx.workspaceId, input);
       });
     }),
 
@@ -134,8 +101,7 @@ export const measurementRouter = createTRPCRouter({
       let query = ctx.db
         .selectFrom("measurement")
         .selectAll("measurement")
-        .select(withHardware)
-        .select((eb) => withTags(eb))
+        .select((eb) => [withHardware(eb), withTags(eb)])
         .where("testId", "=", input.testId)
         .$narrowType<{ hardware: SelectHardware }>()
         .$narrowType<{ data: MeasurementData }>();
@@ -174,8 +140,7 @@ export const measurementRouter = createTRPCRouter({
         .selectFrom("measurement")
         .selectAll("measurement")
         .where("hardwareId", "=", input.hardwareId)
-        .select(withHardware)
-        .select((eb) => withTags(eb))
+        .select((eb) => [withHardware(eb), withTags(eb)])
         .$narrowType<{ hardware: SelectHardware }>()
         .$narrowType<{ data: MeasurementData }>()
         .orderBy("createdAt", "desc");
@@ -219,8 +184,7 @@ export const measurementRouter = createTRPCRouter({
         .selectFrom("measurement")
         .selectAll("measurement")
         .where("id", "=", input.measurementId)
-        .select((eb) => withHardware(eb))
-        .select((eb) => withTags(eb))
+        .select((eb) => [withHardware(eb), withTags(eb)])
         .$narrowType<{ hardware: SelectHardware }>()
         .$narrowType<{ data: MeasurementData }>()
         .executeTakeFirst();

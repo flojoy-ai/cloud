@@ -29,3 +29,4 @@ export const selectMeasurementSchema = measurement.extend({
 });
 
 export type SelectMeasurement = z.infer<typeof selectMeasurementSchema>;
+export type InsertMeasurement = z.infer<typeof insertMeasurementSchema>;
