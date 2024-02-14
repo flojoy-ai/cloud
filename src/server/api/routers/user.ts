@@ -40,64 +40,59 @@ export const userRouter = createTRPCRouter({
     .use(workspaceAccessMiddleware)
     .output(z.void())
     .mutation(async ({ ctx, input }) => {
-      try {
-        const currentWorkspaceUser = await ctx.db
-          .selectFrom("workspace_user")
-          .where("userId", "=", ctx.user.id)
-          .where("workspaceId", "=", ctx.workspace.id)
-          .selectAll()
-          .executeTakeFirst();
+      const currentWorkspaceUser = await ctx.db
+        .selectFrom("workspace_user")
+        .where("userId", "=", ctx.user.id)
+        .where("workspaceId", "=", ctx.workspace.id)
+        .selectAll()
+        .executeTakeFirst();
 
-        if (!currentWorkspaceUser) {
-          throw new TRPCError({
-            code: "FORBIDDEN",
-            message:
-              "Could not find workspace user, reload the page and try again",
-          });
-        }
-        if (!_.includes(["admin", "owner"], currentWorkspaceUser.role)) {
-          throw new TRPCError({
-            code: "FORBIDDEN",
-            message:
-              "You do not have permission to add users to this workspace",
-          });
-        }
-
-        await ctx.db.transaction().execute(async (trx) => {
-          await trx
-            .deleteFrom("user_invite")
-            .where("email", "=", input.email)
-            .where("workspaceId", "=", ctx.workspace.id)
-            .execute();
-
-          await trx
-            .insertInto("user_invite")
-            .values({
-              id: generateDatabaseId("user_invite"),
-              email: input.email,
-              workspaceId: ctx.workspace.id,
-              role: input.role,
-            })
-            .execute();
+      if (!currentWorkspaceUser) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message:
+            "Could not find workspace user, reload the page and try again",
         });
+      }
+      if (!_.includes(["admin", "owner"], currentWorkspaceUser.role)) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You do not have permission to add users to this workspace",
+        });
+      }
 
-        const emailHtml = render(
-          WorkspaceUserInvite({
-            fromEmail: ctx.user.email,
-            workspaceName: ctx.workspace.name,
-            inviteLink: env.NEXT_PUBLIC_URL_ORIGIN + "/workspace/invites",
-          }),
-        );
+      await ctx.db.transaction().execute(async (trx) => {
+        await trx
+          .deleteFrom("user_invite")
+          .where("email", "=", input.email)
+          .where("workspaceId", "=", ctx.workspace.id)
+          .execute();
+
+        await trx
+          .insertInto("user_invite")
+          .values({
+            id: generateDatabaseId("user_invite"),
+            email: input.email,
+            workspaceId: ctx.workspace.id,
+            role: input.role,
+          })
+          .execute();
+      });
+
+      const emailHtml = render(
+        WorkspaceUserInvite({
+          fromEmail: ctx.user.email,
+          workspaceName: ctx.workspace.name,
+          inviteLink: env.NEXT_PUBLIC_URL_ORIGIN + "/workspace/invites",
+        }),
+      );
+      try {
         await sendEmailWithSES({
           recipients: [input.email],
           emailHtml,
           subject: "Flojoy Cloud - Invite to join workspace",
         });
       } catch (error) {
-        if (error instanceof TRPCError) {
-          throw error;
-        }
-
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           cause: error,

@@ -9,6 +9,7 @@ import { getModelById, getModelTree, markUpdatedAt } from "~/lib/query";
 import { insertModelSchema, modelTreeSchema } from "~/types/model";
 import { model } from "~/schemas/public/Model";
 import { generateDatabaseId } from "~/lib/id";
+import { withDBErrorCheck } from "~/types/db-utils";
 
 export const modelAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
@@ -52,9 +53,9 @@ export const modelRouter = createTRPCRouter({
     .use(workspaceAccessMiddleware)
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.transaction().execute(async (tx) => {
-        try {
-          const { components, ...newModel } = input;
-          const model = await tx
+        const { components, ...newModel } = input;
+        const model = await withDBErrorCheck(
+          tx
             .insertInto("model")
             .values({
               id: generateDatabaseId("model"),
@@ -67,41 +68,29 @@ export const modelRouter = createTRPCRouter({
                   code: "INTERNAL_SERVER_ERROR",
                   message: "Failed to create model",
                 }),
-            );
+            ),
+          {
+            errorCode: "DUPLICATE",
+            errorMsg: `A model with identifier "${input.name}" already exists!`,
+          },
+        );
 
-          if (components.length > 0) {
-            await tx
-              .insertInto("model_relation")
-              .values(
-                components.map((c) => ({
-                  parentModelId: model.id,
-                  childModelId: c.modelId,
-                  count: c.count,
-                })),
-              )
-              .execute();
-          }
-
-          await markUpdatedAt(tx, "workspace", input.workspaceId);
-
-          return model;
-        } catch (error) {
-          if (error instanceof TRPCError) {
-            throw error;
-          }
-          const err = error as DatabaseError;
-          if (err.code === "23505") {
-            throw new TRPCError({
-              code: "CONFLICT",
-              message: `A model with identifier "${input.name}" already exists!`,
-            });
-          }
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            cause: err,
-            message: "Internal server error",
-          });
+        if (components.length > 0) {
+          await tx
+            .insertInto("model_relation")
+            .values(
+              components.map((c) => ({
+                parentModelId: model.id,
+                childModelId: c.modelId,
+                count: c.count,
+              })),
+            )
+            .execute();
         }
+
+        await markUpdatedAt(tx, "workspace", input.workspaceId);
+
+        return model;
       });
     }),
 
@@ -167,31 +156,21 @@ export const modelRouter = createTRPCRouter({
           message: "You do not have permission to delete this workspace",
         });
       }
-      try {
-        await ctx.db.transaction().execute(async (tx) => {
-          await tx
+
+      await ctx.db.transaction().execute(async (tx) => {
+        await withDBErrorCheck(
+          tx
             .deleteFrom("model")
             .where("model.id", "=", input.modelId)
-            .execute();
-
-          await markUpdatedAt(tx, "workspace", ctx.workspaceId);
-        });
-      } catch (e) {
-        const err = e as DatabaseError;
-        if (err.code === "23503") {
-          throw new TRPCError({
-            message:
+            .execute(),
+          {
+            errorCode: "FOREIGN_KEY_VIOLATION",
+            errorMsg:
               "Cannot delete model because some of its resources are in use, make sure all associated items are deleted first",
-            cause: e,
-            code: "BAD_REQUEST",
-          });
-        }
+          },
+        );
 
-        throw new TRPCError({
-          message: "Internal database error",
-          cause: e,
-          code: "INTERNAL_SERVER_ERROR",
-        });
-      }
+        await markUpdatedAt(tx, "workspace", ctx.workspaceId);
+      });
     }),
 });

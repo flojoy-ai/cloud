@@ -10,6 +10,7 @@ import { test } from "~/schemas/public/Test";
 import { generateDatabaseId } from "~/lib/id";
 import { markUpdatedAt } from "~/lib/query";
 import { DatabaseError } from "pg";
+import { withDBErrorCheck } from "~/types/db-utils";
 
 export const testAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
@@ -54,8 +55,8 @@ export const testRouter = createTRPCRouter({
     .output(test)
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.transaction().execute(async (tx) => {
-        try {
-          const test = await tx
+        const test = await withDBErrorCheck(
+          tx
             .insertInto("test")
             .values({
               id: generateDatabaseId("test"),
@@ -68,28 +69,16 @@ export const testRouter = createTRPCRouter({
                   code: "INTERNAL_SERVER_ERROR",
                   message: "Failed to create test",
                 }),
-            );
+            ),
+          {
+            errorCode: "DUPLICATE",
+            errorMsg: `A test with name "${input.name}" already exists!`,
+          },
+        );
 
-          await markUpdatedAt(tx, "project", input.projectId);
+        await markUpdatedAt(tx, "project", input.projectId);
 
-          return test;
-        } catch (error) {
-          if (error instanceof TRPCError) {
-            throw error;
-          }
-          const err = error as DatabaseError;
-          if (err.code === "23505") {
-            throw new TRPCError({
-              code: "CONFLICT",
-              message: `A test with name "${input.name}" already exists!`,
-            });
-          }
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            cause: err,
-            message: "Internal server error",
-          });
-        }
+        return test;
       });
     }),
 

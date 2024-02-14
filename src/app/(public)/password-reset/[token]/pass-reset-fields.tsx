@@ -16,6 +16,7 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import { handleError } from "~/lib/utils";
 
 type PasswordResetFieldsProps = {
   token: string;
@@ -51,19 +52,13 @@ const PasswordResetFields = ({ token }: PasswordResetFieldsProps) => {
       await axios.post("/api/password-reset/" + token, formData);
     },
 
-    onError(error) {
-      if (!axios.isAxiosError(error)) {
-        return;
-      }
-      if (error.response?.data && typeof error.response?.data === "string") {
-        toast.error(error.response.data);
-      } else {
-        toast.error(
+    onError: (e) =>
+      toast.error(
+        handleError(
+          e,
           "Password reset is currently not available, please try again later :)",
-        );
-      }
-    },
-
+        ),
+      ),
     onSuccess: () => {
       router.refresh();
     },

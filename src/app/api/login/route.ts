@@ -36,7 +36,7 @@ export const POST = withAppRouterHighlight(async (request: NextRequest) => {
 
   if (!existingUser) {
     return new Response("Wrong password or user does not exist!", {
-      status: 404,
+      status: 400,
     });
   }
 

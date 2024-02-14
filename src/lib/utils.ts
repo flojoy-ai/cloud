@@ -29,6 +29,9 @@ export const handleError = (error: any, defaultMessage?: string) => {
     return error.message;
   }
   if (axios.isAxiosError(error)) {
+    if (typeof error.response?.data === "string") {
+      return error.response.data;
+    }
     return (
       (error.response?.data.message || defaultMessage) ??
       "Internal server error!"

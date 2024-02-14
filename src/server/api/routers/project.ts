@@ -18,6 +18,7 @@ import { type DatabaseError } from "pg";
 import { type ProjectId, project } from "~/schemas/public/Project";
 import { generateDatabaseId } from "~/lib/id";
 import { markUpdatedAt, getProjectById, getHardwareById } from "~/lib/query";
+import { withDBErrorCheck } from "~/types/db-utils";
 
 export const projectAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
@@ -76,8 +77,8 @@ export const projectRouter = createTRPCRouter({
         );
 
       return await ctx.db.transaction().execute(async (tx) => {
-        try {
-          const project = await tx
+        const project = await withDBErrorCheck(
+          tx
             .insertInto("project")
             .values({
               id: generateDatabaseId("project"),
@@ -90,27 +91,15 @@ export const projectRouter = createTRPCRouter({
                   code: "INTERNAL_SERVER_ERROR",
                   message: "Failed to create project",
                 }),
-            );
+            ),
+          {
+            errorCode: "DUPLICATE",
+            errorMsg: `A project with name "${input.name}" for workspace "${ctx.workspace.namespace}" already exists!`,
+          },
+        );
 
-          await markUpdatedAt(tx, "workspace", input.workspaceId);
-          return project;
-        } catch (error) {
-          if (error instanceof TRPCError) {
-            throw error;
-          }
-          const err = error as DatabaseError;
-          if (err.code === "23505") {
-            throw new TRPCError({
-              code: "CONFLICT",
-              message: `A project with name "${input.name}" for workspace "${ctx.workspace.namespace}" already exists!`,
-            });
-          }
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            cause: err,
-            message: "Internal server error",
-          });
-        }
+        await markUpdatedAt(tx, "workspace", input.workspaceId);
+        return project;
       });
     }),
 
@@ -333,26 +322,17 @@ export const projectRouter = createTRPCRouter({
           message: "You do not have permission to delete this workspace",
         });
       }
-      try {
-        await ctx.db
+
+      await withDBErrorCheck(
+        ctx.db
           .deleteFrom("project")
           .where("project.id", "=", input.projectId)
-          .execute();
-      } catch (e) {
-        const err = e as DatabaseError;
-        if (err.code === "23503") {
-          throw new TRPCError({
-            message:
-              "Cannot delete project because some of its resources are in use, make sure all associated items are deleted first",
-            code: "BAD_REQUEST",
-          });
-        }
-
-        throw new TRPCError({
-          message: "Internal database error",
-          cause: e,
-          code: "INTERNAL_SERVER_ERROR",
-        });
-      }
+          .execute(),
+        {
+          errorCode: "FOREIGN_KEY_VIOLATION",
+          errorMsg:
+            "Cannot delete project because some of its resources are in use, make sure all associated items are deleted first",
+        },
+      );
     }),
 });

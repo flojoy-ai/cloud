@@ -6,8 +6,6 @@ import { checkWorkspaceAccess } from "~/lib/auth";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
 import { workspaceAccessMiddleware } from "./workspace";
-import { selectProjectSchema } from "~/types/project";
-import { type DatabaseError } from "pg";
 import {
   getHardwareById,
   getHardwareComponentsWithModel,
@@ -31,7 +29,7 @@ import { Model, model } from "~/schemas/public/Model";
 import { project } from "~/schemas/public/Project";
 import { ExpressionBuilder } from "kysely";
 import DB from "~/schemas/public/PublicSchema";
-import { hardwareRevision } from "~/schemas/public/HardwareRevision";
+import { withDBErrorCheck } from "~/types/db-utils";
 
 export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
@@ -154,9 +152,10 @@ export const hardwareRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       // TODO: Not working for now
       return await ctx.db.transaction().execute(async (tx) => {
-        try {
-          const { components, ...newHardware } = input;
-          const hardware = await tx
+        const { components, ...newHardware } = input;
+
+        const hardware = await withDBErrorCheck(
+          tx
             .insertInto("hardware")
             .values({
               id: generateDatabaseId("hardware"),
@@ -169,106 +168,95 @@ export const hardwareRouter = createTRPCRouter({
                   code: "INTERNAL_SERVER_ERROR",
                   message: "Failed to create hardware",
                 }),
-            );
-          const model = await getModelById(hardware.modelId);
-          if (!model) {
-            throw new TRPCError({
-              code: "BAD_REQUEST",
-              message: "Model not found",
-            });
-          }
-          const modelComponents = await getModelComponents(model.id);
+            ),
+          {
+            errorCode: "DUPLICATE",
+            errorMsg: `A hardware with identifier "${newHardware.name}" already exists for selected model!`,
+          },
+        );
 
-          if (modelComponents.length > 0) {
-            const ids = components.map((c) => c.hardwareId);
-            if (_.uniq(ids).length !== ids.length) {
-              throw new TRPCError({
-                code: "BAD_REQUEST",
-                message: "Duplicate hardware devices",
-              });
-            }
-
-            const hardwares = await db
-              .selectFrom("hardware")
-              .selectAll("hardware")
-              .where("hardware.id", "in", ids)
-              .where(notInUse)
-              .execute();
-
-            if (hardwares.length !== components.length) {
-              throw new TRPCError({
-                code: "BAD_REQUEST",
-                message: "Some hardware devices are already in use!",
-              });
-            }
-
-            const modelCount = _.countBy(hardwares, (h) => h.modelId);
-            const matches = _.every(
-              modelComponents,
-              (c) => modelCount[c.modelId] === c.count,
-            );
-
-            if (!matches) {
-              throw new TRPCError({
-                code: "BAD_REQUEST",
-                message: "Components do not satisfy model requirements",
-              });
-            }
-
-            await tx
-              .insertInto("hardware_relation")
-              .values(
-                components.map((c) => ({
-                  parentHardwareId: hardware.id,
-                  childHardwareId: c.hardwareId,
-                })),
-              )
-              .execute();
-
-            await tx
-              .insertInto("hardware_revision")
-              .values(
-                components.map((c) => ({
-                  hardwareId: hardware.id,
-                  revisionType: "init",
-                  componentId: c.hardwareId,
-                  reason: "Initial hardware creation",
-                  userId: ctx.user.id,
-                })),
-              )
-              .execute();
-          }
-
-          if (input.projectId !== undefined) {
-            await tx
-              .insertInto("project_hardware")
-              .values({
-                hardwareId: hardware.id,
-                projectId: input.projectId,
-              })
-              .execute();
-          }
-
-          await markUpdatedAt(tx, "workspace", input.workspaceId);
-
-          return hardware;
-        } catch (error) {
-          if (error instanceof TRPCError) {
-            throw error;
-          }
-          const err = error as DatabaseError;
-          if (err.code === "23505") {
-            throw new TRPCError({
-              code: "CONFLICT",
-              message: `A system for selected model already exists!`,
-            });
-          }
+        const model = await getModelById(hardware.modelId);
+        if (!model) {
           throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            cause: err,
-            message: "Internal server error",
+            code: "BAD_REQUEST",
+            message: "Model not found",
           });
         }
+        const modelComponents = await getModelComponents(model.id);
+
+        if (modelComponents.length > 0) {
+          const ids = components.map((c) => c.hardwareId);
+          if (_.uniq(ids).length !== ids.length) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Duplicate hardware devices",
+            });
+          }
+
+          const hardwares = await db
+            .selectFrom("hardware")
+            .selectAll("hardware")
+            .where("hardware.id", "in", ids)
+            .where(notInUse)
+            .execute();
+
+          if (hardwares.length !== components.length) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Some hardware devices are already in use!",
+            });
+          }
+
+          const modelCount = _.countBy(hardwares, (h) => h.modelId);
+          const matches = _.every(
+            modelComponents,
+            (c) => modelCount[c.modelId] === c.count,
+          );
+
+          if (!matches) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Components do not satisfy model requirements",
+            });
+          }
+
+          await tx
+            .insertInto("hardware_relation")
+            .values(
+              components.map((c) => ({
+                parentHardwareId: hardware.id,
+                childHardwareId: c.hardwareId,
+              })),
+            )
+            .execute();
+
+          await tx
+            .insertInto("hardware_revision")
+            .values(
+              components.map((c) => ({
+                hardwareId: hardware.id,
+                revisionType: "init",
+                componentId: c.hardwareId,
+                reason: "Initial hardware creation",
+                userId: ctx.user.id,
+              })),
+            )
+            .execute();
+        }
+
+        if (input.projectId !== undefined) {
+          await tx
+            .insertInto("project_hardware")
+            .values({
+              hardwareId: hardware.id,
+              projectId: input.projectId,
+            })
+            .execute();
+        }
+
+        await markUpdatedAt(tx, "workspace", input.workspaceId);
+
+        return hardware;
       });
     }),
 

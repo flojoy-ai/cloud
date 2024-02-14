@@ -15,6 +15,7 @@ import { type db } from "~/server/db";
 import { createWorkspace, updateWorkspace } from "~/types/workspace";
 import { api } from "~/trpc/server";
 import { type DatabaseError } from "pg";
+import { withDBErrorCheck } from "~/types/db-utils";
 
 export const workspaceAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: db; user: { id: string }; workspaceId: string | null };
@@ -59,11 +60,11 @@ export const workspaceRouter = createTRPCRouter({
     .input(createWorkspace)
     .output(workspace)
     .mutation(async ({ ctx, input }) => {
-      try {
-        const { populateData, ...data } = input;
+      const { populateData, ...data } = input;
 
-        const newWorkspace = await ctx.db.transaction().execute(async (tx) => {
-          const newWorkspace = await tx
+      const newWorkspace = await ctx.db.transaction().execute(async (tx) => {
+        const newWorkspace = await withDBErrorCheck(
+          tx
             .insertInto("workspace")
             .values({
               id: generateDatabaseId("workspace"),
@@ -71,44 +72,43 @@ export const workspaceRouter = createTRPCRouter({
               planType: "enterprise",
             })
             .returningAll()
-            .executeTakeFirst();
+            .executeTakeFirst(),
+          {
+            errorCode: "DUPLICATE",
+            errorMsg: `Workspace with namespace "${data.namespace}" already exists`,
+          },
+        );
 
-          if (!newWorkspace) {
-            throw new TRPCError({
-              code: "INTERNAL_SERVER_ERROR",
-              message: "Failed to create workspace",
-            });
-          }
-
-          await tx
-            .insertInto("workspace_user")
-            .values({
-              workspaceId: newWorkspace.id,
-              userId: ctx.user.id,
-              role: "owner" as const,
-            })
-            .execute();
-
-          cookies().set("scope", newWorkspace.namespace);
-
-          return newWorkspace;
-        });
-
-        if (!populateData) {
-          return newWorkspace;
+        if (!newWorkspace) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create workspace",
+          });
         }
 
-        await api.example.populateExample.mutate({
-          workspaceId: newWorkspace.id,
-        });
+        await tx
+          .insertInto("workspace_user")
+          .values({
+            workspaceId: newWorkspace.id,
+            userId: ctx.user.id,
+            role: "owner" as const,
+          })
+          .execute();
+
+        cookies().set("scope", newWorkspace.namespace);
 
         return newWorkspace;
-      } catch (error) {
-        if (error instanceof TRPCError) {
-          throw error;
-        }
-        throw handleNamespaceConflict(error as DatabaseError, input.namespace);
+      });
+
+      if (!populateData) {
+        return newWorkspace;
       }
+
+      await api.example.populateExample.mutate({
+        workspaceId: newWorkspace.id,
+      });
+
+      return newWorkspace;
     }),
   updateWorkspace: workspaceProcedure
     .input(
@@ -120,15 +120,15 @@ export const workspaceRouter = createTRPCRouter({
     .use(workspaceAccessMiddleware)
     .output(workspace)
     .mutation(async ({ ctx, input }) => {
-      try {
-        if (ctx.workspaceUser.role === "member") {
-          throw new TRPCError({
-            code: "FORBIDDEN",
-            message: "You do not have permission to update this workspace",
-          });
-        }
+      if (ctx.workspaceUser.role === "member") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You do not have permission to update this workspace",
+        });
+      }
 
-        const result = await ctx.db
+      const result = await withDBErrorCheck(
+        ctx.db
           .updateTable("workspace")
           .set({
             ...input.data,
@@ -141,17 +141,13 @@ export const workspaceRouter = createTRPCRouter({
                 code: "INTERNAL_SERVER_ERROR",
                 message: "Failed to update workspace",
               }),
-          );
-        return result;
-      } catch (error) {
-        if (error instanceof TRPCError) {
-          throw error;
-        }
-        throw handleNamespaceConflict(
-          error as DatabaseError,
-          input.data.namespace,
-        );
-      }
+          ),
+        {
+          errorCode: "DUPLICATE",
+          errorMsg: `Workspace with namespace "${input.data.namespace}" already exists!`,
+        },
+      );
+      return result;
     }),
 
   deleteWorkspaceById: workspaceProcedure
