@@ -10,7 +10,7 @@ const ExplorerView = async ({
     namespace: params.namespace,
   });
 
-  const project = await api.project.getProjectById.query({
+  const project = await api.project.getProject.query({
     projectId: params.projectId,
   });
   const tests = await api.test.getAllTestsByProjectId.query({

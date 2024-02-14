@@ -50,7 +50,7 @@ const SwapHardware = ({ workspaceId, ...props }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const utils = api.useUtils();
 
-  const { data: hardware } = api.hardware.getHardwareById.useQuery(
+  const { data: hardware } = api.hardware.getHardware.useQuery(
     {
       hardwareId: props.hardware.id,
     },
@@ -62,7 +62,6 @@ const SwapHardware = ({ workspaceId, ...props }: Props) => {
   const form = useForm<FormSchema>({
     resolver: zodResolver(swapHardwareComponentSchema),
     defaultValues: {
-      workspaceId: workspaceId,
       hardwareId: hardware.id,
     },
   });
@@ -70,7 +69,7 @@ const SwapHardware = ({ workspaceId, ...props }: Props) => {
   const swapHardware = api.hardware.swapHardwareComponent.useMutation({
     onSuccess: () => {
       setIsDialogOpen(false);
-      void utils.hardware.getHardwareById.invalidate({
+      void utils.hardware.getHardware.invalidate({
         hardwareId: hardware.id,
       });
     },
@@ -96,8 +95,8 @@ const SwapHardware = ({ workspaceId, ...props }: Props) => {
 
   const selectedComponent = form.watch("oldHardwareComponentId");
   const selectedModel = hardware.components.find(
-    (c) => c.hardware.id === selectedComponent,
-  )?.hardware.modelId;
+    (c) => c.id === selectedComponent,
+  )?.modelId;
   const swappable = selectedModel
     ? availableHardware?.filter((h) => h.modelId === selectedModel)
     : availableHardware;
@@ -137,11 +136,8 @@ const SwapHardware = ({ workspaceId, ...props }: Props) => {
                       </SelectTrigger>
                       <SelectContent>
                         {hardware.components.map((child) => (
-                          <SelectItem
-                            value={child.hardware.id}
-                            key={child.hardware.id}
-                          >
-                            {child.hardware.name}
+                          <SelectItem value={child.id} key={child.id}>
+                            {child.name}
                           </SelectItem>
                         ))}
                       </SelectContent>

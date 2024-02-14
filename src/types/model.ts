@@ -11,7 +11,7 @@ export const insertModelSchema = model
   .pick({ name: true, workspaceId: true })
   .extend({
     name: z.string().min(1),
-    components: z.array(modelComponentSchema.omit({ name: true })),
+    components: z.array(modelComponentSchema.omit({ name: true })).default([]),
   });
 
 export type ModelTree = Pick<Model, "name" | "id"> & {

@@ -43,7 +43,11 @@ import { Model } from "~/schemas/public/Model";
 import { ModelTree } from "~/types/model";
 import { Icons } from "../icons";
 
-type FormSchema = z.infer<typeof insertHardwareSchema>;
+const formSchema = insertHardwareSchema.extend({
+  components: z.object({ hardwareId: z.string() }).array(),
+});
+
+type FormSchema = z.infer<typeof formSchema>;
 
 type Props = {
   workspaceId: string;
@@ -87,7 +91,7 @@ const CreateHardware = ({
   });
 
   const form = useForm<FormSchema>({
-    resolver: zodResolver(insertHardwareSchema),
+    resolver: zodResolver(formSchema),
     defaultValues: {
       workspaceId: workspaceId,
       modelId: model?.id,
@@ -139,11 +143,17 @@ const CreateHardware = ({
   }
 
   function onSubmit(values: FormSchema) {
-    toast.promise(createHardware.mutateAsync(values), {
-      loading: "Creating your hardware instance...",
-      success: "Your hardware is ready.",
-      error: (err) => `${err}`,
-    });
+    toast.promise(
+      createHardware.mutateAsync({
+        ...values,
+        components: values.components.map((c) => c.hardwareId),
+      }),
+      {
+        loading: "Creating your hardware instance...",
+        success: "Your hardware is ready.",
+        error: (err) => `${err}`,
+      },
+    );
   }
 
   return (

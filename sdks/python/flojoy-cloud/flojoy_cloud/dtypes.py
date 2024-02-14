@@ -1,5 +1,7 @@
+from __future__ import annotations
 import datetime
-from typing import Literal, Optional
+from typing import ForwardRef, Literal, Optional
+
 
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
@@ -7,13 +9,16 @@ from pydantic.alias_generators import to_camel
 from flojoy_cloud.measurement import MeasurementType
 
 
-class CloudModel(BaseModel):
+class CamelModel(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel, protected_namespaces=())
+
+
+class CloudModel(CamelModel):
     id: str
     created_at: datetime.datetime
 
 
-class SystemModelPart(BaseModel):
+class ModelComponent(BaseModel):
     modelId: str
     count: int
     name: str = Field(default="")
@@ -24,63 +29,15 @@ class Model(CloudModel):
     workspace_id: str
 
 
-class DeviceModel(Model):
-    type: Literal["device"]
-
-
-class SystemModel(Model):
-    type: Literal["system"]
-    parts: list[SystemModelPart]
-
-
-class SystemPart(BaseModel):
+class ModelTree(BaseModel):
     id: str
     name: str
-    model: Model
+    components: list[ModelTreeComponent]
 
 
-class Hardware(CloudModel):
-    name: str
-    updated_at: Optional[datetime.datetime]
-    workspace_id: str
-    model_id: str
-    model: Model
-
-
-class Device(Hardware):
-    type: Literal["device"]
-
-
-class System(Hardware):
-    type: Literal["system"]
-    parts: list[SystemPart]
-
-
-StorageProvider = Literal["s3", "postgres"]
-
-
-class MeasurementCreateResult(BaseModel):
-    id: str
-
-
-class Measurement(CloudModel):
-    name: str
-    hardware_id: str
-    test_id: str
-    storage_provider: StorageProvider
-    data: dict
-    is_deleted: bool
-
-
-class MeasurementWithHardware(Measurement):
-    hardware: Hardware
-
-
-class Test(CloudModel):
-    name: str
-    updated_at: Optional[datetime.datetime]
-    measurement_type: MeasurementType
-    project_id: str
+class ModelTreeComponent(BaseModel):
+    count: int
+    model: ModelTree
 
 
 class Project(CloudModel):
@@ -92,3 +49,67 @@ class Project(CloudModel):
 
 class ProjectWithModel(Project):
     model: Model
+
+
+class Hardware(CloudModel):
+    name: str
+    workspace_id: str
+    model_id: str
+    updated_at: Optional[datetime.datetime]
+
+
+class HardwareWithModelAndProjects(Hardware):
+    model: Model
+    projects: list[Project]
+
+
+class HardwareTree(BaseModel):
+    id: str
+    name: str
+    modelId: str
+    modelName: str
+    components: list[HardwareTree]
+
+
+RevisionType = Literal["init", "remove", "add"]
+
+
+class HardwareRevision(CamelModel):
+    created_at: datetime.datetime
+    revision_type: RevisionType
+    user_id: str
+    user_email: str
+    hardware_id: str
+    component_id: str
+    component_name: str
+    reason: Optional[str]
+
+
+StorageProvider = Literal["s3", "postgres"]
+
+
+class Tag(CloudModel):
+    name: str
+    workspace_id: str
+
+
+class MeasurementCreateResult(BaseModel):
+    id: str
+
+
+class Measurement(CloudModel):
+    name: str
+    test_id: str
+    hardware_id: str
+    hardware: Hardware
+    storage_provider: StorageProvider
+    data: dict
+    is_deleted: bool
+    tags: list[Tag]
+
+
+class Test(CloudModel):
+    project_id: str
+    name: str
+    measurement_type: MeasurementType
+    updated_at: Optional[datetime.datetime]

@@ -1,25 +1,24 @@
 import datetime
 import json
 import os
-from typing import Callable, Optional, ParamSpec, TypeVar, Union, overload
+from typing import Any, Callable, Optional, ParamSpec, TypeVar, overload
 
 import httpx
 import numpy as np
 import pandas as pd
-from pydantic import BaseModel, Field, TypeAdapter
-from typing_extensions import Annotated
+from pydantic import BaseModel, TypeAdapter
 
 from flojoy_cloud.dtypes import (
-    Device,
-    DeviceModel,
     Hardware,
+    HardwareTree,
+    HardwareRevision,
     MeasurementCreateResult,
-    MeasurementWithHardware,
+    Measurement,
     Project,
     ProjectWithModel,
-    System,
-    SystemModel,
-    SystemModelPart,
+    ModelComponent,
+    Model,
+    ModelTree,
     Test,
 )
 from flojoy_cloud.measurement import MeasurementData, MeasurementType, make_payload
@@ -99,6 +98,10 @@ def query(
     return decorator
 
 
+def _make_params(params: dict[str, Any]):
+    return {k: v for k, v in params.items() if v is not None}
+
+
 class FlojoyCloud:
     client: httpx.Client
 
@@ -123,255 +126,34 @@ class FlojoyCloud:
             timeout=10,
         )
 
-    """Test Endpoints"""
-
-    @query(model=Test)
-    def create_test(
-        self, name: str, project_id: str, measurement_type: MeasurementType
-    ):
-        return self.client.post(
-            "/tests",
-            json={
-                "name": name,
-                "projectId": project_id,
-                "measurementType": measurement_type,
-            },
-        )
-
-    @query(model=Test)
-    def get_test(self, test_id: str):
-        return self.client.get(f"/tests/{test_id}")
-
-    @query(model=TypeAdapter(list[Test]))
-    def get_all_tests_by_project_id(self, project_id: str):
-        return self.client.get(
-            "/tests",
-            params={"projectId": project_id},
-        )
-
-    @query(model=None)
-    def update_test(
-        self,
-        name: str,
-        test_id: str,
-    ):
-        return self.client.patch(f"/tests/{test_id}", json={"name": name})
-
-    @query(model=None)
-    def delete_test(self, test_id: str):
-        return self.client.delete(f"/tests/{test_id}")
-
     """Model Endpoints"""
 
-    @query(model=DeviceModel)
-    def create_device_model(self, name: str, workspace_id: str):
-        return self.client.post(
-            "/models/devices", json={"name": name, "workspaceId": workspace_id}
-        )
-
-    @query(model=SystemModel)
-    def create_system_model(
-        self, name: str, workspace_id: str, parts: list[SystemModelPart]
+    @query(model=Model)
+    def create_model(
+        self, name: str, workspace_id: str, components: list[ModelComponent] = []
     ):
         return self.client.post(
-            "/models/systems",
+            "/models",
             json={
                 "name": name,
                 "workspaceId": workspace_id,
-                "parts": [part.model_dump() for part in parts],
+                "components": [c.model_dump() for c in components],
             },
         )
 
-    @query(
-        model=TypeAdapter(
-            list[
-                Annotated[Union[DeviceModel, SystemModel], Field(discriminator="type")]
-            ]
-        )
-    )
+    @query(model=TypeAdapter(list[Model]))
     def get_all_models(self, workspace_id: str):
         return self.client.get("/models", params={"workspaceId": workspace_id})
 
-    @query(model=TypeAdapter(list[DeviceModel]))
-    def get_all_device_models(self, workspace_id: str):
-        return self.client.get("/models/devices", params={"workspaceId": workspace_id})
-
-    @query(model=TypeAdapter(list[SystemModel]))
-    def get_all_system_models(self, workspace_id: str):
-        return self.client.get("/models/systems", params={"workspaceId": workspace_id})
+    @query(model=ModelTree)
+    def get_model(self, model_id: str):
+        res = self.client.get(f"/models/{model_id}")
+        print(res.text)
+        return res
 
     @query(model=None)
     def delete_model(self, model_id: str):
         return self.client.delete(f"/models/{model_id}")
-
-    """Hardware Endpoints"""
-
-    @query(model=Hardware)
-    def create_device(
-        self,
-        workspace_id: str,
-        name: str,
-        model_id: str,
-        project_id: Optional[str] = None,
-    ):
-        body = {"name": name, "modelId": model_id, "workspaceId": workspace_id}
-        if project_id is not None:
-            body["projectId"] = project_id
-
-        return self.client.post("/hardware/devices", json=body)
-
-    @query(model=Hardware)
-    def create_system(
-        self,
-        workspace_id: str,
-        name: str,
-        model_id: str,
-        device_ids: list[str],
-        project_id: Optional[str] = None,
-    ):
-        body = {
-            "name": name,
-            "modelId": model_id,
-            "deviceIds": device_ids,
-            "workspaceId": workspace_id,
-        }
-        if project_id is not None:
-            body["projectId"] = project_id
-
-        return self.client.post("/hardware/systems", json=body)
-
-    @query(model=Hardware)
-    def get_hardware(self, hardware_id: str):
-        return self.client.get(f"/hardware/{hardware_id}")
-
-    @query(model=TypeAdapter(list[Hardware]))
-    def get_all_hardware(
-        self,
-        workspace_id: str,
-        project_id: Optional[str] = None,
-        only_available: Optional[bool] = None,
-    ):
-        params = {"workspaceId": workspace_id}
-        if project_id is not None:
-            params["projectId"] = project_id
-        if only_available is not None:
-            params["onlyAvailable"] = str(only_available)
-
-        return self.client.get("/hardware", params=params)
-
-    @query(model=TypeAdapter(list[Device]))
-    def get_all_devices(
-        self,
-        workspace_id: str,
-        project_id: Optional[str] = None,
-        only_available: Optional[bool] = None,
-    ):
-        params = {"workspaceId": workspace_id, "onlyAvailable": only_available}
-        if project_id is not None:
-            params["projectId"] = project_id
-        if only_available is not None:
-            params["onlyAvailable"] = str(only_available)
-
-        return self.client.get("/hardware/all/devices", params=params)
-
-    @query(model=TypeAdapter(list[System]))
-    def get_all_systems(
-        self,
-        workspace_id: str,
-        project_id: Optional[str] = None,
-    ):
-        params = {"workspaceId": workspace_id}
-        if project_id is not None:
-            params["projectId"] = project_id
-
-        return self.client.get("/hardware/all/systems", params=params)
-
-    @query(model=None)
-    def delete_hardware(self, hardware_id: str):
-        return self.client.delete(f"/hardware/{hardware_id}")
-
-    @query(model=None)
-    def update_hardware(self, hardware_id: str, name: str):
-        return self.client.patch(f"/hardware/{hardware_id}", json={"name": name})
-
-    """Measurement Endpoints"""
-
-    @query(model=MeasurementCreateResult)
-    def upload(
-        self,
-        data: MeasurementData,
-        test_id: str,
-        hardware_id: str,
-        name: str | None = None,
-        passed: bool | None = None,
-        created_at: datetime.datetime | None = None,
-    ):
-        body = {
-            "testId": test_id,
-            "hardwareId": hardware_id,
-            "data": make_payload(data),
-        }
-        if name is not None:
-            body["name"] = name
-        if created_at is not None:
-            body["createdAt"] = created_at.isoformat()
-        if passed is not None:
-            body["pass"] = passed
-
-        return self.client.post(
-            "/measurements",
-            content=json.dumps(body, cls=CloudEncoder),
-            headers={
-                "Content-Type": "application/json",
-            },
-        )
-
-    @query(model=TypeAdapter(list[MeasurementWithHardware]))
-    def get_all_measurements_by_test_id(
-        self,
-        test_id: str,
-        start_date: datetime.datetime | None = None,
-        end_date: datetime.datetime | None = None,
-    ):
-        query_params = {}
-        if start_date is not None:
-            query_params["startDate"] = start_date.isoformat()
-        if end_date is not None:
-            query_params["endDate"] = end_date.isoformat()
-
-        return self.client.get(
-            f"/measurements/test/{test_id}",
-            params=query_params,
-        )
-
-    @query(model=TypeAdapter(list[MeasurementWithHardware]))
-    def get_all_measurements_by_hardware_id(
-        self,
-        hardware_id: str,
-        start_date: datetime.datetime | None = None,
-        end_date: datetime.datetime | None = None,
-        latest: bool | None = None,
-    ):
-        query_params = {}
-        if start_date is not None:
-            query_params["startDate"] = start_date.isoformat()
-        if end_date is not None:
-            query_params["endDate"] = end_date.isoformat()
-        if latest is not None:
-            query_params["latest"] = latest
-
-        return self.client.get(
-            f"/measurements/hardware/{hardware_id}",
-            params=query_params,
-        )
-
-    @query(model=MeasurementWithHardware)
-    def get_measurement(self, measurement_id: str):
-        return self.client.get(f"/measurements/{measurement_id}")
-
-    @query(model=None)
-    def delete_measurement(self, measurement_id: str):
-        return self.client.delete(f"/measurements/{measurement_id}")
 
     """Project Routes"""
 
@@ -418,3 +200,195 @@ class FlojoyCloud:
     @query(model=None)
     def delete_project(self, project_id: str):
         return self.client.delete(f"/projects/{project_id}")
+
+    """Hardware Endpoints"""
+
+    @query(model=Hardware)
+    def create_hardware(
+        self,
+        workspace_id: str,
+        name: str,
+        model_id: str,
+        components: list[str] = [],
+        project_id: Optional[str] = None,
+    ):
+        body = _make_params(
+            {
+                "workspaceId": workspace_id,
+                "modelId": model_id,
+                "name": name,
+                "components": components,
+                "projectId": project_id,
+            }
+        )
+
+        return self.client.post("/hardware", json=body)
+
+    @query(model=HardwareTree)
+    def get_hardware(self, hardware_id: str):
+        return self.client.get(f"/hardware/{hardware_id}")
+
+    @query(model=TypeAdapter(list[Hardware]))
+    def get_all_hardware(
+        self,
+        workspace_id: str,
+        model_id: Optional[str] = None,
+        project_id: Optional[str] = None,
+        only_available: Optional[bool] = None,
+    ):
+        params = _make_params(
+            {
+                "workspaceId": workspace_id,
+                "modelId": model_id,
+                "projectId": project_id,
+                "onlyAvailable": only_available,
+            }
+        )
+
+        return self.client.get("/hardware", params=params)
+
+    @query(model=None)
+    def delete_hardware(self, hardware_id: str):
+        return self.client.delete(f"/hardware/{hardware_id}")
+
+    @query(model=TypeAdapter(list[HardwareRevision]))
+    def get_revisions(self, hardware_id: str):
+        return self.client.get(f"/hardware/{hardware_id}/revisions")
+
+    @query(model=None)
+    def swap_hardware_component(
+        self,
+        hardware_id: str,
+        old_component_id: str,
+        new_component_id: str,
+        reason: Optional[str] = None,
+    ):
+        body = _make_params(
+            {
+                "hardwareId": hardware_id,
+                "oldHardwareComponentId": old_component_id,
+                "newHardwareComponentId": new_component_id,
+                "reason": reason,
+            }
+        )
+
+        return self.client.patch(f"/hardware/{hardware_id}", json=body)
+
+    """Test Endpoints"""
+
+    @query(model=Test)
+    def create_test(
+        self, name: str, project_id: str, measurement_type: MeasurementType
+    ):
+        return self.client.post(
+            "/tests",
+            json={
+                "name": name,
+                "projectId": project_id,
+                "measurementType": measurement_type,
+            },
+        )
+
+    @query(model=Test)
+    def get_test(self, test_id: str):
+        return self.client.get(f"/tests/{test_id}")
+
+    @query(model=TypeAdapter(list[Test]))
+    def get_all_tests_by_project_id(self, project_id: str):
+        return self.client.get(
+            "/tests",
+            params={"projectId": project_id},
+        )
+
+    @query(model=None)
+    def update_test(
+        self,
+        name: str,
+        test_id: str,
+    ):
+        return self.client.patch(f"/tests/{test_id}", json={"name": name})
+
+    @query(model=None)
+    def delete_test(self, test_id: str):
+        return self.client.delete(f"/tests/{test_id}")
+
+    """Measurement Endpoints"""
+
+    @query(model=MeasurementCreateResult)
+    def upload(
+        self,
+        data: MeasurementData,
+        test_id: str,
+        hardware_id: str,
+        name: str | None = None,
+        passed: bool | None = None,
+        created_at: datetime.datetime | None = None,
+        tags: list[str] = [],
+    ):
+        body = _make_params(
+            {
+                "testId": test_id,
+                "hardwareId": hardware_id,
+                "data": make_payload(data),
+                "name": name,
+                "tagNames": tags,
+                "pass": passed,
+            }
+        )
+        if created_at is not None:
+            body["createdAt"] = created_at.isoformat()
+
+        return self.client.post(
+            "/measurements",
+            content=json.dumps(body, cls=CloudEncoder),
+            headers={
+                "Content-Type": "application/json",
+            },
+        )
+
+    @query(model=TypeAdapter(list[Measurement]))
+    def get_all_measurements_by_test_id(
+        self,
+        test_id: str,
+        start_date: datetime.datetime | None = None,
+        end_date: datetime.datetime | None = None,
+    ):
+        query_params = {}
+        if start_date is not None:
+            query_params["startDate"] = start_date.isoformat()
+        if end_date is not None:
+            query_params["endDate"] = end_date.isoformat()
+
+        return self.client.get(
+            f"/measurements/test/{test_id}",
+            params=query_params,
+        )
+
+    @query(model=TypeAdapter(list[Measurement]))
+    def get_all_measurements_by_hardware_id(
+        self,
+        hardware_id: str,
+        start_date: datetime.datetime | None = None,
+        end_date: datetime.datetime | None = None,
+        latest: bool | None = None,
+    ):
+        query_params = {}
+        if start_date is not None:
+            query_params["startDate"] = start_date.isoformat()
+        if end_date is not None:
+            query_params["endDate"] = end_date.isoformat()
+        if latest is not None:
+            query_params["latest"] = latest
+
+        return self.client.get(
+            f"/measurements/hardware/{hardware_id}",
+            params=query_params,
+        )
+
+    @query(model=Measurement)
+    def get_measurement(self, measurement_id: str):
+        return self.client.get(f"/measurements/{measurement_id}")
+
+    @query(model=None)
+    def delete_measurement(self, measurement_id: str):
+        return self.client.delete(f"/measurements/{measurement_id}")

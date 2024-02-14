@@ -15,7 +15,7 @@ export default async function Test({
   params: { testId: string; namespace: string };
   searchParams: { back?: string };
 }) {
-  const test = await api.test.getTestById.query({
+  const test = await api.test.getTest.query({
     testId: params.testId,
   });
   const testMeasurements =

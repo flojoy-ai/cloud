@@ -4,7 +4,7 @@ import pytest
 import pandas as pd
 
 from flojoy_cloud import FlojoyCloud
-from flojoy_cloud import SystemModelPart
+from flojoy_cloud import ModelComponent
 
 WorkspaceInfo = Tuple[FlojoyCloud, str]
 
@@ -27,18 +27,23 @@ def workspace():
 @pytest.fixture
 def reset(workspace: WorkspaceInfo):
     client, workspace_id = workspace
-    # Clear hardware
-    for system in client.get_all_systems(workspace_id):
-        client.delete_hardware(system.id)
-    for device in client.get_all_devices(workspace_id):
+    hw = client.get_all_hardware(workspace_id)
+    systems = (h for h in hw if "system" in h.name)
+    for sys in systems:
+        client.delete_hardware(sys.id)
+    devices = (h for h in hw if "system" not in h.name)
+    for device in devices:
         client.delete_hardware(device.id)
 
-    # Clear projects
     for project in client.get_all_projects(workspace_id):
         client.delete_project(project.id)
 
-    # Clear models
-    for model in client.get_all_models(workspace_id):
+    models = client.get_all_models(workspace_id)
+    system_models = (m for m in models if "system" in m.name)
+    for model in system_models:
+        client.delete_model(model.id)
+    device_models = (m for m in models if "system" not in m.name)
+    for model in device_models:
         client.delete_model(model.id)
 
 
@@ -52,18 +57,18 @@ def model_teardown(reset, workspace: WorkspaceInfo):
 
 def test_model_routes(workspace: WorkspaceInfo, model_teardown):
     client, workspace_id = workspace
-    device_model = client.create_device_model(
+    device_model = client.create_model(
         name="test-device-model", workspace_id=workspace_id
     )
-    device_model2 = client.create_device_model(
+    device_model2 = client.create_model(
         name="test-device-model2", workspace_id=workspace_id
     )
-    system_model = client.create_system_model(
+    system_model = client.create_model(
         name="test-system-model",
         workspace_id=workspace_id,
-        parts=[
-            SystemModelPart(modelId=device_model.id, count=2),
-            SystemModelPart(modelId=device_model2.id, count=1),
+        components=[
+            ModelComponent(modelId=device_model.id, count=2),
+            ModelComponent(modelId=device_model2.id, count=1),
         ],
     )
 
@@ -76,26 +81,30 @@ def test_model_routes(workspace: WorkspaceInfo, model_teardown):
     assert device_model2.id in models
     assert system_model.id in models
 
-    device_models = client.get_all_device_models(workspace_id=workspace_id)
-    assert len(device_models) == 2
-
-    system_models = client.get_all_system_models(workspace_id=workspace_id)
-    assert len(system_models) == 1
+    tree = client.get_model(system_model.id)
+    assert len(tree.components) == 2
+    lookup = {component.model.id: component.count for component in tree.components}
+    assert device_model.id in lookup
+    assert lookup[device_model.id] == 2
+    assert device_model2.id in lookup
+    assert lookup[device_model2.id] == 1
 
     client.delete_model(system_model.id)
 
-    system_models = client.get_all_system_models(workspace_id=workspace_id)
-    assert len(system_models) == 0
+    models = client.get_all_models(workspace_id=workspace_id)
+    assert len(models) == 2
+    models = [model.id for model in models]
+
+    assert device_model.id in models
+    assert device_model2.id in models
+    assert system_model.id not in models
 
     client.delete_model(device_model.id)
 
-    device_models = client.get_all_device_models(workspace_id=workspace_id)
-    assert len(device_models) == 1
+    models = client.get_all_models(workspace_id=workspace_id)
+    assert len(models) == 1
 
     client.delete_model(device_model2.id)
-
-    device_models = client.get_all_device_models(workspace_id=workspace_id)
-    assert len(device_models) == 0
 
     models = client.get_all_models(workspace_id=workspace_id)
     assert len(models) == 0
@@ -104,7 +113,7 @@ def test_model_routes(workspace: WorkspaceInfo, model_teardown):
 @pytest.fixture
 def project_setup(reset, workspace: WorkspaceInfo):
     client, workspace_id = workspace
-    model = client.create_device_model("test-model", workspace_id)
+    model = client.create_model("test-model", workspace_id)
     yield model
     for project in client.get_all_projects(workspace_id):
         client.delete_project(project.id)
@@ -155,11 +164,11 @@ def test_project_routes(workspace: WorkspaceInfo, project_setup):
 @pytest.fixture
 def hardware_setup(reset, workspace: WorkspaceInfo):
     client, workspace_id = workspace
-    device_model = client.create_device_model("test-device-model", workspace_id)
-    system_model = client.create_system_model(
+    device_model = client.create_model("test-device-model", workspace_id)
+    system_model = client.create_model(
         "test-system-model",
         workspace_id,
-        parts=[SystemModelPart(modelId=device_model.id, count=2)],
+        components=[ModelComponent(modelId=device_model.id, count=2)],
     )
     device_project = client.create_project(
         "device-project", device_model.id, workspace_id
@@ -170,22 +179,13 @@ def hardware_setup(reset, workspace: WorkspaceInfo):
 
     yield device_model, system_model, device_project, system_project
 
-    client.delete_project(device_project.id)
-    client.delete_project(system_project.id)
-
-    for hardware in client.get_all_hardware(workspace_id):
-        client.delete_hardware(hardware.id)
-
-    client.delete_model(system_model.id)
-    client.delete_model(device_model.id)
-
 
 def test_hardware_routes(workspace: WorkspaceInfo, hardware_setup):
     client, workspace_id = workspace
     device_model, system_model, device_project, system_project = hardware_setup
 
     # Create some devices
-    device1 = client.create_device(
+    device1 = client.create_hardware(
         workspace_id=workspace_id,
         name="test-device1",
         model_id=device_model.id,
@@ -194,8 +194,9 @@ def test_hardware_routes(workspace: WorkspaceInfo, hardware_setup):
     res = client.get_hardware(device1.id)
     assert res.id == device1.id
     assert res.name == device1.name
+    assert len(res.components) == 0
 
-    device2 = client.create_device(
+    device2 = client.create_hardware(
         workspace_id=workspace_id,
         name="test-device2",
         model_id=device_model.id,
@@ -204,33 +205,51 @@ def test_hardware_routes(workspace: WorkspaceInfo, hardware_setup):
     res = client.get_hardware(device2.id)
     assert res.id == device2.id
     assert res.name == device2.name
+    assert len(res.components) == 0
 
     # Create a system
-    system = client.create_system(
+    system = client.create_hardware(
         workspace_id=workspace_id,
         name="test-system",
         model_id=system_model.id,
-        device_ids=[device1.id, device2.id],
+        components=[device1.id, device2.id],
     )
 
     res = client.get_hardware(system.id)
     assert res.id == system.id
     assert res.name == system.name
+    assert len(res.components) == 2
+    assert set(c.id for c in res.components) == {device1.id, device2.id}
 
-    # Get all hardware
+    revisions = client.get_revisions(system.id)
+    assert len(revisions) == 2
+    assert all(rev.revision_type == "init" for rev in revisions)
+
+    swap = client.create_hardware(
+        workspace_id=workspace_id,
+        name="swap",
+        model_id=device_model.id,
+    )
+
+    client.swap_hardware_component(
+        hardware_id=system.id,
+        old_component_id=device1.id,
+        new_component_id=swap.id,
+        reason="bruh",
+    )
+
+    revisions = client.get_revisions(system.id)
+    assert len(revisions) == 4
+
+    res = client.get_hardware(system.id)
+    assert len(res.components) == 2
+    assert set(c.id for c in res.components) == {swap.id, device2.id}
+
     hardware = client.get_all_hardware(workspace_id)
-    assert len(hardware) == 3
+    assert len(hardware) == 4
 
-    # Get all devices
-    devices = client.get_all_devices(workspace_id)
+    devices = client.get_all_hardware(workspace_id, only_available=True)
     assert len(devices) == 2
-
-    devices = client.get_all_devices(workspace_id, only_available=True)
-    assert len(devices) == 0
-
-    # Get all systems
-    systems = client.get_all_systems(workspace_id)
-    assert len(systems) == 1
 
     # Add to project
     client.add_hardware_to_project(
@@ -238,14 +257,14 @@ def test_hardware_routes(workspace: WorkspaceInfo, hardware_setup):
         hardware_id=device1.id,
     )
 
-    devices = client.get_all_devices(workspace_id, project_id=device_project.id)
+    devices = client.get_all_hardware(workspace_id, project_id=device_project.id)
     assert len(devices) == 1
 
     # Set it
     client.set_project_hardware(
         project_id=device_project.id, hardware_ids=[device1.id, device2.id]
     )
-    devices = client.get_all_devices(workspace_id, project_id=device_project.id)
+    devices = client.get_all_hardware(workspace_id, project_id=device_project.id)
     assert len(devices) == 2
 
     # Then remove both and check again
@@ -258,11 +277,11 @@ def test_hardware_routes(workspace: WorkspaceInfo, hardware_setup):
         hardware_id=device2.id,
     )
 
-    devices = client.get_all_devices(workspace_id, project_id=device_project.id)
+    devices = client.get_all_hardware(workspace_id, project_id=device_project.id)
     assert len(devices) == 0
 
     # Add system to project
-    systems = client.get_all_systems(workspace_id, project_id=system_project.id)
+    systems = client.get_all_hardware(workspace_id, project_id=system_project.id)
     assert len(systems) == 0
 
     client.add_hardware_to_project(
@@ -270,27 +289,26 @@ def test_hardware_routes(workspace: WorkspaceInfo, hardware_setup):
         hardware_id=system.id,
     )
 
-    systems = client.get_all_systems(workspace_id, project_id=system_project.id)
+    systems = client.get_all_hardware(workspace_id, project_id=system_project.id)
     assert len(systems) == 1
 
     client.delete_hardware(system.id)
     hardware = client.get_all_hardware(workspace_id)
-    assert len(hardware) == 2
-    systems = client.get_all_systems(workspace_id)
-    assert len(systems) == 0
+    assert len(hardware) == 3
 
     client.delete_hardware(device1.id)
-    devices = client.get_all_devices(workspace_id)
-    assert len(devices) == 1
+    devices = client.get_all_hardware(workspace_id)
+    assert len(devices) == 2
+
     client.delete_hardware(device2.id)
-    devices = client.get_all_devices(workspace_id)
-    assert len(devices) == 0
+    devices = client.get_all_hardware(workspace_id)
+    assert len(devices) == 1
 
 
 @pytest.fixture
 def test_setup(reset, workspace: WorkspaceInfo):
     client, workspace_id = workspace
-    model = client.create_device_model("model", workspace_id)
+    model = client.create_model("model", workspace_id)
     project = client.create_project("project", model.id, workspace_id)
 
     yield project
@@ -343,12 +361,12 @@ def test_test_routes(workspace: WorkspaceInfo, test_setup):
 @pytest.fixture
 def measurement_setup(reset, workspace: WorkspaceInfo):
     client, workspace_id = workspace
-    model = client.create_device_model("model", workspace_id)
+    model = client.create_model("model", workspace_id)
     project = client.create_project("project", model.id, workspace_id)
-    device1 = client.create_device(
+    device1 = client.create_hardware(
         workspace_id, "device1", model.id, project_id=project.id
     )
-    device2 = client.create_device(
+    device2 = client.create_hardware(
         workspace_id, "device2", model.id, project_id=project.id
     )
 
@@ -358,8 +376,11 @@ def measurement_setup(reset, workspace: WorkspaceInfo):
     df_test = client.create_test(
         "dataframe-test", project.id, measurement_type="dataframe"
     )
+    scalar_test = client.create_test(
+        "scalar-test", project.id, measurement_type="scalar"
+    )
 
-    yield bool_test, df_test, device1, device2
+    yield bool_test, df_test, scalar_test, device1, device2
 
     for measurement in client.get_all_measurements_by_test_id(bool_test.id):
         client.delete_measurement(measurement.id)
@@ -377,13 +398,20 @@ def measurement_setup(reset, workspace: WorkspaceInfo):
 
 def test_measurement_routes(workspace: WorkspaceInfo, measurement_setup):
     client, workspace_id = workspace
-    bool_test, df_test, device1, device2 = measurement_setup
+    bool_test, df_test, scalar_test, device1, device2 = measurement_setup
 
     client.upload(
         data=True,
         test_id=bool_test.id,
         hardware_id=device1.id,
         name="bool",
+    )
+
+    client.upload(
+        data=False,
+        test_id=bool_test.id,
+        hardware_id=device1.id,
+        name="bool again",
     )
 
     client.upload(
@@ -400,17 +428,32 @@ def test_measurement_routes(workspace: WorkspaceInfo, measurement_setup):
         name="bool 2",
     )
 
+    client.upload(
+        data=3,
+        test_id=scalar_test.id,
+        hardware_id=device2.id,
+        name="three",
+    )
+
     bool_measurements = client.get_all_measurements_by_test_id(bool_test.id)
-    assert len(bool_measurements) == 2
+    assert len(bool_measurements) == 3
 
     df_measurements = client.get_all_measurements_by_test_id(df_test.id)
     assert len(df_measurements) == 1
 
+    scalar_measurements = client.get_all_measurements_by_test_id(scalar_test.id)
+    assert len(scalar_measurements) == 1
+
     d1_measurements = client.get_all_measurements_by_hardware_id(device1.id)
+    assert len(d1_measurements) == 3
+
+    d1_measurements = client.get_all_measurements_by_hardware_id(
+        device1.id, latest=True
+    )
     assert len(d1_measurements) == 2
 
     d2_measurements = client.get_all_measurements_by_hardware_id(device2.id)
-    assert len(d2_measurements) == 1
+    assert len(d2_measurements) == 2
 
     bool_meas = client.get_measurement(bool_measurements[0].id)
     assert bool_meas.name == "bool"
@@ -420,12 +463,21 @@ def test_measurement_routes(workspace: WorkspaceInfo, measurement_setup):
     df_meas = client.get_measurement(df_measurements[0].id)
     assert df_meas.name == "df"
 
+    scalar_meas = client.get_measurement(scalar_measurements[0].id)
+    assert scalar_meas.name == "three"
+    assert scalar_meas.data["value"] == 3
+
     client.delete_measurement(bool_meas.id)
 
     bool_measurements = client.get_all_measurements_by_test_id(bool_test.id)
-    assert len(bool_measurements) == 1
+    assert len(bool_measurements) == 2
 
     client.delete_measurement(df_meas.id)
 
     df_measurements = client.get_all_measurements_by_test_id(df_test.id)
     assert len(df_measurements) == 0
+
+    client.delete_measurement(scalar_meas.id)
+
+    scalar_measurements = client.get_all_measurements_by_test_id(scalar_test.id)
+    assert len(scalar_measurements) == 0
