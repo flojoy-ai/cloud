@@ -82,7 +82,7 @@ export const testRouter = createTRPCRouter({
       });
     }),
 
-  getTestById: workspaceProcedure
+  getTest: workspaceProcedure
     .meta({
       openapi: { method: "GET", path: "/v1/tests/{testId}", tags: ["test"] },
     })

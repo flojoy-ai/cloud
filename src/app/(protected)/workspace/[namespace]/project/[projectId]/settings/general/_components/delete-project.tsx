@@ -25,7 +25,7 @@ type Props = {
 const DeleteProject = ({ projectId }: Props) => {
   const router = useRouter();
   const workspace = useWorkspace();
-  const deleteProject = api.project.deleteProjectById.useMutation({
+  const deleteProject = api.project.deleteProject.useMutation({
     onSuccess: () => {
       router.push(`/workspace/${workspace}`);
       router.refresh();

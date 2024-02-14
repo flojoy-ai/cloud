@@ -51,7 +51,7 @@ export default async function Measurement({
   params: { measurementId: string; namespace: string };
   searchParams: { back?: string };
 }) {
-  const measurement = await api.measurement.getMeasurementById.query({
+  const measurement = await api.measurement.getMeasurement.query({
     measurementId: params.measurementId,
   });
   const workspaceId = await api.workspace.getWorkspaceIdByNamespace.query({

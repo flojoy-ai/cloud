@@ -135,7 +135,7 @@ function HardwareActions({
   row: Row<Hardware & { projects: Project[]; model: Model }>;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const deleteHardware = api.hardware.deleteHardwareById.useMutation();
+  const deleteHardware = api.hardware.deleteHardware.useMutation();
   const utils = api.useUtils();
   return (
     <>

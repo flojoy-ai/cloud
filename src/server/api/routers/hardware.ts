@@ -134,7 +134,17 @@ const hardwareQueryOptions = z.object({
 });
 
 const deviceQueryOptions = hardwareQueryOptions.extend({
-  onlyAvailable: z.boolean().optional(),
+  onlyAvailable: z.preprocess((arg) => {
+    if (typeof arg === "string") {
+      if (arg === "true" || arg === "1") {
+        return true;
+      }
+      if (arg === "false" || arg === "0") {
+        return false;
+      }
+    }
+    return arg;
+  }, z.boolean().optional()),
 });
 
 export const hardwareRouter = createTRPCRouter({
@@ -142,8 +152,8 @@ export const hardwareRouter = createTRPCRouter({
     .meta({
       openapi: {
         method: "POST",
-        path: "/v1/hardwares/",
-        tags: ["hardwares"],
+        path: "/v1/hardware/",
+        tags: ["hardware"],
       },
     })
     .input(insertHardwareSchema)
@@ -152,7 +162,7 @@ export const hardwareRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       // TODO: Not working for now
       return await ctx.db.transaction().execute(async (tx) => {
-        const { components, ...newHardware } = input;
+        const { components, projectId, ...newHardware } = input;
 
         const hardware = await withDBErrorCheck(
           tx
@@ -185,7 +195,7 @@ export const hardwareRouter = createTRPCRouter({
         const modelComponents = await getModelComponents(model.id);
 
         if (modelComponents.length > 0) {
-          const ids = components.map((c) => c.hardwareId);
+          const ids = components;
           if (_.uniq(ids).length !== ids.length) {
             throw new TRPCError({
               code: "BAD_REQUEST",
@@ -225,7 +235,7 @@ export const hardwareRouter = createTRPCRouter({
             .values(
               components.map((c) => ({
                 parentHardwareId: hardware.id,
-                childHardwareId: c.hardwareId,
+                childHardwareId: c,
               })),
             )
             .execute();
@@ -236,7 +246,7 @@ export const hardwareRouter = createTRPCRouter({
               components.map((c) => ({
                 hardwareId: hardware.id,
                 revisionType: "init",
-                componentId: c.hardwareId,
+                componentId: c,
                 reason: "Initial hardware creation",
                 userId: ctx.user.id,
               })),
@@ -244,12 +254,12 @@ export const hardwareRouter = createTRPCRouter({
             .execute();
         }
 
-        if (input.projectId !== undefined) {
+        if (projectId !== undefined) {
           await tx
             .insertInto("project_hardware")
             .values({
               hardwareId: hardware.id,
-              projectId: input.projectId,
+              projectId,
             })
             .execute();
         }
@@ -260,12 +270,12 @@ export const hardwareRouter = createTRPCRouter({
       });
     }),
 
-  getHardwareById: workspaceProcedure
+  getHardware: workspaceProcedure
     .meta({
       openapi: {
         method: "GET",
-        path: "/v1/hardwares/{hardwareId}",
-        tags: ["hardwares"],
+        path: "/v1/hardware/{hardwareId}",
+        tags: ["hardware"],
       },
     })
     .input(z.object({ hardwareId: z.string() }))
@@ -277,7 +287,7 @@ export const hardwareRouter = createTRPCRouter({
 
   getAllHardware: workspaceProcedure
     .meta({
-      openapi: { method: "GET", path: "/v1/hardwares", tags: ["hardwares"] },
+      openapi: { method: "GET", path: "/v1/hardware", tags: ["hardwares"] },
     })
     .input(deviceQueryOptions)
     .use(workspaceAccessMiddleware)
@@ -318,12 +328,12 @@ export const hardwareRouter = createTRPCRouter({
       return data;
     }),
 
-  deleteHardwareById: workspaceProcedure
+  deleteHardware: workspaceProcedure
     .meta({
       openapi: {
         method: "DELETE",
-        path: "/v1/hardwares/{hardwareId}",
-        tags: ["hardwares"],
+        path: "/v1/hardware/{hardwareId}",
+        tags: ["hardware"],
       },
     })
     .input(z.object({ hardwareId: z.string() }))
@@ -347,8 +357,8 @@ export const hardwareRouter = createTRPCRouter({
     .meta({
       openapi: {
         method: "GET",
-        path: "/v1/hardwares/{hardwareId}/revisions",
-        tags: ["hardwares"],
+        path: "/v1/hardware/{hardwareId}/revisions",
+        tags: ["hardware"],
       },
     })
     .input(z.object({ hardwareId: z.string() }))
@@ -372,8 +382,8 @@ export const hardwareRouter = createTRPCRouter({
     .meta({
       openapi: {
         method: "PATCH",
-        path: "/v1/hardwares/{hardwareId}",
-        tags: ["hardwares"],
+        path: "/v1/hardware/{hardwareId}",
+        tags: ["hardware"],
       },
     })
     .input(swapHardwareComponentSchema)
@@ -397,6 +407,7 @@ export const hardwareRouter = createTRPCRouter({
           .selectFrom("hardware")
           .selectAll()
           .where("hardware.id", "=", input.oldHardwareComponentId)
+          .where("hardware.workspaceId", "=", ctx.workspaceId)
           .executeTakeFirstOrThrow(
             () =>
               new TRPCError({
@@ -409,6 +420,7 @@ export const hardwareRouter = createTRPCRouter({
           .selectFrom("hardware")
           .selectAll()
           .where("hardware.id", "=", input.newHardwareComponentId)
+          .where("hardware.workspaceId", "=", ctx.workspaceId)
           .executeTakeFirstOrThrow(
             () =>
               new TRPCError({

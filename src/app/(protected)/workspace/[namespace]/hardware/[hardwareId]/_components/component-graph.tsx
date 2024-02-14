@@ -14,7 +14,7 @@ type Props = {
 };
 
 const ComponentGraph = (props: Props) => {
-  const { data: tree } = api.hardware.getHardwareById.useQuery(
+  const { data: tree } = api.hardware.getHardware.useQuery(
     {
       hardwareId: props.tree.id,
     },

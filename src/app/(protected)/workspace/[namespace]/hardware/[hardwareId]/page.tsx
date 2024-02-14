@@ -18,7 +18,7 @@ export default async function Hardware({
   params: { hardwareId: string; namespace: string };
   searchParams: { back?: string };
 }) {
-  const hardware = await api.hardware.getHardwareById.query({
+  const hardware = await api.hardware.getHardware.query({
     hardwareId: params.hardwareId,
   });
   const revisions = await api.hardware.getRevisions.query({

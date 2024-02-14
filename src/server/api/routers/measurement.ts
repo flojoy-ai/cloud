@@ -11,14 +11,7 @@ import { hardwareAccessMiddleware } from "./hardware";
 import { testAccessMiddleware } from "./test";
 import { checkWorkspaceAccess } from "~/lib/auth";
 import _ from "lodash";
-import { generateDatabaseId } from "~/lib/id";
-import {
-  createMeasurement,
-  getTagsByNames,
-  markUpdatedAt,
-  withHardware,
-  withTags,
-} from "~/lib/query";
+import { createMeasurement, withHardware, withTags } from "~/lib/query";
 import { type SelectHardware } from "~/types/hardware";
 import { MeasurementData } from "~/types/data";
 
@@ -164,7 +157,7 @@ export const measurementRouter = createTRPCRouter({
       return result;
     }),
 
-  getMeasurementById: workspaceProcedure
+  getMeasurement: workspaceProcedure
     .meta({
       openapi: {
         method: "GET",
@@ -199,7 +192,7 @@ export const measurementRouter = createTRPCRouter({
       return result;
     }),
 
-  deleteMeasurementById: workspaceProcedure
+  deleteMeasurement: workspaceProcedure
     .meta({
       openapi: {
         method: "DELETE",
