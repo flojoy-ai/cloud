@@ -44,7 +44,7 @@ const PasswordReset = () => {
       toast.error(
         handleError(
           error,
-          "Password reset is currently not available, please try again later :)",
+          "Password reset is currently not available, please try again later :(",
         ),
       );
     },
