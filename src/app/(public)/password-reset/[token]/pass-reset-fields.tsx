@@ -56,7 +56,7 @@ const PasswordResetFields = ({ token }: PasswordResetFieldsProps) => {
       toast.error(
         handleError(
           e,
-          "Password reset is currently not available, please try again later :)",
+          "Password reset is currently not available, please try again later :(",
         ),
       ),
     onSuccess: () => {
