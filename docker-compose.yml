@@ -1,0 +1,9 @@
+version: "3.7"
+services:
+  cloud:
+    image: "node:20"
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - "3000:3000"
