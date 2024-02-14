@@ -2,8 +2,8 @@ from typing import Literal
 
 import pandas as pd
 
-MeasurementData = bool | pd.DataFrame
-MeasurementType = Literal["boolean", "dataframe"]
+MeasurementData = bool | pd.DataFrame | int | float
+MeasurementType = Literal["boolean", "dataframe", "scalar"]
 
 
 def make_payload(data: MeasurementData):
@@ -17,5 +17,7 @@ def make_payload(data: MeasurementData):
                 value[col_name] = series.tolist()
 
             return {"type": "dataframe", "value": value}
+        case int() | float():
+            return {"type": "scalar", "value": data}
         case _:
             raise TypeError(f"Unsupported data type: {type(data)}")

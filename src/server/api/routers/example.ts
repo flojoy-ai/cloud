@@ -8,6 +8,7 @@ import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 import { api } from "~/trpc/server";
 import { generateDatabaseId } from "~/lib/id";
+import { createMeasurement } from "~/lib/query";
 
 const generateRandomNumbers = () => {
   const randomNumbers = [];
@@ -99,32 +100,21 @@ export const exampleRouter = createTRPCRouter({
         const boolMeas = hardwares.map((hardware, i) => {
           const val = Math.random() < 0.8;
           return {
-            id: generateDatabaseId("measurement"),
             name: "Did Power On",
             hardwareId: hardware.id,
             testId: booleanTest.id,
             createdAt: new Date(new Date().getTime() + i * 20000),
             data: { type: "boolean" as const, value: val },
             pass: val,
-            storageProvider: "postgres" as const, // TODO: make this configurable
+            tagNames: ["example"],
           };
         });
 
-        const boolMeasCreateResult = await tx
-          .insertInto("measurement")
-          .values(boolMeas)
-          .returningAll()
-          .execute();
-
-        if (!boolMeasCreateResult) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create measurements",
-          });
+        for (const meas of boolMeas) {
+          await createMeasurement(tx, ctx.workspaceId, meas);
         }
 
         const dataframeMeas = hardwares.map((hardware, i) => ({
-          id: generateDatabaseId("measurement"),
           name: "Data Point",
           hardwareId: hardware.id,
           testId: dataframeTest.id,
@@ -137,20 +127,11 @@ export const exampleRouter = createTRPCRouter({
             },
           },
           pass: Math.random() < 0.7 ? true : null,
-          storageProvider: "postgres" as const, // TODO: make this configurable
+          tagNames: ["example"],
         }));
 
-        const dataframeMeasCreateResult = await tx
-          .insertInto("measurement")
-          .values(dataframeMeas)
-          .returningAll()
-          .execute();
-
-        if (!dataframeMeasCreateResult) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create measurements",
-          });
+        for (const meas of dataframeMeas) {
+          await createMeasurement(tx, ctx.workspaceId, meas);
         }
       });
     }),
