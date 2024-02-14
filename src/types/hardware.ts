@@ -34,7 +34,7 @@ export type SelectHardwareRevision = z.infer<typeof selectHardwareRevision>;
 
 export type HardwareTree = Pick<Hardware, "name" | "id" | "modelId"> & {
   modelName: string;
-  components: { hardware: HardwareTree }[];
+  components: HardwareTree[];
 };
 
 export const hardwareTreeSchema: z.ZodType<HardwareTree> = z.object({
@@ -42,5 +42,5 @@ export const hardwareTreeSchema: z.ZodType<HardwareTree> = z.object({
   name: z.string().min(1),
   modelId: z.string().min(1),
   modelName: z.string().min(1),
-  components: z.lazy(() => z.object({ hardware: hardwareTreeSchema }).array()),
+  components: z.lazy(() => hardwareTreeSchema.array()),
 });
