@@ -5,16 +5,11 @@ import { Model } from "~/schemas/public/Model";
 
 export type SelectHardware = Hardware & { model: Model };
 
-export const hardwareComponentSchema = z.object({
-  hardwareId: z.string(),
-  name: z.string().min(1),
-});
-
 export const insertHardwareSchema = hardware
   .pick({ name: true, workspaceId: true, modelId: true })
   .extend({
     name: z.string().min(1),
-    components: z.array(hardwareComponentSchema.omit({ name: true })),
+    components: z.string().array().default([]),
     projectId: z.string().optional(),
   });
 

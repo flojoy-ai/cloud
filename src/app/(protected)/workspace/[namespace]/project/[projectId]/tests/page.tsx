@@ -8,7 +8,7 @@ const TestsView = async ({
 }: {
   params: { projectId: string; namespace: string };
 }) => {
-  const project = await api.project.getProjectById.query({
+  const project = await api.project.getProject.query({
     projectId: params.projectId,
   });
 

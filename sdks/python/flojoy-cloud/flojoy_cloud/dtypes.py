@@ -1,5 +1,7 @@
+from __future__ import annotations
 import datetime
-from typing import Literal, Optional
+from typing import ForwardRef, Literal, Optional
+
 
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
@@ -30,16 +32,12 @@ class Model(CloudModel):
 class ModelTree(BaseModel):
     id: str
     name: str
-    components: list["ModelTreeComponent"]
+    components: list[ModelTreeComponent]
 
 
 class ModelTreeComponent(BaseModel):
     count: int
     model: ModelTree
-
-
-# Required for recursive types
-ModelTree.model_rebuild()
 
 
 class Project(CloudModel):
@@ -70,10 +68,8 @@ class HardwareTree(BaseModel):
     name: str
     modelId: str
     modelName: str
-    components: list["HardwareTree"]
+    components: list[HardwareTree]
 
-
-HardwareTree.model_rebuild()
 
 RevisionType = Literal["init", "remove", "add"]
 
@@ -92,25 +88,28 @@ class HardwareRevision(CamelModel):
 StorageProvider = Literal["s3", "postgres"]
 
 
+class Tag(CloudModel):
+    name: str
+    workspace_id: str
+
+
 class MeasurementCreateResult(BaseModel):
     id: str
 
 
 class Measurement(CloudModel):
     name: str
-    hardware_id: str
     test_id: str
+    hardware_id: str
+    hardware: Hardware
     storage_provider: StorageProvider
     data: dict
     is_deleted: bool
-
-
-class MeasurementWithHardware(Measurement):
-    hardware: Hardware
+    tags: list[Tag]
 
 
 class Test(CloudModel):
-    name: str
-    updated_at: Optional[datetime.datetime]
-    measurement_type: MeasurementType
     project_id: str
+    name: str
+    measurement_type: MeasurementType
+    updated_at: Optional[datetime.datetime]

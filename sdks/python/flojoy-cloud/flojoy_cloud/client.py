@@ -1,19 +1,19 @@
 import datetime
 import json
 import os
-from typing import Any, Callable, Optional, ParamSpec, TypeVar, Union, overload
+from typing import Any, Callable, Optional, ParamSpec, TypeVar, overload
 
 import httpx
 import numpy as np
 import pandas as pd
-from pydantic import BaseModel, Field, TypeAdapter
-from typing_extensions import Annotated
+from pydantic import BaseModel, TypeAdapter
 
 from flojoy_cloud.dtypes import (
     Hardware,
     HardwareTree,
+    HardwareRevision,
     MeasurementCreateResult,
-    MeasurementWithHardware,
+    Measurement,
     Project,
     ProjectWithModel,
     ModelComponent,
@@ -98,6 +98,10 @@ def query(
     return decorator
 
 
+def _make_params(params: dict[str, Any]):
+    return {k: v for k, v in params.items() if v is not None}
+
+
 class FlojoyCloud:
     client: httpx.Client
 
@@ -125,13 +129,15 @@ class FlojoyCloud:
     """Model Endpoints"""
 
     @query(model=Model)
-    def create_model(self, name: str, workspace_id: str, parts: list[ModelComponent]):
+    def create_model(
+        self, name: str, workspace_id: str, components: list[ModelComponent] = []
+    ):
         return self.client.post(
             "/models",
             json={
                 "name": name,
                 "workspaceId": workspace_id,
-                "parts": [part.model_dump() for part in parts],
+                "components": [c.model_dump() for c in components],
             },
         )
 
@@ -141,7 +147,9 @@ class FlojoyCloud:
 
     @query(model=ModelTree)
     def get_model(self, model_id: str):
-        return self.client.get(f"/models/{model_id}")
+        res = self.client.get(f"/models/{model_id}")
+        print(res.text)
+        return res
 
     @query(model=None)
     def delete_model(self, model_id: str):
@@ -204,7 +212,7 @@ class FlojoyCloud:
         components: list[str] = [],
         project_id: Optional[str] = None,
     ):
-        body = __make_params(
+        body = _make_params(
             {
                 "workspaceId": workspace_id,
                 "modelId": model_id,
@@ -214,7 +222,7 @@ class FlojoyCloud:
             }
         )
 
-        return self.client.post("/hardware/systems", json=body)
+        return self.client.post("/hardware", json=body)
 
     @query(model=HardwareTree)
     def get_hardware(self, hardware_id: str):
@@ -228,7 +236,7 @@ class FlojoyCloud:
         project_id: Optional[str] = None,
         only_available: Optional[bool] = None,
     ):
-        params = __make_params(
+        params = _make_params(
             {
                 "workspaceId": workspace_id,
                 "modelId": model_id,
@@ -243,7 +251,7 @@ class FlojoyCloud:
     def delete_hardware(self, hardware_id: str):
         return self.client.delete(f"/hardware/{hardware_id}")
 
-    @query(model=None)
+    @query(model=TypeAdapter(list[HardwareRevision]))
     def get_revisions(self, hardware_id: str):
         return self.client.get(f"/hardware/{hardware_id}/revisions")
 
@@ -255,11 +263,11 @@ class FlojoyCloud:
         new_component_id: str,
         reason: Optional[str] = None,
     ):
-        body = __make_params(
+        body = _make_params(
             {
                 "hardwareId": hardware_id,
-                "oldComponentId": old_component_id,
-                "newComponentId": new_component_id,
+                "oldHardwareComponentId": old_component_id,
+                "newHardwareComponentId": new_component_id,
                 "reason": reason,
             }
         )
@@ -315,18 +323,20 @@ class FlojoyCloud:
         name: str | None = None,
         passed: bool | None = None,
         created_at: datetime.datetime | None = None,
+        tags: list[str] = [],
     ):
-        body = {
-            "testId": test_id,
-            "hardwareId": hardware_id,
-            "data": make_payload(data),
-        }
-        if name is not None:
-            body["name"] = name
+        body = _make_params(
+            {
+                "testId": test_id,
+                "hardwareId": hardware_id,
+                "data": make_payload(data),
+                "name": name,
+                "tagNames": tags,
+                "pass": passed,
+            }
+        )
         if created_at is not None:
             body["createdAt"] = created_at.isoformat()
-        if passed is not None:
-            body["pass"] = passed
 
         return self.client.post(
             "/measurements",
@@ -336,7 +346,7 @@ class FlojoyCloud:
             },
         )
 
-    @query(model=TypeAdapter(list[MeasurementWithHardware]))
+    @query(model=TypeAdapter(list[Measurement]))
     def get_all_measurements_by_test_id(
         self,
         test_id: str,
@@ -354,7 +364,7 @@ class FlojoyCloud:
             params=query_params,
         )
 
-    @query(model=TypeAdapter(list[MeasurementWithHardware]))
+    @query(model=TypeAdapter(list[Measurement]))
     def get_all_measurements_by_hardware_id(
         self,
         hardware_id: str,
@@ -375,14 +385,10 @@ class FlojoyCloud:
             params=query_params,
         )
 
-    @query(model=MeasurementWithHardware)
+    @query(model=Measurement)
     def get_measurement(self, measurement_id: str):
         return self.client.get(f"/measurements/{measurement_id}")
 
     @query(model=None)
     def delete_measurement(self, measurement_id: str):
         return self.client.delete(f"/measurements/{measurement_id}")
-
-
-def __make_params(params: dict[str, Any]):
-    return {k: v for k, v in params.items() if v is not None}

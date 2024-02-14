@@ -50,7 +50,7 @@ const SwapHardware = ({ workspaceId, ...props }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const utils = api.useUtils();
 
-  const { data: hardware } = api.hardware.getHardwareById.useQuery(
+  const { data: hardware } = api.hardware.getHardware.useQuery(
     {
       hardwareId: props.hardware.id,
     },
@@ -69,7 +69,7 @@ const SwapHardware = ({ workspaceId, ...props }: Props) => {
   const swapHardware = api.hardware.swapHardwareComponent.useMutation({
     onSuccess: () => {
       setIsDialogOpen(false);
-      void utils.hardware.getHardwareById.invalidate({
+      void utils.hardware.getHardware.invalidate({
         hardwareId: hardware.id,
       });
     },

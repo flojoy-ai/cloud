@@ -96,7 +96,7 @@ export const projectRouter = createTRPCRouter({
       });
     }),
 
-  getProjectById: workspaceProcedure
+  getProject: workspaceProcedure
     .meta({
       openapi: {
         method: "GET",
@@ -111,7 +111,7 @@ export const projectRouter = createTRPCRouter({
       return ctx.project;
     }),
 
-  getAllProjectsByWorkspaceId: workspaceProcedure
+  getAllProjects: workspaceProcedure
     .meta({
       openapi: { method: "GET", path: "/v1/projects/", tags: ["projects"] },
     })
@@ -130,8 +130,8 @@ export const projectRouter = createTRPCRouter({
     .meta({
       openapi: {
         method: "PUT",
-        path: "/v1/projects/{projectId}/hardwares/{hardwareId}",
-        tags: ["projects", "hardwares"],
+        path: "/v1/projects/{projectId}/hardware/{hardwareId}",
+        tags: ["projects", "hardware"],
       },
     })
     .input(
@@ -182,8 +182,8 @@ export const projectRouter = createTRPCRouter({
     .meta({
       openapi: {
         method: "DELETE",
-        path: "/v1/projects/{projectId}/hardwares/{hardwareId}",
-        tags: ["projects", "hardwares"],
+        path: "/v1/projects/{projectId}/hardware/{hardwareId}",
+        tags: ["projects", "hardware"],
       },
     })
     .input(
@@ -207,8 +207,8 @@ export const projectRouter = createTRPCRouter({
     .meta({
       openapi: {
         method: "PUT",
-        path: "/v1/projects/{projectId}/hardwares",
-        tags: ["projects", "hardwares"],
+        path: "/v1/projects/{projectId}/hardware",
+        tags: ["projects", "hardware"],
       },
     })
     .input(

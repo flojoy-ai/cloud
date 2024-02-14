@@ -199,7 +199,7 @@ export function buildHardwareTree(root: SelectHardware, edges: HardwareEdge[]) {
       nodes.set(edge.hardwareId, cur);
     }
 
-    parent.components.push({ hardware: cur });
+    parent.components.push(cur);
   }
 
   return nodes.get(root.id)!;
