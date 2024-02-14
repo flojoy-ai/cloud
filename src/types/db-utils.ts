@@ -1,6 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { DatabaseError } from "pg";
 
+// For postgresql error codes https://www.postgresql.org/docs/current/errcodes-appendix.html
 export const dbErrorCodes = {
   DUPLICATE: "23505",
   FOREIGN_KEY_VIOLATION: "23503",
@@ -22,7 +23,6 @@ export async function withDBErrorCheck<T>(
     return await promise;
   } catch (error) {
     const err = error as DatabaseError;
-    // For error codes https://www.postgresql.org/docs/current/errcodes-appendix.html
     if (err.code === dbErrorCodes[options.errorCode]) {
       throw new TRPCError({
         code: "CONFLICT",
