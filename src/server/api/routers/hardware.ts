@@ -279,7 +279,7 @@ export const hardwareRouter = createTRPCRouter({
 
   getAllHardware: workspaceProcedure
     .meta({
-      openapi: { method: "GET", path: "/v1/hardware", tags: ["hardwares"] },
+      openapi: { method: "GET", path: "/v1/hardware", tags: ["hardware"] },
     })
     .input(deviceQueryOptions)
     .use(workspaceAccessMiddleware)
