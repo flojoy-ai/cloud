@@ -2,7 +2,7 @@ import { type NextRequest } from "next/server";
 import { ErrorWithCode, zapierUserAuthMiddleware } from "../middleware";
 import { api } from "~/trpc/server";
 
-type Fields = { key: string; label: string; value: string };
+type Field = { key: string; label: string; value: string };
 export const GET = async (req: NextRequest) => {
   try {
     const { workspaceId } = await zapierUserAuthMiddleware(req);
@@ -20,7 +20,7 @@ export const GET = async (req: NextRequest) => {
     const projects = await api.project.getAllProjects.query({
       workspaceId,
     });
-    const testFields: Fields[] = [];
+    const testFields: Field[] = [];
     for (const project of projects) {
       const tests = await api.test.getAllTestsByProjectId.query({
         projectId: project.id,
