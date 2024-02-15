@@ -1,7 +1,11 @@
 {
   "name": "flojoy-cloud",
   "scripts": {
-    "dev": "pnpm --stream --parallel -r dev",
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "start": "turbo run start",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean",
     "commitlint": "commitlint --edit",
     "prepare": "husky",
     "format": "prettier --write .",
