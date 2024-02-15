@@ -15,13 +15,14 @@ export default async function Test({
   params: { testId: string; namespace: string };
   searchParams: { back?: string };
 }) {
-  const test = await api.test.getTest.query({
-    testId: params.testId,
-  });
-  const testMeasurements =
-    await api.measurement.getAllMeasurementsByTestId.query({
+  const [test, testMeasurements] = await Promise.all([
+    api.test.getTest.query({
       testId: params.testId,
-    });
+    }),
+    api.measurement.getAllMeasurementsByTestId.query({
+      testId: params.testId,
+    }),
+  ]);
 
   return (
     <div className="container max-w-screen-2xl">

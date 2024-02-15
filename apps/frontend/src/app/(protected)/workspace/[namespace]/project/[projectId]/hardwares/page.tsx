@@ -7,27 +7,28 @@ const DevicesView = async ({
 }: {
   params: { projectId: string; namespace: string };
 }) => {
-  const workspaceId = await api.workspace.getWorkspaceIdByNamespace.query({
-    namespace: params.namespace,
-  });
+  const [workspaceId, project] = await Promise.all([
+    api.workspace.getWorkspaceIdByNamespace.query({
+      namespace: params.namespace,
+    }),
+    api.project.getProject.query({
+      projectId: params.projectId,
+    }),
+  ]);
 
-  const project = await api.project.getProject.query({
-    projectId: params.projectId,
-  });
-
-  const hardwares = await api.hardware.getAllHardware.query({
-    workspaceId,
-    projectId: project.id,
-  });
-
-  const modelHardware = await api.hardware.getAllHardware.query({
-    workspaceId,
-    modelId: project.modelId,
-  });
-
-  const models = await api.model.getAllModels.query({
-    workspaceId,
-  });
+  const [hardwares, modelHardware, models] = await Promise.all([
+    api.hardware.getAllHardware.query({
+      workspaceId,
+      projectId: params.projectId,
+    }),
+    api.hardware.getAllHardware.query({
+      workspaceId,
+      modelId: project.modelId,
+    }),
+    api.model.getAllModels.query({
+      workspaceId,
+    }),
+  ]);
 
   return (
     <div>
