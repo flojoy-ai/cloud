@@ -3,7 +3,7 @@ import { MeasurementInputData } from "./types/measurement";
 const dataParseMethods: {
   [key in MeasurementInputData["type"]]: (data: string) => any;
 } = {
-  boolean: (data) => (typeof data !== "undefined" ? Boolean(data) : null),
+  boolean: (data) => Boolean(data),
   dataframe: (data) => JSON.parse(data) as Record<string, number[] | string[]>,
 };
 

@@ -46,7 +46,10 @@ const perform = async (z: ZObject, bundle: Bundle<MeasurementInputData>) => {
           bundle.inputData.type,
         ),
       },
-      pass: Boolean(bundle.inputData.pass),
+      pass:
+        typeof bundle.inputData.pass !== "undefined"
+          ? Boolean(bundle.inputData.pass)
+          : null,
     },
   };
 
