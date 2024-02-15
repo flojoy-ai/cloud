@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { ArchiveRestore } from "lucide-react";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { ControlledDataTable } from "~/components/ui/controlled-data-table";
+import { handleError } from "~/lib/utils";
 import { Project } from "~/schemas/public/Project";
 import { Hardware } from "~/schemas/public/Hardware";
 import { Model } from "~/schemas/public/Model";
@@ -54,7 +55,7 @@ const ImportHardware = ({
     { initialData: initialHardware },
   );
 
-  const setProjectHardware = api.project.setProjectHardwares.useMutation();
+  const setProjectHardware = api.project.setProjectHardware.useMutation();
 
   const table = useReactTable({
     data: hardware,
@@ -90,7 +91,7 @@ const ImportHardware = ({
       {
         success: "Project hardware updated.",
         loading: "Updating...",
-        error: "Something went wrong :(",
+        error: handleError,
       },
     );
   };

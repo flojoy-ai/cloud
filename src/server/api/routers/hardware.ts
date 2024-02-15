@@ -29,7 +29,7 @@ import { Model, model } from "~/schemas/public/Model";
 import { project } from "~/schemas/public/Project";
 import { ExpressionBuilder } from "kysely";
 import DB from "~/schemas/public/PublicSchema";
-import { hardwareRevision } from "~/schemas/public/HardwareRevision";
+import { withDBErrorCheck } from "~/lib/db-utils";
 
 export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: AccessContext;
@@ -39,7 +39,7 @@ export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
 
   if (!hardware) {
     throw new TRPCError({
-      code: "BAD_REQUEST",
+      code: "NOT_FOUND",
       message: "Device not found",
     });
   }
@@ -86,7 +86,7 @@ export const multiHardwareAccessMiddleware = experimental_standaloneMiddleware<{
 
   if (hardwares.length !== ids.length) {
     throw new TRPCError({
-      code: "BAD_REQUEST",
+      code: "NOT_FOUND",
       message: "Device not found",
     });
   }
@@ -160,22 +160,31 @@ export const hardwareRouter = createTRPCRouter({
     .use(workspaceAccessMiddleware)
     .output(hardware)
     .mutation(async ({ ctx, input }) => {
+      // TODO: Not working for now
       return await ctx.db.transaction().execute(async (tx) => {
         const { components, projectId, ...newHardware } = input;
-        const hardware = await tx
-          .insertInto("hardware")
-          .values({
-            id: generateDatabaseId("hardware"),
-            ...newHardware,
-          })
-          .returningAll()
-          .executeTakeFirstOrThrow(
-            () =>
-              new TRPCError({
-                code: "INTERNAL_SERVER_ERROR",
-                message: "Failed to create hardware",
-              }),
-          );
+
+        const hardware = await withDBErrorCheck(
+          tx
+            .insertInto("hardware")
+            .values({
+              id: generateDatabaseId("hardware"),
+              ...newHardware,
+            })
+            .returningAll()
+            .executeTakeFirstOrThrow(
+              () =>
+                new TRPCError({
+                  code: "INTERNAL_SERVER_ERROR",
+                  message: "Failed to create hardware",
+                }),
+            ),
+          {
+            errorCode: "DUPLICATE",
+            errorMsg: `A hardware with identifier "${newHardware.name}" already exists for selected model!`,
+          },
+        );
+
         const model = await getModelById(hardware.modelId);
         if (!model) {
           throw new TRPCError({
@@ -183,7 +192,6 @@ export const hardwareRouter = createTRPCRouter({
             message: "Model not found",
           });
         }
-
         const modelComponents = await getModelComponents(model.id);
 
         if (modelComponents.length > 0) {
@@ -279,7 +287,7 @@ export const hardwareRouter = createTRPCRouter({
 
   getAllHardware: workspaceProcedure
     .meta({
-      openapi: { method: "GET", path: "/v1/hardware", tags: ["hardwares"] },
+      openapi: { method: "GET", path: "/v1/hardware", tags: ["hardware"] },
     })
     .input(deviceQueryOptions)
     .use(workspaceAccessMiddleware)

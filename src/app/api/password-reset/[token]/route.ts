@@ -26,42 +26,36 @@ export const POST = withAppRouterHighlight(async (request, ctx) => {
     });
   }
 
-  try {
-    const token = await db
-      .selectFrom("password_reset_token")
-      .where("token", "=", tokenFromUser)
-      .selectAll()
-      .executeTakeFirst();
+  const token = await db
+    .selectFrom("password_reset_token")
+    .where("token", "=", tokenFromUser)
+    .selectAll()
+    .executeTakeFirst();
 
-    if (!token || !isWithinExpirationDate(token.expiresAt)) {
-      return new Response("Invalid or expired password reset link", {
-        status: 400,
-      });
-    }
-
-    await lucia.invalidateUserSessions(token.userId);
-    const hashedPassword = await new Argon2id().hash(password);
-
-    await db
-      .updateTable("user")
-      .set({
-        hashedPassword,
-      })
-      .where("id", "=", token.userId)
-      .execute();
-
-    const session = await lucia.createSession(token.userId, {});
-    const sessionCookie = lucia.createSessionCookie(session.id);
-    return new Response(null, {
-      status: 302,
-      headers: {
-        Location: "/",
-        "Set-Cookie": sessionCookie.serialize(),
-      },
-    });
-  } catch (e) {
-    return new Response(String(e), {
+  if (!token || !isWithinExpirationDate(token.expiresAt)) {
+    return new Response("Invalid or expired password reset link!", {
       status: 400,
     });
   }
+
+  await lucia.invalidateUserSessions(token.userId);
+  const hashedPassword = await new Argon2id().hash(password);
+
+  await db
+    .updateTable("user")
+    .set({
+      hashedPassword,
+    })
+    .where("id", "=", token.userId)
+    .execute();
+
+  const session = await lucia.createSession(token.userId, {});
+  const sessionCookie = lucia.createSessionCookie(session.id);
+  return new Response(null, {
+    status: 302,
+    headers: {
+      Location: "/",
+      "Set-Cookie": sessionCookie.serialize(),
+    },
+  });
 });

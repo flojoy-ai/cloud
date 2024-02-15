@@ -68,7 +68,7 @@ export const makeHardwareGraph = (root: HardwareTree) => {
       return id;
     }
 
-    const childIds = node.components.map((group) => traverse(group.hardware));
+    const childIds = node.components.map((group) => traverse(group));
 
     nodes.push({
       id,

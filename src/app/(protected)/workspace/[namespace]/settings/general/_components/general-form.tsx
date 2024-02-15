@@ -20,28 +20,34 @@ import DeleteWorkspace from "./delete-workspace";
 import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Icons } from "~/components/icons";
 import { useWorkspace } from "../../../workspace-provider";
 import { env } from "~/env";
+import { handleError } from "~/lib/utils";
 import { updateWorkspace } from "~/types/workspace";
+import { Workspace } from "~/schemas/public/Workspace";
 
 type Props = {
-  workspaceId: string;
+  workspace: Workspace;
 };
 
-const formSchema = updateWorkspace;
-
-const GeneralForm = ({ workspaceId }: Props) => {
-  const { data: workspace } = api.workspace.getWorkspaceById.useQuery({
-    workspaceId,
+const formSchema = updateWorkspace
+  .required()
+  .refine((data) => data.name, {
+    message: "Name is required",
+    path: ["name"],
+  })
+  .refine((data) => data.namespace, {
+    message: "Namespace is required",
+    path: ["namespace"],
   });
 
+const GeneralForm = ({ workspace }: Props) => {
   const router = useRouter();
   const namespace = useWorkspace();
 
   const defaultValues = {
-    workspaceId,
-    name: "",
+    workspaceId: workspace.id,
+    name: workspace.name,
     namespace,
   };
 
@@ -61,19 +67,15 @@ const GeneralForm = ({ workspaceId }: Props) => {
   function onSubmit(values: z.infer<typeof formSchema>) {
     toast.promise(
       updateWorkspace.mutateAsync({
-        workspaceId,
+        workspaceId: workspace.id,
         data: values,
       }),
       {
         loading: "Updating your workspace...",
         success: "Your workspace is updated.",
-        error: "Something went wrong :(",
+        error: handleError,
       },
     );
-  }
-
-  if (!workspace) {
-    return <Icons.spinner />;
   }
 
   return (
@@ -107,11 +109,11 @@ const GeneralForm = ({ workspaceId }: Props) => {
                   <div className="h-10 w-fit whitespace-nowrap rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground opacity-50 ring-offset-background  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                     {env.NEXT_PUBLIC_URL_ORIGIN}/
                   </div>
-                  <Input placeholder="hiddenlevel" className="" {...field} />
+                  <Input placeholder={workspace.namespace} {...field} />
                 </div>
               </FormControl>
               <FormDescription>
-                This is your workspace’s URL namespace on Flojoy Cloud.
+                This is your workspace&apos;s URL namespace on Flojoy Cloud.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -124,7 +126,7 @@ const GeneralForm = ({ workspaceId }: Props) => {
           <Button type="submit" size="sm">
             Update Workspace
           </Button>
-          <DeleteWorkspace workspaceId={workspaceId} />
+          <DeleteWorkspace workspaceId={workspace.id} />
         </div>
       </form>
     </Form>

@@ -3,10 +3,12 @@ import { z } from "zod";
 import { type AccessContext, checkWorkspaceAccess } from "~/lib/auth";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { workspaceAccessMiddleware } from "./workspace";
+import { type DatabaseError } from "pg";
 import { getModelById, getModelTree, markUpdatedAt } from "~/lib/query";
 import { insertModelSchema, modelTreeSchema } from "~/types/model";
 import { model } from "~/schemas/public/Model";
 import { generateDatabaseId } from "~/lib/id";
+import { withDBErrorCheck } from "~/lib/db-utils";
 
 export const modelAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: AccessContext;
@@ -16,7 +18,7 @@ export const modelAccessMiddleware = experimental_standaloneMiddleware<{
 
   if (!model) {
     throw new TRPCError({
-      code: "BAD_REQUEST",
+      code: "NOT_FOUND",
       message: "Model not found",
     });
   }
@@ -51,20 +53,26 @@ export const modelRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.transaction().execute(async (tx) => {
         const { components, ...newModel } = input;
-        const model = await tx
-          .insertInto("model")
-          .values({
-            id: generateDatabaseId("model"),
-            ...newModel,
-          })
-          .returningAll()
-          .executeTakeFirstOrThrow(
-            () =>
-              new TRPCError({
-                code: "INTERNAL_SERVER_ERROR",
-                message: "Failed to create model",
-              }),
-          );
+        const model = await withDBErrorCheck(
+          tx
+            .insertInto("model")
+            .values({
+              id: generateDatabaseId("model"),
+              ...newModel,
+            })
+            .returningAll()
+            .executeTakeFirstOrThrow(
+              () =>
+                new TRPCError({
+                  code: "INTERNAL_SERVER_ERROR",
+                  message: "Failed to create model",
+                }),
+            ),
+          {
+            errorCode: "DUPLICATE",
+            errorMsg: `A model with identifier "${input.name}" already exists!`,
+          },
+        );
 
         if (components.length > 0) {
           await tx
@@ -106,7 +114,7 @@ export const modelRouter = createTRPCRouter({
       return models;
     }),
 
-  getModelById: workspaceProcedure
+  getModel: workspaceProcedure
     .meta({
       openapi: {
         method: "GET",
@@ -147,11 +155,19 @@ export const modelRouter = createTRPCRouter({
           message: "You do not have permission to delete this workspace",
         });
       }
+
       await ctx.db.transaction().execute(async (tx) => {
-        await tx
-          .deleteFrom("model")
-          .where("model.id", "=", input.modelId)
-          .execute();
+        await withDBErrorCheck(
+          tx
+            .deleteFrom("model")
+            .where("model.id", "=", input.modelId)
+            .execute(),
+          {
+            errorCode: "FOREIGN_KEY_VIOLATION",
+            errorMsg:
+              "Cannot delete model because some of its resources are in use, make sure all associated items are deleted first",
+          },
+        );
 
         await markUpdatedAt(tx, "workspace", ctx.workspaceId);
       });

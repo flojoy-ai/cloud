@@ -18,6 +18,7 @@ import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { handleError } from "~/lib/utils";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -41,16 +42,12 @@ const LoginForm = () => {
     },
 
     onError(error) {
-      if (!axios.isAxiosError(error)) {
-        return;
-      }
-      if (error.response?.data && typeof error.response?.data === "string") {
-        toast.error(error.response.data);
-      } else {
-        toast.error(
-          "Login is currently not available, please try again later :)",
-        );
-      }
+      toast.error(
+        handleError(
+          error,
+          "Login is currently not available, please try again later :(",
+        ),
+      );
     },
 
     onSuccess: () => {

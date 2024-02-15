@@ -3,8 +3,11 @@ import { isWithinExpirationDate } from "oslo";
 import { db } from "~/server/db";
 import { withAppRouterHighlight } from "~/lib/highlight";
 
+const invalidCodeMsg = "Invalid or expired verification code!";
+
 export const GET = withAppRouterHighlight(async (_, ctx) => {
   const code = ctx.params.code;
+
   const { user } = await validateRequest();
   if (!user) {
     return new Response("Unauthorized", {
@@ -13,7 +16,7 @@ export const GET = withAppRouterHighlight(async (_, ctx) => {
   }
   // check for length
   if (typeof code !== "string" || code.length !== 8) {
-    return new Response("Invalid verification code!", {
+    return new Response(invalidCodeMsg, {
       status: 400,
     });
   }
@@ -32,18 +35,13 @@ export const GET = withAppRouterHighlight(async (_, ctx) => {
         .execute();
     }
 
-    if (!emailVerification || emailVerification.code !== code) {
-      return new Response("Invalid verification code!", {
-        status: 400,
-      });
-    }
-    if (!isWithinExpirationDate(emailVerification.expiresAt)) {
-      return new Response("Verification code expired!", {
-        status: 400,
-      });
-    }
-    if (user.email !== emailVerification.email) {
-      return new Response("Invalid verification code!", {
+    if (
+      !emailVerification ||
+      emailVerification.code !== code ||
+      !isWithinExpirationDate(emailVerification.expiresAt) ||
+      user.email !== emailVerification.email
+    ) {
+      return new Response(invalidCodeMsg, {
         status: 400,
       });
     }

@@ -49,7 +49,7 @@ export default function HardwareModels({
 }
 
 export const RenderSubComponent = ({ row }: { row: Model }) => {
-  const { data: model, isLoading } = api.model.getModelById.useQuery({
+  const { data: model, isLoading } = api.model.getModel.useQuery({
     modelId: row.id,
   });
 

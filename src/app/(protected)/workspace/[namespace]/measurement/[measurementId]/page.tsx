@@ -57,7 +57,7 @@ export default async function Measurement({
   const workspaceId = await api.workspace.getWorkspaceIdByNamespace.query({
     namespace: params.namespace,
   });
-  const model = await api.model.getModelById.query({
+  const model = await api.model.getModel.query({
     modelId: measurement.hardware.modelId,
   });
 
