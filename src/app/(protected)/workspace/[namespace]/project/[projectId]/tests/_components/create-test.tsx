@@ -34,6 +34,7 @@ import { api } from "~/trpc/react";
 import { insertTestSchema } from "~/types/test";
 import { type z } from "zod";
 import { allMeasurementDataTypes } from "~/types/data";
+import { handleError } from "~/lib/utils";
 import { Project } from "~/schemas/public/Project";
 
 type Props = {
@@ -68,7 +69,7 @@ const CreateTest = ({ project }: Props) => {
       {
         loading: "Creating your test...",
         success: "Your test is ready.",
-        error: "Something went wrong :(",
+        error: handleError,
       },
     );
   }

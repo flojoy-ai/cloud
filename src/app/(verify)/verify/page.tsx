@@ -1,9 +1,22 @@
 "use client";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
+import { handleError } from "~/lib/utils";
+import { api } from "~/trpc/react";
 
 const Page = () => {
   const [countdown, setCountdown] = useState<number>(0);
+  const mutate = api.email.sendEmailVerification.useMutation();
+
+  const sendEmailVerification = () => {
+    toast.promise(mutate.mutateAsync(), {
+      loading: "Sending verification email...",
+      success: "Verification email sent",
+      error: handleError,
+    });
+    setCountdown(60);
+  };
 
   useEffect(() => {
     if (countdown > 0) {
@@ -33,10 +46,7 @@ const Page = () => {
           <Button
             variant="secondary"
             disabled={countdown > 0}
-            onClick={async () => {
-              await fetch("/api/email-verification", { method: "POST" });
-              setCountdown(60);
-            }}
+            onClick={sendEmailVerification}
           >
             {countdown === 0 ? <>Resend</> : <>{countdown}s</>}
           </Button>

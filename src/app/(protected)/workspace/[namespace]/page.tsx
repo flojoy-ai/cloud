@@ -18,7 +18,7 @@ export default async function Page({
 
   const workspace = await api.workspace.getWorkspaceById.query({ workspaceId });
 
-  const projects = await api.project.getAllProjectsByWorkspaceId.query({
+  const projects = await api.project.getAllProjects.query({
     workspaceId: workspace.id,
   });
   const models = await api.model.getAllModels.query({

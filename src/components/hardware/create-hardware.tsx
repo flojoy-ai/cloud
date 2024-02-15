@@ -42,8 +42,13 @@ import {
 import { Model } from "~/schemas/public/Model";
 import { ModelTree } from "~/types/model";
 import { Icons } from "../icons";
+import { handleError } from "~/lib/utils";
 
-type FormSchema = z.infer<typeof insertHardwareSchema>;
+const formSchema = insertHardwareSchema.extend({
+  components: z.object({ hardwareId: z.string() }).array(),
+});
+
+type FormSchema = z.infer<typeof formSchema>;
 
 type Props = {
   workspaceId: string;
@@ -87,7 +92,7 @@ const CreateHardware = ({
   });
 
   const form = useForm<FormSchema>({
-    resolver: zodResolver(insertHardwareSchema),
+    resolver: zodResolver(formSchema),
     defaultValues: {
       workspaceId: workspaceId,
       modelId: model?.id,
@@ -101,7 +106,7 @@ const CreateHardware = ({
   // TODO: Server fetch this somehow?
   // Maybe attach the immediate children to each model only
   const { data: modelTree, isLoading: treeLoading } =
-    api.model.getModelById.useQuery(
+    api.model.getModel.useQuery(
       {
         modelId: modelId,
       },
@@ -139,11 +144,17 @@ const CreateHardware = ({
   }
 
   function onSubmit(values: FormSchema) {
-    toast.promise(createHardware.mutateAsync(values), {
-      loading: "Creating your hardware instance...",
-      success: "Your hardware is ready.",
-      error: (err) => `${err}`,
-    });
+    toast.promise(
+      createHardware.mutateAsync({
+        ...values,
+        components: values.components.map((c) => c.hardwareId),
+      }),
+      {
+        loading: "Creating your hardware instance...",
+        success: "Your hardware is ready.",
+        error: handleError,
+      },
+    );
   }
 
   return (

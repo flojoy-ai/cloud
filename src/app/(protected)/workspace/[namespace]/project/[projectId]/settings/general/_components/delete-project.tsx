@@ -15,6 +15,7 @@ import {
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
+import { handleError } from "~/lib/utils";
 import { api } from "~/trpc/react";
 
 type Props = {
@@ -24,7 +25,7 @@ type Props = {
 const DeleteProject = ({ projectId }: Props) => {
   const router = useRouter();
   const workspace = useWorkspace();
-  const deleteProject = api.project.deleteProjectById.useMutation({
+  const deleteProject = api.project.deleteProject.useMutation({
     onSuccess: () => {
       router.push(`/workspace/${workspace}`);
       router.refresh();
@@ -51,7 +52,7 @@ const DeleteProject = ({ projectId }: Props) => {
               toast.promise(deleteProject.mutateAsync({ projectId }), {
                 loading: "Deleting your project...",
                 success: "Your project has been deleted.",
-                error: "Something went wrong :(",
+                error: handleError,
               })
             }
           >

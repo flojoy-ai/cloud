@@ -2,7 +2,11 @@ import * as math from "mathjs";
 import { z } from "zod";
 
 // Step 1: Add the measurement name here
-export const allMeasurementDataTypes = ["boolean", "dataframe"] as const;
+export const allMeasurementDataTypes = [
+  "boolean",
+  "dataframe",
+  "scalar",
+] as const;
 
 export type MeasurementDataType = (typeof allMeasurementDataTypes)[number];
 
@@ -23,10 +27,17 @@ const dataframeDataSchema = z.object({
 
 export type DataframeData = z.infer<typeof dataframeDataSchema>;
 
+const scalarDataSchema = z.object({
+  value: z.number(),
+});
+
+export type ScalarData = z.infer<typeof scalarDataSchema>;
+
 // Step 3: Add to this config object
 export const measurementConfig = {
   boolean: booleanDataSchema,
   dataframe: dataframeDataSchema,
+  scalar: scalarDataSchema,
 } as const satisfies Record<MeasurementDataType, unknown>;
 
 // Step 4: Add to this discriminated union
@@ -51,6 +62,16 @@ export const measurementDataSchema = z.discriminatedUnion("type", [
       }),
     })
     .merge(measurementConfig.dataframe),
+  z
+    .object({
+      type: z.literal("scalar", {
+        errorMap: () => ({
+          message:
+            "The `type` field is reserved for Flojoy Cloud. You should not provide a value for this field.",
+        }),
+      }),
+    })
+    .merge(measurementConfig.scalar),
 ]);
 
 export type MeasurementData = z.infer<typeof measurementDataSchema>;
@@ -112,4 +133,5 @@ const dataframeExplorerSchema = z.object({
 export const explorerConfig = {
   boolean: booleanExplorerSchema,
   dataframe: dataframeExplorerSchema,
+  scalar: z.object({}),
 } as const satisfies Record<MeasurementDataType, unknown>;

@@ -27,7 +27,7 @@ const CodeBlock = ({ code }: Props) => {
         onClick={() => {
           toast.promise(navigator.clipboard.writeText(code), {
             success: "Copied to clipboard",
-            error: "Something went wrong :(",
+            error: (err) => "Failed to copy: " + String(err),
           });
         }}
       >

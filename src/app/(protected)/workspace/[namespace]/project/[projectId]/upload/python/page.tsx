@@ -14,6 +14,7 @@ import { Hardware } from "~/schemas/public/Hardware";
 const EXAMPLE_DATA: Record<MeasurementDataType, string> = {
   boolean: "True",
   dataframe: "pd.DataFrame(dataframe={'x': [1,2,3,4,5], 'y': [2,4,6,8,10]})",
+  scalar: "3.1415926",
 };
 
 const UploadView = ({

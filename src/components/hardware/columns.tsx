@@ -26,6 +26,7 @@ import { Badge } from "../ui/badge";
 import _ from "lodash";
 import { useState } from "react";
 import { api } from "~/trpc/react";
+import { handleError } from "~/lib/utils";
 import { Project } from "~/schemas/public/Project";
 import { Model } from "~/schemas/public/Model";
 import { Hardware } from "~/schemas/public/Hardware";
@@ -50,7 +51,7 @@ const Actions = ({ elem, children }: ActionsProps) => {
           onClick={() =>
             toast.promise(navigator.clipboard.writeText(elem.id), {
               success: "Copied to clipboard",
-              error: "Something went wrong :(",
+              error: (err) => "Failed to copy: " + err,
             })
           }
         >
@@ -134,7 +135,7 @@ function HardwareActions({
   row: Row<Hardware & { projects: Project[]; model: Model }>;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const deleteHardware = api.hardware.deleteHardwareById.useMutation();
+  const deleteHardware = api.hardware.deleteHardware.useMutation();
   const utils = api.useUtils();
   return (
     <>
@@ -168,7 +169,7 @@ function HardwareActions({
                   {
                     loading: "Deleting your system instance...",
                     success: "Your system instance has been deleted.",
-                    error: "Something went wrong :(",
+                    error: handleError,
                   },
                 )
               }
@@ -236,7 +237,7 @@ const DeleteDialog = ({
                 {
                   loading: "Deleting your model...",
                   success: "Your model has been deleted.",
-                  error: "Something went wrong :(",
+                  error: handleError,
                 },
               )
             }

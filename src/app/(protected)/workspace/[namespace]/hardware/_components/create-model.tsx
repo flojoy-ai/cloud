@@ -37,6 +37,7 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { Cpu, Plus, Trash2 } from "lucide-react";
+import { handleError } from "~/lib/utils";
 import { Model } from "~/schemas/public/Model";
 
 const modelFormSchema = insertModelSchema.extend({
@@ -96,7 +97,7 @@ const CreateModel = ({ workspaceId, models }: Props) => {
         {
           loading: "Creating your model...",
           success: "Model created.",
-          error: "Something went wrong :(",
+          error: handleError,
         },
       );
     }
@@ -118,7 +119,7 @@ const CreateModel = ({ workspaceId, models }: Props) => {
       toast.promise(createModel.mutateAsync(values), {
         loading: "Creating your model...",
         success: "Model created.",
-        error: "Something went wrong :(",
+        error: handleError,
       });
     }
   }
@@ -147,10 +148,7 @@ const CreateModel = ({ workspaceId, models }: Props) => {
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit, (e) => console.log(e))}
-            className="space-y-4"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="name"

@@ -22,13 +22,14 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Icons } from "~/components/icons";
 import { publicUpdateProjectSchema } from "~/types/project";
+import { handleError } from "~/lib/utils";
 
 type Props = {
   projectId: string;
 };
 
 const GeneralForm = ({ projectId }: Props) => {
-  const { data: project } = api.project.getProjectById.useQuery({
+  const { data: project } = api.project.getProject.useQuery({
     projectId: projectId,
   });
 
@@ -59,7 +60,7 @@ const GeneralForm = ({ projectId }: Props) => {
       {
         loading: "Updating your project...",
         success: "Your project is updated.",
-        error: "Something went wrong :(",
+        error: handleError,
       },
     );
   }

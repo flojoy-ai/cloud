@@ -45,6 +45,7 @@ export function Tabs(props: {
 
       return pathname + (asString ? "?" + asString : "");
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [searchParams, props.searchParam],
   );
 

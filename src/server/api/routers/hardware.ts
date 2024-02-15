@@ -8,6 +8,7 @@ import { db } from "~/server/db";
 import { workspaceAccessMiddleware } from "./workspace";
 import {
   getHardwareById,
+  getHardwareComponentsWithModel,
   getHardwareTree,
   getModelById,
   getModelComponents,
@@ -16,13 +17,19 @@ import {
   withHardwareModel,
   withProjects,
 } from "~/lib/query";
-import { hardwareTreeSchema, insertHardwareSchema } from "~/types/hardware";
+import {
+  hardwareTreeSchema,
+  insertHardwareSchema,
+  selectHardwareRevision,
+  swapHardwareComponentSchema,
+} from "~/types/hardware";
 import { generateDatabaseId } from "~/lib/id";
 import { hardware } from "~/schemas/public/Hardware";
 import { Model, model } from "~/schemas/public/Model";
 import { project } from "~/schemas/public/Project";
 import { ExpressionBuilder } from "kysely";
 import DB from "~/schemas/public/PublicSchema";
+import { withDBErrorCheck } from "~/lib/db-utils";
 
 export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
@@ -32,7 +39,7 @@ export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
 
   if (!hardware) {
     throw new TRPCError({
-      code: "BAD_REQUEST",
+      code: "NOT_FOUND",
       message: "Device not found",
     });
   }
@@ -79,7 +86,7 @@ export const multiHardwareAccessMiddleware = experimental_standaloneMiddleware<{
 
   if (hardwares.length !== ids.length) {
     throw new TRPCError({
-      code: "BAD_REQUEST",
+      code: "NOT_FOUND",
       message: "Device not found",
     });
   }
@@ -127,7 +134,17 @@ const hardwareQueryOptions = z.object({
 });
 
 const deviceQueryOptions = hardwareQueryOptions.extend({
-  onlyAvailable: z.boolean().optional(),
+  onlyAvailable: z.preprocess((arg) => {
+    if (typeof arg === "string") {
+      if (arg === "true" || arg === "1") {
+        return true;
+      }
+      if (arg === "false" || arg === "0") {
+        return false;
+      }
+    }
+    return arg;
+  }, z.boolean().optional()),
 });
 
 export const hardwareRouter = createTRPCRouter({
@@ -135,30 +152,39 @@ export const hardwareRouter = createTRPCRouter({
     .meta({
       openapi: {
         method: "POST",
-        path: "/v1/hardwares/",
-        tags: ["hardwares"],
+        path: "/v1/hardware/",
+        tags: ["hardware"],
       },
     })
     .input(insertHardwareSchema)
     .use(workspaceAccessMiddleware)
     .output(hardware)
     .mutation(async ({ ctx, input }) => {
+      // TODO: Not working for now
       return await ctx.db.transaction().execute(async (tx) => {
-        const { components, ...newHardware } = input;
-        const hardware = await tx
-          .insertInto("hardware")
-          .values({
-            id: generateDatabaseId("hardware"),
-            ...newHardware,
-          })
-          .returningAll()
-          .executeTakeFirstOrThrow(
-            () =>
-              new TRPCError({
-                code: "INTERNAL_SERVER_ERROR",
-                message: "Failed to create hardware",
-              }),
-          );
+        const { components, projectId, ...newHardware } = input;
+
+        const hardware = await withDBErrorCheck(
+          tx
+            .insertInto("hardware")
+            .values({
+              id: generateDatabaseId("hardware"),
+              ...newHardware,
+            })
+            .returningAll()
+            .executeTakeFirstOrThrow(
+              () =>
+                new TRPCError({
+                  code: "INTERNAL_SERVER_ERROR",
+                  message: "Failed to create hardware",
+                }),
+            ),
+          {
+            errorCode: "DUPLICATE",
+            errorMsg: `A hardware with identifier "${newHardware.name}" already exists for selected model!`,
+          },
+        );
+
         const model = await getModelById(hardware.modelId);
         if (!model) {
           throw new TRPCError({
@@ -166,11 +192,10 @@ export const hardwareRouter = createTRPCRouter({
             message: "Model not found",
           });
         }
-
         const modelComponents = await getModelComponents(model.id);
 
         if (modelComponents.length > 0) {
-          const ids = components.map((c) => c.hardwareId);
+          const ids = components;
           if (_.uniq(ids).length !== ids.length) {
             throw new TRPCError({
               code: "BAD_REQUEST",
@@ -210,18 +235,31 @@ export const hardwareRouter = createTRPCRouter({
             .values(
               components.map((c) => ({
                 parentHardwareId: hardware.id,
-                childHardwareId: c.hardwareId,
+                childHardwareId: c,
+              })),
+            )
+            .execute();
+
+          await tx
+            .insertInto("hardware_revision")
+            .values(
+              components.map((c) => ({
+                hardwareId: hardware.id,
+                revisionType: "init",
+                componentId: c,
+                reason: "Initial hardware creation",
+                userId: ctx.user.id,
               })),
             )
             .execute();
         }
 
-        if (input.projectId !== undefined) {
+        if (projectId !== undefined) {
           await tx
             .insertInto("project_hardware")
             .values({
               hardwareId: hardware.id,
-              projectId: input.projectId,
+              projectId,
             })
             .execute();
         }
@@ -232,12 +270,12 @@ export const hardwareRouter = createTRPCRouter({
       });
     }),
 
-  getHardwareById: workspaceProcedure
+  getHardware: workspaceProcedure
     .meta({
       openapi: {
         method: "GET",
-        path: "/v1/hardwares/{hardwareId}",
-        tags: ["hardwares"],
+        path: "/v1/hardware/{hardwareId}",
+        tags: ["hardware"],
       },
     })
     .input(z.object({ hardwareId: z.string() }))
@@ -249,7 +287,7 @@ export const hardwareRouter = createTRPCRouter({
 
   getAllHardware: workspaceProcedure
     .meta({
-      openapi: { method: "GET", path: "/v1/hardwares", tags: ["hardwares"] },
+      openapi: { method: "GET", path: "/v1/hardware", tags: ["hardware"] },
     })
     .input(deviceQueryOptions)
     .use(workspaceAccessMiddleware)
@@ -290,22 +328,22 @@ export const hardwareRouter = createTRPCRouter({
       return data;
     }),
 
-  deleteHardwareById: workspaceProcedure
+  deleteHardware: workspaceProcedure
     .meta({
       openapi: {
         method: "DELETE",
-        path: "/v1/hardwares/{hardwareId}",
-        tags: ["hardwares"],
+        path: "/v1/hardware/{hardwareId}",
+        tags: ["hardware"],
       },
     })
     .input(z.object({ hardwareId: z.string() }))
     .use(hardwareAccessMiddleware)
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
-      if (ctx.workspaceUser.role !== "owner") {
+      if (ctx.workspaceUser.role === "member") {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: "You do not have permission to delete this workspace",
+          message: "You do not have permission to delete this hardware",
         });
       }
 
@@ -315,28 +353,133 @@ export const hardwareRouter = createTRPCRouter({
         .execute();
     }),
 
-  // TODO: hardware "commit history" to track component changes
-  //
-  // updateHardwareById: workspaceProcedure
-  //   .meta({
-  //     openapi: {
-  //       method: "PATCH",
-  //       path: "/v1/hardwares/{hardwareId}",
-  //       tags: ["hardwares"],
-  //     },
-  //   })
-  //   .input(updateHardwareSchema)
-  //   .use(hardwareAccessMiddleware)
-  //   .output(z.void())
-  //   .mutation(async ({ input, ctx }) => {
-  //     await ctx.db.transaction().execute(async (tx) => {
-  //       await tx
-  //         .updateTable("hardware")
-  //         .set(input)
-  //         .where("id", "=", input.hardwareId)
-  //         .execute();
-  //
-  //       await markUpdatedAt(tx, "hardware", input.hardwareId);
-  //     });
-  //   }),
+  getRevisions: workspaceProcedure
+    .meta({
+      openapi: {
+        method: "GET",
+        path: "/v1/hardware/{hardwareId}/revisions",
+        tags: ["hardware"],
+      },
+    })
+    .input(z.object({ hardwareId: z.string() }))
+    .use(hardwareAccessMiddleware)
+    .output(z.array(selectHardwareRevision))
+    .query(async ({ ctx, input }) => {
+      const revisions = await ctx.db
+        .selectFrom("hardware_revision as hr")
+        .selectAll("hr")
+        .innerJoin("hardware", "hardware.id", "hr.componentId")
+        .innerJoin("user", "user.id", "hr.userId")
+        .select("hardware.name as componentName")
+        .select("user.email as userEmail")
+        .where("hr.hardwareId", "=", input.hardwareId)
+        .orderBy("hr.createdAt", "desc")
+        .execute();
+      return revisions;
+    }),
+
+  swapHardwareComponent: workspaceProcedure
+    .meta({
+      openapi: {
+        method: "PATCH",
+        path: "/v1/hardware/{hardwareId}",
+        tags: ["hardware"],
+      },
+    })
+    .input(swapHardwareComponentSchema)
+    .use(hardwareAccessMiddleware)
+    .output(z.void())
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.workspaceUser.role === "member") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message:
+            "You do not have permission to update the components of this hardware",
+        });
+      }
+
+      const hardwareComponents = await getHardwareComponentsWithModel(
+        ctx.hardware.id,
+      );
+
+      await ctx.db.transaction().execute(async (tx) => {
+        const oldHardwareComponent = await tx
+          .selectFrom("hardware")
+          .selectAll()
+          .where("hardware.id", "=", input.oldHardwareComponentId)
+          .where("hardware.workspaceId", "=", ctx.workspaceId)
+          .executeTakeFirstOrThrow(
+            () =>
+              new TRPCError({
+                code: "BAD_REQUEST",
+                message: "old hardware not found",
+              }),
+          );
+
+        const newHardwareComponent = await tx
+          .selectFrom("hardware")
+          .selectAll()
+          .where("hardware.id", "=", input.newHardwareComponentId)
+          .where("hardware.workspaceId", "=", ctx.workspaceId)
+          .executeTakeFirstOrThrow(
+            () =>
+              new TRPCError({
+                code: "BAD_REQUEST",
+                message: "new hardware not found",
+              }),
+          );
+
+        if (oldHardwareComponent.modelId !== newHardwareComponent.modelId) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Model mismatch",
+          });
+        }
+
+        if (
+          !hardwareComponents.some(
+            (hc) => hc.hardwareId === input.oldHardwareComponentId,
+          )
+        ) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Old component is not a part of the hardware",
+          });
+        }
+
+        await tx
+          .deleteFrom("hardware_relation as hr")
+          .where("hr.parentHardwareId", "=", ctx.hardware.id)
+          .where("hr.childHardwareId", "=", input.oldHardwareComponentId)
+          .execute();
+
+        await tx
+          .insertInto("hardware_relation")
+          .values({
+            parentHardwareId: ctx.hardware.id,
+            childHardwareId: input.newHardwareComponentId,
+          })
+          .execute();
+
+        await tx
+          .insertInto("hardware_revision")
+          .values([
+            {
+              revisionType: "remove",
+              userId: ctx.user.id,
+              hardwareId: ctx.hardware.id,
+              componentId: input.oldHardwareComponentId,
+              reason: input.reason ?? "Component swap",
+            },
+            {
+              revisionType: "add",
+              userId: ctx.user.id,
+              hardwareId: ctx.hardware.id,
+              componentId: input.newHardwareComponentId,
+              reason: input.reason ?? "Component swap",
+            },
+          ])
+          .execute();
+      });
+    }),
 });
