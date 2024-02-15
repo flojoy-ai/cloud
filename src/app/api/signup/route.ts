@@ -1,18 +1,16 @@
 import { lucia } from "~/auth/lucia";
 import { Argon2id } from "oslo/password";
-
 import type { NextRequest } from "next/server";
 import { z } from "zod";
 import { generateEmailVerificationToken } from "~/lib/token";
-import { sendEmailVerificationLink } from "~/lib/email";
+import { sendAccountExistsEmail, sendEmailVerificationLink } from "~/lib/email";
 import { env } from "~/env";
 import { db } from "~/server/db";
 import { cookies } from "next/headers";
 import { generateDatabaseId } from "~/lib/id";
-import { DatabaseError } from "pg";
-
 import { withAppRouterHighlight } from "~/lib/highlight";
-
+const defaultErrorMsg =
+  "There was an error with your registration. Please try registering again.";
 export const POST = withAppRouterHighlight(async (request: NextRequest) => {
   const formData = await request.formData();
   const email = formData.get("email");
@@ -23,7 +21,7 @@ export const POST = withAppRouterHighlight(async (request: NextRequest) => {
     password.length < 6 ||
     password.length > 255
   ) {
-    return new Response("Invalid password", {
+    return new Response("Invalid password!", {
       status: 400,
     });
   }
@@ -34,12 +32,23 @@ export const POST = withAppRouterHighlight(async (request: NextRequest) => {
       status: 400,
     });
   }
-
   try {
     const userId = generateDatabaseId("user");
     const hashedPassword = await new Argon2id().hash(password);
 
-    // TODO: check if the user already exists
+    const userExists = await db
+      .selectFrom("user")
+      .selectAll()
+      .where("email", "=", parsedEmail.data)
+      .executeTakeFirst();
+
+    if (userExists) {
+      await sendAccountExistsEmail(parsedEmail.data);
+      return new Response(defaultErrorMsg, {
+        status: 400,
+      });
+    }
+
     await db
       .insertInto("user")
       .values({
@@ -72,23 +81,9 @@ export const POST = withAppRouterHighlight(async (request: NextRequest) => {
       },
       status: 302,
     });
-  } catch (e: any) {
-    // this part depends on the database you're using
-    // check for unique constraint error in user table
-
-    if (
-      (e as DatabaseError).message.includes(
-        "duplicate key value violates unique constraint",
-      )
-    ) {
-      return new Response(
-        "Seems like this email already exists! Try logging in :)",
-        { status: 400 },
-      );
-    }
-
-    return new Response("An unknown error occurred: " + String(e), {
-      status: 500,
+  } catch {
+    return new Response(defaultErrorMsg, {
+      status: 400,
     });
   }
 });

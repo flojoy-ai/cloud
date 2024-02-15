@@ -16,6 +16,7 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import { handleError } from "~/lib/utils";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email!" }),
@@ -40,16 +41,12 @@ const PasswordReset = () => {
     },
 
     onError(error) {
-      if (!axios.isAxiosError(error)) {
-        return;
-      }
-      if (error.response?.data && typeof error.response?.data === "string") {
-        toast.error(error.response.data);
-      } else {
-        toast.error(
-          "Password reset is currently not available, please try again later :)",
-        );
-      }
+      toast.error(
+        handleError(
+          error,
+          "Password reset is currently not available, please try again later :(",
+        ),
+      );
     },
 
     onSuccess: () => {

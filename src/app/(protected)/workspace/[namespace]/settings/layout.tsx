@@ -18,6 +18,7 @@ export default async function Workspace({
   const workspaceId = await api.workspace.getWorkspaceIdByNamespace.query({
     namespace: params.namespace,
   });
+
   const workspace = await api.workspace.getWorkspaceById.query({
     workspaceId,
   });

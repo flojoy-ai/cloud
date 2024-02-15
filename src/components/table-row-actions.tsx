@@ -29,7 +29,7 @@ const Actions = ({ elem, children }: ActionsProps) => {
           onClick={() =>
             toast.promise(navigator.clipboard.writeText(elem.id), {
               success: "Copied to clipboard",
-              error: "Something went wrong :(",
+              error: (err) => "Failed to copy: " + String(err),
             })
           }
         >

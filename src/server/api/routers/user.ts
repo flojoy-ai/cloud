@@ -50,10 +50,10 @@ export const userRouter = createTRPCRouter({
       if (!currentWorkspaceUser) {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: "Something went wrong :(",
+          message:
+            "Could not find workspace user, reload the page and try again",
         });
       }
-
       if (!_.includes(["admin", "owner"], currentWorkspaceUser.role)) {
         throw new TRPCError({
           code: "FORBIDDEN",
@@ -86,11 +86,19 @@ export const userRouter = createTRPCRouter({
           inviteLink: env.NEXT_PUBLIC_URL_ORIGIN + "/workspace/invites",
         }),
       );
-      await sendEmailWithSES({
-        recipients: [input.email],
-        emailHtml,
-        subject: "Flojoy Cloud - Invite to join workspace",
-      });
+      try {
+        await sendEmailWithSES({
+          recipients: [input.email],
+          emailHtml,
+          subject: "Flojoy Cloud - Invite to join workspace",
+        });
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          cause: error,
+          message: (error as Error).message ?? "Internal server error",
+        });
+      }
     }),
 
   removeUserFromWorkspace: workspaceProcedure
@@ -138,7 +146,7 @@ export const userRouter = createTRPCRouter({
     .query(async ({ ctx }) => {
       const result = ctx.db
         .selectFrom("user_invite as ui")
-        .where("ui.email", "=", "ctx.user.email")
+        .where("ui.email", "=", ctx.user.email)
         .innerJoin("workspace as w", "w.id", "ui.workspaceId")
         .selectAll("ui")
         .select("w.name as workspaceName")

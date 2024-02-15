@@ -14,6 +14,7 @@ import { generateDatabaseId } from "~/lib/id";
 import { type db } from "~/server/db";
 import { createWorkspace, updateWorkspace } from "~/types/workspace";
 import { api } from "~/trpc/server";
+import { withDBErrorCheck } from "~/lib/db-utils";
 
 export const workspaceAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: db; user: { id: string }; workspaceId: string | null };
@@ -61,15 +62,21 @@ export const workspaceRouter = createTRPCRouter({
       const { populateData, ...data } = input;
 
       const newWorkspace = await ctx.db.transaction().execute(async (tx) => {
-        const newWorkspace = await tx
-          .insertInto("workspace")
-          .values({
-            id: generateDatabaseId("workspace"),
-            ...data,
-            planType: "enterprise",
-          })
-          .returningAll()
-          .executeTakeFirst();
+        const newWorkspace = await withDBErrorCheck(
+          tx
+            .insertInto("workspace")
+            .values({
+              id: generateDatabaseId("workspace"),
+              ...data,
+              planType: "enterprise",
+            })
+            .returningAll()
+            .executeTakeFirst(),
+          {
+            errorCode: "DUPLICATE",
+            errorMsg: `Workspace with namespace "${data.namespace}" already exists`,
+          },
+        );
 
         if (!newWorkspace) {
           throw new TRPCError({
@@ -102,33 +109,43 @@ export const workspaceRouter = createTRPCRouter({
 
       return newWorkspace;
     }),
-
   updateWorkspace: workspaceProcedure
     .input(
       z.object({
         workspaceId: z.string(),
-        data: updateWorkspace,
+        data: updateWorkspace.required(),
       }),
     )
     .use(workspaceAccessMiddleware)
     .output(workspace)
     .mutation(async ({ ctx, input }) => {
-      const result = await ctx.db
-        .updateTable("workspace")
-        .set({
-          ...input.data,
-        })
-        .where("workspace.id", "=", ctx.workspaceId)
-        .returningAll()
-        .executeTakeFirst();
-
-      if (!result) {
+      if (ctx.workspaceUser.role === "member") {
         throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to update workspace",
+          code: "FORBIDDEN",
+          message: "You do not have permission to update this workspace",
         });
       }
 
+      const result = await withDBErrorCheck(
+        ctx.db
+          .updateTable("workspace")
+          .set({
+            ...input.data,
+          })
+          .where("workspace.id", "=", ctx.workspaceId)
+          .returningAll()
+          .executeTakeFirstOrThrow(
+            () =>
+              new TRPCError({
+                code: "INTERNAL_SERVER_ERROR",
+                message: "Failed to update workspace",
+              }),
+          ),
+        {
+          errorCode: "DUPLICATE",
+          errorMsg: `Workspace with namespace "${input.data.namespace}" already exists!`,
+        },
+      );
       return result;
     }),
 
@@ -146,6 +163,7 @@ export const workspaceRouter = createTRPCRouter({
 
       return await ctx.db.transaction().execute(async (tx) => {
         // TODO: need to verify if this is correct
+        // FIX: this is not working
         await tx
           .deleteFrom("project")
           .where("project.workspaceId", "=", input.workspaceId)
@@ -209,7 +227,7 @@ export const workspaceRouter = createTRPCRouter({
     .input(z.object({ namespace: z.string() }))
     .output(z.string())
     .query(async ({ input, ctx }) => {
-      // FIXME: auth check is needded here
+      // FIXME: auth check is needed here
       const result = await ctx.db
         .selectFrom("workspace")
         .selectAll()
@@ -218,7 +236,7 @@ export const workspaceRouter = createTRPCRouter({
 
       if (!result) {
         throw new TRPCError({
-          code: "BAD_REQUEST",
+          code: "NOT_FOUND",
           message: "Workspace not found",
         });
       }

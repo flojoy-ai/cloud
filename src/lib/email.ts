@@ -3,6 +3,7 @@ import { SES } from "@aws-sdk/client-ses";
 import { EmailVerification } from "~/emails/email-verification";
 import { env } from "~/env";
 import { PasswordResetHTML } from "~/emails/password-reset";
+import { AccountExists } from "~/emails/account-exists";
 
 export const sendEmailVerificationLink = async (
   email: string,
@@ -31,6 +32,19 @@ export const sendPasswordResetLink = async (email: string, link: string) => {
     recipients: [email],
     emailHtml,
     subject: "Flojoy Cloud - Password Reset",
+  });
+};
+
+export const sendAccountExistsEmail = async (email: string) => {
+  const emailHtml = render(
+    AccountExists({
+      userEmail: email,
+    }),
+  );
+  await sendEmailWithSES({
+    recipients: [email],
+    emailHtml,
+    subject: "Flojoy Cloud - Account Exists",
   });
 };
 

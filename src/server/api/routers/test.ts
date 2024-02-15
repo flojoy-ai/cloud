@@ -9,6 +9,8 @@ import { insertTestSchema, updateTestSchema } from "~/types/test";
 import { test } from "~/schemas/public/Test";
 import { generateDatabaseId } from "~/lib/id";
 import { markUpdatedAt } from "~/lib/query";
+import { DatabaseError } from "pg";
+import { withDBErrorCheck } from "~/lib/db-utils";
 
 export const testAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
@@ -53,20 +55,26 @@ export const testRouter = createTRPCRouter({
     .output(test)
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.transaction().execute(async (tx) => {
-        const test = await tx
-          .insertInto("test")
-          .values({
-            id: generateDatabaseId("test"),
-            ...input,
-          })
-          .returningAll()
-          .executeTakeFirstOrThrow(
-            () =>
-              new TRPCError({
-                code: "INTERNAL_SERVER_ERROR",
-                message: "Failed to create test",
-              }),
-          );
+        const test = await withDBErrorCheck(
+          tx
+            .insertInto("test")
+            .values({
+              id: generateDatabaseId("test"),
+              ...input,
+            })
+            .returningAll()
+            .executeTakeFirstOrThrow(
+              () =>
+                new TRPCError({
+                  code: "INTERNAL_SERVER_ERROR",
+                  message: "Failed to create test",
+                }),
+            ),
+          {
+            errorCode: "DUPLICATE",
+            errorMsg: `A test with name "${input.name}" already exists!`,
+          },
+        );
 
         await markUpdatedAt(tx, "project", input.projectId);
 
