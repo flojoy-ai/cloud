@@ -127,8 +127,8 @@
     "tailwindcss": "^3.4.1",
     "tsx": "^4.7.1",
     "typescript": "^5.3.3",
-    "zapier-platform-cli": "^15.5.1",
-    "vercel": "^33.5.1"
+    "vercel": "^33.5.1",
+    "zapier-platform-cli": "^15.5.1"
   },
   "ct3aMetadata": {
     "initVersion": "7.24.2"
