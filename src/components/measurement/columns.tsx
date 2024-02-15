@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import { Badge, badgeVariants } from "../ui/badge";
 
 export const columns: ColumnDef<SelectMeasurement>[] = [
   {
@@ -34,6 +35,20 @@ export const columns: ColumnDef<SelectMeasurement>[] = [
   {
     accessorKey: "id",
     header: "Measurement ID",
+  },
+  {
+    accessorKey: "tags",
+    header: "Tags",
+    cell: ({ row }) => {
+      return row.original.tags.map((t) => (
+        <Badge
+          key={row.original.id + t.name}
+          className={badgeVariants({ variant: "secondary" })}
+        >
+          {t.name}
+        </Badge>
+      ));
+    },
   },
   {
     accessorKey: "pass",

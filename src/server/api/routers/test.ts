@@ -17,7 +17,8 @@ export const testAccessMiddleware = experimental_standaloneMiddleware<{
     .selectFrom("test")
     .where("test.id", "=", opts.input.testId)
     .innerJoin("project", "test.projectId", "project.id")
-    .selectAll()
+    .selectAll("test")
+    .select("workspaceId")
     .executeTakeFirstOrThrow(
       () =>
         new TRPCError({
@@ -72,7 +73,7 @@ export const testRouter = createTRPCRouter({
       });
     }),
 
-  getTestById: workspaceProcedure
+  getTest: workspaceProcedure
     .meta({
       openapi: { method: "GET", path: "/v1/tests/{testId}", tags: ["test"] },
     })

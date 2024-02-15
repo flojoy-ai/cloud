@@ -28,7 +28,7 @@ type Props = {
 };
 
 const GeneralForm = ({ projectId }: Props) => {
-  const { data: project } = api.project.getProjectById.useQuery({
+  const { data: project } = api.project.getProject.useQuery({
     projectId: projectId,
   });
 

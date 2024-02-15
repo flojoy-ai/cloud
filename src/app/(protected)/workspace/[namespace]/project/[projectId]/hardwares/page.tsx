@@ -11,7 +11,7 @@ const DevicesView = async ({
     namespace: params.namespace,
   });
 
-  const project = await api.project.getProjectById.query({
+  const project = await api.project.getProject.query({
     projectId: params.projectId,
   });
 

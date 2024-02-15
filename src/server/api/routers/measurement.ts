@@ -10,8 +10,7 @@ import { hardwareAccessMiddleware } from "./hardware";
 import { testAccessMiddleware } from "./test";
 import { type AccessContext, checkWorkspaceAccess } from "~/lib/auth";
 import _ from "lodash";
-import { generateDatabaseId } from "~/lib/id";
-import { markUpdatedAt, withHardware } from "~/lib/query";
+import { createMeasurement, withHardware, withTags } from "~/lib/query";
 import { type SelectHardware } from "~/types/hardware";
 import { MeasurementData } from "~/types/data";
 
@@ -69,26 +68,7 @@ export const measurementRouter = createTRPCRouter({
     .output(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.transaction().execute(async (tx) => {
-        const res = await tx
-          .insertInto("measurement")
-          .values({
-            id: generateDatabaseId("measurement"),
-            storageProvider: "postgres",
-            ...input,
-          })
-          .returning("id")
-          .executeTakeFirstOrThrow(
-            () =>
-              new TRPCError({
-                code: "INTERNAL_SERVER_ERROR",
-                message: "Failed to create measurement",
-              }),
-          );
-
-        await markUpdatedAt(tx, "test", input.testId);
-        await markUpdatedAt(tx, "hardware", input.hardwareId);
-
-        return res;
+        return await createMeasurement(tx, ctx.workspaceId, input);
       });
     }),
 
@@ -113,7 +93,7 @@ export const measurementRouter = createTRPCRouter({
       let query = ctx.db
         .selectFrom("measurement")
         .selectAll("measurement")
-        .select(withHardware)
+        .select((eb) => [withHardware(eb), withTags(eb)])
         .where("testId", "=", input.testId)
         .$narrowType<{ hardware: SelectHardware }>()
         .$narrowType<{ data: MeasurementData }>();
@@ -152,7 +132,7 @@ export const measurementRouter = createTRPCRouter({
         .selectFrom("measurement")
         .selectAll("measurement")
         .where("hardwareId", "=", input.hardwareId)
-        .select(withHardware)
+        .select((eb) => [withHardware(eb), withTags(eb)])
         .$narrowType<{ hardware: SelectHardware }>()
         .$narrowType<{ data: MeasurementData }>()
         .orderBy("createdAt", "desc");
@@ -176,7 +156,7 @@ export const measurementRouter = createTRPCRouter({
       return result;
     }),
 
-  getMeasurementById: workspaceProcedure
+  getMeasurement: workspaceProcedure
     .meta({
       openapi: {
         method: "GET",
@@ -196,7 +176,7 @@ export const measurementRouter = createTRPCRouter({
         .selectFrom("measurement")
         .selectAll("measurement")
         .where("id", "=", input.measurementId)
-        .select((eb) => withHardware(eb))
+        .select((eb) => [withHardware(eb), withTags(eb)])
         .$narrowType<{ hardware: SelectHardware }>()
         .$narrowType<{ data: MeasurementData }>()
         .executeTakeFirst();
@@ -211,7 +191,7 @@ export const measurementRouter = createTRPCRouter({
       return result;
     }),
 
-  deleteMeasurementById: workspaceProcedure
+  deleteMeasurement: workspaceProcedure
     .meta({
       openapi: {
         method: "DELETE",
