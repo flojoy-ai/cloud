@@ -1,3 +1,10 @@
-export const baseURL = process.env.URL_ORIGIN;
-export const CLIENT_ID = process.env.CLIENT_ID;
-export const CLIENT_SECRET = process.env.CLIENT_SECRET;
+import { MeasurementInputData } from "./types/measurement";
+
+export const getMeasurementValueByType = (
+  data: string,
+  type: MeasurementInputData["type"],
+) => {
+  return type === "boolean"
+    ? Boolean(data)
+    : (JSON.parse(data) as Record<string, number[] | string[]>);
+};

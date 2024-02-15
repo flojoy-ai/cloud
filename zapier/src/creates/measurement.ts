@@ -1,18 +1,11 @@
-import { baseURL } from "../utils";
+import { getMeasurementValueByType } from "src/utils";
+import { baseURL } from "../env";
 import {
   type HttpRequestOptions,
   type Bundle,
   type ZObject,
 } from "zapier-platform-core";
-
-export type MeasurementInputData = {
-  hardwareId: string;
-  testId: string;
-  name: string;
-  type: string;
-  data: string;
-  pass: boolean;
-};
+import { MeasurementInputData } from "src/types/measurement";
 
 const inputFieldUrl = `${baseURL}/api/zapier/measurement-fields`;
 const inputFields = async (z: ZObject, bundle: Bundle) => {
@@ -48,13 +41,10 @@ const perform = async (z: ZObject, bundle: Bundle<MeasurementInputData>) => {
       name: bundle.inputData.name,
       data: {
         type: bundle.inputData.type,
-        value:
-          bundle.inputData.type === "boolean"
-            ? Boolean(bundle.inputData.data)
-            : (JSON.parse(bundle.inputData.data) as Record<
-                string,
-                number[] | string[]
-              >),
+        value: getMeasurementValueByType(
+          bundle.inputData.data,
+          bundle.inputData.type,
+        ),
       },
       pass: Boolean(bundle.inputData.pass),
     },
@@ -109,7 +99,7 @@ export default {
         key: "pass",
         label: "Passed?",
         type: "boolean",
-        required: true,
+        required: false,
         list: false,
         altersDynamicFields: false,
       },

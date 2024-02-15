@@ -3,7 +3,7 @@ import {
   type Bundle,
   type ZObject,
 } from "zapier-platform-core";
-import { CLIENT_ID, CLIENT_SECRET, baseURL } from "./utils";
+import { CLIENT_ID, CLIENT_SECRET, baseURL } from "./env";
 
 interface CustomBundle<T> extends Bundle<T> {
   cleanedRequest: {

@@ -8,7 +8,7 @@ import { insertModelSchema, modelTreeSchema } from "~/types/model";
 import { model } from "~/schemas/public/Model";
 import { generateDatabaseId } from "~/lib/id";
 
-export const modelAccessMiddlware = experimental_standaloneMiddleware<{
+export const modelAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: AccessContext;
   input: { modelId: string };
 }>().create(async (opts) => {
@@ -120,7 +120,7 @@ export const modelRouter = createTRPCRouter({
       }),
     )
     .output(modelTreeSchema)
-    .use(modelAccessMiddlware)
+    .use(modelAccessMiddleware)
     .query(async ({ ctx }) => {
       return await getModelTree(ctx.model);
     }),
@@ -139,7 +139,7 @@ export const modelRouter = createTRPCRouter({
       }),
     )
     .output(z.void())
-    .use(modelAccessMiddlware)
+    .use(modelAccessMiddleware)
     .mutation(async ({ ctx, input }) => {
       if (ctx.workspaceUser.role !== "owner") {
         throw new TRPCError({
