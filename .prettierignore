@@ -1,0 +1,4 @@
+pnpm-lock.yaml
+.venv
+
+apps/frontend/src/schemas/**
