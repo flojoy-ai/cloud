@@ -42,6 +42,7 @@ import {
 import { Model } from "~/schemas/public/Model";
 import { ModelTree } from "~/types/model";
 import { Icons } from "../icons";
+import { handleError } from "~/lib/utils";
 
 const formSchema = insertHardwareSchema.extend({
   components: z.object({ hardwareId: z.string() }).array(),
@@ -151,7 +152,7 @@ const CreateHardware = ({
       {
         loading: "Creating your hardware instance...",
         success: "Your hardware is ready.",
-        error: (err) => `${err}`,
+        error: handleError,
       },
     );
   }

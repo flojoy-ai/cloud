@@ -15,6 +15,7 @@ import {
 import { toast } from "sonner";
 import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
+import { handleError } from "~/lib/utils";
 import { User } from "~/schemas/public/User";
 import { WorkspaceUser } from "~/schemas/public/WorkspaceUser";
 
@@ -48,7 +49,7 @@ const UserAction = ({
           onClick={() =>
             toast.promise(navigator.clipboard.writeText(row.original.email), {
               success: "Copied to clipboard",
-              error: "Something went wrong :(",
+              error: (err) => "Failed to copy: " + String(err),
             })
           }
         >
@@ -62,13 +63,13 @@ const UserAction = ({
               onSelect={() => {
                 toast.promise(
                   remove.mutateAsync({
-                    userId: row.original.id,
                     workspaceId,
+                    userId: row.original.id,
                   }),
                   {
                     success: "User removed.",
                     loading: "Removing user...",
-                    error: "Something went wrong :(",
+                    error: handleError,
                   },
                 );
               }}

@@ -14,6 +14,7 @@ import {
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
+import { handleError } from "~/lib/utils";
 import { api } from "~/trpc/react";
 
 type Props = {
@@ -49,7 +50,7 @@ const DeleteWorkspace = ({ workspaceId }: Props) => {
               toast.promise(deleteWorkspace.mutateAsync({ workspaceId }), {
                 loading: "Deleting your workspace...",
                 success: "Your workspace has been deleted.",
-                error: "Something went wrong :(",
+                error: handleError,
               })
             }
           >

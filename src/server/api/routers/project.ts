@@ -14,9 +14,11 @@ import {
   multiHardwareAccessMiddleware,
 } from "./hardware";
 import { workspaceAccessMiddleware } from "./workspace";
+import { type DatabaseError } from "pg";
 import { type ProjectId, project } from "~/schemas/public/Project";
 import { generateDatabaseId } from "~/lib/id";
 import { markUpdatedAt, getProjectById, getHardwareById } from "~/lib/query";
+import { withDBErrorCheck } from "~/lib/db-utils";
 
 export const projectAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
@@ -75,23 +77,28 @@ export const projectRouter = createTRPCRouter({
         );
 
       return await ctx.db.transaction().execute(async (tx) => {
-        const project = await tx
-          .insertInto("project")
-          .values({
-            id: generateDatabaseId("project"),
-            ...input,
-          })
-          .returningAll()
-          .executeTakeFirstOrThrow(
-            () =>
-              new TRPCError({
-                code: "INTERNAL_SERVER_ERROR",
-                message: "Failed to create project",
-              }),
-          );
+        const project = await withDBErrorCheck(
+          tx
+            .insertInto("project")
+            .values({
+              id: generateDatabaseId("project"),
+              ...input,
+            })
+            .returningAll()
+            .executeTakeFirstOrThrow(
+              () =>
+                new TRPCError({
+                  code: "INTERNAL_SERVER_ERROR",
+                  message: "Failed to create project",
+                }),
+            ),
+          {
+            errorCode: "DUPLICATE",
+            errorMsg: `A project with name "${input.name}" for workspace "${ctx.workspace.namespace}" already exists!`,
+          },
+        );
 
         await markUpdatedAt(tx, "workspace", input.workspaceId);
-
         return project;
       });
     }),
@@ -312,9 +319,16 @@ export const projectRouter = createTRPCRouter({
         });
       }
 
-      await ctx.db
-        .deleteFrom("project")
-        .where("project.id", "=", input.projectId)
-        .execute();
+      await withDBErrorCheck(
+        ctx.db
+          .deleteFrom("project")
+          .where("project.id", "=", input.projectId)
+          .execute(),
+        {
+          errorCode: "FOREIGN_KEY_VIOLATION",
+          errorMsg:
+            "Cannot delete project because some of its resources are in use, make sure all associated items are deleted first",
+        },
+      );
     }),
 });
