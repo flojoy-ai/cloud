@@ -7,86 +7,31 @@ client = FlojoyCloud(workspace_secret="YOUR_WORKSPACE_SECRET")
 """
 
 examples = {
-    "project-createProject": f"""{top}
-project = client.create_project(
-    name="New Project Name", model_id="MODEL_ID", workspace_id="WORKSPACE_ID"
-)
-print(project)
-""",
-    "project-getProjectById": f"""{top}
-project = client.get_project("PROJECT_ID")
-print(project)
-""",
-    "project-getAllProjectsByWorkspaceId": f"""{top}
-projects = client.get_all_projects("WORKSPACE_ID")
-print(projects)
-""",
-    "project-addHardwareToProject": f"""{top}
-client.add_hardware_to_project(
-    project_id="PROJECT_ID",
-    hardware_id="HARDWARE_ID"
-)
-""",
-    "project-removeHardwareFromProject": f"""{top}
-client.remove_hardware_from_project(
-    project_id="PROJECT_ID",
-    hardware_id="HARDWARE_ID"
-)
-""",
-    "project-setProjectHardware": f"""{top}
-client.set_project_hardware(
-    project_id=device_project.id, hardware_ids=["DEVICE_ID1", "DEVICE_ID2"]
-)
-""",
-    "project-updateProject": f"""{top}
-client.update_project(name="Updated Project Name", project_id="PROJECT_ID")
-""",
-    "project-deleteProjectById": f"""{top}
-client.delete_project("PROJECT_ID")
-""",
-    "hardware-createDevice": f"""{top}
+    "hardware-createHardware": f"""{top}
 # Create an instance of a device for an existing model in the current workspace
-device = client.create_device(
-    workspace_id="WORKSPACE_ID", name="New Device", model_id="MODEL_ID"
+device = client.create_hardware(
+    workspace_id="WORKSPACE_ID",
+    name="New Device",
+    model_id="DEVICE_MODEL_ID",
 )
 print(device)
 
-# Can also add it directly to a project with by passing a project id
-device = client.create_device(
-    workspace_id="WORKSPACE_ID", 
-    name="New Device", 
-    model_id="MODEL_ID", 
-    project_id="PROJECT_ID"
-)
-""",
-    "hardware-createSystem": f"""{top}
-# Create an instance of a system for an existing system model in the current workspace
-system = client.create_system(
-    workspace_id=workspace_id,
+# Specify components for a system, if the hardware model has components
+system = client.create_hardware(
+    workspace_id="WORKSPACE_ID",
     name="New System",
     model_id="SYSTEM_MODEL_ID"
-    device_ids=["DEVICE_ID1", "DEVICE_ID2"], # Devices must match the system's model
+    device_ids=["HARDWARE_ID1", "HARDWARE_ID2"], # Must match the model
 )
 print(system)
 
 # Can also add it directly to a project with by passing a project id
-system = client.create_system(
-    workspace_id=workspace_id,
-    name="New System",
-    model_id="SYSTEM_MODEL_ID"
-    device_ids=["DEVICE_ID1", "DEVICE_ID2"], # Devices must match the system's model
-    project_id="SYSTEM_PROJECT_ID"
+device = client.create_hardware(
+    workspace_id="WORKSPACE_ID",
+    name="New Device",
+    model_id="DEVICE_MODEL_ID",
+    project_id="PROJECT_ID"
 )
-""",
-    "hardware-getHardwareById": f"""{top}
-hardware = client.get_hardware("HARDWARE_ID")
-print(hardware)
-""",
-    "hardware-deleteHardwareById": f"""{top}
-client.delete_hardware("HARDWARE_ID")
-""",
-    "hardware-updateHardwareById": f"""{top}
-client.update_hardware("HARDWARE_ID", name="Updated Name")
 """,
     "hardware-getAllHardware": f"""{top}
 all_hardware = client.get_all_hardware(workspace_id="WORKSPACE_ID")
@@ -99,48 +44,29 @@ all_hardware = client.get_all_hardware(
 )
 print(all_hardware)
 
-# Only get hardware that's not being used in a system 
-# (all systems + unused devices)
-all_hardware = client.get_all_hardware(workspace_id="WORKSPACE_ID", only_available=True)
-print(all_hardware)
+# Only get hardware that's not being used as a component in other hardware
+available_hardware = client.get_all_hardware(workspace_id="WORKSPACE_ID", only_available=True)
+print(available_hardware)
 """,
-    "hardware-getAllDevices": f"""{top}
-devices = client.get_all_devices("WORKSPACE_ID")
-print(devices)
-
-# Can also get all devices in a specific project
-devices = client.get_all_devices("WORKSPACE_ID", project_id="PROJECT_ID")
-print(devices)
-
-# Only get devices that aren't being used in a system
-devices = client.get_all_devices("WORKSPACE_ID", only_available=True)
-print(devices)
+    "hardware-getHardware": f"""{top}
+hardware = client.get_hardware("HARDWARE_ID")
+print(hardware)
 """,
-    "hardware-getAllSystems": f"""{top}
-systems = client.get_all_systems("WORKSPACE_ID")
-print(systems)
-
-# Can also get all devices in a specific project
-systems = client.get_all_systems("WORKSPACE_ID", project_id="PROJECT_ID")
-print(systems)
+    "hardware-deleteHardware": f"""{top}
+client.delete_hardware("HARDWARE_ID")
 """,
-    "test-createTest": f"""{top}
-test = client.create_test("New Test", "PROJECT_ID", measurement_type="boolean")
-print(test)
+    "hardware-swapHardwareComponent": f"""{top}
+# Swap a component in HARDWARE_ID
+client.swap_hardware_component(
+    hardware_id="HARDWARE_ID",
+    old_component_id="OLD_COMPONENT_ID",
+    new_component_id="NEW_COMPONENT_ID",
+    reason="bruh",
+)
 """,
-    "test-getTestById": f"""{top}
-test = client.get_test("TEST_ID")
-print(test)
-""",
-    "test-getAllTestsByProjectId": f"""{top}
-tests = client.get_all_tests_by_project_id("PROJECT_ID")
-print(tests)
-""",
-    "test-updateTest": f"""{top}
-client.update_test(name="Updated Name", test_id="TEST_ID")
-""",
-    "test-deleteTest": f"""{top}
-client.delete_test("TEST_ID")
+    "hardware-getRevisions": f"""{top}
+revisions = client.get_revisions(system.id)
+print(revisions)
 """,
     "measurement-createMeasurement": """from flojoy.cloud import FlojoyCloud
 import pandas as pd
@@ -149,14 +75,14 @@ client = FlojoyCloud(workspace_secret="YOUR_WORKSPACE_SECRET")
 
 data1 = True
 data2 = pd.DataFrame({"column1": [1, 2, 3], "column2": [4, 5, 6]})
+data3 = 3
 
-# Supports boolean and pandas dataframes
+# Supports booleans, numbers, and pandas dataframes
 client.upload(data=data1, test_id="TEST_ID", hardware_id="HARDWARE_ID")
 
 client.upload(data=data2, test_id="TEST_ID", hardware_id="HARDWARE_ID")
-""",
-    "measurement-getMeasurementById": f"""{top}
-meas = client.get_measurement("MEASUREMENT_ID")
+
+client.upload(data=data3, test_id="TEST_ID", hardware_id="HARDWARE_ID")
 """,
     "measurement-getAllMeasurementsByTestId": """from flojoy.cloud import FlojoyCloud
 from datetime import datetime
@@ -188,47 +114,98 @@ print(measurements)
 # Can also specify a date range to get measurements taken between those dates
 start_time = datetime(2023, 1, 1, 18, 0, 0) # January 1st, 2023 at 6:00 PM
 end_time = datetime(2023, 1, 3, 15, 0, 0) # January 3rd, 2023 at 3:00 PM
-measurements = client.get_all_measurements_by_test_id("TEST_ID", start_time, end_time)
+measurements = client.get_all_measurements_by_hardware_id("HARDWARE_ID", start_time, end_time)
 print(measurements)
-
-measurements = client.get_all_measurements_by_test_id("TEST_ID", start_time, end_time)
 """,
-    "measurement-deleteMeasurementById": f"""{top}
+    "measurement-getMeasurement": f"""{top}
+meas = client.get_measurement("MEASUREMENT_ID")
+print(meas)
+""",
+    "measurement-deleteMeasurement": f"""{top}
 client.delete_measurement("MEASUREMENT_ID")
 """,
-    "model-createDeviceModel": f"""{top}
-device_model = client.create_device_model(
+    "model-createModel": """from flojoy.cloud import FlojoyCloud, ModelComponent
+
+client = FlojoyCloud(workspace_secret="YOUR_WORKSPACE_SECRET")
+
+# Creating a model without any subcomponents
+device_model = client.create_model(
     name="New Device Model", workspace_id="WORKSPACE_ID"
 )
-""",
-    "model-getAllDeviceModels": f"""{top}
-device_models = client.get_all_device_models(workspace_id="WORKSPACE_ID")
-""",
-    "model-createSystemModel": f"""{top}
-# Create some device models, these will be the components of the system model
-device_model = client.create_device_model(
-    name="Model 1", workspace_id="WORKSPACE_ID"
-)
-device_model2 = client.create_device_model(
-    name="Model 2", workspace_id="WORKSPACE_ID"
-)
 
-# Create the system model
-# Has 2x Model 1 and 1x Model 2
+# Creating a model with subcomponents
+# Has 2 of the previous model
 system_model = client.create_system_model(
     name="New System Model",
     workspace_id="WORKSPACE_ID"
     parts=[
         SystemModelPart(modelId=device_model.id, count=2),
-        SystemModelPart(modelId=device_model2.id, count=1),
     ],
 )
 """,
-    "model-getAllSystemModels": f"""{top}
+    "model-getAllModels": f"""{top}
 models = client.get_all_models(workspace_id="WORKSPACE_ID")
+""",
+    "model-getModel": f"""{top}
+model = client.get_model("WORKSPACE_ID")
 """,
     "model-deleteModel": f"""{top}
 client.delete_model("WORKSPACE_ID")
+""",
+    "project-createProject": f"""{top}
+project = client.create_project(
+    name="New Project Name", model_id="MODEL_ID", workspace_id="WORKSPACE_ID"
+)
+print(project)
+""",
+    "project-getProject": f"""{top}
+project = client.get_project("PROJECT_ID")
+print(project)
+""",
+    "project-getAllProjects": f"""{top}
+projects = client.get_all_projects("WORKSPACE_ID")
+print(projects)
+""",
+    "project-addHardwareToProject": f"""{top}
+client.add_hardware_to_project(
+    project_id="PROJECT_ID",
+    hardware_id="HARDWARE_ID"
+)
+""",
+    "project-removeHardwareFromProject": f"""{top}
+client.remove_hardware_from_project(
+    project_id="PROJECT_ID",
+    hardware_id="HARDWARE_ID"
+)
+""",
+    "project-setProjectHardware": f"""{top}
+client.set_project_hardware(
+    project_id=device_project.id, hardware_ids=["DEVICE_ID1", "DEVICE_ID2"]
+)
+""",
+    "project-updateProject": f"""{top}
+client.update_project(name="Updated Project Name", project_id="PROJECT_ID")
+""",
+    "project-deleteProject": f"""{top}
+client.delete_project("PROJECT_ID")
+""",
+    "test-createTest": f"""{top}
+test = client.create_test("New Test", "PROJECT_ID", measurement_type="boolean")
+print(test)
+""",
+    "test-getTest": f"""{top}
+test = client.get_test("TEST_ID")
+print(test)
+""",
+    "test-getAllTestsByProjectId": f"""{top}
+tests = client.get_all_tests_by_project_id("PROJECT_ID")
+print(tests)
+""",
+    "test-updateTest": f"""{top}
+client.update_test(name="Updated Name", test_id="TEST_ID")
+""",
+    "test-deleteTest": f"""{top}
+client.delete_test("TEST_ID")
 """,
 }
 
