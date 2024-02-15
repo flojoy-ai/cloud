@@ -35,17 +35,12 @@ export const GET = withAppRouterHighlight(async (_, ctx) => {
         .execute();
     }
 
-    if (!emailVerification || emailVerification.code !== code) {
-      return new Response(invalidCodeMsg, {
-        status: 400,
-      });
-    }
-    if (!isWithinExpirationDate(emailVerification.expiresAt)) {
-      return new Response(invalidCodeMsg, {
-        status: 400,
-      });
-    }
-    if (user.email !== emailVerification.email) {
+    if (
+      !emailVerification ||
+      emailVerification.code !== code ||
+      !isWithinExpirationDate(emailVerification.expiresAt) ||
+      user.email !== emailVerification.email
+    ) {
       return new Response(invalidCodeMsg, {
         status: 400,
       });
