@@ -107,7 +107,7 @@ export const modelRouter = createTRPCRouter({
       return models;
     }),
 
-  getModelById: workspaceProcedure
+  getModel: workspaceProcedure
     .meta({
       openapi: {
         method: "GET",

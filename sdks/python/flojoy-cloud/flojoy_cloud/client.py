@@ -147,9 +147,7 @@ class FlojoyCloud:
 
     @query(model=ModelTree)
     def get_model(self, model_id: str):
-        res = self.client.get(f"/models/{model_id}")
-        print(res.text)
-        return res
+        return self.client.get(f"/models/{model_id}")
 
     @query(model=None)
     def delete_model(self, model_id: str):
