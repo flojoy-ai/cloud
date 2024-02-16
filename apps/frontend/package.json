@@ -7,14 +7,15 @@
     "build": "pnpm migrate:to-latest && next build",
     "build:analyze": "ANALYZE=true next build",
     "dev": "pnpm kanel && next dev",
+    "with-env": "dotenv -c --",
     "lint": "next lint",
     "start": "next start",
     "email:dev": "email dev -d ./src/emails",
     "email:export": "email export -d ./src/emails",
-    "kanel": "dotenv -c -- pnpx kanel",
-    "migrate:up": "dotenv -c -- tsx ./scripts/migrate/up.ts",
-    "migrate:down": "dotenv -c -- tsx ./scripts/migrate/down.ts",
-    "migrate:to-latest": "dotenv -c -- tsx ./scripts/migrate/to-latest.ts"
+    "kanel": "pnpm with-env pnpx kanel",
+    "migrate:up": "pnpm with-env tsx ./scripts/migrate/up.ts",
+    "migrate:down": "pnpm with-env tsx ./scripts/migrate/down.ts",
+    "migrate:to-latest": "pnpm with-env tsx ./scripts/migrate/to-latest.ts"
   },
   "dependencies": {
     "@cloud/ui": "workspace:*",
