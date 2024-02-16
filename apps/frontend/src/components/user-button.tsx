@@ -8,7 +8,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@cloud/ui/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@cloud/ui/components/ui/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@cloud/ui/components/ui/avatar";
 import { useRouter } from "next/navigation";
 import { cn } from "~/lib/utils";
 import { Button } from "@cloud/ui/components/ui/button";
