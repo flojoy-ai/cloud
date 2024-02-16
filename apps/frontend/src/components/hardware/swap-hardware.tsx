@@ -1,7 +1,7 @@
 "use client";
 import { toast } from "sonner";
 import { useState } from "react";
-import { Button } from "~/components/ui/button";
+import { Button } from "@cloud/ui/components/ui/button";
 
 import {
   Form,
@@ -11,7 +11,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "~/components/ui/form";
+} from "@cloud/ui/components/ui/form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -26,7 +26,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "~/components/ui/dialog";
+} from "@cloud/ui/components/ui/dialog";
 import { api } from "~/trpc/react";
 import { z } from "zod";
 import {
@@ -35,9 +35,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "~/components/ui/select";
+} from "@cloud/ui/components/ui/select";
 import { Edit } from "lucide-react";
-import { Textarea } from "../ui/textarea";
+import { Textarea } from "@cloud/ui/components/ui/textarea";
 
 type FormSchema = z.infer<typeof swapHardwareComponentSchema>;
 

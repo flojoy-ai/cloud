@@ -1,7 +1,7 @@
 "use client";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
-import { Button } from "~/components/ui/button";
+import { Button } from "@cloud/ui/components/ui/button";
 
 import {
   Form,
@@ -11,8 +11,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "~/components/ui/form";
-import { Badge } from "~/components/ui/badge";
+} from "@cloud/ui/components/ui/form";
+import { Badge } from "@cloud/ui/components/ui/badge";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -27,9 +27,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "~/components/ui/dialog";
+} from "@cloud/ui/components/ui/dialog";
 
-import { Input } from "~/components/ui/input";
+import { Input } from "@cloud/ui/components/ui/input";
 import { api } from "~/trpc/react";
 import { z } from "zod";
 import {
@@ -38,7 +38,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "~/components/ui/select";
+} from "@cloud/ui/components/ui/select";
 import { Model } from "~/schemas/public/Model";
 import { ModelTree } from "~/types/model";
 import { Icons } from "../icons";

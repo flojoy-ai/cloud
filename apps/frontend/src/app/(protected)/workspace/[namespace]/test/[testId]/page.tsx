@@ -5,7 +5,7 @@ import {
   PageHeaderHeading,
 } from "~/components/small-header";
 import { api } from "~/trpc/server";
-import { Separator } from "~/components/ui/separator";
+import { Separator } from "@cloud/ui/components/ui/separator";
 import BackButton from "~/components/back-button";
 
 export default async function Test({

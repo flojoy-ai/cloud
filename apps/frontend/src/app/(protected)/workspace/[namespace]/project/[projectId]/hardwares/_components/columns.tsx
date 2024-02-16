@@ -1,7 +1,7 @@
 import { type ColumnDef } from "@tanstack/react-table";
 import Actions from "~/components/table-row-actions";
-import { Badge } from "~/components/ui/badge";
-import { Checkbox } from "~/components/ui/checkbox";
+import { Badge } from "@cloud/ui/components/ui/badge";
+import { Checkbox } from "@cloud/ui/components/ui/checkbox";
 import { type SelectHardware } from "~/types/hardware";
 
 export const hardwareColumns: ColumnDef<SelectHardware>[] = [

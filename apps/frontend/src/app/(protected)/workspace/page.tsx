@@ -6,7 +6,7 @@ import {
 } from "~/components/page-header";
 import AllWorkspaces from "./_components/all-workspaces";
 import { api } from "~/trpc/server";
-import { Button } from "~/components/ui/button";
+import { Button } from "@cloud/ui/components/ui/button";
 import Link from "next/link";
 
 export default async function Dashboard() {

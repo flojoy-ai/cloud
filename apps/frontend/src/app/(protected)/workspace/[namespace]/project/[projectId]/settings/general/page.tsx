@@ -1,4 +1,4 @@
-import { Separator } from "~/components/ui/separator";
+import { Separator } from "@cloud/ui/components/ui/separator";
 import GeneralForm from "./_components/general-form";
 
 async function GeneralPage({

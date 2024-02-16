@@ -4,7 +4,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "~/components/ui/card";
+} from "@cloud/ui/components/ui/card";
 import ScatterPlot from "~/components/visualization/plot/scatter-plot";
 import { type SelectMeasurement } from "~/types/measurement";
 
@@ -19,9 +19,12 @@ import {
   FormField,
   FormItem,
   FormLabel,
-} from "~/components/ui/form";
-import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
-import { Button } from "../ui/button";
+} from "@cloud/ui/components/ui/form";
+import {
+  RadioGroup,
+  RadioGroupItem,
+} from "@cloud/ui/components/ui/radio-group";
+import { Button } from "@cloud/ui/components/ui/button";
 import { useCallback, useState } from "react";
 import { type PlotMouseEvent } from "plotly.js";
 import { useRouter } from "next/navigation";

@@ -10,19 +10,19 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "~/components/ui/alert-dialog";
+} from "@cloud/ui/components/ui/alert-dialog";
 
-import { Button } from "~/components/ui/button";
+import { Button } from "@cloud/ui/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
+} from "@cloud/ui/components/ui/dropdown-menu";
 import { Row, type ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
-import { Badge } from "../ui/badge";
+import { Badge } from "@cloud/ui/components/ui/badge";
 import _ from "lodash";
 import { useState } from "react";
 import { api } from "~/trpc/react";

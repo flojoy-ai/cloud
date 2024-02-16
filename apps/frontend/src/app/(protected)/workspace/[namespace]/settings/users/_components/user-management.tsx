@@ -1,6 +1,6 @@
 "use client";
 import { userColumns } from "../columns";
-import { DataTable } from "~/components/ui/data-table";
+import { DataTable } from "@cloud/ui/components/ui/data-table";
 import InviteUser from "./invite-user";
 import { UserWithRole } from "~/types/user";
 import { useMemo } from "react";

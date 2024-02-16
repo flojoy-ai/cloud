@@ -3,13 +3,13 @@ import { Calendar as CalendarIcon } from "lucide-react";
 
 import * as React from "react";
 
-import { Button } from "~/components/ui/button";
-import { Calendar } from "~/components/ui/calendar";
+import { Button } from "@cloud/ui/components/ui/button";
+import { Calendar } from "@cloud/ui/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "~/components/ui/popover";
+} from "@cloud/ui/components/ui/popover";
 
 import { cn } from "~/lib/utils";
 

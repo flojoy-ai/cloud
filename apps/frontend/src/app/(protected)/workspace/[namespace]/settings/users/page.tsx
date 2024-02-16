@@ -1,4 +1,4 @@
-import { Separator } from "~/components/ui/separator";
+import { Separator } from "@cloud/ui/components/ui/separator";
 import { api } from "~/trpc/server";
 import UserManagement from "./_components/user-management";
 import { UserWithRole } from "~/types/user";

@@ -1,18 +1,18 @@
 import Link from "next/link";
 import CopyIdContextMenuItem from "~/components/copy-id-context-menu";
-// import { Badge } from "~/components/ui/badge";
+// import { Badge } from "@cloud/ui/components/ui/badge";
 import {
   Card,
   CardDescription,
   // CardFooter,
   CardHeader,
   CardTitle,
-} from "~/components/ui/card";
+} from "@cloud/ui/components/ui/card";
 import {
   ContextMenu,
   ContextMenuTrigger,
   ContextMenuContent,
-} from "~/components/ui/context-menu";
+} from "@cloud/ui/components/ui/context-menu";
 import { type SelectHardware } from "~/types/hardware";
 
 type Props = {
