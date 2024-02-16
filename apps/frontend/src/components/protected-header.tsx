@@ -13,9 +13,10 @@ import UserButton from "./user-button";
 export async function ProtectedHeader() {
   const { user } = await validateRequest();
 
-  const workspaces = await api.workspace.getWorkspaces.query();
-
-  const invites = await api.user.getAllWorkspaceInvites.query();
+  const [workspaces, invites] = await Promise.all([
+    api.workspace.getWorkspaces.query(),
+    api.user.getAllWorkspaceInvites.query(),
+  ]);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

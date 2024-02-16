@@ -1,4 +1,4 @@
 pnpm-lock.yaml
-drizzle/
 .venv
-src/schemas/**
+
+apps/frontend/src/schemas/**

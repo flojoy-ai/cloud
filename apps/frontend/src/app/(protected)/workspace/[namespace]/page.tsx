@@ -16,14 +16,16 @@ export default async function Page({
     namespace: params.namespace,
   });
 
-  const workspace = await api.workspace.getWorkspaceById.query({ workspaceId });
+  const [workspace, projects, models] = await Promise.all([
+    api.workspace.getWorkspaceById.query({ workspaceId }),
 
-  const projects = await api.project.getAllProjects.query({
-    workspaceId: workspace.id,
-  });
-  const models = await api.model.getAllModels.query({
-    workspaceId: workspace.id,
-  });
+    api.project.getAllProjects.query({
+      workspaceId,
+    }),
+    api.model.getAllModels.query({
+      workspaceId,
+    }),
+  ]);
 
   return (
     <div className="container max-w-screen-2xl">
