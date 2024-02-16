@@ -1,11 +1,11 @@
-import { getMeasurementValueByType } from "src/utils";
+import { getMeasurementValueByType } from "../utils";
 import { baseURL } from "../env";
 import {
   type HttpRequestOptions,
   type Bundle,
   type ZObject,
 } from "zapier-platform-core";
-import { MeasurementInputData } from "src/types/measurement";
+import { MeasurementInputData } from "../types/measurement";
 
 const inputFieldUrl = `${baseURL}/api/zapier/measurement-fields`;
 const inputFields = async (z: ZObject, bundle: Bundle) => {
