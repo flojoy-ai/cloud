@@ -11,7 +11,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@cloud/ui/components/ui/popover";
-import { Input } from "@cloud/ui/components/input";
+import { Input } from "@cloud/ui/components/ui/input";
 
 type Props = {
   date: DateRange | undefined;

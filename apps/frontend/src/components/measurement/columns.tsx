@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@cloud/ui/components/ui/dropdown-menu";
-import { Badge, badgeVariants } from "../ui/badge";
+import { Badge, badgeVariants } from "@cloud/ui/components/ui/badge";
 
 export const columns: ColumnDef<SelectMeasurement>[] = [
   {

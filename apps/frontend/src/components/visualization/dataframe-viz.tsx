@@ -25,9 +25,9 @@ import {
 
 import { type z } from "zod";
 import { type DataframeData, explorerConfig } from "~/types/data";
-import { Input } from "../ui/input";
-import { Checkbox } from "../ui/checkbox";
-import { Button } from "../ui/button";
+import { Input } from "@cloud/ui/components/ui/input";
+import { Checkbox } from "@cloud/ui/components/ui/checkbox";
+import { Button } from "@cloud/ui/components/ui/button";
 import { useState } from "react";
 import {
   Select,

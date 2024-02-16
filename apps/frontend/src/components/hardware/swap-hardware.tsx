@@ -37,7 +37,7 @@ import {
   SelectValue,
 } from "@cloud/ui/components/ui/select";
 import { Edit } from "lucide-react";
-import { Textarea } from "../ui/textarea";
+import { Textarea } from "@cloud/ui/components/ui/textarea";
 
 type FormSchema = z.infer<typeof swapHardwareComponentSchema>;
 

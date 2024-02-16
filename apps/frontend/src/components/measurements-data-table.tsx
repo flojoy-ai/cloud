@@ -3,7 +3,7 @@
 import { columns } from "~/components/measurement/columns";
 import { useRouter } from "next/navigation";
 import { type SelectMeasurement } from "~/types/measurement";
-import { Input } from "@cloud/ui/components/input";
+import { Input } from "@cloud/ui/components/ui/input";
 
 import {
   flexRender,

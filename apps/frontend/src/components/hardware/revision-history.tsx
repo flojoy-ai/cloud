@@ -14,7 +14,7 @@ import {
   DialogTrigger,
 } from "@cloud/ui/components/ui/dialog";
 import { Cpu, History, MinusCircle, PlusCircle } from "lucide-react";
-import { Card } from "../ui/card";
+import { Card } from "@cloud/ui/components/ui/card";
 import RevisionType from "~/schemas/public/RevisionType";
 import { api } from "~/trpc/react";
 

@@ -20,8 +20,11 @@ import {
   FormItem,
   FormLabel,
 } from "@cloud/ui/components/ui/form";
-import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
-import { Button } from "../ui/button";
+import {
+  RadioGroup,
+  RadioGroupItem,
+} from "@cloud/ui/components/ui/radio-group";
+import { Button } from "@cloud/ui/components/ui/button";
 import { useCallback, useState } from "react";
 import { type PlotMouseEvent } from "plotly.js";
 import { useRouter } from "next/navigation";
