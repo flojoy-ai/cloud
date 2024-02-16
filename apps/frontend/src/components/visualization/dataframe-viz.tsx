@@ -6,7 +6,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "~/components/ui/card";
+} from "@cloud/ui/components/ui/card";
 import LinePlot from "~/components/visualization/plot/line-plot";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,7 +21,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "~/components/ui/form";
+} from "@cloud/ui/components/ui/form";
 
 import { type z } from "zod";
 import { type DataframeData, explorerConfig } from "~/types/data";
@@ -35,7 +35,7 @@ import {
   SelectValue,
   SelectContent,
   SelectItem,
-} from "~/components/ui/select";
+} from "@cloud/ui/components/ui/select";
 import _ from "lodash";
 import { X } from "lucide-react";
 import { SelectMeasurement } from "~/types/measurement";

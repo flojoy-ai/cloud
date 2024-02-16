@@ -7,11 +7,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+} from "@cloud/ui/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@cloud/ui/components/ui/avatar";
 import { useRouter } from "next/navigation";
 import { cn } from "~/lib/utils";
-import { Button } from "~/components/ui/button";
+import { Button } from "@cloud/ui/components/ui/button";
 import type { User } from "lucia";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";

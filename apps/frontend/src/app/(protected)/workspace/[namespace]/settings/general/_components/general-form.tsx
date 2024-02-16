@@ -8,12 +8,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "~/components/ui/form";
+} from "@cloud/ui/components/ui/form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
+import { Button } from "@cloud/ui/components/ui/button";
+import { Input } from "@cloud/ui/components/ui/input";
 
 import { type z } from "zod";
 import DeleteWorkspace from "./delete-workspace";

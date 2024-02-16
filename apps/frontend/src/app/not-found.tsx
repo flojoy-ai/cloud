@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Button } from "~/components/ui/button";
+import { Button } from "@cloud/ui/components/ui/button";
 
 function NotFoundPage() {
   return (

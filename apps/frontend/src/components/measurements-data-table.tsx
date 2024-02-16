@@ -3,7 +3,7 @@
 import { columns } from "~/components/measurement/columns";
 import { useRouter } from "next/navigation";
 import { type SelectMeasurement } from "~/types/measurement";
-import { Input } from "./ui/input";
+import { Input } from "@cloud/ui/components/input";
 
 import {
   flexRender,
@@ -20,14 +20,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "~/components/ui/table";
+} from "@cloud/ui/components/ui/table";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "~/components/ui/select";
+} from "@cloud/ui/components/ui/select";
 import { useState } from "react";
 import _ from "lodash";
 

@@ -4,7 +4,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "~/components/ui/card";
+} from "@cloud/ui/components/ui/card";
 import ScatterPlot from "~/components/visualization/plot/scatter-plot";
 import { type SelectMeasurement } from "~/types/measurement";
 
@@ -19,7 +19,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
-} from "~/components/ui/form";
+} from "@cloud/ui/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Button } from "../ui/button";
 import { useCallback, useState } from "react";

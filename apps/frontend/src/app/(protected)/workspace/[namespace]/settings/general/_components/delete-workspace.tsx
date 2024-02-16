@@ -12,8 +12,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "~/components/ui/alert-dialog";
-import { Button } from "~/components/ui/button";
+} from "@cloud/ui/components/ui/alert-dialog";
+import { Button } from "@cloud/ui/components/ui/button";
 import { handleError } from "~/lib/utils";
 import { api } from "~/trpc/react";
 

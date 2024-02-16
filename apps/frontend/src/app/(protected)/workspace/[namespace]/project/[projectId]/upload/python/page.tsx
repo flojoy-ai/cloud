@@ -1,9 +1,9 @@
 "use client";
 
-import { Separator } from "~/components/ui/separator";
+import { Separator } from "@cloud/ui/components/ui/separator";
 import { api } from "~/trpc/react";
 import { useState } from "react";
-import { Label } from "~/components/ui/label";
+import { Label } from "@cloud/ui/components/ui/label";
 import { Combobox } from "~/components/combobox";
 import { type MeasurementDataType } from "~/types/data";
 import CodeBlock from "~/components/code-block";

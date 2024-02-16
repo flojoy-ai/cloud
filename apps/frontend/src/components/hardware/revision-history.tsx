@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Button } from "~/components/ui/button";
+import { Button } from "@cloud/ui/components/ui/button";
 import { SelectHardwareRevision } from "~/types/hardware";
 
 import {
@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "~/components/ui/dialog";
+} from "@cloud/ui/components/ui/dialog";
 import { Cpu, History, MinusCircle, PlusCircle } from "lucide-react";
 import { Card } from "../ui/card";
 import RevisionType from "~/schemas/public/RevisionType";

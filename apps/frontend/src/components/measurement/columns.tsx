@@ -3,7 +3,7 @@
 import { type ColumnDef } from "@tanstack/react-table";
 import { type SelectMeasurement } from "~/types/measurement";
 import { MoreHorizontal } from "lucide-react";
-import { Button } from "~/components/ui/button";
+import { Button } from "@cloud/ui/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +11,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
+} from "@cloud/ui/components/ui/dropdown-menu";
 import { Badge, badgeVariants } from "../ui/badge";
 
 export const columns: ColumnDef<SelectMeasurement>[] = [

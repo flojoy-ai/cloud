@@ -6,8 +6,8 @@ import {
 import { api } from "~/trpc/server";
 import HardwareInstances from "./_components/hardware-instances";
 import HardwareModels from "./_components/hardware-models";
-import { Separator } from "~/components/ui/separator";
-import { Button } from "~/components/ui/button";
+import { Separator } from "@cloud/ui/components/ui/separator";
+import { Button } from "@cloud/ui/components/ui/button";
 
 export default async function HardwareInventory({
   params,

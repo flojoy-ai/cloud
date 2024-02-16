@@ -1,6 +1,6 @@
 "use client";
 
-import { Tabs, TabsList } from "~/components/ui/tabs";
+import { Tabs, TabsList } from "@cloud/ui/components/ui/tabs";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";

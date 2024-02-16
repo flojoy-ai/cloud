@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button } from "~/components/ui/button";
+import { Button } from "@cloud/ui/components/ui/button";
 import {
   Dialog,
   DialogClose,
@@ -11,13 +11,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "~/components/ui/dialog";
+} from "@cloud/ui/components/ui/dialog";
 import { hardwareColumns } from "./columns";
 import { api } from "~/trpc/react";
 import { toast } from "sonner";
 import { ArchiveRestore } from "lucide-react";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import { ControlledDataTable } from "~/components/ui/controlled-data-table";
+import { ControlledDataTable } from "@cloud/ui/components/ui/controlled-data-table";
 import { handleError } from "~/lib/utils";
 import { Project } from "~/schemas/public/Project";
 import { Hardware } from "~/schemas/public/Hardware";

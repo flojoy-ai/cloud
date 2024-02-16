@@ -1,6 +1,6 @@
 import { api } from "~/trpc/server";
 import AllHardwares from "./_components/all-hardwares";
-import { Separator } from "~/components/ui/separator";
+import { Separator } from "@cloud/ui/components/ui/separator";
 
 const DevicesView = async ({
   params,

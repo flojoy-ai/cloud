@@ -1,11 +1,11 @@
 "use client";
 
-import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
+import { RadioGroup, RadioGroupItem } from "@cloud/ui/components/ui/radio-group";
 
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Button } from "~/components/ui/button";
+import { Button } from "@cloud/ui/components/ui/button";
 import {
   Form,
   FormControl,
@@ -14,7 +14,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "~/components/ui/form";
+} from "@cloud/ui/components/ui/form";
 
 import {
   Dialog,
@@ -25,11 +25,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "~/components/ui/dialog";
+} from "@cloud/ui/components/ui/dialog";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Input } from "~/components/ui/input";
+import { Input } from "@cloud/ui/components/ui/input";
 import { api } from "~/trpc/react";
 import { insertTestSchema } from "~/types/test";
 import { type z } from "zod";

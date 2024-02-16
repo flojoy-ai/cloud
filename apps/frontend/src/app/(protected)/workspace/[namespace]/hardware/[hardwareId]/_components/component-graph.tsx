@@ -4,7 +4,7 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "~/components/ui/accordion";
+} from "@cloud/ui/components/ui/accordion";
 import { HardwareTreeVisualization } from "~/components/visualization/tree-visualization";
 import { api } from "~/trpc/react";
 import { HardwareTree } from "~/types/hardware";
