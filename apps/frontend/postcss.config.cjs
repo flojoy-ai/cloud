@@ -1,8 +1,6 @@
-const { join } = require("path");
-
 const config = {
   plugins: {
-    tailwindcss: { config: join(__dirname, "tailwind.config.ts") },
+    tailwindcss: {},
     autoprefixer: {},
   },
 };
