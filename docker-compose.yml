@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  cloud-app:
+    container_name: cloud-app
+    build:
+      context: .
+      dockerfile: ./apps/frontend/docker/Dockerfile
+    restart: on-failure
+    ports:
+      - 3000:3000

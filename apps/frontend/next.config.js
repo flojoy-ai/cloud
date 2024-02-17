@@ -20,6 +20,7 @@ const config = {
     instrumentationHook: true,
   },
   productionBrowserSourceMaps: true,
+  output: "standalone",
 };
 
 // build will break if you switch the order between

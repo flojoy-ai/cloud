@@ -68,7 +68,7 @@ const ImportHardware = ({
 
   useEffect(() => {
     table.setRowSelection(getSelectionState(hardware, projectHardware));
-  }, [hardware, projectHardware]);
+  }, [hardware, projectHardware, table]);
 
   const handleSubmit = () => {
     const hardwareIds = table
