@@ -19,7 +19,7 @@ RUN corepack enable pnpm && pnpm i
 ENV NEXT_TELEMETRY_DISABLED 1
 
 # Build the app
-RUN pnpm fe:build
+RUN pnpm build
 
 # # Production image
 FROM base AS runner
