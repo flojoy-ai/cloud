@@ -4,7 +4,12 @@ import {
   PageHeaderDescription,
   PageHeaderHeading,
 } from "~/components/page-header";
-import { Card, CardFooter, CardHeader, CardTitle } from "~/components/ui/card";
+import {
+  Card,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@cloud/ui/components/ui/card";
 import { AcceptInvite } from "./_components/accept-invite";
 import { RejectInvite } from "./_components/reject-invite";
 import { Workspace } from "~/schemas/public/Workspace";

@@ -7,8 +7,8 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "~/components/ui/card";
-import { Badge } from "~/components/ui/badge";
+} from "@cloud/ui/components/ui/card";
+import { Badge } from "@cloud/ui/components/ui/badge";
 import BooleanViz from "~/components/visualization/boolean-viz";
 import DataFrameViz from "~/components/visualization/dataframe-viz";
 import { useState } from "react";
@@ -17,8 +17,8 @@ import { type DateRange } from "react-day-picker";
 import { Combobox } from "~/components/combobox";
 import CodeBlock from "~/components/code-block";
 import { WorkspaceSecretReminder } from "~/components/workspace-secret-reminder";
-import { Checkbox } from "~/components/ui/checkbox";
-import { Label } from "~/components/ui/label";
+import { Checkbox } from "@cloud/ui/components/ui/checkbox";
+import { Label } from "@cloud/ui/components/ui/label";
 import _ from "lodash";
 import { Test } from "~/schemas/public/Test";
 import ScalarViz from "~/components/visualization/scalar-viz";

@@ -1,6 +1,6 @@
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
-import { Separator } from "~/components/ui/separator";
+import { Input } from "@cloud/ui/components/ui/input";
+import { Label } from "@cloud/ui/components/ui/label";
+import { Separator } from "@cloud/ui/components/ui/separator";
 import { api } from "~/trpc/server";
 import GenerateSecret from "./_components/generate-secret";
 import CopyButton from "./_components/copy-button";

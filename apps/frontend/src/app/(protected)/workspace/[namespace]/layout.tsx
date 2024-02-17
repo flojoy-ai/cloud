@@ -6,7 +6,7 @@ import {
   PageHeaderDescription,
   PageHeaderHeading,
 } from "~/components/small-header";
-import { Button } from "~/components/ui/button";
+import { Button } from "@cloud/ui/components/ui/button";
 import Link from "next/link";
 import { WorkspaceNav } from "~/components/workspace-nav";
 

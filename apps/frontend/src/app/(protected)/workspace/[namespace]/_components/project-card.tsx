@@ -1,6 +1,6 @@
 import Link from "next/link";
 import CopyIdContextMenuItem from "~/components/copy-id-context-menu";
-import { Badge } from "~/components/ui/badge";
+import { Badge } from "@cloud/ui/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -8,12 +8,12 @@ import {
   // CardFooter,
   CardHeader,
   CardTitle,
-} from "~/components/ui/card";
+} from "@cloud/ui/components/ui/card";
 import {
   ContextMenu,
   ContextMenuTrigger,
   ContextMenuContent,
-} from "~/components/ui/context-menu";
+} from "@cloud/ui/components/ui/context-menu";
 import { Model } from "~/schemas/public/Model";
 import { Project } from "~/schemas/public/Project";
 import { Workspace } from "~/schemas/public/Workspace";

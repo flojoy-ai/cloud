@@ -7,8 +7,12 @@ import { usePathname, useRouter } from "next/navigation";
 import { siteConfig } from "~/config/site";
 import { cn } from "~/lib/utils";
 import { Icons } from "~/components/icons";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Button } from "~/components/ui/button";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@cloud/ui/components/ui/avatar";
+import { Button } from "@cloud/ui/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -17,15 +21,15 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "~/components/ui/command";
+} from "@cloud/ui/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "~/components/ui/popover";
+} from "@cloud/ui/components/ui/popover";
 import { CheckIcon, ChevronsUpDown, PlusCircleIcon } from "lucide-react";
 import { useState } from "react";
-import { Badge } from "./ui/badge";
+import { Badge } from "@cloud/ui/components/ui/badge";
 import { Workspace } from "~/schemas/public/Workspace";
 
 type Props = {

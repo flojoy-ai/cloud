@@ -3,9 +3,9 @@
 import _ from "lodash";
 import { useMemo, useState } from "react";
 import { MeasurementsDataTable } from "~/components/measurements-data-table";
-import { Card } from "~/components/ui/card";
-import { Checkbox } from "~/components/ui/checkbox";
-import { Label } from "~/components/ui/label";
+import { Card } from "@cloud/ui/components/ui/card";
+import { Checkbox } from "@cloud/ui/components/ui/checkbox";
+import { Label } from "@cloud/ui/components/ui/label";
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/react";
 import { SelectMeasurement } from "~/types/measurement";

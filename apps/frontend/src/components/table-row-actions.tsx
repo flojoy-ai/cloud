@@ -4,9 +4,9 @@ import {
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuItem,
-} from "~/components/ui/dropdown-menu";
+} from "@cloud/ui/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
-import { Button } from "~/components/ui/button";
+import { Button } from "@cloud/ui/components/ui/button";
 import { toast } from "sonner";
 
 type ActionsProps = {

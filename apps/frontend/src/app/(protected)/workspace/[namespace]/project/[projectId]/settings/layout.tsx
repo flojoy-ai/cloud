@@ -1,6 +1,6 @@
 import { type ReactNode } from "react";
 import { SidebarNav } from "~/components/sidebar-nav";
-import { Separator } from "~/components/ui/separator";
+import { Separator } from "@cloud/ui/components/ui/separator";
 
 export default async function Settings({
   params,

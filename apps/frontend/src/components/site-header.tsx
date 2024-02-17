@@ -5,7 +5,7 @@ import { cn } from "~/lib/utils";
 import { Icons } from "~/components/icons";
 import { MainNav } from "~/components/main-nav";
 import { ModeToggle } from "~/components/mode-toggle";
-import { Button, buttonVariants } from "~/components/ui/button";
+import { Button, buttonVariants } from "@cloud/ui/components/ui/button";
 import { validateRequest } from "~/auth/lucia";
 import UserButton from "./user-button";
 

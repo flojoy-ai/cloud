@@ -44,9 +44,4 @@ just env
 just dev
 ```
 
-5. If you need to run migrations, use the following command:
-
-```bash
-pnpm db:generate # This generates the migration files
-pnpm db:migrate
-```
+5. Migration scripts can be found in the package.json in `apps/frontend`

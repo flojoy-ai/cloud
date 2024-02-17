@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { Icons } from "~/components/icons";
 import TermsAndPrivacy from "~/components/terms-and-privacy";
-import { Button } from "~/components/ui/button";
+import { Button } from "@cloud/ui/components/ui/button";
 import LoginForm from "./login-form";
-import { Separator } from "~/components/ui/separator";
+import { Separator } from "@cloud/ui/components/ui/separator";
 
 export default async function LogIn() {
   return (

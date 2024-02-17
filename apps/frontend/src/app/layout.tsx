@@ -1,11 +1,11 @@
-import "~/styles/globals.css";
+import "@cloud/ui/styles/globals.css";
 
 import { HighlightInit } from "@highlight-run/next/client";
 
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 
-import { Toaster } from "~/components/ui/sonner";
+import { Toaster } from "@cloud/ui/components/ui/sonner";
 
 import { TRPCReactProvider } from "~/trpc/react";
 import { ThemeProvider } from "~/components/theme-provider";

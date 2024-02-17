@@ -1,7 +1,7 @@
 "use client";
 
 import { toast } from "sonner";
-import { Button } from "./ui/button";
+import { Button } from "@cloud/ui/components/ui/button";
 import { Clipboard } from "lucide-react";
 import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
 
