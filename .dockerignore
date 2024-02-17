@@ -5,7 +5,7 @@
 terraform
 zapier
 sdks
-packages
+packages/zapier
 examples
 **/.vercel
 **/.vscode
