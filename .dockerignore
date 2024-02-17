@@ -1,4 +1,11 @@
-node_modules
+**/node_modules
+**/.next
+**/build
+**/dist
 terraform
 zapier
 sdks
+packages
+examples
+**/.vercel
+**/.vscode
