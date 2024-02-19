@@ -12,6 +12,7 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "lucide-react": "^0.334.0",
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
