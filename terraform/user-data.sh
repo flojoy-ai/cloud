@@ -31,14 +31,15 @@ echo "$nginx_config" >/etc/nginx/conf.d/default.conf
 cat <<EOF >/etc/systemd/system/cloud_app.service
 [Unit]
 Description=Cloud Startup Service
-After=network.target
+Requires=snap.docker.dockerd.service
+After=snap.docker.dockerd.service
 
 [Service]
 Type=simple
 WorkingDirectory=/root/cloud
 ExecStart=/bin/bash /root/startup.sh
 Restart=on-failure
-RestartSec=3
+RestartSec=10
 StartLimitInterval=60
 StartLimitBurst=1
 
@@ -80,7 +81,8 @@ if ! check_env_file; then
   exit 1
 fi
 
-docker compose build --no-cache && docker compose up -d
+docker compose --progress=plain build --no-cache &>> /root/cloud-build.log
+docker compose --progress=plain up &>> /root/cloud-log.log
 
 EOF
 
@@ -96,4 +98,4 @@ systemctl enable cloud_app.service
 # Stop Nginx
 systemctl stop nginx
 
-git clone https://github.com/flojoy-ai/cloud.git /root/cloud
+git clone --single-branch --branch mahbub/terraform-with-docker https://github.com/flojoy-ai/cloud.git /root/cloud
