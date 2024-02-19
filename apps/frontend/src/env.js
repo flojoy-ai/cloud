@@ -36,7 +36,7 @@ export const env = createEnv({
     SENDER_EMAIL: z.string().email(),
 
     JWT_SECRET: z.string(),
-    HIGHLIGHT_PROJECT_ID: z.string().default("6gl9mxzg"),
+    // HIGHLIGHT_PROJECT_ID: z.string().default("6gl9mxzg"),
   },
 
   /**
@@ -77,7 +77,7 @@ export const env = createEnv({
 
     JWT_SECRET: process.env.JWT_SECRET,
     NEXT_PUBLIC_URL_ORIGIN: process.env.NEXT_PUBLIC_URL_ORIGIN,
-    HIGHLIGHT_PROJECT_ID: process.env.HIGHLIGHT_PROJECT_ID,
+    // HIGHLIGHT_PROJECT_ID: process.env.HIGHLIGHT_PROJECT_ID,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
