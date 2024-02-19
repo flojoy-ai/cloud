@@ -20,7 +20,7 @@ export default async function PublicLayout({
     const scope = context.cookies().get("scope");
 
     if (scope) {
-      const workspaces = await api.workspace.getWorkspaces.query();
+      const workspaces = await api.workspace.getWorkspaces();
       if (workspaces.some((ws) => ws.namespace === scope.value)) {
         redirect(`/workspace/${scope.value}`);
       }

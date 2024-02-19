@@ -9,7 +9,6 @@ import { HardwareTree, SelectHardware } from "~/types/hardware";
 import { Tag } from "~/schemas/public/Tag";
 import { generateDatabaseId } from "./id";
 import { TRPCError } from "@trpc/server";
-import { InsertMeasurement } from "~/types/measurement";
 
 export async function getProjectById(id: string) {
   return await db
@@ -334,50 +333,4 @@ export async function getTagsByNames(
       .where("tag.name", "in", uniqueNames)
       .execute();
   }
-}
-
-export async function createMeasurement(
-  db: Kysely<DB>,
-  workspaceId: string,
-  meas: InsertMeasurement,
-) {
-  const { tagNames, ...input } = meas;
-
-  const res = await db
-    .insertInto("measurement")
-    .values({
-      id: generateDatabaseId("measurement"),
-      storageProvider: "postgres",
-      ...input,
-    })
-    .returning("id")
-    .executeTakeFirstOrThrow(
-      () =>
-        new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to create measurement",
-        }),
-    );
-
-  const tags = await getTagsByNames(db, tagNames, {
-    workspaceId,
-    createIfNotExists: true,
-  });
-
-  if (tags.length > 0) {
-    await db
-      .insertInto("measurement_tag")
-      .values(
-        tags.map((t) => ({
-          tagId: t.id,
-          measurementId: res.id,
-        })),
-      )
-      .execute();
-  }
-
-  await markUpdatedAt(db, "test", input.testId);
-  await markUpdatedAt(db, "hardware", input.hardwareId);
-
-  return res;
 }

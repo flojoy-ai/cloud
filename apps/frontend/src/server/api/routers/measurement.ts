@@ -11,9 +11,10 @@ import { hardwareAccessMiddleware } from "./hardware";
 import { testAccessMiddleware } from "./test";
 import { checkWorkspaceAccess } from "~/lib/auth";
 import _ from "lodash";
-import { createMeasurement, withHardware, withTags } from "~/lib/query";
+import { withHardware, withTags } from "~/lib/query";
 import { type SelectHardware } from "~/types/hardware";
 import { MeasurementData } from "~/types/data";
+import { createMeasurement } from "~/server/services/measurement";
 
 export const measurementAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };

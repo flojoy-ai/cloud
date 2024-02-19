@@ -52,15 +52,15 @@ export default async function Measurement({
   searchParams: { back?: string };
 }) {
   const [measurement, workspaceId] = await Promise.all([
-    api.measurement.getMeasurement.query({
+    api.measurement.getMeasurement({
       measurementId: params.measurementId,
     }),
-    api.workspace.getWorkspaceIdByNamespace.query({
+    api.workspace.getWorkspaceIdByNamespace({
       namespace: params.namespace,
     }),
   ]);
 
-  const model = await api.model.getModel.query({
+  const model = await api.model.getModel({
     modelId: measurement.hardware.modelId,
   });
 

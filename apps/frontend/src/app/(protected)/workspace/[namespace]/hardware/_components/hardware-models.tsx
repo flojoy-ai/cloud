@@ -49,11 +49,11 @@ export default function HardwareModels({
 }
 
 export const RenderSubComponent = ({ row }: { row: Model }) => {
-  const { data: model, isLoading } = api.model.getModel.useQuery({
+  const { data: model, isPending } = api.model.getModel.useQuery({
     modelId: row.id,
   });
 
-  if (isLoading) return <Icons.spinner className="mx-auto animate-spin" />;
+  if (isPending) return <Icons.spinner className="mx-auto animate-spin" />;
   if (!model) return <div>Visualization is not available</div>;
 
   return (

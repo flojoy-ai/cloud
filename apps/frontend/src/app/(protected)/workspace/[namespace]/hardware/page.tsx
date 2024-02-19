@@ -16,15 +16,15 @@ export default async function HardwareInventory({
   params: { namespace: string };
   searchParams: { back?: string };
 }) {
-  const workspaceId = await api.workspace.getWorkspaceIdByNamespace.query({
+  const workspaceId = await api.workspace.getWorkspaceIdByNamespace({
     namespace: params.namespace,
   });
 
   const [models, hardware] = await Promise.all([
-    api.model.getAllModels.query({
+    api.model.getAllModels({
       workspaceId,
     }),
-    api.hardware.getAllHardware.query({
+    api.hardware.getAllHardware({
       workspaceId,
     }),
   ]);
