@@ -37,7 +37,6 @@ COPY --from=builder /app/apps/frontend/public ./public
 # # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=nextjs:nodejs /app/apps/frontend/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/frontend/.next/static ./apps/frontend/.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/apps/frontend/.env.local ./apps/frontend/.env
 
 ENV NEXT_TELEMETRY_DISABLED 1   
 

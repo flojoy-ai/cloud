@@ -1,5 +1,40 @@
 # Flojoy Cloud
 
+## Deployment
+
+### With Docker
+
+To deploy Cloud app with Docker, follow following steps:
+
+1. Create a .env file with following environment variables:
+
+```txt
+AWS_REGION=""                           # AWS region
+AWS_ACCESS_KEY_ID=""                    # AWS access key
+AWS_SECRET_ACCESS_KEY=""                # AWS secret key
+SENDER_EMAIL=""                         # Email registered for AWS SES
+GOOGLE_CLIENT_ID=""                     # Google auth client id
+GOOGLE_CLIENT_SECRET=""                 # Google client secret
+DATABASE_URL=""                         # Postgresql DB connection URL
+
+GOOGLE_REDIRECT_URI="https://<cloud-domain>/login/google/callback"
+NEXT_PUBLIC_URL_ORIGIN="https://<cloud-domain>"
+```
+
+2. Build Docker image:
+
+```bash
+    docker compose build
+```
+
+3. Run Cloud app container:
+
+```bash
+   docker compose up
+```
+
+NOTE: App will start on port 3000 by default. You can change that by providing `PORT=<port>` in `.env` file. For HTTPS connections and reverse-proxy, consider using Nginx or Apache servers.
+
 ## Development
 
 ### Prerequisites
