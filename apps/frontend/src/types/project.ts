@@ -12,6 +12,8 @@ export const insertProjectSchema = projectInitializer
     name: z.string().min(1),
   });
 
+export type InsertProject = z.infer<typeof insertProjectSchema>;
+
 export const selectProjectSchema = project.extend({ model: model });
 
 export const publicUpdateProjectSchema = insertProjectSchema

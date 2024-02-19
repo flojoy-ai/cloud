@@ -13,8 +13,8 @@ import { workspace } from "~/schemas/public/Workspace";
 import { generateDatabaseId } from "~/lib/id";
 import { type db } from "~/server/db";
 import { createWorkspace, updateWorkspace } from "~/types/workspace";
-import { api } from "~/trpc/server";
 import { withDBErrorCheck } from "~/lib/db-utils";
+import { populateExample } from "~/server/services/example";
 
 export const workspaceAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: { db: db; user: { id: string }; workspaceId: string | null };
@@ -103,9 +103,7 @@ export const workspaceRouter = createTRPCRouter({
         return newWorkspace;
       }
 
-      await api.example.populateExample({
-        workspaceId: newWorkspace.id,
-      });
+      await populateExample(ctx.db, newWorkspace.id);
 
       return newWorkspace;
     }),
