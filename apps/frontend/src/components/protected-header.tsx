@@ -14,8 +14,8 @@ export async function ProtectedHeader() {
   const { user } = await validateRequest();
 
   const [workspaces, invites] = await Promise.all([
-    api.workspace.getWorkspaces.query(),
-    api.user.getAllWorkspaceInvites.query(),
+    api.workspace.getWorkspaces(),
+    api.user.getAllWorkspaceInvites(),
   ]);
 
   return (

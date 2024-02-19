@@ -21,7 +21,7 @@ export function AcceptInvite({ workspaceId }: Props) {
   return (
     <Button
       size="sm"
-      disabled={accept.isLoading}
+      disabled={accept.isPending}
       onClick={() =>
         toast.promise(accept.mutateAsync({ workspaceId }), {
           success: "Accepted invite! 🎉",

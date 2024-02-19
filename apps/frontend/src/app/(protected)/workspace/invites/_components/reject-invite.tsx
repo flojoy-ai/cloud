@@ -22,7 +22,7 @@ export function RejectInvite({ workspaceId }: Props) {
     <Button
       size="sm"
       variant="secondary"
-      disabled={reject.isLoading}
+      disabled={reject.isPending}
       onClick={() =>
         toast.promise(reject.mutateAsync({ workspaceId }), {
           success: "Rejected invite!",

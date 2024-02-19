@@ -15,11 +15,11 @@ export default async function Workspace({
   params: { namespace: string };
   children: ReactNode;
 }) {
-  const workspaceId = await api.workspace.getWorkspaceIdByNamespace.query({
+  const workspaceId = await api.workspace.getWorkspaceIdByNamespace({
     namespace: params.namespace,
   });
 
-  const workspace = await api.workspace.getWorkspaceById.query({
+  const workspace = await api.workspace.getWorkspaceById({
     workspaceId,
   });
 

@@ -6,11 +6,11 @@ import GenerateSecret from "./_components/generate-secret";
 import CopyButton from "./_components/copy-button";
 
 async function GeneralPage({ params }: { params: { namespace: string } }) {
-  const workspaceId = await api.workspace.getWorkspaceIdByNamespace.query({
+  const workspaceId = await api.workspace.getWorkspaceIdByNamespace({
     namespace: params.namespace,
   });
 
-  const secret = await api.secret._getSecret.query({ workspaceId });
+  const secret = await api.secret._getSecret({ workspaceId });
 
   return (
     <div className="space-y-6">

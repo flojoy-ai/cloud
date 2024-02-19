@@ -10,7 +10,7 @@ import { Button } from "@cloud/ui/components/ui/button";
 import Link from "next/link";
 
 export default async function Dashboard() {
-  const workspaces = await api.workspace.getWorkspaces.query();
+  const workspaces = await api.workspace.getWorkspaces();
 
   if (workspaces.length === 0) {
     redirect("/setup");

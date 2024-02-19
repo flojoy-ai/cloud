@@ -92,8 +92,8 @@ const LoginForm = () => {
         <div className="text-sm font-medium text-destructive">
           {form.formState.errors.root?.message}
         </div>
-        <Button type="submit" disabled={mutation.isLoading} className="w-full">
-          {mutation.isLoading ? "Loading..." : "Log in"}
+        <Button type="submit" disabled={mutation.isPending} className="w-full">
+          {mutation.isPending ? "Loading..." : "Log in"}
         </Button>
       </form>
     </Form>

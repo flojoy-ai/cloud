@@ -19,17 +19,17 @@ export default async function Hardware({
   searchParams: { back?: string };
 }) {
   const [hardware, revisions, measurements, workspaceId] = await Promise.all([
-    api.hardware.getHardware.query({
+    api.hardware.getHardware({
       hardwareId: params.hardwareId,
     }),
-    api.hardware.getRevisions.query({
+    api.hardware.getRevisions({
       hardwareId: params.hardwareId,
     }),
-    api.measurement.getAllMeasurementsByHardwareId.query({
+    api.measurement.getAllMeasurementsByHardwareId({
       hardwareId: params.hardwareId,
       latest: true,
     }),
-    api.workspace.getWorkspaceIdByNamespace.query({
+    api.workspace.getWorkspaceIdByNamespace({
       namespace: params.namespace,
     }),
   ]);

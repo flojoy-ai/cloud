@@ -105,7 +105,7 @@ const CreateHardware = ({
 
   // TODO: Server fetch this somehow?
   // Maybe attach the immediate children to each model only
-  const { data: modelTree, isLoading: treeLoading } =
+  const { data: modelTree, isPending: treeLoading } =
     api.model.getModel.useQuery(
       {
         modelId: modelId,

@@ -16,7 +16,7 @@ import { Workspace } from "~/schemas/public/Workspace";
 import { UserInvite } from "~/schemas/public/UserInvite";
 
 const InvitePage = async () => {
-  const invites = await api.user.getAllWorkspaceInvites.query();
+  const invites = await api.user.getAllWorkspaceInvites();
 
   return (
     <div className="container max-w-screen-2xl">

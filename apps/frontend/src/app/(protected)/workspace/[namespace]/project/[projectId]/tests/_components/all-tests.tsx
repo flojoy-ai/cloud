@@ -8,7 +8,7 @@ type Props = {
 };
 
 const AllTests = async ({ project, namespace }: Props) => {
-  const tests = await api.test.getAllTestsByProjectId.query({
+  const tests = await api.test.getAllTestsByProjectId({
     projectId: project.id,
   });
 

@@ -8,24 +8,24 @@ const DevicesView = async ({
   params: { projectId: string; namespace: string };
 }) => {
   const [workspaceId, project] = await Promise.all([
-    api.workspace.getWorkspaceIdByNamespace.query({
+    api.workspace.getWorkspaceIdByNamespace({
       namespace: params.namespace,
     }),
-    api.project.getProject.query({
+    api.project.getProject({
       projectId: params.projectId,
     }),
   ]);
 
   const [hardwares, modelHardware, models] = await Promise.all([
-    api.hardware.getAllHardware.query({
+    api.hardware.getAllHardware({
       workspaceId,
       projectId: params.projectId,
     }),
-    api.hardware.getAllHardware.query({
+    api.hardware.getAllHardware({
       workspaceId,
       modelId: project.modelId,
     }),
-    api.model.getAllModels.query({
+    api.model.getAllModels({
       workspaceId,
     }),
   ]);

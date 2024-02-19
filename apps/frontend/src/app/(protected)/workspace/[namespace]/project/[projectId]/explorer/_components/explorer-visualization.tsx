@@ -22,6 +22,7 @@ import { Label } from "@cloud/ui/components/ui/label";
 import _ from "lodash";
 import { Test } from "~/schemas/public/Test";
 import ScalarViz from "~/components/visualization/scalar-viz";
+import { keepPreviousData } from "@tanstack/react-query";
 
 type Props = {
   tests: Test[];
@@ -42,7 +43,7 @@ const ExplorerVisualization = ({ tests, workspaceId, namespace }: Props) => {
       endDate: dateRange?.to,
     },
     {
-      keepPreviousData: true, // Prevents flickering
+      placeholderData: keepPreviousData,
     },
   );
 
