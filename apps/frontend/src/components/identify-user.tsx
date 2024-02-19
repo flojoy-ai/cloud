@@ -1,3 +1,4 @@
+"use client";
 import { User } from "lucia";
 
 import * as Sentry from "@sentry/browser";
