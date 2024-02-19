@@ -36,11 +36,6 @@ export const env = createEnv({
     SENDER_EMAIL: z.string().email(),
 
     JWT_SECRET: z.string(),
-    AWS_AMI: z
-      .string()
-      .optional()
-      // transform to boolean using preferred coercion logic
-      .transform((s) => s !== undefined && s !== "false" && s !== "0"),
     HIGHLIGHT_PROJECT_ID: z.string().default("6gl9mxzg"),
   },
 
@@ -81,7 +76,6 @@ export const env = createEnv({
     SENDER_EMAIL: process.env.SENDER_EMAIL,
 
     JWT_SECRET: process.env.JWT_SECRET,
-    AWS_AMI: process.env.AWS_AMI,
     NEXT_PUBLIC_URL_ORIGIN: process.env.NEXT_PUBLIC_URL_ORIGIN,
     HIGHLIGHT_PROJECT_ID: process.env.HIGHLIGHT_PROJECT_ID,
   },
