@@ -7,8 +7,6 @@ services:
       context: .
       dockerfile: ./apps/frontend/docker/Dockerfile
     restart: on-failure
-    env_file:
-      - path: ./.env
-        required: true
+    env_file: .env
     ports:
       - 3000:3000

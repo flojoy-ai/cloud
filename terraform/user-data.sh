@@ -3,9 +3,6 @@ sudo apt update -y
 # Install nginx
 sudo apt install nginx -y
 
-# Install docker
-sudo snap install docker
-
 # Configure Nginx reverse proxy
 nginx_config="server {
 listen 80;
@@ -99,3 +96,6 @@ systemctl enable cloud_app.service
 systemctl stop nginx
 
 git clone --single-branch --branch mahbub/terraform-with-docker https://github.com/flojoy-ai/cloud.git /root/cloud
+
+# Install docker
+sudo snap install docker

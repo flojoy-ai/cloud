@@ -12,6 +12,8 @@ WORKDIR /app
 # Copy all files
 COPY . .
 
+COPY .env /app/apps/frontend/.env
+
 # Install pnpm
 RUN corepack enable pnpm && pnpm i
 
