@@ -4,7 +4,8 @@
  */
 
 import withBundleAnalyzer from "@next/bundle-analyzer";
-import { withHighlightConfig } from "@highlight-run/next/config";
+
+import { withSentryConfig } from "@sentry/nextjs";
 
 await import("./src/env.js");
 
@@ -16,14 +17,45 @@ const bundleAnalyzer = withBundleAnalyzer({
 const config = {
   logging: { fetches: { fullUrl: true } },
   experimental: {
-    serverComponentsExternalPackages: ["oslo", "@highlight-run/node"],
-    instrumentationHook: true,
+    serverComponentsExternalPackages: ["oslo"],
   },
-  productionBrowserSourceMaps: true,
   output: "standalone",
 };
 
-// build will break if you switch the order between
-// `withHighlightConfig` and `bundleAnalyzer`
-// 45 mins of my life was wasted here, so just don't do it :(
-export default withHighlightConfig(bundleAnalyzer(config));
+export default withSentryConfig(
+  bundleAnalyzer(config),
+  {
+    // For all available options, see:
+    // https://github.com/getsentry/sentry-webpack-plugin#options
+
+    // Suppresses source map uploading logs during build
+    silent: true,
+    org: "flojoy",
+    project: "cloud-nextjs",
+  },
+  {
+    // For all available options, see:
+    // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
+
+    // Upload a larger set of source maps for prettier stack traces (increases build time)
+    widenClientFileUpload: true,
+
+    // Transpiles SDK to be compatible with IE11 (increases bundle size)
+    transpileClientSDK: true,
+
+    // Routes browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers (increases server load)
+    tunnelRoute: "/monitoring",
+
+    // Hides source maps from generated client bundles
+    hideSourceMaps: true,
+
+    // Automatically tree-shake Sentry logger statements to reduce bundle size
+    disableLogger: true,
+
+    // Enables automatic instrumentation of Vercel Cron Monitors.
+    // See the following for more information:
+    // https://docs.sentry.io/product/crons/
+    // https://vercel.com/docs/cron-jobs
+    automaticVercelMonitors: true,
+  },
+);

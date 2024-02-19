@@ -2,7 +2,6 @@ import { type NextRequest } from "next/server";
 import { createOpenApiFetchHandler } from "trpc-openapi";
 
 import { env } from "~/env";
-import { withAppRouterHighlight } from "~/lib/highlight";
 import { appRouter } from "~/server/api/root";
 import { createTRPCContext } from "~/server/api/trpc";
 
@@ -16,7 +15,7 @@ const createContext = async (req: NextRequest) => {
   });
 };
 
-const handler = withAppRouterHighlight((req: NextRequest) =>
+const handler = (req: NextRequest) =>
   createOpenApiFetchHandler({
     endpoint: "/api",
     req,
@@ -30,8 +29,7 @@ const handler = withAppRouterHighlight((req: NextRequest) =>
             );
           }
         : undefined,
-  }),
-);
+  });
 
 export {
   handler as GET,
