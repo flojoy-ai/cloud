@@ -13,7 +13,7 @@ export default async function ModelInfo({
 }: {
   params: { namespace: string; modelId: string };
 }) {
-  const model = await api.model.getModel.query({ modelId: params.modelId });
+  const model = await api.model.getModel({ modelId: params.modelId });
 
   return (
     <div className="container max-w-screen-2xl">

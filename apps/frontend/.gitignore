@@ -1,2 +1,5 @@
 .vercel
 .env*.local
+
+# Sentry Config File
+.sentryclirc

@@ -14,7 +14,7 @@ export default async function Project({
   params: { projectId: string; namespace: string };
   children: ReactNode;
 }) {
-  const project = await api.project.getProject.query({
+  const project = await api.project.getProject({
     projectId: params.projectId,
   });
 

@@ -3,9 +3,7 @@ import { lucia, validateRequest } from "~/auth/lucia";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-import { withAppRouterHighlight } from "~/lib/highlight";
-
-export const POST = withAppRouterHighlight(async () => {
+export const POST = async () => {
   const { session } = await validateRequest();
 
   if (!session) {
@@ -31,4 +29,4 @@ export const POST = withAppRouterHighlight(async () => {
       Location: "/",
     },
   });
-});
+};

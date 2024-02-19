@@ -16,10 +16,10 @@ export default async function Test({
   searchParams: { back?: string };
 }) {
   const [test, testMeasurements] = await Promise.all([
-    api.test.getTest.query({
+    api.test.getTest({
       testId: params.testId,
     }),
-    api.measurement.getAllMeasurementsByTestId.query({
+    api.measurement.getAllMeasurementsByTestId({
       testId: params.testId,
     }),
   ]);

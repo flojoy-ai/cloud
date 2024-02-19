@@ -14,6 +14,8 @@ export const insertModelSchema = model
     components: z.array(modelComponentSchema.omit({ name: true })).default([]),
   });
 
+export type InsertModel = z.infer<typeof insertModelSchema>;
+
 export type ModelTree = Pick<Model, "name" | "id"> & {
   components: { count: number; model: ModelTree }[];
 };

@@ -8,10 +8,11 @@ import { env } from "~/env";
 import { db } from "~/server/db";
 import { cookies } from "next/headers";
 import { generateDatabaseId } from "~/lib/id";
-import { withAppRouterHighlight } from "~/lib/highlight";
+
 const defaultErrorMsg =
   "There was an error with your registration. Please try registering again.";
-export const POST = withAppRouterHighlight(async (request: NextRequest) => {
+
+export const POST = async (request: NextRequest) => {
   const formData = await request.formData();
   const email = formData.get("email");
   const password = formData.get("password");
@@ -86,4 +87,4 @@ export const POST = withAppRouterHighlight(async (request: NextRequest) => {
       status: 400,
     });
   }
-});
+};

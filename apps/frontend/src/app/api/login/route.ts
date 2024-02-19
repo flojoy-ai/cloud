@@ -6,11 +6,10 @@ import type { NextRequest } from "next/server";
 import { z } from "zod";
 import { db } from "~/server/db";
 import { cookies } from "next/headers";
-import { withAppRouterHighlight } from "~/lib/highlight";
 
 const defaultErrorMsg = "Wrong password or user does not exist.";
 
-export const POST = withAppRouterHighlight(async (request: NextRequest) => {
+export const POST = async (request: NextRequest) => {
   const formData = await request.formData();
   const email = formData.get("email");
   const password = formData.get("password");
@@ -76,4 +75,4 @@ export const POST = withAppRouterHighlight(async (request: NextRequest) => {
     },
     status: 302,
   });
-});
+};

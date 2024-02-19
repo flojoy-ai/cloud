@@ -17,7 +17,7 @@ export default async function ProtectedLayout({
   children: React.ReactNode;
   params: { namespace: string };
 }) {
-  const workspaces = await api.workspace.getWorkspaces.query();
+  const workspaces = await api.workspace.getWorkspaces();
 
   if (!workspaces.some((ws) => ws.namespace === params.namespace)) {
     return (

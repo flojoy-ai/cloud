@@ -113,8 +113,8 @@ const SignupForm = () => {
         {/* <div className="text-sm font-medium text-destructive"> */}
         {/*   {mutation.error?.message?} */}
         {/* </div> */}
-        <Button type="submit" disabled={mutation.isLoading} className="w-full">
-          {mutation.isLoading ? "Loading..." : "Create Account"}
+        <Button type="submit" disabled={mutation.isPending} className="w-full">
+          {mutation.isPending ? "Loading..." : "Create Account"}
         </Button>
       </form>
     </Form>
