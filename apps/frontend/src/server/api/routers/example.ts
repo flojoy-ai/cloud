@@ -28,19 +28,19 @@ export const exampleRouter = createTRPCRouter({
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
       return await ctx.db.transaction().execute(async (tx) => {
-        const deviceModel1 = await api.model.createModel.mutate({
+        const deviceModel1 = await api.model.createModel({
           name: "HL1234",
           workspaceId: input.workspaceId,
           components: [],
         });
 
-        const deviceModel2 = await api.model.createModel.mutate({
+        const deviceModel2 = await api.model.createModel({
           name: "HL2345",
           workspaceId: input.workspaceId,
           components: [],
         });
 
-        const systemModel = await api.model.createModel.mutate({
+        const systemModel = await api.model.createModel({
           name: "HL9876",
           workspaceId: input.workspaceId,
           components: [
@@ -49,19 +49,19 @@ export const exampleRouter = createTRPCRouter({
           ],
         });
 
-        const deviceProject = await api.project.createProject.mutate({
+        const deviceProject = await api.project.createProject({
           name: "HL1234 Testing Project",
           modelId: deviceModel1.id,
           workspaceId: input.workspaceId,
         });
 
-        const booleanTest = await api.test.createTest.mutate({
+        const booleanTest = await api.test.createTest({
           name: "Pass/Fail Test",
           projectId: deviceProject.id,
           measurementType: "boolean",
         });
 
-        const dataframeTest = await api.test.createTest.mutate({
+        const dataframeTest = await api.test.createTest({
           name: "Expected vs Measured",
           projectId: deviceProject.id,
           measurementType: "dataframe",

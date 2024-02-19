@@ -103,7 +103,7 @@ export const workspaceRouter = createTRPCRouter({
         return newWorkspace;
       }
 
-      await api.example.populateExample.mutate({
+      await api.example.populateExample({
         workspaceId: newWorkspace.id,
       });
 

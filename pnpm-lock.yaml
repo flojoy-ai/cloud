@@ -6,7 +6,7 @@ settings:
 
 patchedDependencies:
   trpc-openapi@1.2.0:
-    hash: b4mlqwefhxq5uovdmvthwrh7am
+    hash: hem7rjkxpy5rawoajjfuz225ua
     path: patches/trpc-openapi@1.2.0.patch
 
 importers:
@@ -199,7 +199,7 @@ importers:
         version: 2.2.1
       trpc-openapi:
         specifier: ^1.2.0
-        version: 1.2.0(patch_hash=b4mlqwefhxq5uovdmvthwrh7am)(@trpc/server@11.0.0-next-beta.289)(zod@3.22.4)
+        version: 1.2.0(patch_hash=hem7rjkxpy5rawoajjfuz225ua)(@trpc/server@11.0.0-next-beta.289)(zod@3.22.4)
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -14609,7 +14609,7 @@ packages:
     resolution: {integrity: sha512-c1PTsA3tYrIsLGkJkzHF+w9F2EyxfXGo4UyJc4pFL++FMjnq0HJS69T3M7d//gKrFKwy429bouPescbjecU+Zw==}
     engines: {node: '>=8'}
 
-  /trpc-openapi@1.2.0(patch_hash=b4mlqwefhxq5uovdmvthwrh7am)(@trpc/server@11.0.0-next-beta.289)(zod@3.22.4):
+  /trpc-openapi@1.2.0(patch_hash=hem7rjkxpy5rawoajjfuz225ua)(@trpc/server@11.0.0-next-beta.289)(zod@3.22.4):
     resolution: {integrity: sha512-pfYoCd/3KYXWXvUPZBKJw455OOwngKN/6SIcj7Yit19OMLJ+8yVZkEvGEeg5wUSwfsiTdRsKuvqkRPXVSwV7ew==}
     peerDependencies:
       '@trpc/server': ^10.0.0
