@@ -95,7 +95,7 @@ systemctl enable cloud_app.service
 # Stop Nginx
 systemctl stop nginx
 
-git clone --single-branch --branch mahbub/terraform-with-docker https://github.com/flojoy-ai/cloud.git /root/cloud
+git clone --single-branch --branch main https://github.com/flojoy-ai/cloud.git /root/cloud
 
 # Install docker
 sudo snap install docker
