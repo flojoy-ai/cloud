@@ -10,6 +10,7 @@ import { ThemeProvider } from "~/components/theme-provider";
 import { TailwindIndicator } from "~/components/tailwind-indicator";
 import { validateRequest } from "~/auth/lucia";
 import IdentifyUser from "~/components/identify-user";
+import { RouteChangeProgressProvider } from "~/components/router-progress";
 
 export const metadata = {
   title: "Flojoy Cloud",
@@ -35,10 +36,12 @@ export default async function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <main>{children}</main>
-            <Toaster />
-            <TailwindIndicator />
-            <IdentifyUser user={user} />
+            <RouteChangeProgressProvider>
+              <main>{children}</main>
+              <Toaster />
+              <TailwindIndicator />
+              <IdentifyUser user={user} />
+            </RouteChangeProgressProvider>
           </ThemeProvider>
         </TRPCReactProvider>
       </body>
