@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Button } from "~/components/ui/button";
+import { Button } from "@cloud/ui/components/ui/button";
 import { handleError } from "~/lib/utils";
 import { api } from "~/trpc/react";
 
@@ -21,7 +21,7 @@ export function AcceptInvite({ workspaceId }: Props) {
   return (
     <Button
       size="sm"
-      disabled={accept.isLoading}
+      disabled={accept.isPending}
       onClick={() =>
         toast.promise(accept.mutateAsync({ workspaceId }), {
           success: "Accepted invite! 🎉",

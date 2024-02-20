@@ -3,9 +3,9 @@
 import CreateHardware from "~/components/hardware/create-hardware";
 import DeviceCard from "./device-card";
 import { api } from "~/trpc/react";
-import { Input } from "~/components/ui/input";
+import { Input } from "@cloud/ui/components/ui/input";
 import { useState } from "react";
-import { Badge } from "~/components/ui/badge";
+import { Badge } from "@cloud/ui/components/ui/badge";
 import { PlusCircle } from "lucide-react";
 import ImportHardware from "./import-hardware";
 import { Hardware } from "~/schemas/public/Hardware";

@@ -3,12 +3,12 @@ import { z } from "zod";
 import { type AccessContext, checkWorkspaceAccess } from "~/lib/auth";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { workspaceAccessMiddleware } from "./workspace";
-import { type DatabaseError } from "pg";
 import { getModelById, getModelTree, markUpdatedAt } from "~/lib/query";
 import { insertModelSchema, modelTreeSchema } from "~/types/model";
 import { model } from "~/schemas/public/Model";
 import { generateDatabaseId } from "~/lib/id";
 import { withDBErrorCheck } from "~/lib/db-utils";
+import { createModel } from "~/server/services/model";
 
 export const modelAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: AccessContext;
@@ -52,44 +52,7 @@ export const modelRouter = createTRPCRouter({
     .use(workspaceAccessMiddleware)
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.transaction().execute(async (tx) => {
-        const { components, ...newModel } = input;
-        const model = await withDBErrorCheck(
-          tx
-            .insertInto("model")
-            .values({
-              id: generateDatabaseId("model"),
-              ...newModel,
-            })
-            .returningAll()
-            .executeTakeFirstOrThrow(
-              () =>
-                new TRPCError({
-                  code: "INTERNAL_SERVER_ERROR",
-                  message: "Failed to create model",
-                }),
-            ),
-          {
-            errorCode: "DUPLICATE",
-            errorMsg: `A model with identifier "${input.name}" already exists!`,
-          },
-        );
-
-        if (components.length > 0) {
-          await tx
-            .insertInto("model_relation")
-            .values(
-              components.map((c) => ({
-                parentModelId: model.id,
-                childModelId: c.modelId,
-                count: c.count,
-              })),
-            )
-            .execute();
-        }
-
-        await markUpdatedAt(tx, "workspace", input.workspaceId);
-
-        return model;
+        return await createModel(tx, input);
       });
     }),
 

@@ -4,14 +4,19 @@ import {
   PageHeaderDescription,
   PageHeaderHeading,
 } from "~/components/page-header";
-import { Card, CardFooter, CardHeader, CardTitle } from "~/components/ui/card";
+import {
+  Card,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@cloud/ui/components/ui/card";
 import { AcceptInvite } from "./_components/accept-invite";
 import { RejectInvite } from "./_components/reject-invite";
 import { Workspace } from "~/schemas/public/Workspace";
 import { UserInvite } from "~/schemas/public/UserInvite";
 
 const InvitePage = async () => {
-  const invites = await api.user.getAllWorkspaceInvites.query();
+  const invites = await api.user.getAllWorkspaceInvites();
 
   return (
     <div className="container max-w-screen-2xl">

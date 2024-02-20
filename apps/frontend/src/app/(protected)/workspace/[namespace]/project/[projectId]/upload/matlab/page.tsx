@@ -1,4 +1,4 @@
-import { Separator } from "~/components/ui/separator";
+import { Separator } from "@cloud/ui/components/ui/separator";
 
 const UploadView = async ({ params }: { params: { projectId: string } }) => {
   return (

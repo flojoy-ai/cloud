@@ -1,14 +1,14 @@
-import { Separator } from "~/components/ui/separator";
+import { Separator } from "@cloud/ui/components/ui/separator";
 import { api } from "~/trpc/server";
 import UserManagement from "./_components/user-management";
 import { UserWithRole } from "~/types/user";
 
 async function UserPage({ params }: { params: { namespace: string } }) {
-  const workspaceId = await api.workspace.getWorkspaceIdByNamespace.query({
+  const workspaceId = await api.workspace.getWorkspaceIdByNamespace({
     namespace: params.namespace,
   });
 
-  const data: UserWithRole[] = await api.user.getUsersInWorkspace.query({
+  const data: UserWithRole[] = await api.user.getUsersInWorkspace({
     workspaceId,
   });
 

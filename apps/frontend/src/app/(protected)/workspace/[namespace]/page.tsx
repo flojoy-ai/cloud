@@ -12,17 +12,17 @@ export default async function Page({
 }: {
   params: { namespace: string };
 }) {
-  const workspaceId = await api.workspace.getWorkspaceIdByNamespace.query({
+  const workspaceId = await api.workspace.getWorkspaceIdByNamespace({
     namespace: params.namespace,
   });
 
   const [workspace, projects, models] = await Promise.all([
-    api.workspace.getWorkspaceById.query({ workspaceId }),
+    api.workspace.getWorkspaceById({ workspaceId }),
 
-    api.project.getAllProjects.query({
+    api.project.getAllProjects({
       workspaceId,
     }),
-    api.model.getAllModels.query({
+    api.model.getAllModels({
       workspaceId,
     }),
   ]);

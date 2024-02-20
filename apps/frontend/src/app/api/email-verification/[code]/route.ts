@@ -1,12 +1,15 @@
 import { lucia, validateRequest } from "~/auth/lucia";
 import { isWithinExpirationDate } from "oslo";
 import { db } from "~/server/db";
-import { withAppRouterHighlight } from "~/lib/highlight";
+import { NextRequest } from "next/server";
 
 const invalidCodeMsg = "Invalid or expired verification code!";
 
-export const GET = withAppRouterHighlight(async (_, ctx) => {
-  const code = ctx.params.code;
+export const GET = async (
+  _: NextRequest,
+  { params }: { params: { code: string } },
+) => {
+  const { code } = params;
 
   const { user } = await validateRequest();
   if (!user) {
@@ -64,4 +67,4 @@ export const GET = withAppRouterHighlight(async (_, ctx) => {
       "Set-Cookie": sessionCookie.serialize(),
     },
   });
-});
+};

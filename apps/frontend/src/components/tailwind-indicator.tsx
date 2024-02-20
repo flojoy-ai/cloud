@@ -1,5 +1,5 @@
 import { env } from "~/env";
-import { Button } from "./ui/button";
+import { Button } from "@cloud/ui/components/ui/button";
 
 export async function TailwindIndicator() {
   if (env.NODE_ENV === "production") return null;

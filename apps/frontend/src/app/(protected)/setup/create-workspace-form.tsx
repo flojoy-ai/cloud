@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import type * as z from "zod";
-import { Button } from "~/components/ui/button";
+import { Button } from "@cloud/ui/components/ui/button";
 import {
   Form,
   FormControl,
@@ -12,12 +12,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
+} from "@cloud/ui/components/ui/form";
+import { Input } from "@cloud/ui/components/ui/input";
 import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Checkbox } from "~/components/ui/checkbox";
+import { Checkbox } from "@cloud/ui/components/ui/checkbox";
 import { env } from "~/env";
 import { handleError } from "~/lib/utils";
 import { createWorkspace } from "~/types/workspace";

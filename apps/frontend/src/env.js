@@ -36,15 +36,10 @@ export const env = createEnv({
     SENDER_EMAIL: z.string().email(),
 
     JWT_SECRET: z.string(),
-    AWS_AMI: z
-      .string()
-      .optional()
-      // transform to boolean using preferred coercion logic
-      .transform((s) => s !== undefined && s !== "false" && s !== "0"),
 
     ZAPIER_CLIENT_ID: z.string().optional(),
     ZAPIER_CLIENT_SECRET: z.string().optional(),
-    HIGHLIGHT_PROJECT_ID: z.string().default("6gl9mxzg"),
+    // HIGHLIGHT_PROJECT_ID: z.string().default("6gl9mxzg"),
   },
 
   /**
@@ -84,12 +79,11 @@ export const env = createEnv({
     SENDER_EMAIL: process.env.SENDER_EMAIL,
 
     JWT_SECRET: process.env.JWT_SECRET,
-    AWS_AMI: process.env.AWS_AMI,
     NEXT_PUBLIC_URL_ORIGIN: process.env.NEXT_PUBLIC_URL_ORIGIN,
 
     ZAPIER_CLIENT_ID: process.env.ZAPIER_CLIENT_ID,
     ZAPIER_CLIENT_SECRET: process.env.ZAPIER_CLIENT_SECRET,
-    HIGHLIGHT_PROJECT_ID: process.env.HIGHLIGHT_PROJECT_ID,
+    // HIGHLIGHT_PROJECT_ID: process.env.HIGHLIGHT_PROJECT_ID,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

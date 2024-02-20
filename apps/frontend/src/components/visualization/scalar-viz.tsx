@@ -1,4 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@cloud/ui/components/ui/card";
 import Histogram from "~/components/visualization/plot/histogram";
 import { type SelectMeasurement } from "~/types/measurement";
 

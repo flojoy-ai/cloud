@@ -4,7 +4,7 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-import { Button } from "~/components/ui/button";
+import { Button } from "@cloud/ui/components/ui/button";
 import {
   Form,
   FormControl,
@@ -12,8 +12,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
+} from "@cloud/ui/components/ui/form";
+import { Input } from "@cloud/ui/components/ui/input";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { toast } from "sonner";
@@ -92,8 +92,8 @@ const LoginForm = () => {
         <div className="text-sm font-medium text-destructive">
           {form.formState.errors.root?.message}
         </div>
-        <Button type="submit" disabled={mutation.isLoading} className="w-full">
-          {mutation.isLoading ? "Loading..." : "Log in"}
+        <Button type="submit" disabled={mutation.isPending} className="w-full">
+          {mutation.isPending ? "Loading..." : "Log in"}
         </Button>
       </form>
     </Form>

@@ -6,11 +6,11 @@ import {
 } from "~/components/page-header";
 import AllWorkspaces from "./_components/all-workspaces";
 import { api } from "~/trpc/server";
-import { Button } from "~/components/ui/button";
+import { Button } from "@cloud/ui/components/ui/button";
 import Link from "next/link";
 
 export default async function Dashboard() {
-  const workspaces = await api.workspace.getWorkspaces.query();
+  const workspaces = await api.workspace.getWorkspaces();
 
   if (workspaces.length === 0) {
     redirect("/setup");

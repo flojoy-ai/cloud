@@ -262,6 +262,19 @@ index a0c07b70ab5b54e1518e341aec8d9161ebffddc1..4308035d557f38e3f2e750afc26daa8e
 \ No newline at end of file
 +{"version":3,"file":"next.js","sourceRoot":"","sources":["../../src/adapters/next.ts"],"names":[],"mappings":";;;AAAA,yCAAyC;AAIzC,wCAA8C;AAC9C,2CAG0B;AAOnB,MAAM,wBAAwB,GAAG,CACtC,IAA8C,EAC9C,EAAE;IACF,MAAM,kBAAkB,GAAG,IAAA,mCAA4B,EAAC,IAAI,CAAC,CAAC;IAE9D,OAAO,KAAK,EAAE,GAAmB,EAAE,GAAoB,EAAE,EAAE;;QACzD,IAAI,QAAQ,GAAkB,IAAI,CAAC;QACnC,IAAI,OAAO,GAAG,CAAC,KAAK,CAAC,IAAI,KAAK,QAAQ,EAAE,CAAC;YACvC,QAAQ,GAAG,GAAG,CAAC,KAAK,CAAC,IAAI,CAAC;QAC5B,CAAC;aAAM,IAAI,KAAK,CAAC,OAAO,CAAC,GAAG,CAAC,KAAK,CAAC,IAAI,CAAC,EAAE,CAAC;YACzC,QAAQ,GAAG,GAAG,CAAC,KAAK,CAAC,IAAI,CAAC,IAAI,CAAC,GAAG,CAAC,CAAC;QACtC,CAAC;QAED,IAAI,QAAQ,KAAK,IAAI,EAAE,CAAC;YACtB,MAAM,KAAK,GAAG,IAAI,kBAAS,CAAC;gBAC1B,OAAO,EAAE,2EAA2E;gBACpF,IAAI,EAAE,uBAAuB;aAC9B,CAAC,CAAC;YAEH,MAAA,IAAI,CAAC,OAAO,qDAAG;gBACb,KAAK;gBACL,IAAI,EAAE,SAAS;gBACf,IAAI,EAAE,SAAS;gBACf,KAAK,EAAE,SAAS;gBAChB,GAAG,EAAE,SAAS;gBACd,GAAG;aACJ,CAAC,CAAC;YAEH,GAAG,CAAC,UAAU,GAAG,GAAG,CAAC;YACrB,GAAG,CAAC,SAAS,CAAC,cAAc,EAAE,kBAAkB,CAAC,CAAC;YAClD,MAAM,IAAI,GAAyB;gBACjC,OAAO,EAAE,KAAK,CAAC,OAAO;gBACtB,IAAI,EAAE,KAAK,CAAC,IAAI;aACjB,CAAC;YACF,GAAG,CAAC,GAAG,CAAC,IAAI,CAAC,SAAS,CAAC,IAAI,CAAC,CAAC,CAAC;YAE9B,OAAO;QACT,CAAC;QAED,GAAG,CAAC,GAAG,GAAG,IAAA,oBAAa,EAAC,QAAQ,CAAC,CAAC;QAClC,MAAM,kBAAkB,CAAC,GAAG,EAAE,GAAG,CAAC,CAAC;IACrC,CAAC,CAAC;AACJ,CAAC,CAAC;AA1CW,QAAA,wBAAwB,4BA0CnC"}
 \ No newline at end of file
+diff --git a/dist/adapters/node-http/core.js b/dist/adapters/node-http/core.js
+index ad1b3e5d8fc9d5a9dcdcb5c719f2a3a66fc5f29a..5256384c2a4d9058e9083627439d71f3c9d67059 100644
+--- a/dist/adapters/node-http/core.js
++++ b/dist/adapters/node-http/core.js
+@@ -109,7 +109,7 @@ const createOpenApiNodeHttpHandler = (opts) => {
+                 data: [data],
+                 errors: [error],
+             });
+-            const errorShape = router.getErrorShape({
++            const errorShape = router._def.errorFormatter({
+                 error,
+                 type: (_f = procedure === null || procedure === void 0 ? void 0 : procedure.type) !== null && _f !== void 0 ? _f : 'unknown',
+                 path: procedure === null || procedure === void 0 ? void 0 : procedure.path,
 diff --git a/dist/adapters/node-http/core.js.map b/dist/adapters/node-http/core.js.map
 index 18319aaf97c1d8be0c07b519d79c6b26612380f8..bc25b67d0403f7cf54bcb725e7be09cf146f1323 100644
 --- a/dist/adapters/node-http/core.js.map
@@ -289,6 +302,46 @@ index ee4f95def1aab010219f5cd69791d833ba075009..ac098d10c3a4682a2a2182f8b19b6262
 \ No newline at end of file
 +{"version":3,"file":"input.js","sourceRoot":"","sources":["../../../src/adapters/node-http/input.ts"],"names":[],"mappings":"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"}
 \ No newline at end of file
+diff --git a/dist/adapters/node-http/procedures.js b/dist/adapters/node-http/procedures.js
+index a785c0b1b325ad4b16b8dc25c4eec167df80b30c..2ef6851fc9e73429d6b0413bdb823601e3a03c43 100644
+--- a/dist/adapters/node-http/procedures.js
++++ b/dist/adapters/node-http/procedures.js
+@@ -5,8 +5,7 @@ const path_1 = require("../../utils/path");
+ const procedure_1 = require("../../utils/procedure");
+ const createProcedureCache = (router) => {
+     const procedureCache = new Map();
+-    const { queries, mutations } = router._def;
+-    (0, procedure_1.forEachOpenApiProcedure)(queries, ({ path: queryPath, procedure, openapi }) => {
++    (0, procedure_1.forEachOpenApiProcedure)(router._def.procedures, ({ path: queryPath, procedure, openapi }) => {
+         const { method } = openapi;
+         if (!procedureCache.has(method)) {
+             procedureCache.set(method, new Map());
+@@ -14,24 +13,11 @@ const createProcedureCache = (router) => {
+         const path = (0, path_1.normalizePath)(openapi.path);
+         const pathRegExp = (0, path_1.getPathRegExp)(path);
+         procedureCache.get(method).set(pathRegExp, {
+-            type: 'query',
++            type: procedure._def.type,
+             path: queryPath,
+             procedure,
+         });
+     });
+-    (0, procedure_1.forEachOpenApiProcedure)(mutations, ({ path: mutationPath, procedure, openapi }) => {
+-        const { method } = openapi;
+-        if (!procedureCache.has(method)) {
+-            procedureCache.set(method, new Map());
+-        }
+-        const path = (0, path_1.normalizePath)(openapi.path);
+-        const pathRegExp = (0, path_1.getPathRegExp)(path);
+-        procedureCache.get(method).set(pathRegExp, {
+-            type: 'mutation',
+-            path: mutationPath,
+-            procedure,
+-        });
+-    });
+     return (method, path) => {
+         var _a, _b;
+         const procedureMethodCache = procedureCache.get(method);
 diff --git a/dist/adapters/node-http/procedures.js.map b/dist/adapters/node-http/procedures.js.map
 index 62fa9df43b12f18b631afa04fe22d75f9ec416a1..ac3c327fc2c8fd011c5901ba842b47b0c233c6ee 100644
 --- a/dist/adapters/node-http/procedures.js.map
@@ -491,6 +544,27 @@ index aecdf166ee6c82633dfb8f6388ae70e5d784db9a..f7650e8bb1778d4d9218cf8f4716b0e2
 \ No newline at end of file
 +{"version":3,"file":"method.js","sourceRoot":"","sources":["../../src/utils/method.ts"],"names":[],"mappings":";;;AAEO,MAAM,kBAAkB,GAAG,CAAC,MAAqB,EAAE,EAAE;IAC1D,IAAI,MAAM,KAAK,KAAK,IAAI,MAAM,KAAK,QAAQ,EAAE,CAAC;QAC5C,OAAO,KAAK,CAAC;IACf,CAAC;IACD,OAAO,IAAI,CAAC;AACd,CAAC,CAAC;AALW,QAAA,kBAAkB,sBAK7B"}
 \ No newline at end of file
+diff --git a/dist/utils/procedure.js b/dist/utils/procedure.js
+index c838521e9c8d50febf7428a3c91060353bc0366e..8e471819466962564f92f5ef92b0beb8627dfe93 100644
+--- a/dist/utils/procedure.js
++++ b/dist/utils/procedure.js
+@@ -16,15 +16,7 @@ const getInputOutputParsers = (procedure) => {
+     };
+ };
+ exports.getInputOutputParsers = getInputOutputParsers;
+-const getProcedureType = (procedure) => {
+-    if (procedure._def.query)
+-        return 'query';
+-    if (procedure._def.mutation)
+-        return 'mutation';
+-    if (procedure._def.subscription)
+-        return 'subscription';
+-    throw new Error('Unknown procedure type');
+-};
++const getProcedureType = (procedure) => procedure._def.type;
+ const forEachOpenApiProcedure = (procedureRecord, callback) => {
+     var _a;
+     for (const [path, procedure] of Object.entries(procedureRecord)) {
 diff --git a/dist/utils/procedure.js.map b/dist/utils/procedure.js.map
 index 0375bf1ef0ef4c710a8e41354ff1652ecceaf781..3814b880c0e28ec5a5c36f682fc3eb68811e3d6c 100644
 --- a/dist/utils/procedure.js.map
@@ -501,7 +575,7 @@ index 0375bf1ef0ef4c710a8e41354ff1652ecceaf781..3814b880c0e28ec5a5c36f682fc3eb68
 +{"version":3,"file":"procedure.js","sourceRoot":"","sources":["../../src/utils/procedure.ts"],"names":[],"mappings":";;;AAEA,6BAAsC;AAItC,MAAM,WAAW,GAAG,CAAC,YAA4B,EAAgB,EAAE;IACjE,OAAO,YAAY,CAAC,MAAM,CAAC,CAAC,GAAG,EAAE,WAAW,EAAE,EAAE;QAC9C,OAAO,GAAG,CAAC,KAAK,CAAC,WAAW,CAAC,CAAC;IAChC,CAAC,EAAE,OAAC,CAAC,MAAM,CAAC,EAAE,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC;AAEF,4EAA4E;AACrE,MAAM,qBAAqB,GAAG,CAAC,SAA2B,EAAE,EAAE;IACnE,MAAM,EAAE,MAAM,EAAE,MAAM,EAAE,GAAG,SAAS,CAAC,IAAI,CAAC;IAC1C,OAAO;QACL,WAAW,EAAE,MAAM,CAAC,MAAM,IAAI,CAAC,CAAC,CAAC,CAAC,WAAW,CAAC,MAAwB,CAAC,CAAC,CAAC,CAAC,MAAM,CAAC,CAAC,CAAC;QACnF,YAAY,EAAE,MAAM;KACrB,CAAC;AACJ,CAAC,CAAC;AANW,QAAA,qBAAqB,yBAMhC;AAEF,MAAM,gBAAgB,GAAG,CAAC,SAA2B,EAAiB,EAAE;IACtE,IAAI,SAAS,CAAC,IAAI,CAAC,KAAK;QAAE,OAAO,OAAO,CAAC;IACzC,IAAI,SAAS,CAAC,IAAI,CAAC,QAAQ;QAAE,OAAO,UAAU,CAAC;IAC/C,IAAI,SAAS,CAAC,IAAI,CAAC,YAAY;QAAE,OAAO,cAAc,CAAC;IACvD,MAAM,IAAI,KAAK,CAAC,wBAAwB,CAAC,CAAC;AAC5C,CAAC,CAAC;AAEK,MAAM,uBAAuB,GAAG,CACrC,eAAuC,EACvC,QAKU,EACV,EAAE;;IACF,KAAK,MAAM,CAAC,IAAI,EAAE,SAAS,CAAC,IAAI,MAAM,CAAC,OAAO,CAAC,eAAe,CAAC,EAAE,CAAC;QAChE,MAAM,EAAE,OAAO,EAAE,GAAG,MAAA,SAAS,CAAC,IAAI,CAAC,IAAI,mCAAI,EAAE,CAAC;QAC9C,IAAI,OAAO,IAAI,OAAO,CAAC,OAAO,KAAK,KAAK,EAAE,CAAC;YACzC,MAAM,IAAI,GAAG,gBAAgB,CAAC,SAAS,CAAC,CAAC;YACzC,QAAQ,CAAC,EAAE,IAAI,EAAE,IAAI,EAAE,SAAS,EAAE,OAAO,EAAE,CAAC,CAAC;QAC/C,CAAC;IACH,CAAC;AACH,CAAC,CAAC;AAhBW,QAAA,uBAAuB,2BAgBlC"}
 \ No newline at end of file
 diff --git a/dist/utils/zod.js.map b/dist/utils/zod.js.map
-index a7c32f2c76dd932ea32ad0bd5378528676217311..d611b95fa5d62674efdbd3487a0f1c11f06b7065 100644
+index a7c32f2c76dd932ea32ad0bd5378528676217311..d60913ef6cc0d896b6a7ce719037a2709948c24b 100644
 --- a/dist/utils/zod.js.map
 +++ b/dist/utils/zod.js.map
 @@ -1 +1 @@

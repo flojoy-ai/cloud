@@ -1,7 +1,7 @@
 "use client";
 
 import { hardwareColumns } from "~/components/hardware/columns";
-import { DataTable } from "~/components/ui/data-table";
+import { DataTable } from "@cloud/ui/components/ui/data-table";
 import { api } from "~/trpc/react";
 
 import CreateHardware from "~/components/hardware/create-hardware";

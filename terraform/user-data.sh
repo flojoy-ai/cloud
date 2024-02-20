@@ -1,14 +1,5 @@
 #!/bin/bash
 sudo apt update -y
-# Install NVM
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-# Activate NVM
-. /.nvm/nvm.sh
-# Install Node.js
-nvm install node
-# Install pnpm
-npm install -g pnpm
-
 # Install nginx
 sudo apt install nginx -y
 
@@ -33,29 +24,21 @@ echo "$defaut_server_config" >/etc/nginx/sites-enabled/default
 echo "$defaut_server_config" >/etc/nginx/sites-available/default
 echo "$nginx_config" >/etc/nginx/conf.d/default.conf
 
-mkdir /etc/systemd/system/cloud_app.d
-cat <<EOF >/etc/systemd/system/cloud_app.d/Environment
-HOME=/root
-JWT_SECRET=""
-AWS_AMI=1
-NODE_TLS_REJECT_UNAUTHORIZED=0
-EOF
-
 # Create a systemd service file
 cat <<EOF >/etc/systemd/system/cloud_app.service
 [Unit]
 Description=Cloud Startup Service
-After=network.target
+Requires=snap.docker.dockerd.service
+After=snap.docker.dockerd.service
 
 [Service]
 Type=simple
 WorkingDirectory=/root/cloud
 ExecStart=/bin/bash /root/startup.sh
 Restart=on-failure
-RestartSec=3
+RestartSec=10
 StartLimitInterval=60
 StartLimitBurst=1
-EnvironmentFile=/etc/systemd/system/cloud_app.d/Environment
 
 [Install]
 WantedBy=default.target
@@ -67,7 +50,7 @@ cat <<EOF >/root/startup.sh
 
 systemctl start nginx
 
-export PATH="\$PWD/node_modules/.bin:$PATH"
+source ~/.bashrc
 
 check_env_file() {
   if [ -f "/root/cloud/.env" ]; then
@@ -81,35 +64,22 @@ git stash
 
 git pull
 
-db_push_needed=true
-if [ -d "/root/cloud/node_modules" ]; then
-  db_push_needed=false
-fi
-
-pnpm install
 
 for i in {1..8}; do
   sleep \$((3 + (i - 1) * 30)) 
+  echo "Checking for .env file... Attempt \$i"
   if check_env_file; then
     break
   fi
 done
 
 if ! check_env_file; then
-  # delete node_modules
-  rm -rf /root/cloud/node_modules
   echo "Error: .env file not found after multiple attempts."
   exit 1
 fi
 
-if \$db_push_needed; then
-  pnpm db:generate
-  pnpm db:push
-fi
-
-pnpm build
-
-pnpm start
+docker compose --progress=plain build --no-cache &>> /root/cloud-build.log
+docker compose --progress=plain up &>> /root/cloud-log.log
 
 EOF
 
@@ -125,4 +95,7 @@ systemctl enable cloud_app.service
 # Stop Nginx
 systemctl stop nginx
 
-git clone https://github.com/flojoy-ai/cloud.git /root/cloud
+git clone --single-branch --branch main https://github.com/flojoy-ai/cloud.git /root/cloud
+
+# Install docker
+sudo snap install docker

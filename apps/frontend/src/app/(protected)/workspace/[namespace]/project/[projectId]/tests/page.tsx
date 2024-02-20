@@ -1,14 +1,14 @@
 import CreateTest from "./_components/create-test";
 import AllTests from "./_components/all-tests";
 import { api } from "~/trpc/server";
-import { Separator } from "~/components/ui/separator";
+import { Separator } from "@cloud/ui/components/ui/separator";
 
 const TestsView = async ({
   params,
 }: {
   params: { projectId: string; namespace: string };
 }) => {
-  const project = await api.project.getProject.query({
+  const project = await api.project.getProject({
     projectId: params.projectId,
   });
 

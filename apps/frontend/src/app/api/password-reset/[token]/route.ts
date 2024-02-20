@@ -4,12 +4,13 @@ import { Argon2id } from "oslo/password";
 import { lucia } from "~/auth/lucia";
 import { db } from "~/server/db";
 
-import { withAppRouterHighlight } from "~/lib/highlight";
-
-export const POST = withAppRouterHighlight(async (request, ctx) => {
+export const POST = async (
+  request: NextRequest,
+  { params }: { params: { token: string } },
+) => {
   const formData = await request.formData();
   const password = formData.get("password");
-  const tokenFromUser = ctx.params.token;
+  const tokenFromUser = params.token;
   if (!tokenFromUser) {
     return new Response("Invalid or expired password reset link", {
       status: 400,
@@ -58,4 +59,4 @@ export const POST = withAppRouterHighlight(async (request, ctx) => {
       "Set-Cookie": sessionCookie.serialize(),
     },
   });
-});
+};

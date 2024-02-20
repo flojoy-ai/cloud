@@ -5,7 +5,7 @@ import {
   PageHeaderDescription,
   PageHeaderHeading,
 } from "~/components/page-header";
-import { Button } from "~/components/ui/button";
+import { Button } from "@cloud/ui/components/ui/button";
 
 export default async function Home() {
   return (

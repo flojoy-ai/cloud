@@ -5,7 +5,7 @@ import {
   PageHeaderHeading,
 } from "~/components/small-header";
 import { api } from "~/trpc/server";
-import { Separator } from "~/components/ui/separator";
+import { Separator } from "@cloud/ui/components/ui/separator";
 import BackButton from "~/components/back-button";
 
 export default async function Test({
@@ -16,10 +16,10 @@ export default async function Test({
   searchParams: { back?: string };
 }) {
   const [test, testMeasurements] = await Promise.all([
-    api.test.getTest.query({
+    api.test.getTest({
       testId: params.testId,
     }),
-    api.measurement.getAllMeasurementsByTestId.query({
+    api.measurement.getAllMeasurementsByTestId({
       testId: params.testId,
     }),
   ]);

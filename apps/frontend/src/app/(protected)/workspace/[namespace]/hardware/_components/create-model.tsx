@@ -3,7 +3,7 @@
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Button } from "~/components/ui/button";
+import { Button } from "@cloud/ui/components/ui/button";
 import {
   Form,
   FormControl,
@@ -12,7 +12,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "~/components/ui/form";
+} from "@cloud/ui/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import {
@@ -24,8 +24,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "~/components/ui/dialog";
-import { Input } from "~/components/ui/input";
+} from "@cloud/ui/components/ui/dialog";
+import { Input } from "@cloud/ui/components/ui/input";
 import { api } from "~/trpc/react";
 import { z } from "zod";
 import { insertModelSchema } from "~/types/model";
@@ -35,7 +35,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "~/components/ui/select";
+} from "@cloud/ui/components/ui/select";
 import { Cpu, Plus, Trash2 } from "lucide-react";
 import { handleError } from "~/lib/utils";
 import { Model } from "~/schemas/public/Model";

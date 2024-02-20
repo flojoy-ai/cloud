@@ -5,9 +5,9 @@ import {
   PageHeaderDescription,
   PageHeaderHeading,
 } from "~/components/small-header";
-import { Badge } from "~/components/ui/badge";
-import { Card } from "~/components/ui/card";
-import { Separator } from "~/components/ui/separator";
+import { Badge } from "@cloud/ui/components/ui/badge";
+import { Card } from "@cloud/ui/components/ui/card";
+import { Separator } from "@cloud/ui/components/ui/separator";
 import DataframeViz from "~/components/visualization/dataframe-viz";
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/server";
@@ -52,15 +52,15 @@ export default async function Measurement({
   searchParams: { back?: string };
 }) {
   const [measurement, workspaceId] = await Promise.all([
-    api.measurement.getMeasurement.query({
+    api.measurement.getMeasurement({
       measurementId: params.measurementId,
     }),
-    api.workspace.getWorkspaceIdByNamespace.query({
+    api.workspace.getWorkspaceIdByNamespace({
       namespace: params.namespace,
     }),
   ]);
 
-  const model = await api.model.getModel.query({
+  const model = await api.model.getModel({
     modelId: measurement.hardware.modelId,
   });
 

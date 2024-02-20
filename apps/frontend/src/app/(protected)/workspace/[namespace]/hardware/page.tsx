@@ -6,8 +6,8 @@ import {
 import { api } from "~/trpc/server";
 import HardwareInstances from "./_components/hardware-instances";
 import HardwareModels from "./_components/hardware-models";
-import { Separator } from "~/components/ui/separator";
-import { Button } from "~/components/ui/button";
+import { Separator } from "@cloud/ui/components/ui/separator";
+import { Button } from "@cloud/ui/components/ui/button";
 
 export default async function HardwareInventory({
   params,
@@ -16,15 +16,15 @@ export default async function HardwareInventory({
   params: { namespace: string };
   searchParams: { back?: string };
 }) {
-  const workspaceId = await api.workspace.getWorkspaceIdByNamespace.query({
+  const workspaceId = await api.workspace.getWorkspaceIdByNamespace({
     namespace: params.namespace,
   });
 
   const [models, hardware] = await Promise.all([
-    api.model.getAllModels.query({
+    api.model.getAllModels({
       workspaceId,
     }),
-    api.hardware.getAllHardware.query({
+    api.hardware.getAllHardware({
       workspaceId,
     }),
   ]);

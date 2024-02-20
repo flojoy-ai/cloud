@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { test } from "~/schemas/public/Test";
 
 export const insertTestSchema = test.pick({
@@ -5,6 +6,8 @@ export const insertTestSchema = test.pick({
   projectId: true,
   measurementType: true,
 });
+
+export type InsertTest = z.infer<typeof insertTestSchema>;
 
 export const updateTestSchema = insertTestSchema.pick({
   name: true,

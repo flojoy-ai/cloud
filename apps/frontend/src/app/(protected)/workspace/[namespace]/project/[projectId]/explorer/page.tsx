@@ -7,10 +7,10 @@ const ExplorerView = async ({
   params: { projectId: string; namespace: string };
 }) => {
   const [workspaceId, tests] = await Promise.all([
-    api.workspace.getWorkspaceIdByNamespace.query({
+    api.workspace.getWorkspaceIdByNamespace({
       namespace: params.namespace,
     }),
-    api.test.getAllTestsByProjectId.query({
+    api.test.getAllTestsByProjectId({
       projectId: params.projectId,
     }),
   ]);

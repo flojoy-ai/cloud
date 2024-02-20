@@ -4,7 +4,7 @@ import { siteConfig } from "~/config/site";
 import { cn } from "~/lib/utils";
 import { Icons } from "~/components/icons";
 import { ModeToggle } from "~/components/mode-toggle";
-import { Button, buttonVariants } from "~/components/ui/button";
+import { Button, buttonVariants } from "@cloud/ui/components/ui/button";
 import { validateRequest } from "~/auth/lucia";
 import { ProtectedNav } from "./protected-nav";
 import { api } from "~/trpc/server";
@@ -14,8 +14,8 @@ export async function ProtectedHeader() {
   const { user } = await validateRequest();
 
   const [workspaces, invites] = await Promise.all([
-    api.workspace.getWorkspaces.query(),
-    api.user.getAllWorkspaceInvites.query(),
+    api.workspace.getWorkspaces(),
+    api.user.getAllWorkspaceInvites(),
   ]);
 
   return (

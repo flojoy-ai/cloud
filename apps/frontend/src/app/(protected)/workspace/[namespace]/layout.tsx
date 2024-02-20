@@ -6,7 +6,7 @@ import {
   PageHeaderDescription,
   PageHeaderHeading,
 } from "~/components/small-header";
-import { Button } from "~/components/ui/button";
+import { Button } from "@cloud/ui/components/ui/button";
 import Link from "next/link";
 import { WorkspaceNav } from "~/components/workspace-nav";
 
@@ -17,7 +17,7 @@ export default async function ProtectedLayout({
   children: React.ReactNode;
   params: { namespace: string };
 }) {
-  const workspaces = await api.workspace.getWorkspaces.query();
+  const workspaces = await api.workspace.getWorkspaces();
 
   if (!workspaces.some((ws) => ws.namespace === params.namespace)) {
     return (
