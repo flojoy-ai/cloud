@@ -53,7 +53,7 @@ const WorkspaceForm = ({
         <SelectContent>
           {workspaces.map((workspace) => (
             <SelectItem key={workspace.id} value={workspace.id}>
-              {workspace.namespace}
+              {`${workspace.name} (/${workspace.namespace})`}
             </SelectItem>
           ))}
         </SelectContent>

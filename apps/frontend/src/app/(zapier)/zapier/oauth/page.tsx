@@ -4,6 +4,7 @@ import { siteConfig } from "~/config/site";
 import { Separator } from "@cloud/ui/components/ui/separator";
 import WorkspaceForm from "./workspace-form";
 import { redirect } from "next/navigation";
+import Image from "next/image";
 
 export type OAuthSearchParams = {
   client_id: string;
@@ -18,17 +19,22 @@ const Page = async ({ searchParams }: { searchParams: OAuthSearchParams }) => {
   ) {
     redirect("/");
   }
-  const workspaces = await api.workspace.getWorkspaces.query();
+  const workspaces = await api.workspace.getWorkspaces();
 
   return (
     <>
       <div className="flex items-center gap-2 px-3">
         <Icons.logo className="h-6 w-6" />
-        <h1 className="p-3">Connect with {siteConfig.name}</h1>
+        <h1 className="py-3 pl-1">Connect with {siteConfig.name}</h1>
       </div>
       <Separator />
       <div className="flex flex-col items-center justify-center gap-5 p-8">
-        <Icons.logo className="h-8 w-8" />
+        <Image
+          src={"/zapier-logo.png"}
+          alt="zapier-logo"
+          width={45}
+          height={45}
+        />
         <div className="flex flex-col items-center gap-2">
           <h1 className="text-2xl">Choose a workspace</h1>
 
