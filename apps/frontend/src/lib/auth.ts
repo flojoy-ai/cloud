@@ -4,13 +4,23 @@ export type AccessContext = {
   db: typeof db;
   user: { id: string };
   workspaceId: string | null;
+  headers: Headers;
 };
 
 export const checkWorkspaceAccess = async (
   ctx: AccessContext,
   workspaceIdOfTheResource: string,
 ) => {
-  if (ctx.workspaceId && workspaceIdOfTheResource !== ctx.workspaceId) {
+  const referer = ctx.headers.get("referer");
+  const refererUrl = referer ? new URL(referer) : null;
+  const zapierInReferer = refererUrl?.searchParams
+    .get("redirect_uri")
+    ?.includes("zapier");
+  if (
+    !zapierInReferer &&
+    ctx.workspaceId &&
+    workspaceIdOfTheResource !== ctx.workspaceId
+  ) {
     // This is for when we are authenticating with the secret key.
     // Each secret key specifies the workspace ID it has access to, and this
     // ID will be passed to here in context.

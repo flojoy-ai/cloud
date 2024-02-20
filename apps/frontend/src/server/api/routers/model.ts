@@ -1,8 +1,7 @@
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
 import { z } from "zod";
-import { checkWorkspaceAccess } from "~/lib/auth";
+import { type AccessContext, checkWorkspaceAccess } from "~/lib/auth";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
-import { db } from "~/server/db";
 import { workspaceAccessMiddleware } from "./workspace";
 import { getModelById, getModelTree, markUpdatedAt } from "~/lib/query";
 import { insertModelSchema, modelTreeSchema } from "~/types/model";
@@ -12,7 +11,7 @@ import { withDBErrorCheck } from "~/lib/db-utils";
 import { createModel } from "~/server/services/model";
 
 export const modelAccessMiddleware = experimental_standaloneMiddleware<{
-  ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
+  ctx: AccessContext;
   input: { modelId: string };
 }>().create(async (opts) => {
   const model = await getModelById(opts.input.modelId);

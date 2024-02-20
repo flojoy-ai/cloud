@@ -2,9 +2,8 @@ import { z } from "zod";
 
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
-import { type db } from "~/server/db";
 import { projectAccessMiddleware } from "./project";
-import { checkWorkspaceAccess } from "~/lib/auth";
+import { type AccessContext, checkWorkspaceAccess } from "~/lib/auth";
 import { insertTestSchema, updateTestSchema } from "~/types/test";
 import { test } from "~/schemas/public/Test";
 import { generateDatabaseId } from "~/lib/id";
@@ -13,7 +12,7 @@ import { withDBErrorCheck } from "~/lib/db-utils";
 import { createTest } from "~/server/services/test";
 
 export const testAccessMiddleware = experimental_standaloneMiddleware<{
-  ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
+  ctx: AccessContext;
   input: { testId: string };
 }>().create(async (opts) => {
   const test = await opts.ctx.db

@@ -6,18 +6,17 @@ import {
 } from "~/server/api/trpc";
 
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
-import { checkWorkspaceAccess } from "~/lib/auth";
+import { AccessContext, checkWorkspaceAccess } from "~/lib/auth";
 import { cookies } from "next/headers";
 import { workspace } from "~/schemas/public/Workspace";
 
 import { generateDatabaseId } from "~/lib/id";
-import { type db } from "~/server/db";
 import { createWorkspace, updateWorkspace } from "~/types/workspace";
 import { withDBErrorCheck } from "~/lib/db-utils";
 import { populateExample } from "~/server/services/example";
 
 export const workspaceAccessMiddleware = experimental_standaloneMiddleware<{
-  ctx: { db: db; user: { id: string }; workspaceId: string | null };
+  ctx: AccessContext;
   input: { workspaceId: string };
 }>().create(async (opts) => {
   const workspace = await opts.ctx.db

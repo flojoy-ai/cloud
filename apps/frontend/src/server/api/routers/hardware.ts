@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
 import _ from "lodash";
-import { checkWorkspaceAccess } from "~/lib/auth";
+import { type AccessContext, checkWorkspaceAccess } from "~/lib/auth";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
 import { workspaceAccessMiddleware } from "./workspace";
@@ -32,7 +32,7 @@ import DB from "~/schemas/public/PublicSchema";
 import { withDBErrorCheck } from "~/lib/db-utils";
 
 export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
-  ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
+  ctx: AccessContext;
   input: { hardwareId: string };
 }>().create(async (opts) => {
   const hardware = await getHardwareById(opts.input.hardwareId);
@@ -64,7 +64,7 @@ export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
 });
 
 export const multiHardwareAccessMiddleware = experimental_standaloneMiddleware<{
-  ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
+  ctx: AccessContext;
   input: { hardwareIds: string[] };
 }>().create(async (opts) => {
   const ids = opts.input.hardwareIds;

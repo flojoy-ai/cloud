@@ -36,6 +36,9 @@ export const env = createEnv({
     SENDER_EMAIL: z.string().email(),
 
     JWT_SECRET: z.string(),
+
+    ZAPIER_CLIENT_ID: z.string().optional(),
+    ZAPIER_CLIENT_SECRET: z.string().optional(),
     // HIGHLIGHT_PROJECT_ID: z.string().default("6gl9mxzg"),
   },
 
@@ -77,6 +80,9 @@ export const env = createEnv({
 
     JWT_SECRET: process.env.JWT_SECRET,
     NEXT_PUBLIC_URL_ORIGIN: process.env.NEXT_PUBLIC_URL_ORIGIN,
+
+    ZAPIER_CLIENT_ID: process.env.ZAPIER_CLIENT_ID,
+    ZAPIER_CLIENT_SECRET: process.env.ZAPIER_CLIENT_SECRET,
     // HIGHLIGHT_PROJECT_ID: process.env.HIGHLIGHT_PROJECT_ID,
   },
   /**

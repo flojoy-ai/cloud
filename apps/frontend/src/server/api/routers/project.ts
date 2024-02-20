@@ -1,9 +1,8 @@
 import { z } from "zod";
 
 import { TRPCError, experimental_standaloneMiddleware } from "@trpc/server";
-import { checkWorkspaceAccess } from "~/lib/auth";
+import { type AccessContext, checkWorkspaceAccess } from "~/lib/auth";
 import { createTRPCRouter, workspaceProcedure } from "~/server/api/trpc";
-import { type db } from "~/server/db";
 import {
   insertProjectSchema,
   publicUpdateProjectSchema,
@@ -21,7 +20,7 @@ import { withDBErrorCheck } from "~/lib/db-utils";
 import { createProject } from "~/server/services/project";
 
 export const projectAccessMiddleware = experimental_standaloneMiddleware<{
-  ctx: { db: typeof db; user: { id: string }; workspaceId: string | null };
+  ctx: AccessContext;
   input: { projectId: ProjectId };
 }>().create(async (opts) => {
   const project = await getProjectById(opts.input.projectId);

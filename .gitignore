@@ -45,6 +45,7 @@ yarn-error.log*
 .env*
 terraform/.**
 terraform/terraform.tfstate*
-zapier
-
+dist
+build
+.zapierapprc
 .turbo
