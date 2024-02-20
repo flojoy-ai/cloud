@@ -1,7 +1,7 @@
-import { MeasurementInputData } from "./types/measurement";
+import { MeasurementDataType } from "./types/measurement";
 
 const dataParseMethods: {
-  [key in MeasurementInputData["type"]]: (data: string) => any;
+  [key in MeasurementDataType]: (data: string) => any;
 } = {
   boolean: (data) => Boolean(data),
   dataframe: (data) => JSON.parse(data),
@@ -9,7 +9,7 @@ const dataParseMethods: {
 
 export const getMeasurementValueByType = (
   data: string,
-  type: MeasurementInputData["type"],
+  type: MeasurementDataType,
 ) => {
   return dataParseMethods[type](data);
 };

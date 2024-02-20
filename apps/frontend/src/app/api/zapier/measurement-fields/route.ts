@@ -36,8 +36,6 @@ type Field = {
   altersDynamicFields?: boolean;
 };
 
-type IResponse = Field[];
-
 export const GET = async (req: NextRequest) => {
   try {
     const { workspaceId } = await zapierUserAuthMiddleware(req);
@@ -81,7 +79,7 @@ export const GET = async (req: NextRequest) => {
       },
     ];
 
-    const res: IResponse = [
+    const res: Field[] = [
       {
         key: "hardwareId",
         label: "Hardware",
