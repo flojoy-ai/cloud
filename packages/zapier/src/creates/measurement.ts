@@ -69,44 +69,7 @@ export default {
   key: "measurement",
   noun: "Measurement",
   operation: {
-    inputFields: [
-      inputFields,
-      {
-        key: "name",
-        label: "Name",
-        type: "string",
-        required: false,
-        list: false,
-        altersDynamicFields: false,
-      },
-      {
-        key: "type",
-        label: "Data Type",
-        type: "string",
-        choices: ["boolean", "dataframe"],
-        required: true,
-        list: false,
-        altersDynamicFields: false,
-      },
-      {
-        key: "data",
-        label: "Data",
-        type: "string",
-        helpText:
-          "This should be either boolean for Data Type `boolean` or `Record<string, number[] | string[]` type in string",
-        required: true,
-        list: false,
-        altersDynamicFields: false,
-      },
-      {
-        key: "pass",
-        label: "Passed?",
-        type: "boolean",
-        required: false,
-        list: false,
-        altersDynamicFields: false,
-      },
-    ],
+    inputFields: [inputFields],
     perform: perform,
   },
 };
