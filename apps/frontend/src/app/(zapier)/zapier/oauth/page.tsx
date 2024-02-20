@@ -1,7 +1,7 @@
 import { api } from "~/trpc/server";
 import { Icons } from "~/components/icons";
 import { siteConfig } from "~/config/site";
-import { Separator } from "~/components/ui/separator";
+import { Separator } from "@cloud/ui/components/ui/separator";
 import WorkspaceForm from "./workspace-form";
 import { redirect } from "next/navigation";
 

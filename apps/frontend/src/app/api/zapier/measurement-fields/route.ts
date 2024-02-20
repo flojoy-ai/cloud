@@ -6,7 +6,7 @@ type Field = { key: string; label: string; value: string };
 export const GET = async (req: NextRequest) => {
   try {
     const { workspaceId } = await zapierUserAuthMiddleware(req);
-    const hardwares = await api.hardware.getAllHardware.query({
+    const hardwares = await api.hardware.getAllHardware({
       workspaceId,
     });
     const hardwareFields = hardwares.map((hardware) => {
@@ -17,12 +17,12 @@ export const GET = async (req: NextRequest) => {
       };
     });
 
-    const projects = await api.project.getAllProjects.query({
+    const projects = await api.project.getAllProjects({
       workspaceId,
     });
     const testFields: Field[] = [];
     for (const project of projects) {
-      const tests = await api.test.getAllTestsByProjectId.query({
+      const tests = await api.test.getAllTestsByProjectId({
         projectId: project.id,
       });
       tests.forEach((test) => {

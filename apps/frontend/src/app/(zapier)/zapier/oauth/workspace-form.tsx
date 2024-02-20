@@ -6,8 +6,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "~/components/ui/select";
-import { Button } from "~/components/ui/button";
+} from "@cloud/ui/components/ui/select";
+import { Button } from "@cloud/ui/components/ui/button";
 import { useRouter } from "next/navigation";
 import { type OAuthSearchParams } from "./page";
 import { api } from "~/trpc/react";

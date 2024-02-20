@@ -27,7 +27,7 @@ export const POST = async (req: NextRequest) => {
       },
     );
   }
-  const workspace = await api.workspace.getWorkspaceById.query({
+  const workspace = await api.workspace.getWorkspaceById({
     workspaceId: code,
   });
 
