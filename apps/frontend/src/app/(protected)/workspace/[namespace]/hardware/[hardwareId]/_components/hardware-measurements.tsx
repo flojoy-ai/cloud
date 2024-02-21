@@ -69,6 +69,8 @@ export default function HardwareMeasurements({
   namespace,
 }: Props) {
   const [showLatest, setShowLatest] = useState<boolean>(true);
+  const [name, setName] = useState<string | undefined>(undefined);
+  const [tag, setTag] = useState<string | undefined>(undefined);
 
   const { data } = api.measurement.getAllMeasurementsByHardwareId.useQuery(
     {
@@ -141,7 +143,18 @@ export default function HardwareMeasurements({
         </div>
       </Card>
       <div className="py-2" />
-      <MeasurementsDataTable measurements={data} namespace={namespace} />
+      <MeasurementsDataTable
+        measurements={data.filter(
+          (meas) =>
+            (!name || meas.name.toLowerCase().includes(name.toLowerCase())) &&
+            (!tag || meas.tags.find((t) => t.name === tag)),
+        )}
+        namespace={namespace}
+        query={name}
+        setQuery={setName}
+        tag={tag}
+        setTag={setTag}
+      />
     </div>
   );
 }
