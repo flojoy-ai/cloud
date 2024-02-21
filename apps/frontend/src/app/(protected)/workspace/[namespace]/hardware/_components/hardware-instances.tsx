@@ -10,10 +10,8 @@ import { Hardware } from "~/schemas/public/Hardware";
 import { Project } from "~/schemas/public/Project";
 import { useRouter } from "next/navigation";
 import { Paginated } from "~/lib/db-utils";
-import { useState } from "react";
 import { DataTable } from "@cloud/ui/components/ui/data-table";
 import { Button } from "@cloud/ui/components/ui/button";
-import { keepPreviousData } from "@tanstack/react-query";
 import { usePaginate } from "~/hooks/use-paginate";
 
 type Props = {
@@ -80,4 +78,3 @@ export default function HardwareInstances({
     </div>
   );
 }
-
