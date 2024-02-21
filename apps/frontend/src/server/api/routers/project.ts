@@ -14,8 +14,7 @@ import {
 } from "./hardware";
 import { workspaceAccessMiddleware } from "./workspace";
 import { type ProjectId, project } from "~/schemas/public/Project";
-import { generateDatabaseId } from "~/lib/id";
-import { markUpdatedAt, getProjectById, getHardwareById } from "~/lib/query";
+import { getProjectById, getHardwareById } from "~/lib/query";
 import { withDBErrorCheck } from "~/lib/db-utils";
 import { createProject } from "~/server/services/project";
 
@@ -99,14 +98,15 @@ export const projectRouter = createTRPCRouter({
     .meta({
       openapi: { method: "GET", path: "/v1/projects/", tags: ["projects"] },
     })
-    .input(z.object({ workspaceId: z.string() }))
+    .input(z.object({ workspaceId: z.string().optional() }))
     .use(workspaceAccessMiddleware)
     .output(z.array(project))
     .query(async ({ ctx, input }) => {
+      const workspaceId = input.workspaceId || ctx.workspaceId;
       return await ctx.db
         .selectFrom("project")
         .selectAll("project")
-        .where("workspaceId", "=", input.workspaceId)
+        .where("workspaceId", "=", workspaceId)
         .execute();
     }),
 
