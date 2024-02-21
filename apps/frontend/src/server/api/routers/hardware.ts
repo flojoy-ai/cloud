@@ -27,7 +27,7 @@ import { generateDatabaseId } from "~/lib/id";
 import { hardware } from "~/schemas/public/Hardware";
 import { Model, model } from "~/schemas/public/Model";
 import { project } from "~/schemas/public/Project";
-import { ExpressionBuilder } from "kysely";
+import { ExpressionBuilder, Kysely } from "kysely";
 import DB from "~/schemas/public/PublicSchema";
 import { paginated, withDBErrorCheck } from "~/lib/db-utils";
 import { executeWithCursorPagination } from "kysely-paginate";
@@ -127,6 +127,58 @@ export const multiHardwareAccessMiddleware = experimental_standaloneMiddleware<{
     },
   });
 });
+
+const hardwareQueryOptions = z.object({
+  workspaceId: z.string(),
+  projectId: z.string().optional(),
+  modelId: z.string().optional(),
+  onlyAvailable: z.preprocess((arg) => {
+    if (typeof arg === "string") {
+      if (arg === "true" || arg === "1") {
+        return true;
+      }
+      if (arg === "false" || arg === "0") {
+        return false;
+      }
+    }
+    return arg;
+  }, z.boolean().optional()),
+});
+
+const buildAllHardwareQuery = (
+  db: Kysely<DB>,
+  input: z.infer<typeof hardwareQueryOptions>,
+) => {
+  let query = db
+    .selectFrom("hardware")
+    .selectAll("hardware")
+    .where("hardware.workspaceId", "=", input.workspaceId)
+    .select((eb) => [withHardwareModel(eb), withProjects(eb)])
+    .$if(input.projectId !== undefined, (qb) =>
+      qb.innerJoin(
+        // FIXME: Kysely can't infer the type of this expression builder for some reason
+        (eb: ExpressionBuilder<DB, "hardware">) =>
+          eb
+            .selectFrom("project_hardware")
+            .select("project_hardware.hardwareId")
+            .where("project_hardware.projectId", "=", input.projectId!)
+            .as("ph"),
+        (join) => join.onRef("ph.hardwareId", "=", "hardware.id"),
+      ),
+    )
+    .$narrowType<{ model: Model }>()
+    .orderBy("createdAt");
+
+  if (input.onlyAvailable) {
+    query = query.where(notInUse);
+  }
+
+  if (input.modelId) {
+    query = query.where("hardware.modelId", "=", input.modelId);
+  }
+
+  return query;
+};
 
 export const hardwareRouter = createTRPCRouter({
   createHardware: workspaceProcedure
@@ -291,40 +343,32 @@ export const hardwareRouter = createTRPCRouter({
         before: z.string().optional(),
       }),
     )
+    .input(hardwareQueryOptions)
+    .use(workspaceAccessMiddleware)
+    .output(
+      hardware.extend({ model: model, projects: project.array() }).array(),
+    )
+    .query(async ({ input, ctx }) => {
+      return await buildAllHardwareQuery(ctx.db, input).execute();
+    }),
+  getAllHardwarePaginated: workspaceProcedure
+    .meta({
+      openapi: { method: "GET", path: "/v1/hardware", tags: ["hardware"] },
+    })
+    .input(
+      hardwareQueryOptions.extend({
+        pageSize: z.number().default(10),
+        after: z.string().optional(),
+        before: z.string().optional(),
+      }),
+    )
     .use(workspaceAccessMiddleware)
     .output(
       paginated(hardware.extend({ model: model, projects: project.array() })),
     )
     .query(async ({ input, ctx }) => {
-      let query = ctx.db
-        .selectFrom("hardware")
-        .selectAll("hardware")
-        .where("hardware.workspaceId", "=", input.workspaceId)
-        .select((eb) => [withHardwareModel(eb), withProjects(eb)])
-        .$if(input.projectId !== undefined, (qb) =>
-          qb.innerJoin(
-            // FIXME: Kysely can't infer the type of this expression builder for some reason
-            (eb: ExpressionBuilder<DB, "hardware">) =>
-              eb
-                .selectFrom("project_hardware")
-                .select("project_hardware.hardwareId")
-                .where("project_hardware.projectId", "=", input.projectId!)
-                .as("ph"),
-            (join) => join.onRef("ph.hardwareId", "=", "hardware.id"),
-          ),
-        )
-        .$narrowType<{ model: Model }>()
-        .orderBy("createdAt");
-
-      if (input.onlyAvailable) {
-        query = query.where(notInUse);
-      }
-
-      if (input.modelId) {
-        query = query.where("hardware.modelId", "=", input.modelId);
-      }
-
-      const result = await executeWithCursorPagination(query, {
+      const query = buildAllHardwareQuery(ctx.db, input);
+      return await executeWithCursorPagination(query, {
         perPage: input.pageSize,
         after: input.after,
         before: input.before,
@@ -333,8 +377,6 @@ export const hardwareRouter = createTRPCRouter({
           createdAt: new Date(cursor.createdAt),
         }),
       });
-
-      return result;
     }),
 
   deleteHardware: workspaceProcedure

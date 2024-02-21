@@ -24,7 +24,7 @@ export default async function HardwareInventory({
     api.model.getAllModels({
       workspaceId,
     }),
-    api.hardware.getAllHardware({
+    api.hardware.getAllHardwarePaginated({
       workspaceId,
       pageSize: 5,
     }),
