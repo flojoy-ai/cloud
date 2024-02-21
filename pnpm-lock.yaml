@@ -422,6 +422,9 @@ importers:
         specifier: 15.5.1
         version: 15.5.1
     devDependencies:
+      '@jest/globals':
+        specifier: ^29.7.0
+        version: 29.7.0
       '@types/jest':
         specifier: ^26.0.24
         version: 26.0.24
