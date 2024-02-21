@@ -59,6 +59,10 @@ function pickTernary<T>(ternary: boolean | null, a: T, b: T, c: T) {
   }
 }
 
+// TODO: This uses client side filtering but the test page uses server side
+// figure out a better way to unify it?
+// We need to compute the pass/fail status anyway so here we kind of need to
+// fetch all of the measurements at once
 export default function HardwareMeasurements({
   hardwareId,
   initialMeasurements,

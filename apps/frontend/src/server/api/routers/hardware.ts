@@ -31,6 +31,7 @@ import { ExpressionBuilder, Kysely } from "kysely";
 import DB from "~/schemas/public/PublicSchema";
 import { paginated, withDBErrorCheck } from "~/lib/db-utils";
 import { executeWithCursorPagination } from "kysely-paginate";
+import { optionalBool } from "~/lib/utils";
 
 export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: AccessContext;
@@ -132,17 +133,7 @@ const hardwareQueryOptions = z.object({
   workspaceId: z.string(),
   projectId: z.string().optional(),
   modelId: z.string().optional(),
-  onlyAvailable: z.preprocess((arg) => {
-    if (typeof arg === "string") {
-      if (arg === "true" || arg === "1") {
-        return true;
-      }
-      if (arg === "false" || arg === "0") {
-        return false;
-      }
-    }
-    return arg;
-  }, z.boolean().optional()),
+  onlyAvailable: optionalBool,
 });
 
 const buildAllHardwareQuery = (
@@ -322,27 +313,6 @@ export const hardwareRouter = createTRPCRouter({
     .meta({
       openapi: { method: "GET", path: "/v1/hardware", tags: ["hardware"] },
     })
-    .input(
-      z.object({
-        workspaceId: z.string(),
-        projectId: z.string().optional(),
-        modelId: z.string().optional(),
-        onlyAvailable: z.preprocess((arg) => {
-          if (typeof arg === "string") {
-            if (arg === "true" || arg === "1") {
-              return true;
-            }
-            if (arg === "false" || arg === "0") {
-              return false;
-            }
-          }
-          return arg;
-        }, z.boolean().optional()),
-        pageSize: z.number().default(10),
-        after: z.string().optional(),
-        before: z.string().optional(),
-      }),
-    )
     .input(hardwareQueryOptions)
     .use(workspaceAccessMiddleware)
     .output(
@@ -353,7 +323,11 @@ export const hardwareRouter = createTRPCRouter({
     }),
   getAllHardwarePaginated: workspaceProcedure
     .meta({
-      openapi: { method: "GET", path: "/v1/hardware", tags: ["hardware"] },
+      openapi: {
+        method: "GET",
+        path: "/v1/hardware/paginate",
+        tags: ["hardware"],
+      },
     })
     .input(
       hardwareQueryOptions.extend({

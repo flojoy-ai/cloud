@@ -2,6 +2,7 @@ import { TRPCClientError } from "@trpc/client";
 import axios from "axios";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { z } from "zod";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -41,3 +42,15 @@ export const handleError = (error: any, defaultMessage?: string) => {
   }
   return defaultMessage ?? "Internal server error!";
 };
+
+export const optionalBool = z.preprocess((arg) => {
+  if (typeof arg === "string") {
+    if (arg === "true" || arg === "1") {
+      return true;
+    }
+    if (arg === "false" || arg === "0") {
+      return false;
+    }
+  }
+  return arg;
+}, z.boolean().optional());

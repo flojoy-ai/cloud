@@ -263,7 +263,10 @@ export function withHardware(eb: ExpressionBuilder<DB, "measurement">) {
   ).as("hardware");
 }
 
-export function withTags(eb: ExpressionBuilder<DB, "measurement">) {
+export function withTags(
+  eb: ExpressionBuilder<DB, "measurement">,
+  matchTags?: string[],
+) {
   return jsonArrayFrom(
     eb
       .selectFrom("measurement_tag as mt")

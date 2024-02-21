@@ -1,6 +1,6 @@
 import { keepPreviousData } from "@tanstack/react-query";
 import { DecoratedQuery } from "node_modules/@trpc/react-query/dist/createTRPCReact";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Paginated } from "~/lib/db-utils";
 import { DefinedUseTRPCQueryResult } from "@trpc/react-query/shared";
 
@@ -36,6 +36,11 @@ export const usePaginate = <O, D extends PaginatedEndpointDef<O>>(
     },
     { initialData, placeholderData: keepPreviousData },
   );
+
+  useEffect(() => {
+    setCursorHistory([undefined]);
+    setPageIndex(0);
+  }, [args]);
 
   const prev = () => {
     setPageIndex(pageIndex - 1);

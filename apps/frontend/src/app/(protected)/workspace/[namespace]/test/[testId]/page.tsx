@@ -1,4 +1,3 @@
-import { MeasurementsDataTable } from "~/components/measurements-data-table";
 import {
   PageHeader,
   PageHeaderDescription,
@@ -7,6 +6,7 @@ import {
 import { api } from "~/trpc/server";
 import { Separator } from "@cloud/ui/components/ui/separator";
 import BackButton from "~/components/back-button";
+import { TestMeasurements } from "../_components/test-measurements";
 
 export default async function Test({
   params,
@@ -19,8 +19,9 @@ export default async function Test({
     api.test.getTest({
       testId: params.testId,
     }),
-    api.measurement.getAllMeasurementsByTestId({
+    api.measurement.getAllMeasurementsByTestIdPaginated({
       testId: params.testId,
+      pageSize: 5,
     }),
   ]);
 
@@ -37,10 +38,7 @@ export default async function Test({
 
       <Separator className="my-6" />
 
-      <MeasurementsDataTable
-        measurements={testMeasurements}
-        namespace={params.namespace}
-      />
+      <TestMeasurements initialData={testMeasurements} {...params} />
 
       <div className="py-8" />
     </div>

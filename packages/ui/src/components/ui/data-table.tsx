@@ -17,7 +17,7 @@ import {
 } from "@cloud/ui/components/ui/table";
 import { cn } from "~/lib/utils";
 
-interface DataTableProps<TData, TValue> {
+export interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   onRowClick?: (row: TData) => void;

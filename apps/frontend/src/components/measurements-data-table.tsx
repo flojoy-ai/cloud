@@ -1,5 +1,3 @@
-"use client";
-
 import { columns } from "~/components/measurement/columns";
 import { useRouter } from "next/navigation";
 import { type SelectMeasurement } from "~/types/measurement";
@@ -34,11 +32,21 @@ import _ from "lodash";
 type Props = {
   measurements: SelectMeasurement[];
   namespace: string;
+  query: string | undefined;
+  setQuery: (query: string | undefined) => void;
+  tag: string | undefined;
+  setTag: (tag: string | undefined) => void;
 };
 
-export function MeasurementsDataTable({ measurements, namespace }: Props) {
+export function MeasurementsDataTable({
+  measurements,
+  namespace,
+  query,
+  setQuery,
+  tag,
+  setTag,
+}: Props) {
   const router = useRouter();
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   const data = measurements;
 
@@ -46,11 +54,6 @@ export function MeasurementsDataTable({ measurements, namespace }: Props) {
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    onColumnFiltersChange: setColumnFilters,
-    getFilteredRowModel: getFilteredRowModel(),
-    state: {
-      columnFilters,
-    },
   });
 
   const onRowClick = (row: SelectMeasurement) => {
@@ -64,13 +67,11 @@ export function MeasurementsDataTable({ measurements, namespace }: Props) {
       <div className="flex items-center gap-x-2 py-4">
         <Input
           placeholder="Search..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
-          }
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
           className="max-w-sm"
         />
-        <Select>
+        <Select onValueChange={setTag} value={tag}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Tag" />
           </SelectTrigger>
