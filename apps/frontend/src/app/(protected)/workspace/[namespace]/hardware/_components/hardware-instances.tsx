@@ -1,7 +1,6 @@
 "use client";
 
 import { hardwareColumns } from "~/components/hardware/columns";
-import { DataTable } from "@cloud/ui/components/ui/data-table";
 import { api } from "~/trpc/react";
 
 import CreateHardware from "~/components/hardware/create-hardware";
@@ -10,9 +9,14 @@ import { Model } from "~/schemas/public/Model";
 import { Hardware } from "~/schemas/public/Hardware";
 import { Project } from "~/schemas/public/Project";
 import { useRouter } from "next/navigation";
+import { Paginated } from "~/lib/db-utils";
+import { useState } from "react";
+import { DataTable } from "@cloud/ui/components/ui/data-table";
+import { Button } from "@cloud/ui/components/ui/button";
+import { keepPreviousData } from "@tanstack/react-query";
 
 type Props = {
-  hardware: (Hardware & { model: Model; projects: Project[] })[];
+  hardware: Paginated<Hardware & { model: Model; projects: Project[] }>;
   models: Model[];
   workspaceId: string;
   namespace: string;
@@ -24,13 +28,34 @@ export default function HardwareInstances({
   workspaceId,
   namespace,
 }: Props) {
+  const [cursorHistory, setCursorHistory] = useState<(string | undefined)[]>([
+    undefined,
+  ]);
+  const [pageIndex, setPageIndex] = useState(0);
   const { data: hardware } = api.hardware.getAllHardware.useQuery(
     {
       workspaceId: workspaceId,
+      after: cursorHistory[pageIndex],
+      pageSize: 5,
     },
-    { initialData },
+    { initialData, placeholderData: keepPreviousData },
   );
   const router = useRouter();
+
+  const handleBack = () => {
+    setPageIndex(pageIndex - 1);
+  };
+
+  const handleNext = () => {
+    if (pageIndex === cursorHistory.length - 1 && hardware.endCursor) {
+      setCursorHistory([...cursorHistory, hardware.endCursor]);
+    }
+    setPageIndex(pageIndex + 1);
+  };
+
+  const hasNextPage =
+    hardware.hasNextPage || pageIndex < cursorHistory.length - 1;
+  const hasPrevPage = hardware.hasPrevPage || pageIndex > 0;
 
   return (
     <div className="">
@@ -46,12 +71,29 @@ export default function HardwareInstances({
       <div className="py-4" />
       <DataTable
         columns={hardwareColumns}
-        data={hardware}
+        data={hardware.rows}
         onRowClick={(row) =>
           router.push(`/workspace/${namespace}/hardware/${row.id}`)
         }
       />
-      <div className="py-4" />
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleBack}
+          disabled={!hasPrevPage}
+        >
+          Previous
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleNext}
+          disabled={!hasNextPage}
+        >
+          Next
+        </Button>
+      </div>
     </div>
   );
 }

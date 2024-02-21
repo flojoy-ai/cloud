@@ -26,6 +26,7 @@ export default async function HardwareInventory({
     }),
     api.hardware.getAllHardware({
       workspaceId,
+      pageSize: 5,
     }),
   ]);
 

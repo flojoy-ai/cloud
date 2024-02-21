@@ -29,7 +29,8 @@ import { Model, model } from "~/schemas/public/Model";
 import { project } from "~/schemas/public/Project";
 import { ExpressionBuilder } from "kysely";
 import DB from "~/schemas/public/PublicSchema";
-import { withDBErrorCheck } from "~/lib/db-utils";
+import { paginated, withDBErrorCheck } from "~/lib/db-utils";
+import { executeWithCursorPagination } from "kysely-paginate";
 
 export const hardwareAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: AccessContext;
@@ -125,26 +126,6 @@ export const multiHardwareAccessMiddleware = experimental_standaloneMiddleware<{
       hardwares,
     },
   });
-});
-
-const hardwareQueryOptions = z.object({
-  workspaceId: z.string(),
-  projectId: z.string().optional(),
-  modelId: z.string().optional(),
-});
-
-const deviceQueryOptions = hardwareQueryOptions.extend({
-  onlyAvailable: z.preprocess((arg) => {
-    if (typeof arg === "string") {
-      if (arg === "true" || arg === "1") {
-        return true;
-      }
-      if (arg === "false" || arg === "0") {
-        return false;
-      }
-    }
-    return arg;
-  }, z.boolean().optional()),
 });
 
 export const hardwareRouter = createTRPCRouter({
@@ -289,10 +270,30 @@ export const hardwareRouter = createTRPCRouter({
     .meta({
       openapi: { method: "GET", path: "/v1/hardware", tags: ["hardware"] },
     })
-    .input(deviceQueryOptions)
+    .input(
+      z.object({
+        workspaceId: z.string(),
+        projectId: z.string().optional(),
+        modelId: z.string().optional(),
+        onlyAvailable: z.preprocess((arg) => {
+          if (typeof arg === "string") {
+            if (arg === "true" || arg === "1") {
+              return true;
+            }
+            if (arg === "false" || arg === "0") {
+              return false;
+            }
+          }
+          return arg;
+        }, z.boolean().optional()),
+        pageSize: z.number().default(10),
+        after: z.string().optional(),
+        before: z.string().optional(),
+      }),
+    )
     .use(workspaceAccessMiddleware)
     .output(
-      z.array(hardware.extend({ model: model, projects: project.array() })),
+      paginated(hardware.extend({ model: model, projects: project.array() })),
     )
     .query(async ({ input, ctx }) => {
       let query = ctx.db
@@ -323,9 +324,17 @@ export const hardwareRouter = createTRPCRouter({
         query = query.where("hardware.modelId", "=", input.modelId);
       }
 
-      const data = query.execute();
+      const result = await executeWithCursorPagination(query, {
+        perPage: input.pageSize,
+        after: input.after,
+        before: input.before,
+        fields: [{ expression: "createdAt", direction: "asc" }],
+        parseCursor: (cursor) => ({
+          createdAt: new Date(cursor.createdAt),
+        }),
+      });
 
-      return data;
+      return result;
     }),
 
   deleteHardware: workspaceProcedure

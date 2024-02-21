@@ -128,6 +128,9 @@ importers:
       kysely:
         specifier: ^0.27.2
         version: 0.27.2
+      kysely-paginate:
+        specifier: ^0.3.1
+        version: 0.3.1(kysely@0.27.2)
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -14920,6 +14923,15 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
+
+  /kysely-paginate@0.3.1(kysely@0.27.2):
+    resolution: {integrity: sha512-isZh9lFExDp8C6GFXUyQLxn18tQzRtEcs7jf1DftDRBYJSZi+OdIa4gMf5THwwAM5kEaihk7+cdyv9Fr7xCvyw==}
+    engines: {node: '>= 16.14.0'}
+    peerDependencies:
+      kysely: '*'
+    dependencies:
+      kysely: 0.27.2
+    dev: false
 
   /kysely@0.27.2:
     resolution: {integrity: sha512-DmRvEfiR/NLpgsTbSxma2ldekhsdcd65+MNiKXyd/qj7w7X5e3cLkXxcj+MypsRDjPhHQ/CD5u3Eq1sBYzX0bw==}

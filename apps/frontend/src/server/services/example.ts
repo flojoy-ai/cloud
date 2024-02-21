@@ -64,6 +64,7 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
     id: generateDatabaseId("hardware"),
     name: `SN000${i + 1}`,
     modelId: deviceModel1.id,
+    createdAt: new Date(new Date().getTime() + i * 20000),
     workspaceId,
   }));
 

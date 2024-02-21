@@ -1,5 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { DatabaseError } from "pg";
+import { z } from "zod";
 
 // For postgresql error codes https://www.postgresql.org/docs/current/errcodes-appendix.html
 export const dbErrorCodes = {
@@ -34,3 +35,21 @@ export async function withDBErrorCheck<T>(
     throw error;
   }
 }
+
+export function paginated<T extends z.ZodTypeAny>(schema: T) {
+  return z.object({
+    startCursor: z.string().optional(),
+    endCursor: z.string().optional(),
+    hasNextPage: z.boolean().optional(),
+    hasPrevPage: z.boolean().optional(),
+    rows: z.array(schema),
+  });
+}
+
+export type Paginated<T> = {
+  startCursor?: string;
+  endCursor?: string;
+  hasNextPage?: boolean;
+  hasPrevPage?: boolean;
+  rows: T[];
+};
