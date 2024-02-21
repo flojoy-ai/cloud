@@ -21,7 +21,7 @@ export default async function Test({
     }),
     api.measurement.getAllMeasurementsByTestIdPaginated({
       testId: params.testId,
-      pageSize: 5,
+      pageSize: 10,
     }),
   ]);
 

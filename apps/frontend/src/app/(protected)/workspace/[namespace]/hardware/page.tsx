@@ -20,15 +20,14 @@ export default async function HardwareInventory({
     namespace: params.namespace,
   });
 
-  const [models, hardware] = await Promise.all([
-    api.model.getAllModels({
-      workspaceId,
-    }),
-    api.hardware.getAllHardwarePaginated({
-      workspaceId,
-      pageSize: 5,
-    }),
-  ]);
+  const models = await api.model.getAllModels({
+    workspaceId,
+  });
+
+  const hardware = await api.hardware.getAllHardwarePaginated({
+    workspaceId,
+    pageSize: 10,
+  });
 
   return (
     <div className="container max-w-screen-2xl">

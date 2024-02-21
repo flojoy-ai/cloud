@@ -19,6 +19,7 @@ import {
 } from "@cloud/ui/components/ui/table";
 import { cn } from "~/lib/utils";
 import { RenderSubComponent } from "./hardware-models";
+import { Fragment } from "react";
 
 interface DataTableProps<TData> {
   columns: ColumnDef<TData>[];
@@ -63,9 +64,8 @@ export function DataTable({
         <TableBody>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
-              <>
+              <Fragment key={row.id}>
                 <TableRow
-                  key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   className={cn({ "cursor-pointer": onRowClick !== undefined })}
                   onClick={row.getToggleExpandedHandler()}
@@ -82,12 +82,11 @@ export function DataTable({
                 {row.getIsExpanded() && (
                   <TableRow>
                     <td colSpan={row.getVisibleCells().length}>
-                      {/* {renderSubComponent({ row })} */}
                       <RenderSubComponent row={row.original} />
                     </td>
                   </TableRow>
                 )}
-              </>
+              </Fragment>
             ))
           ) : (
             <TableRow>

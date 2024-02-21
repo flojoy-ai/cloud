@@ -1,10 +1,8 @@
 import { keepPreviousData } from "@tanstack/react-query";
 import { DecoratedQuery } from "node_modules/@trpc/react-query/dist/createTRPCReact";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Paginated } from "~/lib/db-utils";
 import { DefinedUseTRPCQueryResult } from "@trpc/react-query/shared";
-
-// type PaginateArgs = { after: string | undefined; pageSize: number };
 
 type PaginatedEndpointDef<O> = {
   input: any;
@@ -16,6 +14,7 @@ type PaginatedEndpointDef<O> = {
 type UsePaginateResult<T> = DefinedUseTRPCQueryResult<T, unknown> & {
   next: () => void;
   prev: () => void;
+  reset: () => void;
   hasNextPage: boolean;
   hasPrevPage: boolean;
 };
@@ -37,10 +36,10 @@ export const usePaginate = <O, D extends PaginatedEndpointDef<O>>(
     { initialData, placeholderData: keepPreviousData },
   );
 
-  useEffect(() => {
+  const reset = () => {
     setCursorHistory([undefined]);
     setPageIndex(0);
-  }, [args]);
+  };
 
   const prev = () => {
     setPageIndex(pageIndex - 1);
@@ -57,5 +56,5 @@ export const usePaginate = <O, D extends PaginatedEndpointDef<O>>(
     res.data?.hasNextPage || pageIndex < cursorHistory.length - 1;
   const hasPrevPage = res.data?.hasPrevPage || pageIndex > 0;
 
-  return { ...res, next, prev, hasNextPage, hasPrevPage };
+  return { ...res, next, prev, hasNextPage, hasPrevPage, reset };
 };

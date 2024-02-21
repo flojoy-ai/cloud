@@ -14,23 +14,14 @@ type Props = {
   initialData: Paginated<SelectMeasurement>;
 };
 
-type QueryArgs = {
-  testId: string;
-  pageSize: number;
-  tags?: string[];
-  name?: string;
-};
-
 export function TestMeasurements({ testId, namespace, initialData }: Props) {
   // TODO: Support multiple tags
-  const [queryArgs, setQueryArgs] = useState<QueryArgs>({
-    testId,
-    pageSize: 5,
-  });
+  const [query, setQuery] = useState<string | undefined>(undefined);
+  const [tag, setTag] = useState<string | undefined>(undefined);
 
-  const { data, prev, hasPrevPage, next, hasNextPage } = usePaginate(
+  const { data, prev, hasPrevPage, next, hasNextPage, reset } = usePaginate(
     api.measurement.getAllMeasurementsByTestIdPaginated,
-    queryArgs,
+    { testId, pageSize: 10, name: query, tags: tag ? [tag] : undefined },
     initialData,
   );
 
@@ -39,12 +30,16 @@ export function TestMeasurements({ testId, namespace, initialData }: Props) {
       <MeasurementsDataTable
         measurements={data.rows}
         namespace={namespace}
-        tag={queryArgs.tags?.[0]}
-        query={queryArgs.name}
-        setTag={(val) =>
-          setQueryArgs({ ...queryArgs, tags: val ? [val] : undefined })
-        }
-        setQuery={(val) => setQueryArgs({ ...queryArgs, name: val })}
+        tag={tag}
+        query={query}
+        setTag={(val) => {
+          setTag(val);
+          reset();
+        }}
+        setQuery={(val) => {
+          setQuery(val);
+          reset();
+        }}
       />
       <div className="py-4" />
       <div className="flex items-center justify-end space-x-2 py-4">
