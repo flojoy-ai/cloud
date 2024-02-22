@@ -1,6 +1,7 @@
 import { DataTable, DataTableProps } from "@cloud/ui/components/ui/data-table";
 import { Paginated } from "~/lib/db-utils";
 import { Button } from "@cloud/ui/components/ui/button";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 type Props<TData, TValue> = Omit<DataTableProps<TData, TValue>, "data"> & {
   data: Paginated<TData>;
@@ -21,16 +22,14 @@ export function PaginatedDataTable<TData, TValue>({
 }: Props<TData, TValue>) {
   return (
     <div>
-      <DataTable columns={columns} data={data.rows} onRowClick={onRowClick} />
-      <div className="py-4" />
-      <div className="flex items-center justify-end space-x-2 py-4">
+      <div className="flex items-center justify-center space-x-2 py-4">
         <Button
           variant="outline"
           size="sm"
           onClick={prev}
           disabled={!hasPrevPage}
         >
-          Previous
+          <ArrowLeft />
         </Button>
         <Button
           variant="outline"
@@ -38,9 +37,10 @@ export function PaginatedDataTable<TData, TValue>({
           onClick={next}
           disabled={!hasNextPage}
         >
-          Next
+          <ArrowRight />
         </Button>
       </div>
+      <DataTable columns={columns} data={data.rows} onRowClick={onRowClick} />
     </div>
   );
 }

@@ -167,11 +167,7 @@ const CreateHardware = ({
         }
       }}
     >
-      <DialogTrigger asChild>
-        <Button variant="default" size="sm">
-          {children}
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Register new hardware</DialogTitle>

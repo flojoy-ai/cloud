@@ -135,9 +135,8 @@ const CreateModel = ({ workspaceId, models }: Props) => {
       }}
     >
       <DialogTrigger asChild>
-        <Button variant="default" size="sm">
-          <Cpu className="mr-2 text-muted" size={20} />
-          Create
+        <Button variant="secondary" size="icon" className="h-8 w-8">
+          <Plus size={20} className="stroke-muted-foreground" />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">

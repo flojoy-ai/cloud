@@ -11,6 +11,7 @@ import ImportHardware from "./import-hardware";
 import { Hardware } from "~/schemas/public/Hardware";
 import { Model } from "~/schemas/public/Model";
 import { Project } from "~/schemas/public/Project";
+import { Button } from "@cloud/ui/components/ui/button";
 
 type Props = {
   hardwares: (Hardware & { model: Model; projects: Project[] })[];
@@ -64,10 +65,12 @@ const AllHardwares = ({
           models={models}
           projectId={project.id}
         >
-          <div className="flex items-center gap-2">
-            <PlusCircle size={20} />
-            <div>Register Instance</div>
-          </div>
+          <Button>
+            <div className="flex items-center gap-2">
+              <PlusCircle size={20} />
+              <div>Register Instance</div>
+            </div>
+          </Button>
         </CreateHardware>
       </div>
       <div className="text-muted-foreground">
