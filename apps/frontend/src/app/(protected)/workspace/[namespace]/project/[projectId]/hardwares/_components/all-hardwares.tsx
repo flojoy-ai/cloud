@@ -65,7 +65,7 @@ const AllHardwares = ({
           models={models}
           projectId={project.id}
         >
-          <Button>
+          <Button size="sm">
             <div className="flex items-center gap-2">
               <PlusCircle size={20} />
               <div>Register Instance</div>
