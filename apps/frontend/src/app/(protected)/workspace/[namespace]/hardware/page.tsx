@@ -26,7 +26,7 @@ export default async function HardwareInventory({
 
   const hardware = await api.hardware.getAllHardwarePaginated({
     workspaceId,
-    pageSize: 10,
+    pageSize: 5,
   });
 
   return (

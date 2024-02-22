@@ -56,6 +56,9 @@ type Props = {
   models?: Model[];
   projectId?: string;
   children?: React.ReactNode;
+  buttonVariant?: "default" | "secondary";
+  buttonSize?: "sm" | "icon";
+  className?: string;
 };
 
 const getComponentModelIds = (tree: ModelTree) => {
@@ -71,6 +74,9 @@ const CreateHardware = ({
   model,
   models,
   projectId,
+  buttonVariant = "default",
+  buttonSize = "sm",
+  className,
 }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const utils = api.useUtils();
@@ -137,7 +143,12 @@ const CreateHardware = ({
 
   if (!hardware || !models) {
     return (
-      <Button variant="default" size="sm" disabled={true}>
+      <Button
+        variant={buttonVariant}
+        size={buttonSize}
+        disabled={true}
+        className={className}
+      >
         {children}
       </Button>
     );
@@ -167,7 +178,11 @@ const CreateHardware = ({
         }
       }}
     >
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogTrigger asChild>
+        <Button variant={buttonVariant} size={buttonSize} className={className}>
+          {children}
+        </Button>
+      </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Register new hardware</DialogTitle>

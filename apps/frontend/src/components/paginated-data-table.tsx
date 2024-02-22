@@ -22,6 +22,7 @@ export function PaginatedDataTable<TData, TValue>({
 }: Props<TData, TValue>) {
   return (
     <div>
+      <DataTable columns={columns} data={data.rows} onRowClick={onRowClick} />
       <div className="flex items-center justify-center space-x-2 py-4">
         <Button
           variant="outline"
@@ -40,7 +41,6 @@ export function PaginatedDataTable<TData, TValue>({
           <ArrowRight />
         </Button>
       </div>
-      <DataTable columns={columns} data={data.rows} onRowClick={onRowClick} />
     </div>
   );
 }

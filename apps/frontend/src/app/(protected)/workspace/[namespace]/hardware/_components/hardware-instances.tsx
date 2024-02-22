@@ -32,7 +32,7 @@ export default function HardwareInstances({
     api.hardware.getAllHardwarePaginated,
     {
       workspaceId,
-      pageSize: 10,
+      pageSize: 5,
     },
     initialData,
   );
@@ -44,12 +44,17 @@ export default function HardwareInstances({
       <div className="py-2" />
       <h1 className="flex items-center gap-x-2 text-xl font-bold">
         <div>Hardware Instances</div>
-        <CreateHardware workspaceId={workspaceId} models={models}>
-          <Button size="icon" variant="secondary" className="h-8 w-8">
-            <Plus size={20} className="stroke-muted-foreground" />
-          </Button>
+        <CreateHardware
+          workspaceId={workspaceId}
+          models={models}
+          buttonSize="icon"
+          buttonVariant="secondary"
+          className="h-8 w-8"
+        >
+          <Plus size={20} className="stroke-muted-foreground" />
         </CreateHardware>
       </h1>
+      <div className="py-4" />
       <PaginatedDataTable
         columns={hardwareColumns}
         data={data}
