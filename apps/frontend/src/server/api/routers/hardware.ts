@@ -18,6 +18,7 @@ import {
   withProjects,
 } from "~/lib/query";
 import {
+  hardwareStatusSchema,
   hardwareTreeSchema,
   insertHardwareSchema,
   selectHardwareRevision,
@@ -307,6 +308,52 @@ export const hardwareRouter = createTRPCRouter({
     .output(hardwareTreeSchema)
     .query(async ({ ctx }) => {
       return await getHardwareTree(ctx.hardware);
+    }),
+
+  getHardwareStatus: workspaceProcedure
+    .meta({
+      openapi: {
+        method: "GET",
+        path: "/v1/hardware/{hardwareId}/status",
+        tags: ["hardware"],
+      },
+    })
+    .input(z.object({ hardwareId: z.string() }))
+    .use(hardwareAccessMiddleware)
+    .output(hardwareStatusSchema)
+    .query(async ({ input, ctx }) => {
+      const latestMeasurements = await ctx.db
+        .selectFrom("measurement")
+        .selectAll("measurement")
+        .where("hardwareId", "=", input.hardwareId)
+        .orderBy("measurement.testId", "desc")
+        .orderBy("measurement.createdAt", "desc")
+        .distinctOn("testId")
+        .execute();
+
+      let unevaluatedCount = 0;
+      let passCount = 0;
+      let failCount = 0;
+
+      for (const meas of latestMeasurements) {
+        if (meas.pass === null) {
+          unevaluatedCount++;
+        } else if (meas.pass) {
+          passCount++;
+        } else {
+          failCount++;
+        }
+      }
+
+      const passing =
+        failCount > 0 ? false : unevaluatedCount > 0 ? null : true;
+
+      return {
+        passing,
+        passCount,
+        unevaluatedCount: unevaluatedCount,
+        failCount,
+      };
     }),
 
   getAllHardware: workspaceProcedure

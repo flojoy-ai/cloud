@@ -39,3 +39,12 @@ export const hardwareTreeSchema: z.ZodType<HardwareTree> = z.object({
   modelName: z.string().min(1),
   components: z.lazy(() => hardwareTreeSchema.array()),
 });
+
+export const hardwareStatusSchema = z.object({
+  passing: z.boolean().nullable(),
+  passCount: z.number(),
+  failCount: z.number(),
+  unevaluatedCount: z.number(),
+});
+
+export type HardwareStatus = z.infer<typeof hardwareStatusSchema>;

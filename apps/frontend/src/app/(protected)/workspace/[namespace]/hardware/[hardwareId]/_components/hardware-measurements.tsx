@@ -1,51 +1,22 @@
 "use client";
 
 import _ from "lodash";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { MeasurementsDataTable } from "~/components/measurements-data-table";
 import { Card } from "@cloud/ui/components/ui/card";
 import { Checkbox } from "@cloud/ui/components/ui/checkbox";
 import { Label } from "@cloud/ui/components/ui/label";
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/react";
-import { SelectMeasurement } from "~/types/measurement";
 import { Check, X, Upload } from "lucide-react";
-import { HardwareTree } from "~/types/hardware";
+import { HardwareStatus, HardwareTree } from "~/types/hardware";
+import { usePaginate } from "~/hooks/use-paginate";
 
 type Props = {
   hardwareId: string;
   hardware: HardwareTree;
   namespace: string;
-  initialMeasurements: SelectMeasurement[];
-};
-
-const computePassingStatus = (measurements: SelectMeasurement[]) => {
-  const latest = _.values(_.groupBy(measurements, (meas) => meas.testId)).map(
-    (meas) => meas[0]!,
-  );
-
-  let unevaluatedCount = 0;
-  let passCount = 0;
-  let failCount = 0;
-
-  for (const meas of latest) {
-    if (meas.pass === null) {
-      unevaluatedCount++;
-    } else if (meas.pass) {
-      passCount++;
-    } else {
-      failCount++;
-    }
-  }
-
-  const passing = failCount > 0 ? false : unevaluatedCount > 0 ? null : true;
-
-  return {
-    passing,
-    passCount,
-    unevaluatedCount: unevaluatedCount,
-    failCount,
-  };
+  initialStatus: HardwareStatus;
 };
 
 function pickTernary<T>(ternary: boolean | null, a: T, b: T, c: T) {
@@ -59,32 +30,45 @@ function pickTernary<T>(ternary: boolean | null, a: T, b: T, c: T) {
   }
 }
 
+const PAGE_SIZE = 10;
+
 // TODO: This uses client side filtering but the test page uses server side
 // figure out a better way to unify it?
 // We need to compute the pass/fail status anyway so here we kind of need to
 // fetch all of the measurements at once
 export default function HardwareMeasurements({
   hardwareId,
-  initialMeasurements,
+  initialStatus,
   namespace,
 }: Props) {
   const [showLatest, setShowLatest] = useState<boolean>(true);
-  const [name, setName] = useState<string | undefined>(undefined);
+  const [query, setQuery] = useState<string | undefined>(undefined);
   const [tag, setTag] = useState<string | undefined>(undefined);
 
-  const { data } = api.measurement.getAllMeasurementsByHardwareId.useQuery(
+  const { data, prev, hasPrevPage, next, hasNextPage, reset } = usePaginate(
+    api.measurement.getAllMeasurementsByHardwareIdPaginated,
     {
-      hardwareId: hardwareId,
-      latest: showLatest,
-    },
-    {
-      initialData: initialMeasurements,
+      hardwareId,
+      pageSize: PAGE_SIZE,
+      name: query,
+      tags: tag ? [tag] : undefined,
     },
   );
 
-  const status = useMemo(() => computePassingStatus(data), [data]);
+  const { data: status } = api.hardware.getHardwareStatus.useQuery(
+    {
+      hardwareId: hardwareId,
+    },
+    {
+      initialData: initialStatus,
+    },
+  );
 
-  if (data.length === 0) {
+  if (
+    status.passCount === 0 &&
+    status.failCount === 0 &&
+    status.unevaluatedCount === 0
+  ) {
     return (
       <div className="mt-24 flex flex-col items-center justify-center text-center text-muted-foreground">
         <Upload size={40} />
@@ -135,25 +119,33 @@ export default function HardwareMeasurements({
         <div className="flex items-center gap-2">
           <Checkbox
             checked={showLatest}
-            onCheckedChange={(state) =>
-              setShowLatest(state.valueOf() as boolean)
-            }
+            onCheckedChange={(state) => {
+              setShowLatest(state.valueOf() as boolean);
+              reset();
+            }}
           />
           <Label>Only show latest measurements per test</Label>
         </div>
       </Card>
       <div className="py-2" />
       <MeasurementsDataTable
-        measurements={data.filter(
-          (meas) =>
-            (!name || meas.name.toLowerCase().includes(name.toLowerCase())) &&
-            (!tag || meas.tags.find((t) => t.name === tag)),
-        )}
+        pageSize={PAGE_SIZE}
+        data={data}
         namespace={namespace}
-        query={name}
-        setQuery={setName}
         tag={tag}
-        setTag={setTag}
+        query={query}
+        setTag={(val) => {
+          setTag(val);
+          reset();
+        }}
+        setQuery={(val) => {
+          setQuery(val);
+          reset();
+        }}
+        next={next}
+        prev={prev}
+        hasNextPage={hasNextPage}
+        hasPrevPage={hasPrevPage}
       />
     </div>
   );

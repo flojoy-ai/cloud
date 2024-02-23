@@ -15,15 +15,9 @@ export default async function Test({
   params: { testId: string; namespace: string };
   searchParams: { back?: string };
 }) {
-  const [test, testMeasurements] = await Promise.all([
-    api.test.getTest({
-      testId: params.testId,
-    }),
-    api.measurement.getAllMeasurementsByTestIdPaginated({
-      testId: params.testId,
-      pageSize: 10,
-    }),
-  ]);
+  const test = await api.test.getTest({
+    testId: params.testId,
+  });
 
   return (
     <div className="container max-w-screen-2xl">
@@ -38,7 +32,7 @@ export default async function Test({
 
       <Separator className="my-6" />
 
-      <TestMeasurements initialData={testMeasurements} {...params} />
+      <TestMeasurements {...params} />
 
       <div className="py-8" />
     </div>

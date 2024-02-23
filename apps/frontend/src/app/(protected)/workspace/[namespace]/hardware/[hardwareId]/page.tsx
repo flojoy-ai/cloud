@@ -18,21 +18,25 @@ export default async function Hardware({
   params: { hardwareId: string; namespace: string };
   searchParams: { back?: string };
 }) {
-  const [hardware, revisions, measurements, workspaceId] = await Promise.all([
-    api.hardware.getHardware({
-      hardwareId: params.hardwareId,
-    }),
-    api.hardware.getRevisions({
-      hardwareId: params.hardwareId,
-    }),
-    api.measurement.getAllMeasurementsByHardwareId({
-      hardwareId: params.hardwareId,
-      latest: true,
-    }),
-    api.workspace.getWorkspaceIdByNamespace({
-      namespace: params.namespace,
-    }),
-  ]);
+  const [hardware, status, revisions, measurements, workspaceId] =
+    await Promise.all([
+      api.hardware.getHardware({
+        hardwareId: params.hardwareId,
+      }),
+      api.hardware.getHardwareStatus({
+        hardwareId: params.hardwareId,
+      }),
+      api.hardware.getRevisions({
+        hardwareId: params.hardwareId,
+      }),
+      api.measurement.getAllMeasurementsByHardwareId({
+        hardwareId: params.hardwareId,
+        latest: true,
+      }),
+      api.workspace.getWorkspaceIdByNamespace({
+        namespace: params.namespace,
+      }),
+    ]);
 
   return (
     <div className="container max-w-screen-2xl">
@@ -66,7 +70,7 @@ export default async function Hardware({
         hardwareId={params.hardwareId}
         hardware={hardware}
         namespace={params.namespace}
-        initialMeasurements={measurements}
+        initialStatus={status}
       />
     </div>
   );

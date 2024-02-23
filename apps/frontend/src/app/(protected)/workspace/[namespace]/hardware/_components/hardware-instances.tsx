@@ -6,24 +6,19 @@ import { api } from "~/trpc/react";
 import CreateHardware from "~/components/hardware/create-hardware";
 import { Plus } from "lucide-react";
 import { Model } from "~/schemas/public/Model";
-import { Hardware } from "~/schemas/public/Hardware";
-import { Project } from "~/schemas/public/Project";
 import { useRouter } from "next/navigation";
-import { Paginated } from "~/lib/db-utils";
-import { DataTable } from "@cloud/ui/components/ui/data-table";
-import { Button } from "@cloud/ui/components/ui/button";
 import { usePaginate } from "~/hooks/use-paginate";
 import { PaginatedDataTable } from "~/components/paginated-data-table";
 
 type Props = {
-  hardware: Paginated<Hardware & { model: Model; projects: Project[] }>;
   models: Model[];
   workspaceId: string;
   namespace: string;
 };
 
+const PAGE_SIZE = 10;
+
 export default function HardwareInstances({
-  hardware: initialData,
   models,
   workspaceId,
   namespace,
@@ -32,9 +27,8 @@ export default function HardwareInstances({
     api.hardware.getAllHardwarePaginated,
     {
       workspaceId,
-      pageSize: 5,
+      pageSize: PAGE_SIZE,
     },
-    initialData,
   );
 
   const router = useRouter();
@@ -57,6 +51,7 @@ export default function HardwareInstances({
       <div className="py-4" />
       <PaginatedDataTable
         columns={hardwareColumns}
+        pageSize={PAGE_SIZE}
         data={data}
         onRowClick={(row) =>
           router.push(`/workspace/${namespace}/hardware/${row.id}`)

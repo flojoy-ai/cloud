@@ -24,10 +24,6 @@ export default async function HardwareInventory({
     workspaceId,
   });
 
-  const hardware = await api.hardware.getAllHardwarePaginated({
-    workspaceId,
-    pageSize: 5,
-  });
 
   return (
     <div className="container max-w-screen-2xl">
@@ -54,7 +50,6 @@ export default async function HardwareInventory({
       <Separator />
 
       <HardwareInstances
-        hardware={hardware}
         models={models}
         workspaceId={workspaceId}
         namespace={params.namespace}
