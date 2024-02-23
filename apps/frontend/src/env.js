@@ -51,6 +51,7 @@ export const env = createEnv({
     // We're using nginx to reverse proxy and running app on localhost for AWS AMI
     // As a result we need to set origin explicitly from env
     NEXT_PUBLIC_URL_ORIGIN: z.string().url().default("http://localhost:3000"),
+    NEXT_PUBLIC_SENTRY_DSN: z.string().optional(),
   },
 
   /**
@@ -84,6 +85,7 @@ export const env = createEnv({
     ZAPIER_CLIENT_ID: process.env.ZAPIER_CLIENT_ID,
     ZAPIER_CLIENT_SECRET: process.env.ZAPIER_CLIENT_SECRET,
     // HIGHLIGHT_PROJECT_ID: process.env.HIGHLIGHT_PROJECT_ID,
+    NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

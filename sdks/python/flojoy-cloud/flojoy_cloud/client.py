@@ -53,22 +53,19 @@ P = ParamSpec("P")
 @overload
 def query(
     model: None,
-) -> Callable[[Callable[P, httpx.Response]], Callable[P, None]]:
-    ...
+) -> Callable[[Callable[P, httpx.Response]], Callable[P, None]]: ...
 
 
 @overload
 def query(
     model: type[T],
-) -> Callable[[Callable[P, httpx.Response]], Callable[P, T]]:
-    ...
+) -> Callable[[Callable[P, httpx.Response]], Callable[P, T]]: ...
 
 
 @overload
 def query(
     model: TypeAdapter[U],
-) -> Callable[[Callable[P, httpx.Response]], Callable[P, U]]:
-    ...
+) -> Callable[[Callable[P, httpx.Response]], Callable[P, U]]: ...
 
 
 def query(
@@ -167,10 +164,10 @@ class FlojoyCloud:
         return self.client.get(f"/projects/{project_id}")
 
     @query(model=TypeAdapter(list[Project]))
-    def get_all_projects(self, workspace_id: str):
+    def get_all_projects(self, workspace_id: Optional[str]):
         return self.client.get(
             "/projects",
-            params={"workspaceId": workspace_id},
+            params={"workspaceId": workspace_id} if workspace_id is not None else None,
         )
 
     @query(model=None)

@@ -22,7 +22,7 @@
     "prettier-plugin-tailwindcss": "^0.5.11",
     "tailwindcss": "^3.4.1",
     "turbo": "^1.12.4",
-    "vercel": "^33.5.1"
+    "vercel": "^33.5.2"
   },
   "pnpm": {
     "patchedDependencies": {

@@ -17,11 +17,18 @@ import { populateExample } from "~/server/services/example";
 
 export const workspaceAccessMiddleware = experimental_standaloneMiddleware<{
   ctx: AccessContext;
-  input: { workspaceId: string };
+  input: { workspaceId?: string };
 }>().create(async (opts) => {
+  const workspaceId = opts.input.workspaceId || opts.ctx.workspaceId;
+  if (!workspaceId) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Workspace ID not provided",
+    });
+  }
   const workspace = await opts.ctx.db
     .selectFrom("workspace")
-    .where("workspace.id", "=", opts.input.workspaceId)
+    .where("workspace.id", "=", workspaceId)
     .selectAll()
     .executeTakeFirst();
 
@@ -32,10 +39,7 @@ export const workspaceAccessMiddleware = experimental_standaloneMiddleware<{
     });
   }
 
-  const workspaceUser = await checkWorkspaceAccess(
-    opts.ctx,
-    opts.input.workspaceId,
-  );
+  const workspaceUser = await checkWorkspaceAccess(opts.ctx, workspaceId);
   if (!workspaceUser) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
