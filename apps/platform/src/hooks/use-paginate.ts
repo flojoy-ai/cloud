@@ -26,12 +26,10 @@ export const usePaginate = <O, D extends PaginatedEndpointDef<O>>(
     undefined,
   ]);
   const [pageIndex, setPageIndex] = useState(0);
-  const res = endpoint.useQuery(
-    {
-      ...args,
-      after: cursorHistory[pageIndex],
-    },
-  );
+  const res = endpoint.useQuery({
+    ...args,
+    after: cursorHistory[pageIndex],
+  });
 
   const reset = () => {
     setCursorHistory([undefined]);

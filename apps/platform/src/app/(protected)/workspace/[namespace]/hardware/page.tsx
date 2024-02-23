@@ -24,7 +24,6 @@ export default async function HardwareInventory({
     workspaceId,
   });
 
-
   return (
     <div className="container max-w-screen-2xl">
       {searchParams.back && <Button>Back</Button>}
