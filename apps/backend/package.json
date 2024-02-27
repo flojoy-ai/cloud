@@ -3,14 +3,28 @@
   "version": "0.0.1",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/index.ts",
+    "build": "bun build src/index.ts --target bun --outdir dist",
+    "start": "bun run src/index.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-ses": "^3.521.0",
     "@elysiajs/swagger": "^0.8.5",
-    "elysia": "latest"
+    "@lucia-auth/adapter-postgresql": "^3.1.0",
+    "@paralleldrive/cuid2": "^2.2.2",
+    "@react-email/components": "^0.0.15",
+    "@t3-oss/env-core": "^0.9.2",
+    "arctic": "^1.2.1",
+    "elysia": "latest",
+    "kysely": "^0.27.2",
+    "lucia": "^3.0.1",
+    "oslo": "^1.1.2",
+    "pg": "^8.11.3",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@types/pg": "^8.11.2",
     "bun-types": "latest"
   },
-  "module": "src/index.js"
+  "module": "dist/index.js"
 }

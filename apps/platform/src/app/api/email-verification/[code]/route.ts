@@ -44,9 +44,7 @@ export const GET = async (
       !isWithinExpirationDate(emailVerification.expiresAt) ||
       user.email !== emailVerification.email
     ) {
-      return new Response(invalidCodeMsg, {
-        status: 400,
-      });
+      throw new Error(invalidCodeMsg);
     }
   });
 
