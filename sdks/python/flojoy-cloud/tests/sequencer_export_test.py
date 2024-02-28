@@ -19,10 +19,10 @@ def test_set_output():
     test_sequencer.export(my_new_value)
 
     # Verify nothing was been lost
-    data = test_sequencer.get_most_recent_data(test_id)
+    data = test_sequencer._get_most_recent_data(test_id)
     assert data == my_value
 
-    data = test_sequencer.get_most_recent_data(new_test_id)
+    data = test_sequencer._get_most_recent_data(new_test_id)
     assert data == my_new_value
 
 
@@ -40,7 +40,7 @@ def test_multiple_data_export():
     test_sequencer.export(my_new_value)
 
     # Verify that the lastest data is the only one retreive
-    data = test_sequencer.get_most_recent_data(test_id)
+    data = test_sequencer._get_most_recent_data(test_id)
     assert data == my_new_value
 
 
@@ -61,7 +61,7 @@ def test_export_bool():
     # Simulate user export
     test_sequencer.export(True)
     # Verify that the lastest data is the only one retreive
-    data = test_sequencer.get_most_recent_data(test_id)
+    data = test_sequencer._get_most_recent_data(test_id)
     assert data is True
 
 
@@ -71,7 +71,7 @@ def test_export_int():
     # Simulate user export
     test_sequencer.export(1)
     # Verify that the lastest data is the only one retreive
-    data = test_sequencer.get_most_recent_data(test_id)
+    data = test_sequencer._get_most_recent_data(test_id)
     assert data == 1
 
 
@@ -81,5 +81,5 @@ def test_export_float():
     # Simulate user export
     test_sequencer.export(1.0)
     # Verify that the lastest data is the only one retreive
-    data = test_sequencer.get_most_recent_data(test_id)
+    data = test_sequencer._get_most_recent_data(test_id)
     assert data == 1.0

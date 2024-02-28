@@ -9,7 +9,7 @@ from .measurement import MeasurementData
 
 __all__ = [
     "export",
-    "get_most_recent_data",
+    "_get_most_recent_data",
     "_set_output_loc",
 ]
 
@@ -34,7 +34,10 @@ def export(data: MeasurementData):
         raise TypeError(f"Unsupported data type: {type(data)}")
 
 
-def get_most_recent_data(
+# ------ Protected ------
+
+
+def _get_most_recent_data(
     test_id: str | None, rm_file: bool = False
 ) -> MeasurementData | None:
     """
