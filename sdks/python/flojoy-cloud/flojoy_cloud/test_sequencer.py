@@ -84,10 +84,8 @@ FLOAT = "_float.txt"
 
 
 def __get_location():
-    output_dir = os.environ.get(OPTIONAL_PATH_ENV)
+    output_dir = DEFAULT_PATH
     prefix_file = os.environ.get(OPTIONAL_NAME_ENV)
-    if output_dir is None:
-        output_dir = DEFAULT_PATH
     if prefix_file is None:
         prefix_file = DEFAULT_NAME
 
