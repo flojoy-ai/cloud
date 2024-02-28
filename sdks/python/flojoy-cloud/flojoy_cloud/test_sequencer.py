@@ -19,7 +19,7 @@ def export(data: MeasurementData):
     output_dir, prefix_file = __get_location()
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    elif isinstance(data, pd.DataFrame):
+    if isinstance(data, pd.DataFrame):
         data.to_csv(os.path.join(output_dir, prefix_file + DATAFRAME))
     elif isinstance(data, bool):
         with open(os.path.join(output_dir, prefix_file + BOOLEAN), "w") as f:
