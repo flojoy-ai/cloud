@@ -43,7 +43,8 @@ def get_most_recent_data(
         - test_id (str | None): The prefix used to find the data files. If None, the default prefix is used.
         - rm_file (bool): If True, the file is removed after being read.
     """
-    _set_output_loc(test_id)
+    if test_id is not None:
+        _set_output_loc(test_id)
 
     output_dir, prefix_file = __get_location()
     output_file = __get_most_recent_file(output_dir, prefix_file)
@@ -55,9 +56,6 @@ def get_most_recent_data(
         os.remove(output_dir + output_file)
 
     return __extract_data(output_dir + output_file)
-
-
-# ------ Protected ------
 
 
 def _set_output_loc(prefix: str | None):
@@ -119,4 +117,4 @@ def __extract_data(path: str):
         return int(open(path, "r").read())
     if path.endswith(FLOAT):
         return float(open(path, "r").read())
-    raise ValueError("Unknown file type")
+    raise TypeError("Unknown file type")

@@ -13,7 +13,8 @@ def test_set_output():
     test_sequencer.export(my_value)
 
     # Change the output to default
-    test_sequencer._set_output_loc(None)
+    new_test_id = f"my_test_id_{randint(1001,2000)}"
+    test_sequencer._set_output_loc(new_test_id)
     my_new_value = randint(0, 1000)
     test_sequencer.export(my_new_value)
 
@@ -21,7 +22,7 @@ def test_set_output():
     data = test_sequencer.get_most_recent_data(test_id)
     assert data == my_value
 
-    data = test_sequencer.get_most_recent_data(None)
+    data = test_sequencer.get_most_recent_data(new_test_id)
     assert data == my_new_value
 
 
@@ -50,7 +51,7 @@ def test_export_dataframe():
     df = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
     test_sequencer.export(df)
     # Verify that the lastest data is the only one retreive
-    data: pd.DataFrame = test_sequencer.get_most_recent_data(test_id)  # type: ignore
+    data: pd.DataFrame = test_sequencer._get_most_recent_data(test_id)  # type: ignore
     assert data.equals(df)
 
 
