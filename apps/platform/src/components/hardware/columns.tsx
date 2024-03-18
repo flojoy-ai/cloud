@@ -253,7 +253,7 @@ const DeleteDialog = ({
 export const modelColumns: ColumnDef<Model>[] = [
   {
     accessorKey: "name",
-    header: "Model Name",
+    header: "PIN",
     cell: ({ row }) => {
       return <Badge>{row.original.name}</Badge>;
     },

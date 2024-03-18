@@ -104,21 +104,21 @@ class FlojoyCloud:
 
     def __init__(
         self,
-        workspace_secret: Optional[str] = None,
+        api_key: Optional[str] = None,
         api_url="https://cloud.flojoy.ai/api/v1",
     ):
-        if workspace_secret is None:
-            env = os.environ.get("FLOJOY_CLOUD_WORKSPACE_SECRET")
+        if api_key is None:
+            env = os.environ.get("FLOJOY_CLOUD_API_KEY")
             if env is None:
                 raise EnvironmentError(
-                    "Flojoy Cloud workspace secret not set, and no 'FLOJOY_CLOUD_WORKSPACE_SECRET' environment variable was found."
+                    "Flojoy Cloud api key not set, and no 'FLOJOY_CLOUD_API_KEY' environment variable was found."
                 )
-            workspace_secret = env
+            api_key = env
         self.base_url = api_url
         self.client = httpx.Client(
             base_url=api_url,
             headers={
-                "Authorization": f"Bearer {workspace_secret}",
+                "Authorization": f"Bearer {api_key}",
             },
             timeout=10,
         )
