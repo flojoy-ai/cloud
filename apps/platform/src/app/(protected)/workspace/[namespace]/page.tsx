@@ -1,9 +1,9 @@
-import { Input } from "@cloud/ui/components/ui/input";
-import { Search } from "lucide-react";
 import Link from "next/link";
 import { Icons } from "~/components/icons";
 import { siteConfig } from "~/config/site";
 import { cn } from "~/lib/utils";
+import SearchBar from "./_components/search-bar";
+import { api } from "~/trpc/server";
 
 export default async function Page({
   params,
@@ -11,6 +11,10 @@ export default async function Page({
   params: { namespace: string };
 }) {
   const namespace = params.namespace;
+  const workspaceId = await api.workspace.getWorkspaceIdByNamespace({
+    namespace,
+  });
+  console.log(workspaceId);
 
   return (
     <div className="container flex h-[calc(100vh-56px)] max-w-screen-2xl items-center justify-center">
@@ -48,14 +52,7 @@ export default async function Page({
           </Link>
         </div>
         <div className="py-2" />
-        {/*TODO: Implement this search bar*/}
-        <div className="relative w-full">
-          <Search
-            className="absolute left-2.5 top-2.5 stroke-muted-foreground"
-            size={20}
-          />
-          <Input placeholder="Search..." className="ps-10" />
-        </div>
+        <SearchBar workspaceId={workspaceId} namespace={namespace} />
       </div>
 
       <div className="py-8" />

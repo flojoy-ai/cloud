@@ -206,6 +206,9 @@ importers:
       trpc-openapi:
         specifier: ^1.2.0
         version: 1.2.0(patch_hash=hem7rjkxpy5rawoajjfuz225ua)(@trpc/server@11.0.0-next-beta.308)(zod@3.22.4)
+      ts-pattern:
+        specifier: ^5.0.8
+        version: 5.0.8
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -7948,7 +7951,7 @@ packages:
     resolution: {integrity: sha512-vPXzCLmRp74e9LsP8oltnWKTH+jBwt86WgRUb4Pc9Lf3pkMVGyvIo2gm9bODeGfCay2DBB/hAWDuvf07JcK4rw==}
     dependencies:
       '@types/expect': 1.20.4
-      '@types/node': 15.14.9
+      '@types/node': 20.11.24
     dev: true
 
   /@types/webpack@5.28.5(@swc/core@1.3.101)(esbuild@0.19.11):
@@ -19960,6 +19963,10 @@ packages:
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
     dev: true
+
+  /ts-pattern@5.0.8:
+    resolution: {integrity: sha512-aafbuAQOTEeWmA7wtcL94w6I89EgLD7F+IlWkr596wYxeb0oveWDO5dQpv85YP0CGbxXT/qXBIeV6IYLcoZ2uA==}
+    dev: false
 
   /ts-toolbelt@6.15.5:
     resolution: {integrity: sha512-FZIXf1ksVyLcfr7M317jbB67XFJhOO1YqdTcuGaq9q5jLUoTikukZ+98TPjKiP2jC5CgmYdWWYs0s2nLSU0/1A==}
