@@ -31,7 +31,7 @@ export const WorkspaceNav = ({ workspaces }: Props) => {
                 : "text-foreground/60",
             )}
           >
-            Projects
+            Test Stations
           </Link>
           <Link
             href={`/workspace/${namespace}/hardware`}
