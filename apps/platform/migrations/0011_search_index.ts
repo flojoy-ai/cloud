@@ -1,6 +1,7 @@
 import { type Kysely, sql } from "kysely";
 
 export async function up(db: Kysely<unknown>): Promise<void> {
+  await sql`CREATE EXTENSION pg_trgm;`.execute(db);
   await sql`CREATE INDEX IF NOT EXISTS gin_model_name_index ON model USING GIN (name gin_trgm_ops)`.execute(
     db,
   );
