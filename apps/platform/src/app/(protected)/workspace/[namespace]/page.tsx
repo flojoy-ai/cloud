@@ -14,7 +14,6 @@ export default async function Page({
   const workspaceId = await api.workspace.getWorkspaceIdByNamespace({
     namespace,
   });
-  console.log(workspaceId);
 
   return (
     <div className="container flex h-[calc(100vh-56px)] max-w-screen-2xl items-center justify-center">
@@ -43,7 +42,7 @@ export default async function Page({
           </Link>
 
           <Link
-            href={`/workspace/${namespace}/settings`}
+            href={`/workspace/${namespace}/settings/general`}
             className={cn(
               "text-foreground/60 transition-colors hover:text-foreground/80",
             )}
