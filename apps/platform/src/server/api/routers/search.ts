@@ -18,9 +18,7 @@ export const searchRouter = createTRPCRouter({
         .select(sql<SearchResult["type"]>`'model'`.as("type"))
         // .select(sql`similarity(ts, ${input.query})`.as("sml"))
         .where("workspaceId", "=", input.workspaceId)
-        .where(
-          sql<SqlBool>`ts @@ to_tsquery('english', ${input.query + ":*"})`,
-        );
+        .where(sql<SqlBool>`ts @@ to_tsquery('english', ${input.query})`);
       // .where(sql<SqlBool>`name % ${input.query}`);
       // console.log(modelQuery);
 
@@ -30,9 +28,7 @@ export const searchRouter = createTRPCRouter({
         .select(sql<SearchResult["type"]>`'project'`.as("type"))
         // .select(sql`similarity(ts, ${input.query})`.as("sml"))
         .where("workspaceId", "=", input.workspaceId)
-        .where(
-          sql<SqlBool>`ts @@ to_tsquery('english', ${input.query + ":*"})`,
-        );
+        .where(sql<SqlBool>`ts @@ to_tsquery('english', ${input.query})`);
       // .where(sql<SqlBool>`name % ${input.query}`);
       // console.log(projectQuery);
 
@@ -43,7 +39,7 @@ export const searchRouter = createTRPCRouter({
         // .select(sql`similarity(ts, ${input.query})`.as("sml"))
         .where("workspaceId", "=", input.workspaceId)
         .where(
-          sql<SqlBool>`ts @@ to_tsquery('english', ${input.query + ":*"})`,
+          sql<SqlBool>`ts @@ levenshtein_less_equal('english', ${input.query})`,
         );
       // .where(sql<SqlBool>`name % ${input.query}`);
       // console.log(hardwareQuery);
