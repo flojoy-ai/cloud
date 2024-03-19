@@ -16,6 +16,7 @@ const generateZodSchemas = makeGenerateZodSchemas({
   zodTypeMap: {
     ...defaultZodTypeMap,
     "pg_catalog.timestamptz": "z.coerce.date()",
+    "pg_catalog.tsvector": "z.array(z.string())",
   },
   castToSchema: false,
 });
@@ -35,7 +36,7 @@ module.exports = {
   enumStyle: "type",
 
   customTypeMap: {
-    "pg_catalog.tsvector": "string",
+    "pg_catalog.tsvector": "Set<string>",
     "pg_catalog.bpchar": "string",
   },
 

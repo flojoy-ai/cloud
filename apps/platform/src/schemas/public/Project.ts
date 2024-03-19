@@ -27,6 +27,9 @@ export default interface ProjectTable {
 
   /** Database type: pg_catalog.timestamptz */
   updatedAt: ColumnType<Date, Date | string | undefined, Date | string>;
+
+  /** Database type: pg_catalog.tsvector */
+  ts: ColumnType<Set<string> | null, never, never>;
 }
 
 export type Project = Selectable<ProjectTable>;
@@ -44,6 +47,7 @@ export const project = z.object({
   modelId: modelId,
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
+  ts: z.array(z.string()).nullable(),
 });
 
 export const projectInitializer = z.object({
@@ -53,6 +57,7 @@ export const projectInitializer = z.object({
   modelId: modelId,
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
+  ts: z.array(z.string()).optional().nullable(),
 });
 
 export const projectMutator = z.object({
@@ -62,4 +67,5 @@ export const projectMutator = z.object({
   modelId: modelId.optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
+  ts: z.array(z.string()).optional().nullable(),
 });
