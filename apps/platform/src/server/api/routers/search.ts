@@ -16,41 +16,32 @@ export const searchRouter = createTRPCRouter({
         .selectFrom("model")
         .select(["name", "id"])
         .select(sql<SearchResult["type"]>`'model'`.as("type"))
-        // .select(sql`similarity(ts, ${input.query})`.as("sml"))
+        .select(sql`similarity(name, ${input.query})`.as("sml"))
         .where("workspaceId", "=", input.workspaceId)
-        .where(sql<SqlBool>`ts @@ to_tsquery('english', ${input.query})`);
-      // .where(sql<SqlBool>`name % ${input.query}`);
-      // console.log(modelQuery);
+        .where(sql<SqlBool>`name % ${input.query}`);
 
       const projectQuery = ctx.db
         .selectFrom("project")
         .select(["name", "id"])
         .select(sql<SearchResult["type"]>`'project'`.as("type"))
-        // .select(sql`similarity(ts, ${input.query})`.as("sml"))
+        .select(sql`similarity(name, ${input.query})`.as("sml"))
         .where("workspaceId", "=", input.workspaceId)
-        .where(sql<SqlBool>`ts @@ to_tsquery('english', ${input.query})`);
-      // .where(sql<SqlBool>`name % ${input.query}`);
-      // console.log(projectQuery);
+        .where(sql<SqlBool>`name % ${input.query}`);
 
       const hardwareQuery = ctx.db
         .selectFrom("hardware")
         .select(["name", "id"])
         .select(sql<SearchResult["type"]>`'hardware'`.as("type"))
-        // .select(sql`similarity(ts, ${input.query})`.as("sml"))
+        .select(sql`similarity(name, ${input.query})`.as("sml"))
         .where("workspaceId", "=", input.workspaceId)
-        .where(
-          sql<SqlBool>`ts @@ levenshtein_less_equal('english', ${input.query})`,
-        );
-      // .where(sql<SqlBool>`name % ${input.query}`);
-      // console.log(hardwareQuery);
+        .where(sql<SqlBool>`name % ${input.query}`);
 
       const res = await modelQuery
         .unionAll(projectQuery)
         .unionAll(hardwareQuery)
-        // .orderBy(["sml desc"])
+        .orderBy("sml", "desc")
         .limit(5)
         .execute();
-      // console.log(res);
 
       return res;
     }),

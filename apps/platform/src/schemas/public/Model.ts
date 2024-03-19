@@ -20,9 +20,6 @@ export default interface ModelTable {
 
   /** Database type: pg_catalog.timestamptz */
   createdAt: ColumnType<Date, Date | string | undefined, Date | string>;
-
-  /** Database type: pg_catalog.tsvector */
-  ts: ColumnType<Set<string> | null, never, never>;
 }
 
 export type Model = Selectable<ModelTable>;
@@ -38,7 +35,6 @@ export const model = z.object({
   name: z.string(),
   workspaceId: workspaceId,
   createdAt: z.coerce.date(),
-  ts: z.array(z.string()).nullable(),
 });
 
 export const modelInitializer = z.object({
@@ -46,7 +42,6 @@ export const modelInitializer = z.object({
   name: z.string(),
   workspaceId: workspaceId,
   createdAt: z.coerce.date().optional(),
-  ts: z.array(z.string()).optional().nullable(),
 });
 
 export const modelMutator = z.object({
@@ -54,5 +49,4 @@ export const modelMutator = z.object({
   name: z.string().optional(),
   workspaceId: workspaceId.optional(),
   createdAt: z.coerce.date().optional(),
-  ts: z.array(z.string()).optional().nullable(),
 });
