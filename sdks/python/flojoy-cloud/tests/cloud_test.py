@@ -1,10 +1,9 @@
 from typing import Tuple
 
-import pytest
 import pandas as pd
+import pytest
 
-from flojoy_cloud import FlojoyCloud
-from flojoy_cloud import ModelComponent
+from flojoy_cloud import FlojoyCloud, ModelComponent
 
 WorkspaceInfo = Tuple[FlojoyCloud, str]
 

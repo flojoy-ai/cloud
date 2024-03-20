@@ -233,14 +233,14 @@ export const projectRouter = createTRPCRouter({
         if (hardwares.length !== input.hardwareIds.length) {
           throw new TRPCError({
             code: "BAD_REQUEST",
-            message: "Not all hardware IDs valid",
+            message: "Not all hardware serial numbers are valid",
           });
         }
 
         if (hardwares.some((h) => h.modelId !== project.modelId)) {
           throw new TRPCError({
             code: "BAD_REQUEST",
-            message: "Not all hardware IDs match project model",
+            message: "Not all PINs match project model",
           });
         }
 

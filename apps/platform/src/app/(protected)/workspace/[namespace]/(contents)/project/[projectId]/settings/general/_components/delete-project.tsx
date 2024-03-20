@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useWorkspace } from "~/app/(protected)/workspace/[namespace]/workspace-provider";
+import { useWorkspace } from "~/app/(protected)/workspace/[namespace]/(contents)/workspace-provider";
 import {
   AlertDialog,
   AlertDialogAction,

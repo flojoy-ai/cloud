@@ -59,7 +59,11 @@ const CreateWorkspaceForm = () => {
             <FormItem>
               <FormLabel>Workspace Name</FormLabel>
               <FormControl>
-                <Input placeholder="HiddenLevel" {...field} data-1p-ignore />
+                <Input
+                  placeholder="Acme Corporation"
+                  {...field}
+                  data-1p-ignore
+                />
               </FormControl>
               <FormDescription>
                 This is your workspace&apos;s visible name within Flojoy.
@@ -80,7 +84,7 @@ const CreateWorkspaceForm = () => {
                   <div className="h-10 w-fit whitespace-nowrap rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground opacity-50 ring-offset-background  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                     {env.NEXT_PUBLIC_URL_ORIGIN}/
                   </div>
-                  <Input placeholder="hiddenlevel" {...field} />
+                  <Input placeholder="acme" {...field} />
                 </div>
               </FormControl>
               <FormDescription>

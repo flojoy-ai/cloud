@@ -1,68 +1,57 @@
+import Link from "next/link";
+import { Icons } from "~/components/icons";
+import { siteConfig } from "~/config/site";
+import { cn } from "~/lib/utils";
+import SearchBar from "./_components/search-bar";
 import { api } from "~/trpc/server";
-import {
-  PageHeader,
-  PageHeaderDescription,
-  PageHeaderHeading,
-} from "~/components/small-header";
-import NewProject from "./_components/new-project";
-import ProjectCard from "./_components/project-card";
 
 export default async function Page({
   params,
 }: {
   params: { namespace: string };
 }) {
+  const namespace = params.namespace;
   const workspaceId = await api.workspace.getWorkspaceIdByNamespace({
-    namespace: params.namespace,
+    namespace,
   });
 
-  const [workspace, projects, models] = await Promise.all([
-    api.workspace.getWorkspaceById({ workspaceId }),
-
-    api.project.getAllProjects({
-      workspaceId,
-    }),
-    api.model.getAllModels({
-      workspaceId,
-    }),
-  ]);
-
   return (
-    <div className="container max-w-screen-2xl">
-      <PageHeader>
-        <PageHeaderHeading className="">Projects</PageHeaderHeading>
-        <PageHeaderDescription>
-          A project is a collection of hardware instances that share the same
-          hardware model and a common set of tests.
-        </PageHeaderDescription>
-      </PageHeader>
-      <div className="py-4"></div>
+    <div className="container flex h-[calc(100vh-56px)] max-w-screen-2xl justify-center">
+      <div className="mt-56 flex w-[512px] flex-col items-center">
+        <div className="mx-auto flex w-fit items-center space-x-3">
+          <Icons.logo className="h-12 w-12" />
+          <span className="text-3xl font-bold">{siteConfig.name}</span>
+        </div>
+        <div className="py-4" />
+        <div className="flex gap-x-6">
+          <Link
+            href={`/workspace/${namespace}/project`}
+            className={cn(
+              "text-foreground/60 transition-colors hover:text-foreground/80",
+            )}
+          >
+            Test Stations
+          </Link>
+          <Link
+            href={`/workspace/${namespace}/hardware`}
+            className={cn(
+              "text-foreground/60 transition-colors hover:text-foreground/80",
+            )}
+          >
+            Hardware Inventory
+          </Link>
 
-      <div className="space-x-2">
-        <NewProject workspace={workspace} models={models} />
-      </div>
-
-      <div className="py-2"></div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-        {projects
-          .sort(
-            (a, b) =>
-              (b.updatedAt?.getTime() ?? 0) - (a.updatedAt?.getTime() ?? 0),
-          )
-          .map((project) => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              models={models}
-              workspace={workspace}
-            />
-          ))}
-        {projects.length === 0 && (
-          <div className="text-muted-foreground">
-            No project found here, go create one!
-          </div>
-        )}
+          <Link
+            href={`/workspace/${namespace}/settings/general`}
+            className={cn(
+              "text-foreground/60 transition-colors hover:text-foreground/80",
+            )}
+          >
+            Settings
+          </Link>
+        </div>
+        <div className="py-2" />
+        <SearchBar workspaceId={workspaceId} namespace={namespace} />
       </div>
 
       <div className="py-8" />
