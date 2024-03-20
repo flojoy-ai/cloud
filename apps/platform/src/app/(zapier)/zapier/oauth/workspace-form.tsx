@@ -8,7 +8,6 @@ import {
   SelectValue,
 } from "@cloud/ui/components/ui/select";
 import { Button } from "@cloud/ui/components/ui/button";
-import { useRouter } from "next/navigation";
 import { type OAuthSearchParams } from "./page";
 import { api } from "~/trpc/react";
 import { Workspace } from "~/schemas/public/Workspace";
@@ -22,7 +21,6 @@ const WorkspaceForm = ({
   searchParams: { redirect_uri, state },
 }: WorkspaceFormProps) => {
   const [selectedWorkspace, setSelectedWorkspace] = useState<string>("");
-  const router = useRouter();
   const query = api.secret._getSecret.useQuery({
     workspaceId: selectedWorkspace,
   });
@@ -42,7 +40,8 @@ const WorkspaceForm = ({
     url.searchParams.append("code", selectedWorkspace);
     url.searchParams.append("state", state);
     url.searchParams.append("workspace_secret", workspaceSecret);
-    router.push(url.toString());
+
+    window.location.href = url.toString();
   };
   return (
     <>
