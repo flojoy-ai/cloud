@@ -16,8 +16,8 @@ export default async function Page({
   });
 
   return (
-    <div className="container flex h-[calc(100vh-56px)] max-w-screen-2xl items-center justify-center">
-      <div className="mb-56 flex w-[512px] flex-col items-center">
+    <div className="container flex h-[calc(100vh-56px)] max-w-screen-2xl justify-center">
+      <div className="mt-56 flex w-[512px] flex-col items-center">
         <div className="mx-auto flex w-fit items-center space-x-3">
           <Icons.logo className="h-12 w-12" />
           <span className="text-3xl font-bold">{siteConfig.name}</span>

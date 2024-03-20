@@ -14,4 +14,4 @@ export default StorageProvider;
 export const storageProvider = z.enum([
   's3',
   'postgres',
-]);
+]);;

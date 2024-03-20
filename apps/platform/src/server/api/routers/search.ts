@@ -10,37 +10,41 @@ export const searchRouter = createTRPCRouter({
     .use(workspaceAccessMiddleware)
     .output(searchResult.array())
     .query(async ({ ctx, input }) => {
+      if (input.query.length === 0) {
+        return [];
+      }
+
       // Postgres driver complains about not being able to
       // tell what type 'type' is if i extract this into a function :(
       const modelQuery = ctx.db
         .selectFrom("model")
         .select(["name", "id"])
         .select(sql<SearchResult["type"]>`'model'`.as("type"))
-        .select(sql`similarity(name, ${input.query})`.as("sml"))
-        .where("workspaceId", "=", input.workspaceId)
-        .where(sql<SqlBool>`name % ${input.query}`);
+        .select(sql`name <-> ${input.query}`.as("dist"))
+        .where(sql<SqlBool>`(name <-> ${input.query}) < 0.85`)
+        .where("workspaceId", "=", input.workspaceId);
 
       const projectQuery = ctx.db
         .selectFrom("project")
         .select(["name", "id"])
         .select(sql<SearchResult["type"]>`'project'`.as("type"))
-        .select(sql`similarity(name, ${input.query})`.as("sml"))
-        .where("workspaceId", "=", input.workspaceId)
-        .where(sql<SqlBool>`name % ${input.query}`);
+        .select(sql`name <-> ${input.query}`.as("dist"))
+        .where(sql<SqlBool>`(name <-> ${input.query}) < 0.85`)
+        .where("workspaceId", "=", input.workspaceId);
 
       const hardwareQuery = ctx.db
         .selectFrom("hardware")
         .select(["name", "id"])
         .select(sql<SearchResult["type"]>`'hardware'`.as("type"))
-        .select(sql`similarity(name, ${input.query})`.as("sml"))
-        .where("workspaceId", "=", input.workspaceId)
-        .where(sql<SqlBool>`name % ${input.query}`);
+        .select(sql`name <-> ${input.query}`.as("dist"))
+        .where(sql<SqlBool>`(name <-> ${input.query}) < 0.85`)
+        .where("workspaceId", "=", input.workspaceId);
 
       const res = await modelQuery
         .unionAll(projectQuery)
         .unionAll(hardwareQuery)
-        .orderBy("sml", "desc")
-        .limit(5)
+        .orderBy("dist")
+        .limit(10)
         .execute();
 
       return res;

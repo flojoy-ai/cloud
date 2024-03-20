@@ -16,4 +16,4 @@ export const revisionType = z.enum([
   'init',
   'remove',
   'add',
-]);
+]);;
