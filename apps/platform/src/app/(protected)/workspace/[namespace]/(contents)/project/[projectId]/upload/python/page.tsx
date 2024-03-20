@@ -7,7 +7,7 @@ import { Label } from "@cloud/ui/components/ui/label";
 import { Combobox } from "~/components/combobox";
 import { type MeasurementDataType } from "~/types/data";
 import CodeBlock from "~/components/code-block";
-import { WorkspaceAPIKeyReminder } from "~/components/workspace-secret-reminder";
+import { WorkspaceSecretReminder } from "~/components/workspace-secret-reminder";
 import { Test } from "~/schemas/public/Test";
 import { Hardware } from "~/schemas/public/Hardware";
 
@@ -88,7 +88,7 @@ client.upload(data, test_id, device_id)
       </div>
       <Separator />
       <CodeBlock code={code} />
-      <WorkspaceAPIKeyReminder namespace={params.namespace} />
+      <WorkspaceSecretReminder namespace={params.namespace} />
     </div>
   );
 };

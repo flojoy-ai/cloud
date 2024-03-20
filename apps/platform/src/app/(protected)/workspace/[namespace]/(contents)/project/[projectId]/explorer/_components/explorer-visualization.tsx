@@ -16,7 +16,7 @@ import { DateTimeRangePicker } from "~/components/date-time-range-picker";
 import { type DateRange } from "react-day-picker";
 import { Combobox } from "~/components/combobox";
 import CodeBlock from "~/components/code-block";
-import { WorkspaceAPIKeyReminder } from "~/components/workspace-secret-reminder";
+import { WorkspaceSecretReminder } from "~/components/workspace-secret-reminder";
 import { Checkbox } from "@cloud/ui/components/ui/checkbox";
 import { Label } from "@cloud/ui/components/ui/label";
 import _ from "lodash";
@@ -149,7 +149,7 @@ measurements = client.get_all_measurements_by_hardware_id("HARDWARE_ID")
       </div>
       <div>
         <CodeBlock code={code} />
-        <WorkspaceAPIKeyReminder namespace={namespace} />
+        <WorkspaceSecretReminder namespace={namespace} />
       </div>
       <div className="py-8" />
     </div>
