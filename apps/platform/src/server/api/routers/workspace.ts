@@ -181,14 +181,17 @@ export const workspaceRouter = createTRPCRouter({
           .where("model.workspaceId", "=", input.workspaceId)
           .execute();
 
-        await tx
-          .deleteFrom("model_relation")
-          .where(
-            "parentModelId",
-            "in",
-            models.map((m) => m.id),
-          )
-          .execute();
+        if (models.length !== 0) {
+          // turns out that if you pass in an empty array, it will not work
+          await tx
+            .deleteFrom("model_relation")
+            .where(
+              "parentModelId",
+              "in",
+              models.map((m) => m.id),
+            )
+            .execute();
+        }
 
         await tx
           .deleteFrom("model")

@@ -2,7 +2,7 @@ import { Input } from "@cloud/ui/components/ui/input";
 import { Label } from "@cloud/ui/components/ui/label";
 import { Separator } from "@cloud/ui/components/ui/separator";
 import { api } from "~/trpc/server";
-import GenerateSecret from "./_components/generate-secret";
+import GenerateAPIKey from "./_components/generate-secret";
 import CopyButton from "./_components/copy-button";
 
 async function GeneralPage({ params }: { params: { namespace: string } }) {
@@ -15,9 +15,9 @@ async function GeneralPage({ params }: { params: { namespace: string } }) {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium">Secret</h3>
+        <h3 className="text-lg font-medium">API Key</h3>
         <p className="text-sm text-muted-foreground">
-          Your secret key to access this workspace.
+          Your API key to access this workspace.
         </p>
       </div>
       <Separator />
@@ -36,7 +36,7 @@ async function GeneralPage({ params }: { params: { namespace: string } }) {
       </div>
 
       <div className="grid w-full max-w-lg items-center gap-1.5">
-        <Label htmlFor="workspace_id">Workspace Secret</Label>
+        <Label htmlFor="workspace_id">API key</Label>
 
         <div className="flex items-center gap-2">
           {secret && (
@@ -53,7 +53,7 @@ async function GeneralPage({ params }: { params: { namespace: string } }) {
             </>
           )}
         </div>
-        <GenerateSecret workspaceId={workspaceId} />
+        <GenerateAPIKey workspaceId={workspaceId} />
       </div>
     </div>
   );
