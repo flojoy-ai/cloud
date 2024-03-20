@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "@elysiajs/swagger": "^0.8.5",
-    "elysia": "latest"
+    "elysia": "^1.0.7"
   },
   "devDependencies": {
     "bun-types": "latest"
