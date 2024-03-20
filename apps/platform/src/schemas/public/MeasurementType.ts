@@ -16,4 +16,4 @@ export const measurementType = z.enum([
   'boolean',
   'dataframe',
   'scalar',
-]);;
+]);

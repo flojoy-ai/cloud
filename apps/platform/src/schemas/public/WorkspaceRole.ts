@@ -16,4 +16,4 @@ export const workspaceRole = z.enum([
   'owner',
   'admin',
   'member',
-]);;
+]);

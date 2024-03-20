@@ -15,6 +15,7 @@ import {
   CommandList,
 } from "@cloud/ui/components/ui/command";
 import { useRouter } from "next/navigation";
+import { useDebounce } from "~/hooks/use-debounce";
 
 type HighlightProps = {
   text: string;
@@ -82,7 +83,8 @@ const resultType = (type: SearchResult["type"]) => {
 };
 
 const SearchBar = ({ workspaceId, namespace }: Props) => {
-  const [query, setQuery] = useState("");
+  const [value, setValue] = useState("");
+  const query = useDebounce(value, 200);
 
   const { data, isFetching } = api.search.search.useQuery(
     {
@@ -101,7 +103,7 @@ const SearchBar = ({ workspaceId, namespace }: Props) => {
   return (
     <div className="relative w-full">
       <Command shouldFilter={false} className="rounded-lg border shadow-md">
-        <CommandInput placeholder="Search..." onValueChange={setQuery} />
+        <CommandInput placeholder="Search..." onValueChange={setValue} />
         <CommandList className="max-h-min">
           {showResults && (
             <>

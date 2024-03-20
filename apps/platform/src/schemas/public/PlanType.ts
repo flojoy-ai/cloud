@@ -16,4 +16,4 @@ export const planType = z.enum([
   'hobby',
   'pro',
   'enterprise',
-]);;
+]);
