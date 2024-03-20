@@ -9,7 +9,7 @@ const app = new Elysia()
   .use(userRoute)
   .use(authRoute)
   .use(workspacesRoute)
-  .listen(3000);
+  .listen(3001);
 
 console.log(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
