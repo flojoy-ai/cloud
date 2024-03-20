@@ -10,15 +10,15 @@ from pydantic import BaseModel, TypeAdapter
 
 from flojoy_cloud.dtypes import (
     Hardware,
-    HardwareTree,
     HardwareRevision,
-    MeasurementCreateResult,
+    HardwareTree,
     Measurement,
+    MeasurementCreateResult,
+    Model,
+    ModelComponent,
+    ModelTree,
     Project,
     ProjectWithModel,
-    ModelComponent,
-    Model,
-    ModelTree,
     Test,
 )
 from flojoy_cloud.measurement import MeasurementData, MeasurementType, make_payload
@@ -104,21 +104,21 @@ class FlojoyCloud:
 
     def __init__(
         self,
-        api_key: Optional[str] = None,
+        workspace_secret: Optional[str] = None,
         api_url="https://cloud.flojoy.ai/api/v1",
     ):
-        if api_key is None:
-            env = os.environ.get("FLOJOY_CLOUD_API_KEY")
+        if workspace_secret is None:
+            env = os.environ.get("FLOJOY_CLOUD_WORKSPACE_SECRET")
             if env is None:
                 raise EnvironmentError(
-                    "Flojoy Cloud api key not set, and no 'FLOJOY_CLOUD_API_KEY' environment variable was found."
+                    "Flojoy Cloud workspace secret not set, and no 'FLOJOY_CLOUD_WORKSPACE_SECRET' environment variable was found."
                 )
-            api_key = env
+            workspace_secret = env
         self.base_url = api_url
         self.client = httpx.Client(
             base_url=api_url,
             headers={
-                "Authorization": f"Bearer {api_key}",
+                "Authorization": f"Bearer {workspace_secret}",
             },
             timeout=10,
         )

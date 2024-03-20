@@ -1,26 +1,25 @@
 from typing import Tuple
 
-import pytest
 import pandas as pd
+import pytest
 
-from flojoy_cloud import FlojoyCloud
-from flojoy_cloud import ModelComponent
+from flojoy_cloud import FlojoyCloud, ModelComponent
 
 WorkspaceInfo = Tuple[FlojoyCloud, str]
 
 # Set all of these variables to run the tests
 # This should be run in a completely fresh/empty workspace.
-API_KEY = ""
+WORKSPACE_SECRET = ""
 API_URL = "http://localhost:3000/api/v1"
 WORKSPACE_ID = ""
 
-runnable = API_KEY != "" and API_URL != "" and WORKSPACE_ID != ""
+runnable = WORKSPACE_SECRET != "" and API_URL != "" and WORKSPACE_ID != ""
 pytestmark = pytest.mark.skipif(not runnable, reason="Need environment setup")
 
 
 @pytest.fixture
 def workspace():
-    client = FlojoyCloud(api_key=API_KEY, api_url=API_URL)
+    client = FlojoyCloud(workspace_secret=WORKSPACE_SECRET, api_url=API_URL)
     return client, WORKSPACE_ID
 
 

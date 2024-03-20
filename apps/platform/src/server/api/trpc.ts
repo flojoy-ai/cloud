@@ -119,7 +119,7 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
  * and you want to ensure that the user has access to the given workspace specified
  * in the HTTP header, use this. This guarantees to return a valid
  * `userId` and `workspaceId` in the context for use. This procedure also supports
- * authentication via the Flojoy Cloud API key, which is a JWT token
+ * authentication via the Flojoy Cloud workspace secret, which is a JWT token
  *
  * @see https://trpc.io/docs/procedures
  */
@@ -168,7 +168,7 @@ export const workspaceProcedure = t.procedure.use(async ({ ctx, next }) => {
         new TRPCError({
           code: "UNAUTHORIZED",
           message:
-            "Failed to validate JWT, did you specify the correct API key? You can get your API key from the 'API key' tab under your workspace settings",
+            "Failed to validate JWT, did you specify the correct workspace secret? You can get your workspace secret from the 'Secret' tab under your workspace settings",
         }),
     );
 
@@ -205,7 +205,7 @@ export const workspaceProcedure = t.procedure.use(async ({ ctx, next }) => {
   } else {
     throw new TRPCError({
       code: "UNAUTHORIZED",
-      message: "no session or API key provided",
+      message: "no session or workspace secret provided",
     });
   }
 
