@@ -153,7 +153,7 @@ export default function NewProjectButton({ workspace, models }: Props) {
                         <div className="text-sm">
                           No models found, go{" "}
                           <Link
-                            href={`/workspace/${workspace.namespace}/device`}
+                            href={`/workspace/${workspace.namespace}/hardware`}
                             className="underline"
                           >
                             register one!
