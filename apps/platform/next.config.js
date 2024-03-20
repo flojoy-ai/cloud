@@ -18,6 +18,7 @@ const config = {
   logging: { fetches: { fullUrl: true } },
   experimental: {
     serverComponentsExternalPackages: ["oslo"],
+    typedRoutes: true,
   },
   output: "standalone",
 };
