@@ -1,4 +1,5 @@
 import { QueryClient } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
   createRootRouteWithContext,
   Link,
@@ -21,7 +22,13 @@ export const Route = createRootRouteWithContext<{
       </div>
       <hr />
       <Outlet />
-      <TanStackRouterDevtools />
+
+      {!import.meta.env.PROD && (
+        <>
+          <TanStackRouterDevtools />
+          <ReactQueryDevtools />
+        </>
+      )}
     </div>
   ),
 });
