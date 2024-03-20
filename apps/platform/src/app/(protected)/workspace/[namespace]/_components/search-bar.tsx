@@ -60,7 +60,7 @@ const SearchResultItem = ({ result, namespace, query }: SearchResultProps) => {
   return (
     <CommandItem
       className="flex cursor-pointer"
-      onClick={() =>
+      onSelect={() =>
         router.push(`/workspace/${namespace}/${type}/${result.id}`)
       }
     >
