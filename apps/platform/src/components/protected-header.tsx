@@ -9,6 +9,7 @@ import { validateRequest } from "~/auth/lucia";
 import { ProtectedNav } from "./protected-nav";
 import { api } from "~/trpc/server";
 import UserButton from "./user-button";
+import { type Route } from "next";
 
 export async function ProtectedHeader() {
   const { user } = await validateRequest();
@@ -27,13 +28,13 @@ export async function ProtectedHeader() {
             {!user ? (
               <>
                 <Button size="sm" variant="outline" asChild>
-                  <Link href={siteConfig.links.login}>Log In</Link>
+                  <Link href={siteConfig.links.login as Route}>Log In</Link>
                 </Button>
 
                 <div className="px-1" />
 
                 <Button size="sm" asChild>
-                  <Link href={siteConfig.links.signup}>Sign Up</Link>
+                  <Link href={siteConfig.links.signup as Route}>Sign Up</Link>
                 </Button>
 
                 <div className="px-1" />
@@ -58,7 +59,7 @@ export async function ProtectedHeader() {
             )}
 
             <Link
-              href={siteConfig.links.discord}
+              href={siteConfig.links.discord as Route}
               target="_blank"
               rel="noreferrer"
             >

@@ -4,10 +4,11 @@ import { cn } from "~/lib/utils";
 import Link, { type LinkProps } from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import * as React from "react";
+import { type Route } from "next";
 
 interface Context {
   defaultValue: string;
-  hrefFor: (value: string) => LinkProps["href"];
+  hrefFor: (value: string) => LinkProps<string>["href"];
   searchParam: string;
   selected: string;
 }
@@ -43,7 +44,8 @@ export function Tabs(props: {
 
       const asString = params.toString();
 
-      return pathname + (asString ? "?" + asString : "");
+      // FIXME: type this properly
+      return (pathname + (asString ? "?" + asString : "")) as Route;
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [searchParams, props.searchParam],

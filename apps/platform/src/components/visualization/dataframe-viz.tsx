@@ -394,7 +394,7 @@ const DataFrameViz = ({ measurements, title, workspaceId }: Props) => {
               return;
             }
             router.push(
-              `/workspace/${workspaceId}/device/${measurement.hardwareId}`,
+              `/workspace/${workspaceId}/hardware/${measurement.hardwareId}`,
             );
           }}
         />
