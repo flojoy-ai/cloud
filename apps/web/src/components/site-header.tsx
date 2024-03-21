@@ -6,7 +6,7 @@ import { Icons } from "@/components/icons";
 import { MainNav } from "@/components/main-nav";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { useAuth } from "@/auth";
+import { useAuth } from "@/hooks/use-auth";
 // import { validateRequest } from "~/auth/lucia";
 // import UserButton from "./user-button";
 

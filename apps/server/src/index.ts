@@ -5,10 +5,16 @@ import { authRoute } from "./routes/auth";
 import { workspacesRoute } from "./routes/workspaces";
 import { authGoogleRoute } from "./routes/auth/google";
 import { cors } from "@elysiajs/cors";
+import { env } from "./env";
 
 const app = new Elysia()
   .use(swagger())
-  .use(cors())
+  .use(
+    cors({
+      origin: "localhost:5173", // NOTE: Switch this in .env
+      allowedHeaders: "Content-Type",
+    }),
+  )
   .use(userRoute)
   .use(authRoute)
   .use(authGoogleRoute)
