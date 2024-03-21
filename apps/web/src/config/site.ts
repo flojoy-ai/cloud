@@ -6,6 +6,7 @@ export const siteConfig = {
     login: "/login",
     signup: "/signup",
     discord: "https://discord.gg/7HEBr7yG8c",
+    github: "https://github.com/flojoy-ai/cloud",
     home: "https://flojoy.ai",
   },
 };
