@@ -15,9 +15,9 @@ async function GeneralPage({ params }: { params: { namespace: string } }) {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium">API Key</h3>
+        <h3 className="text-lg font-medium">Secret</h3>
         <p className="text-sm text-muted-foreground">
-          Your API key to access this workspace.
+          Your key to access this workspace.
         </p>
       </div>
       <Separator />
@@ -36,7 +36,7 @@ async function GeneralPage({ params }: { params: { namespace: string } }) {
       </div>
 
       <div className="grid w-full max-w-lg items-center gap-1.5">
-        <Label htmlFor="workspace_id">API key</Label>
+        <Label htmlFor="workspace_id">Workspace Secret</Label>
 
         <div className="flex items-center gap-2">
           {secret && (

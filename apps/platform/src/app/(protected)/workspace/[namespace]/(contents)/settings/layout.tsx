@@ -35,7 +35,7 @@ export default async function Workspace({
       href: `/workspace/${params.namespace}/settings/users`,
     },
     {
-      title: "API key",
+      title: "Secret",
       icon: <Key />,
       href: `/workspace/${params.namespace}/settings/secret`,
     },
