@@ -7,12 +7,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import type { User } from "lucia";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 
 // TODO: Fix user type here
 type Props = {
@@ -26,7 +26,7 @@ function UserButton({ user }: Props) {
       await axios.post("/api/logout");
     },
     onSuccess: () => {
-      router.refresh();
+      router.invalidate();
     },
   });
   return (
@@ -54,9 +54,7 @@ function UserButton({ user }: Props) {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="cursor-pointer"
-          onSelect={async () => {
-            return router.push("/profile");
-          }}
+          onSelect={() => router.navigate({ to: "/profile" })}
         >
           Profile
         </DropdownMenuItem>

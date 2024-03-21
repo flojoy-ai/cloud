@@ -8,7 +8,7 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 // import { validateRequest } from "~/auth/lucia";
-// import UserButton from "./user-button";
+import UserButton from "./user-button";
 
 export function SiteHeader() {
   const { user } = useAuth();
@@ -29,7 +29,7 @@ export function SiteHeader() {
               </Button>
             </>
           ) : (
-            <>{/* <UserButton user={user} /> */}Sup</>
+            <UserButton user={user} />
           )}
 
           <a href={siteConfig.links.github} target="_blank" rel="noreferrer">
