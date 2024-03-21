@@ -8,7 +8,6 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { Button, buttonVariants } from "@/components/ui/button";
 // import { validateRequest } from "~/auth/lucia";
 // import UserButton from "./user-button";
-import { type Route } from "next";
 
 export function SiteHeader() {
   // const { user } = await validateRequest();
@@ -23,11 +22,11 @@ export function SiteHeader() {
           {!user ? (
             <>
               <Button size="sm" variant="outline" asChild>
-                <Link to={siteConfig.links.login as Route}>Log In</Link>
+                <Link to={siteConfig.links.login}>Log In</Link>
               </Button>
 
               <Button size="sm" asChild>
-                <Link to={siteConfig.links.signup as Route}>Sign Up</Link>
+                <Link to={siteConfig.links.signup}>Sign Up</Link>
               </Button>
             </>
           ) : (
