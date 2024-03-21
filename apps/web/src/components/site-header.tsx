@@ -18,7 +18,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
         <MainNav />
-        <nav className="flex flex-1 items-center justify-end gap-2">
+        <nav className="flex flex-1 items-center justify-end gap-1">
           {!user ? (
             <>
               <Button size="sm" variant="outline" asChild>
@@ -37,7 +37,7 @@ export function SiteHeader() {
             <div
               className={cn(buttonVariants({ variant: "ghost", size: "icon" }))}
             >
-              <Icons.gitHub className="h-4 w-4" />
+              <Icons.github className="h-4 w-4" />
               <span className="sr-only">GitHub</span>
             </div>
           </a>

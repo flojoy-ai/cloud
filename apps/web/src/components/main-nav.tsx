@@ -30,7 +30,7 @@ export function MainNav() {
           Dashboard
         </Link>
 
-        <Link
+        <a
           href="https://www.flojoy.ai/contact-sales"
           target="_blank"
           className={cn(
@@ -38,9 +38,9 @@ export function MainNav() {
           )}
         >
           Contact Sales
-        </Link>
+        </a>
 
-        <Link
+        <a
           href={"https://rest.flojoy.ai"}
           target="_blank"
           className={cn(
@@ -48,7 +48,7 @@ export function MainNav() {
           )}
         >
           API Docs
-        </Link>
+        </a>
       </nav>
     </div>
   );
