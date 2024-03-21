@@ -9,7 +9,7 @@ import { env } from "@/env";
 import { generateDatabaseId } from "@/db/id";
 import { db } from "@/db/kysely";
 
-export const authRoute = new Elysia({ prefix: "/auth/google" })
+export const authGoogleRoute = new Elysia({ prefix: "/auth/google" })
   .get(
     "/login",
     async ({ cookie: { google_oauth_state, google_code_verifier }, set }) => {
