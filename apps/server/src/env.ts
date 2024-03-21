@@ -8,7 +8,10 @@ export const env = createEnv({
    */
   server: {
     WEB_URL: z.string().url().default("http://localhost:5173"),
-    DATABASE_URL: z.string().url(),
+    DATABASE_URL: z
+      .string()
+      .url()
+      .transform((s) => (s += "?sslmode=require")),
     // Joey: looks like NODE_ENV is still supported for Bun
     // https://github.com/oven-sh/bun/commit/c006a7f054fdf19bad5b0783af3305e36f9e3740
     NODE_ENV: z
@@ -24,7 +27,7 @@ export const env = createEnv({
    * What object holds the environment variables at runtime. This is usually
    * `process.env` or `import.meta.env`.
    */
-  runtimeEnv: Bun.env,
+  runtimeEnv: process.env,
 
   /**
    * By default, this library will feed the environment variables directly to

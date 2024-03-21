@@ -2,7 +2,11 @@
   "compilerOptions": {
     "target": "ES2020",
     "useDefineForClassFields": true,
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ESNext",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "module": "ESNext",
     "skipLibCheck": true,
     /* Bundler mode */
@@ -20,11 +24,17 @@
     /* Alias */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@cloud/server": ["../server/src/*"]
+      "@/*": [
+        "./src/*"
+      ],
+      "@cloud/server": [
+        "../server/src/*"
+      ]
     }
   },
-  "include": ["src"],
+  "include": [
+    "src"
+  ],
   "references": [
     {
       "path": "./tsconfig.node.json"

@@ -5,7 +5,12 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "bun run --watch src/index.ts",
-    "kanel": "bunx kanel"
+    "kanel": "bunx kanel",
+    "bruh": "tsx ./scripts/migrate/bruh.ts",
+    "migrate:up": "dotenv -c -- tsx ./scripts/migrate.ts --up",
+    "migrate:down": "dotenv -c -- tsx ./scripts/migrate.ts --down",
+    "migrate:to-latest": "dotenv -c -- tsx ./scripts/migrate.ts --to-latest",
+    "migrate:to": "dotenv -c -- tsx ./scripts/migrate.ts --to"
   },
   "dependencies": {
     "@elysiajs/swagger": "^0.8.5",
@@ -16,7 +21,9 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "bun-types": "latest"
+    "bun-types": "latest",
+    "dotenv-cli": "^7.4.1",
+    "tsx": "^4.7.1"
   },
   "module": "src/index.js"
 }

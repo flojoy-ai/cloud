@@ -14,13 +14,16 @@ export default interface HardwareTable {
   id: ColumnType<HardwareId, HardwareId, HardwareId>;
 
   /** Database type: pg_catalog.text */
-  name: ColumnType<string, string, string>;
-
-  /** Database type: pg_catalog.text */
   workspaceId: ColumnType<WorkspaceId, WorkspaceId, WorkspaceId>;
 
   /** Database type: pg_catalog.text */
   modelId: ColumnType<ModelId, ModelId, ModelId>;
+
+  /** Database type: pg_catalog.text */
+  name: ColumnType<string, string, string>;
+
+  /** Database type: pg_catalog.text */
+  lotNumber: ColumnType<string | null, string | null, string | null>;
 
   /** Database type: pg_catalog.timestamptz */
   createdAt: ColumnType<Date, Date | string | undefined, Date | string>;
@@ -39,27 +42,30 @@ export const hardwareId = z.string();
 
 export const hardware = z.object({
   id: hardwareId,
-  name: z.string(),
   workspaceId: workspaceId,
   modelId: modelId,
+  name: z.string(),
+  lotNumber: z.string().nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 });
 
 export const hardwareInitializer = z.object({
   id: hardwareId,
-  name: z.string(),
   workspaceId: workspaceId,
   modelId: modelId,
+  name: z.string(),
+  lotNumber: z.string().optional().nullable(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
 });
 
 export const hardwareMutator = z.object({
   id: hardwareId.optional(),
-  name: z.string().optional(),
   workspaceId: workspaceId.optional(),
   modelId: modelId.optional(),
+  name: z.string().optional(),
+  lotNumber: z.string().optional().nullable(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
 });
