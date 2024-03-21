@@ -93,7 +93,7 @@ export const authGoogleRoute = new Elysia({ prefix: "/auth/google" })
             ...sessionCookie.attributes,
           });
 
-          set.redirect = "/";
+          set.redirect = env.WEB_URL;
           return;
         }
 
@@ -127,7 +127,7 @@ export const authGoogleRoute = new Elysia({ prefix: "/auth/google" })
           ...sessionCookie.attributes,
         });
 
-        set.redirect = "/";
+        set.redirect = env.WEB_URL;
         return;
       } catch (e) {
         console.error(e);
