@@ -7,13 +7,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-type Theme = "light" | "dark" | "system";
+import { useTheme } from "@/hooks/use-theme";
 
 export function ModeToggle() {
-  const setTheme = (theme: Theme) => {
-    throw new Error("Not Implemented");
-  };
+  const { setTheme } = useTheme();
 
   return (
     <DropdownMenu>
