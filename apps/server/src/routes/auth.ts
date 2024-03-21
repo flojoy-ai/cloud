@@ -1,18 +1,11 @@
+import { lucia } from "@/auth/lucia";
+import { AuthMiddleware } from "@/middlewares/auth";
 import { Elysia } from "elysia";
 
 export const authRoute = new Elysia({ prefix: "/auth" })
-  .get("/google/login", googleLogin)
-  .get("/google/callback", googleCallback)
-  .get("/logout", logout);
+  .use(AuthMiddleware)
 
-function googleLogin(req: Request, res: Response) {
-  // ...
-}
-
-function googleCallback(req: Request, res: Response) {
-  // ...
-}
-
-function logout(req: Request, res: Response) {
-  // ...
-}
+  .get("/logout", async ({ set, session }) => {
+    await lucia.invalidateSession(session.id);
+    const sessionCookie = lucia.createBlankSessionCookie();
+  });
