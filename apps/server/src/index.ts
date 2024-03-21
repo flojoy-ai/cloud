@@ -5,13 +5,13 @@ import { authRoute } from "./routes/auth";
 import { workspacesRoute } from "./routes/workspaces";
 import { authGoogleRoute } from "./routes/auth/google";
 import { cors } from "@elysiajs/cors";
-import { env } from "./env";
 
 const app = new Elysia()
   .use(swagger())
   .use(
+    // NOTE: https://github.com/elysiajs/elysia-cors/issues/41
     cors({
-      origin: "localhost:5173", // NOTE: Switch this in .env
+      origin: "localhost:5173", // FIXME: Switch this in .env
       allowedHeaders: "Content-Type",
     }),
   )
