@@ -8,7 +8,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./auth";
 import { ThemeProvider } from "./components/theme-provider";
 import { queryClient } from "./lib/client";
-import { App } from "./App";
+import { App } from "./app";
 
 // Render the app
 const rootElement = document.getElementById("root")!;
