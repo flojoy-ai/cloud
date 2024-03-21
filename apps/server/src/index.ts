@@ -4,9 +4,11 @@ import { userRoute } from "./routes/user";
 import { authRoute } from "./routes/auth";
 import { workspacesRoute } from "./routes/workspaces";
 import { authGoogleRoute } from "./routes/auth/google";
+import { cors } from "@elysiajs/cors";
 
 const app = new Elysia()
   .use(swagger())
+  .use(cors())
   .use(userRoute)
   .use(authRoute)
   .use(authGoogleRoute)

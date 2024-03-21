@@ -6,14 +6,13 @@ import { Icons } from "@/components/icons";
 import { MainNav } from "@/components/main-nav";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { useAuth } from "@/auth";
 // import { validateRequest } from "~/auth/lucia";
 // import UserButton from "./user-button";
 
 export function SiteHeader() {
-  // const { user } = await validateRequest();
+  const { user } = useAuth();
 
-  // TODO: Auth
-  const user = undefined;
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
@@ -30,7 +29,7 @@ export function SiteHeader() {
               </Button>
             </>
           ) : (
-            <>{/* <UserButton user={user} /> */}</>
+            <>{/* <UserButton user={user} /> */}Sup</>
           )}
 
           <a href={siteConfig.links.github} target="_blank" rel="noreferrer">

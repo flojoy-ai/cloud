@@ -145,10 +145,13 @@ export const authGoogleRoute = new Elysia({ prefix: "/auth/google" })
         google_oauth_state: t.String(),
         google_code_verifier: t.String(),
       }),
-      query: t.Object({
-        state: t.String(),
-        code: t.String(),
-      }),
+      query: t.Object(
+        {
+          state: t.String(),
+          code: t.String(),
+        },
+        { additionalProperties: true },
+      ),
     },
   );
 
