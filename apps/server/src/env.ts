@@ -8,6 +8,16 @@ export const env = createEnv({
    */
   server: {
     WEB_URL: z.string().url().default("http://localhost:5173"),
+    DATABASE_URL: z.string().url(),
+    // Joey: looks like NODE_ENV is still supported for Bun
+    // https://github.com/oven-sh/bun/commit/c006a7f054fdf19bad5b0783af3305e36f9e3740
+    NODE_ENV: z
+      .enum(["development", "test", "production"])
+      .default("development"),
+
+    GOOGLE_CLIENT_ID: z.string(),
+    GOOGLE_CLIENT_SECRET: z.string(),
+    GOOGLE_REDIRECT_URI: z.string().url(),
   },
 
   /**

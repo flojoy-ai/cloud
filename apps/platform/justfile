@@ -1,5 +1,5 @@
 branch := `git branch --show-current`
 
 env:
-  pnpm vercel env pull --environment=preview --git-branch={{branch}}
+  bun run vercel env pull --environment=preview --git-branch={{branch}}
 

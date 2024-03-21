@@ -34,6 +34,12 @@
     /* If your code runs in the DOM: */
     // "lib": ["es2022", "dom", "dom.iterable"],
     /* If your code doesn't run in the DOM: */
-    "lib": ["es2022"]
+    "lib": ["es2022"],
+
+    /* Path Aliases */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   }
 }
