@@ -20,13 +20,17 @@
     /* Alias */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@cloud/server": ["../server/src/*"]
     }
   },
   "include": ["src"],
   "references": [
     {
       "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "../server/tsconfig.json"
     }
   ]
 }
