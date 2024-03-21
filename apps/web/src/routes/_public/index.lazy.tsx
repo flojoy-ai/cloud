@@ -1,5 +1,3 @@
-import { createLazyFileRoute } from "@tanstack/react-router";
-import { Link } from "@tanstack/react-router";
 import { BouncyCardsFeatures } from "@/components/bouncy-cards-features";
 import {
   PageHeader,
@@ -7,8 +5,9 @@ import {
   PageHeaderHeading,
 } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
+import { Link, createLazyFileRoute } from "@tanstack/react-router";
 
-export const Route = createLazyFileRoute("/")({
+export const Route = createLazyFileRoute("/_public/")({
   component: Index,
 });
 
@@ -31,7 +30,7 @@ function Index() {
         </PageHeader>
 
         <div className="flex flex-col items-center">
-          <Link href="/signup">
+          <Link to="/signup">
             <Button>Try it free</Button>
           </Link>
         </div>

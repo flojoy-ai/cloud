@@ -10,15 +10,6 @@ export const Route = createRootRouteWithContext<{
   component: () => (
     <div className={""}>
       <SiteHeader />
-      {/* <div className="p-2 flex gap-2"> */}
-      {/*   <Link to="/" className=""> */}
-      {/*     Home */}
-      {/*   </Link>{" "} */}
-      {/*   <Link to="/about" className=""> */}
-      {/*     About */}
-      {/*   </Link> */}
-      {/* </div> */}
-      <hr />
       <Outlet />
 
       {!import.meta.env.PROD && (

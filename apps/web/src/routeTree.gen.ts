@@ -13,41 +13,79 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as PublicImport } from './routes/_public'
+import { Route as ProtectedImport } from './routes/_protected'
 
 // Create Virtual Routes
 
-const AboutLazyImport = createFileRoute('/about')()
-const IndexLazyImport = createFileRoute('/')()
+const PublicIndexLazyImport = createFileRoute('/_public/')()
+const PublicSignupLazyImport = createFileRoute('/_public/signup')()
+const PublicLoginLazyImport = createFileRoute('/_public/login')()
 
 // Create/Update Routes
 
-const AboutLazyRoute = AboutLazyImport.update({
-  path: '/about',
+const PublicRoute = PublicImport.update({
+  id: '/_public',
   getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/about.lazy').then((d) => d.Route))
+} as any)
 
-const IndexLazyRoute = IndexLazyImport.update({
-  path: '/',
+const ProtectedRoute = ProtectedImport.update({
+  id: '/_protected',
   getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
+} as any)
+
+const PublicIndexLazyRoute = PublicIndexLazyImport.update({
+  path: '/',
+  getParentRoute: () => PublicRoute,
+} as any).lazy(() => import('./routes/_public/index.lazy').then((d) => d.Route))
+
+const PublicSignupLazyRoute = PublicSignupLazyImport.update({
+  path: '/signup',
+  getParentRoute: () => PublicRoute,
+} as any).lazy(() =>
+  import('./routes/_public/signup.lazy').then((d) => d.Route),
+)
+
+const PublicLoginLazyRoute = PublicLoginLazyImport.update({
+  path: '/login',
+  getParentRoute: () => PublicRoute,
+} as any).lazy(() => import('./routes/_public/login.lazy').then((d) => d.Route))
 
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      preLoaderRoute: typeof IndexLazyImport
+    '/_protected': {
+      preLoaderRoute: typeof ProtectedImport
       parentRoute: typeof rootRoute
     }
-    '/about': {
-      preLoaderRoute: typeof AboutLazyImport
+    '/_public': {
+      preLoaderRoute: typeof PublicImport
       parentRoute: typeof rootRoute
+    }
+    '/_public/login': {
+      preLoaderRoute: typeof PublicLoginLazyImport
+      parentRoute: typeof PublicImport
+    }
+    '/_public/signup': {
+      preLoaderRoute: typeof PublicSignupLazyImport
+      parentRoute: typeof PublicImport
+    }
+    '/_public/': {
+      preLoaderRoute: typeof PublicIndexLazyImport
+      parentRoute: typeof PublicImport
     }
   }
 }
 
 // Create and export the route tree
 
-export const routeTree = rootRoute.addChildren([IndexLazyRoute, AboutLazyRoute])
+export const routeTree = rootRoute.addChildren([
+  PublicRoute.addChildren([
+    PublicLoginLazyRoute,
+    PublicSignupLazyRoute,
+    PublicIndexLazyRoute,
+  ]),
+])
 
 /* prettier-ignore-end */
