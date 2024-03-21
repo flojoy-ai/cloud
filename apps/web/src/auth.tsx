@@ -14,7 +14,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { data: user, isLoading } = useQuery({
     queryFn: async () => {
       const { data } = await client.user.index.get();
-      console.log(data);
       return data;
     },
     queryKey: ["user"],
@@ -22,7 +21,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   });
 
   return (
-    <AuthContext.Provider value={{ user, isLoading }}>
+    <AuthContext.Provider value={{ user: user ?? undefined, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
