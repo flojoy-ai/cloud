@@ -60,4 +60,19 @@ export const AuthMiddleware = new Elysia()
       };
     },
   )
+  .propagate()
+  .derive(
+    async ({
+      user,
+      session,
+    }): Promise<{
+      user: User;
+      session: Session;
+    }> => {
+      if (!user || !session) {
+        throw new Error("Unauthorized");
+      }
+      return { user, session };
+    },
+  )
   .propagate();
