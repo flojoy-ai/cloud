@@ -1,22 +1,22 @@
-import { Link } from "@tanstack/react-router";
-
 const TermsAndPrivacy = () => {
   return (
     <p className="px-8 text-center text-sm text-muted-foreground">
       By clicking continue, you agree to our{" "}
-      <Link
+      <a
         href="https://app.termly.io/document/terms-of-service/e7776ca7-3e93-4f6e-a492-3e3cbeba2b79"
-        className="underline underline-offset-4 hover:text-primary"
+        target="_blank"
+        className="text-nowrap underline underline-offset-4 transition-all hover:text-primary"
       >
         Terms of Service
-      </Link>{" "}
+      </a>{" "}
       and{" "}
-      <Link
+      <a
         href="https://app.termly.io/document/privacy-policy/1f7c261c-2406-4ead-8847-ac750b4030c9"
-        className="underline underline-offset-4 hover:text-primary"
+        target="_blank"
+        className="text-nowrap underline underline-offset-4 transition-all hover:text-primary"
       >
         Privacy Policy
-      </Link>
+      </a>
       .
     </p>
   );
