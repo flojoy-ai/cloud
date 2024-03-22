@@ -3,9 +3,13 @@ import { Kysely } from "kysely";
 import { generateDatabaseId } from "@/lib/db-utils";
 import { markUpdatedAt } from "@/db/query";
 import { InsertModel } from "@/types/model";
-import { err } from "neverthrow";
+import { Result, err, ok } from "neverthrow";
+import { Model } from "@/schemas/public/Model";
 
-export async function createModel(db: Kysely<DB>, input: InsertModel) {
+export async function createModel(
+  db: Kysely<DB>,
+  input: InsertModel,
+): Promise<Result<Model, string>> {
   const { components, ...newModel } = input;
   const model = await db
     .insertInto("model")
@@ -35,5 +39,5 @@ export async function createModel(db: Kysely<DB>, input: InsertModel) {
 
   await markUpdatedAt(db, "workspace", input.workspaceId);
 
-  return model;
+  return ok(model);
 }

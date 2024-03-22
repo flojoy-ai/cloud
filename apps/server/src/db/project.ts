@@ -2,9 +2,13 @@ import type DB from "@/schemas/Database";
 import { Kysely } from "kysely";
 import { generateDatabaseId } from "@/lib/db-utils";
 import { InsertProject } from "@/types/project";
-import { err } from "neverthrow";
+import { Result, err, ok } from "neverthrow";
+import { Project } from "@/schemas/public/Project";
 
-export async function createProject(db: Kysely<DB>, input: InsertProject) {
+export async function createProject(
+  db: Kysely<DB>,
+  input: InsertProject,
+): Promise<Result<Project, string>> {
   const project = await db
     .insertInto("project")
     .values({
@@ -18,5 +22,5 @@ export async function createProject(db: Kysely<DB>, input: InsertProject) {
     return err("Failed to create project");
   }
 
-  return project;
+  return ok(project);
 }

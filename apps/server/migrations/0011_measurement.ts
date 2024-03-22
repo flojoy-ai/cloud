@@ -18,6 +18,12 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .addColumn("test_id", "text", (col) =>
       col.notNull().references("test.id").onDelete("cascade"),
     )
+    .addColumn("session_id", "text", (col) =>
+      col.notNull().references("session.id").onDelete("cascade"),
+    )
+    .addColumn("project_id", "text", (col) =>
+      col.notNull().references("project.id").onDelete("cascade"),
+    )
     .addColumn("storage_provider", sql`storage_provider`, (col) =>
       col.notNull(),
     )

@@ -2,16 +2,20 @@ import { generateDatabaseId } from "@/lib/db-utils";
 import { Kysely } from "kysely";
 import type DB from "@/schemas/Database";
 import { InsertProduct } from "@/types/product";
-import { err, ok } from "neverthrow";
+import { Result, err, ok } from "neverthrow";
+import { Product } from "@/schemas/public/Product";
 
-export async function createProduct(db: Kysely<DB>, product: InsertProduct) {
+export async function createProduct(
+  db: Kysely<DB>,
+  product: InsertProduct,
+): Promise<Result<Product, string>> {
   const res = await db
     .insertInto("product")
     .values({
       id: generateDatabaseId("product"),
       ...product,
     })
-    .returning("id")
+    .returningAll()
     .executeTakeFirst();
 
   if (res === undefined) {
