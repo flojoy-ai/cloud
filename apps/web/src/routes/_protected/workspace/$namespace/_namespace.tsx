@@ -37,7 +37,8 @@ function Page() {
         <div className="py-4" />
         <div className="flex gap-x-6">
           <Link
-            href={`/workspace/${namespace}/project`}
+            to={`/workspace/$namespace/project`}
+            params={{ namespace }}
             className={cn(
               "text-foreground/60 transition-colors hover:text-foreground/80",
             )}
@@ -45,7 +46,8 @@ function Page() {
             Test Stations
           </Link>
           <Link
-            href={`/workspace/${namespace}/hardware`}
+            to={`/workspace/$namespace/hardware`}
+            params={{ namespace }}
             className={cn(
               "text-foreground/60 transition-colors hover:text-foreground/80",
             )}
@@ -54,7 +56,8 @@ function Page() {
           </Link>
 
           <Link
-            href={`/workspace/${namespace}/settings/general`}
+            to={`/workspace/$namespace/settings`}
+            params={{ namespace }}
             className={cn(
               "text-foreground/60 transition-colors hover:text-foreground/80",
             )}
