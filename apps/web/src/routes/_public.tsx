@@ -1,3 +1,4 @@
+import { SiteHeader } from "@/components/site-header";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_public")({
@@ -7,6 +8,7 @@ export const Route = createFileRoute("/_public")({
 function Public() {
   return (
     <div>
+      <SiteHeader />
       <Outlet />
     </div>
   );

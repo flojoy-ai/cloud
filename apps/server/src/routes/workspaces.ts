@@ -20,7 +20,15 @@ export const workspacesRoute = new Elysia({ prefix: "/workspaces" })
         return error;
     }
   })
-  .get("/", getWorkspaces)
+  .get("/", async ({ user }) => {
+    return await db
+      .selectFrom("workspace_user as wu")
+      .innerJoin("workspace as w", "w.id", "wu.workspaceId")
+      .innerJoin("user as u", "u.id", "wu.userId")
+      .where("wu.userId", "=", user.id)
+      .selectAll("w")
+      .execute();
+  })
   .post(
     "/",
     async ({ body, user, error, cookie: { scope } }) => {

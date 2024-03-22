@@ -63,6 +63,7 @@ export const authGoogleRoute = new Elysia({ prefix: "/auth/google" })
       }
 
       try {
+        const redirectUrl = env.WEB_URL + "/setup";
         const tokens = await google.validateAuthorizationCode(
           code,
           storedCodeVerifier,
@@ -93,7 +94,7 @@ export const authGoogleRoute = new Elysia({ prefix: "/auth/google" })
             ...sessionCookie.attributes,
           });
 
-          set.redirect = env.WEB_URL;
+          set.redirect = redirectUrl;
           return;
         }
 
@@ -127,7 +128,7 @@ export const authGoogleRoute = new Elysia({ prefix: "/auth/google" })
           ...sessionCookie.attributes,
         });
 
-        set.redirect = env.WEB_URL;
+        set.redirect = redirectUrl;
         return;
       } catch (e) {
         console.error(e);
