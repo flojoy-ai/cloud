@@ -28,8 +28,8 @@ function Page() {
   }
 
   return (
-    <div className="container flex h-[calc(100vh-56px)] max-w-screen-2xl justify-center">
-      <div className="mt-56 flex w-[512px] flex-col items-center">
+    <div className="container flex h-[calc(100vh-56px)] max-w-screen-2xl justify-center items-center">
+      <div className="mb-48 flex w-[512px] flex-col items-center">
         <div className="mx-auto flex w-fit items-center space-x-3">
           <Icons.logo className="h-12 w-12" />
           <span className="text-3xl font-bold">{siteConfig.name}</span>
@@ -63,7 +63,11 @@ function Page() {
           </Link>
         </div>
         <div className="py-2" />
-        <SearchBar workspaceId={workspaceId} namespace={namespace} />
+        <div className="relative w-full">
+          <div className="absolute w-full">
+            <SearchBar workspaceId={workspaceId} namespace={namespace} />
+          </div>
+        </div>
       </div>
 
       <div className="py-8" />
