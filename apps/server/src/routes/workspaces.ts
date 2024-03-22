@@ -1,6 +1,6 @@
 import { AuthMiddleware } from "@/middlewares/auth";
 import { createWorkspace } from "@/types/workspace";
-import { Elysia, InternalServerError, NotFoundError, t } from "elysia";
+import { Elysia, NotFoundError, t } from "elysia";
 import { db } from "@/db/kysely";
 import { DatabaseError } from "pg";
 import { generateDatabaseId } from "@/db/id";
@@ -109,9 +109,5 @@ export const workspacesRoute = new Elysia({ prefix: "/workspaces" })
   );
 
 function getWorkspace(req: Request, res: Response) {
-  // ...
-}
-
-function getWorkspaces(req: Request, res: Response) {
   // ...
 }

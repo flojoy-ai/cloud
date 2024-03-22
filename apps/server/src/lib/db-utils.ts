@@ -1,4 +1,3 @@
-import { TRPCError } from "@trpc/server";
 import { DatabaseError } from "pg";
 
 // For postgresql error codes https://www.postgresql.org/docs/current/errcodes-appendix.html
