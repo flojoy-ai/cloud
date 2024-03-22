@@ -3,6 +3,8 @@
 
 import { hardwareId, type HardwareId } from './Hardware';
 import { testId, type TestId } from './Test';
+import { sessionId, type SessionId } from './Session';
+import { projectId, type ProjectId } from './Project';
 import { storageProvider, type default as StorageProvider } from './StorageProvider';
 import { type ColumnType, type Selectable, type Insertable, type Updateable } from 'kysely';
 import { z } from 'zod';
@@ -29,6 +31,12 @@ export default interface MeasurementTable {
   /** Database type: pg_catalog.text */
   testId: ColumnType<TestId, TestId, TestId>;
 
+  /** Database type: pg_catalog.text */
+  sessionId: ColumnType<SessionId, SessionId, SessionId>;
+
+  /** Database type: pg_catalog.text */
+  projectId: ColumnType<ProjectId, ProjectId, ProjectId>;
+
   /** Database type: public.storage_provider */
   storageProvider: ColumnType<StorageProvider, StorageProvider, StorageProvider>;
 
@@ -54,6 +62,8 @@ export const measurement = z.object({
   pass: z.boolean().nullable(),
   hardwareId: hardwareId,
   testId: testId,
+  sessionId: sessionId,
+  projectId: projectId,
   storageProvider: storageProvider,
   createdAt: z.coerce.date(),
   isDeleted: z.boolean().nullable(),
@@ -66,6 +76,8 @@ export const measurementInitializer = z.object({
   pass: z.boolean().optional().nullable(),
   hardwareId: hardwareId,
   testId: testId,
+  sessionId: sessionId,
+  projectId: projectId,
   storageProvider: storageProvider,
   createdAt: z.coerce.date().optional(),
   isDeleted: z.boolean().optional().nullable(),
@@ -78,6 +90,8 @@ export const measurementMutator = z.object({
   pass: z.boolean().optional().nullable(),
   hardwareId: hardwareId.optional(),
   testId: testId.optional(),
+  sessionId: sessionId.optional(),
+  projectId: projectId.optional(),
   storageProvider: storageProvider.optional(),
   createdAt: z.coerce.date().optional(),
   isDeleted: z.boolean().optional().nullable(),

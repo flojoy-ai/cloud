@@ -5,6 +5,7 @@ import { db } from "@/db/kysely";
 import { DatabaseError } from "pg";
 import { generateDatabaseId } from "@/lib/db-utils";
 import { withDBErrorCheck } from "@/lib/db-utils";
+import { populateExample } from "@/db/example";
 
 export const workspacesRoute = new Elysia({ prefix: "/workspaces" })
   .use(AuthMiddleware)
@@ -35,21 +36,15 @@ export const workspacesRoute = new Elysia({ prefix: "/workspaces" })
       const { populateData, ...data } = body;
 
       const newWorkspace = await db.transaction().execute(async (tx) => {
-        const newWorkspace = await withDBErrorCheck(
-          tx
-            .insertInto("workspace")
-            .values({
-              id: generateDatabaseId("workspace"),
-              ...data,
-              planType: "enterprise",
-            })
-            .returningAll()
-            .executeTakeFirst(),
-          {
-            errorCode: "DUPLICATE",
-            errorMsg: `Workspace with namespace "${data.namespace}" already exists`,
-          },
-        );
+        const newWorkspace = await tx
+          .insertInto("workspace")
+          .values({
+            id: generateDatabaseId("workspace"),
+            ...data,
+            planType: "enterprise",
+          })
+          .returningAll()
+          .executeTakeFirst();
 
         if (!newWorkspace) {
           return error(500, "Failed to create workspace");
@@ -69,15 +64,17 @@ export const workspacesRoute = new Elysia({ prefix: "/workspaces" })
         return newWorkspace;
       });
 
+      if ("_type" in newWorkspace) {
+        return newWorkspace;
+      }
+
       if (!populateData) {
         return newWorkspace;
       }
 
-      throw new Error("Populate example not implemented yet");
+      await populateExample(db, newWorkspace.id);
 
-      // await populateExample(ctx.db, newWorkspace.id);
-
-      // return newWorkspace;
+      return newWorkspace;
     },
     {
       body: createWorkspace,

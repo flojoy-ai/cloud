@@ -66,7 +66,6 @@ function Setup() {
   });
 
   const onSubmit = (values: CreateWorkspace) => {
-    console.log(values);
     toast.promise(createWorkspace.mutateAsync(values), {
       success: "Workspace created",
       loading: "Creating workspace...",

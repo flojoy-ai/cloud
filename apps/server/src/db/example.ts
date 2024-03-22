@@ -1,16 +1,17 @@
-import _ from "lodash";
 import type DB from "@/schemas/Database";
+import _ from "lodash";
 
-import { TRPCError } from "@trpc/server";
 import { generateDatabaseId } from "@/lib/db-utils";
-// import { createMeasurement } from "./measurement";
-import { createModel } from "./model";
-import { createProject } from "./project";
-import { createTest } from "./test";
 import { Kysely } from "kysely";
-import { createProduct } from "./product";
 import { err, ok, safeTry } from "neverthrow";
 import { createFamily } from "./family";
+import { createMeasurement } from "./measurement";
+import { createModel } from "./model";
+import { createProduct } from "./product";
+import { createProject } from "./project";
+import { createSession } from "./session";
+import { createStation } from "./station";
+import { createTest } from "./test";
 
 const generateRandomNumbers = () => {
   const randomNumbers = [];
@@ -60,7 +61,7 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
       })
     ).safeUnwrap();
 
-    const systemModel = yield* (
+    yield* (
       await createModel(db, {
         name: "HL1000",
         workspaceId,
@@ -123,41 +124,58 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
       )
       .execute();
 
-    const boolMeas = hardwares.map((hardware, i) => {
+    const station = yield* (
+      await createStation(db, {
+        name: "HL1000A Station",
+        projectId: deviceProject.id,
+      })
+    ).safeUnwrap();
+
+    for (let i = 0; i < hardwares.length; i++) {
+      const hardware = hardwares[i]!;
+
+      const session = yield* (
+        await createSession(db, {
+          hardwareId: hardware.id,
+          projectId: deviceProject.id,
+          stationId: station.id,
+          notes: "This is a test session",
+        })
+      ).safeUnwrap();
+
       const val = Math.random() < 0.8;
-      return {
-        name: "Did Power On",
-        hardwareId: hardware.id,
-        testId: booleanTest.id,
-        createdAt: new Date(new Date().getTime() + i * 20000),
-        data: { type: "boolean" as const, value: val },
-        pass: val,
-        tagNames: ["example"],
-      };
-    });
-
-    for (const meas of boolMeas) {
-      await createMeasurement(db, workspaceId, meas);
-    }
-
-    const dataframeMeas = hardwares.map((hardware, i) => ({
-      name: "Data Point",
-      hardwareId: hardware.id,
-      testId: dataframeTest.id,
-      createdAt: new Date(new Date().getTime() + i * 20000),
-      data: {
-        type: "dataframe" as const,
-        value: {
-          x: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-          y: generateRandomNumbers(),
-        },
-      },
-      pass: Math.random() < 0.7 ? true : null,
-      tagNames: ["example"],
-    }));
-
-    for (const meas of dataframeMeas) {
-      await createMeasurement(db, workspaceId, meas);
+      yield* (
+        await createMeasurement(db, workspaceId, {
+          name: "Did Power On",
+          hardwareId: hardware.id,
+          testId: booleanTest.id,
+          projectId: deviceProject.id,
+          sessionId: session.id,
+          createdAt: new Date(new Date().getTime() + i * 20000),
+          data: { type: "boolean" as const, value: val },
+          pass: val,
+          tagNames: ["example"],
+        })
+      ).safeUnwrap();
+      yield* (
+        await createMeasurement(db, workspaceId, {
+          name: "Data Point",
+          hardwareId: hardware.id,
+          testId: dataframeTest.id,
+          projectId: deviceProject.id,
+          sessionId: session.id,
+          createdAt: new Date(new Date().getTime() + i * 20000),
+          data: {
+            type: "dataframe" as const,
+            value: {
+              x: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+              y: generateRandomNumbers(),
+            },
+          },
+          pass: Math.random() < 0.7 ? true : null,
+          tagNames: ["example"],
+        })
+      ).safeUnwrap();
     }
 
     return ok(undefined);

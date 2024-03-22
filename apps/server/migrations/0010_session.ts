@@ -7,8 +7,11 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .addColumn("hardware_id", "text", (col) =>
       col.notNull().references("hardware.id").onDelete("cascade"),
     )
-    .addColumn("user_id", "text", (col) =>
-      col.notNull().references("user.id").onDelete("cascade"),
+    .addColumn(
+      "user_id",
+      "text",
+      // TODO: Should this be nullable or not?
+      (col) => col.references("user.id").onDelete("cascade"),
     )
     .addColumn("project_id", "text", (col) =>
       col.notNull().references("project.id").onDelete("cascade"),

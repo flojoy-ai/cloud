@@ -19,7 +19,7 @@ export default interface SessionTable {
   hardwareId: ColumnType<HardwareId, HardwareId, HardwareId>;
 
   /** Database type: pg_catalog.text */
-  userId: ColumnType<UserId, UserId, UserId>;
+  userId: ColumnType<UserId | null, UserId | null, UserId | null>;
 
   /** Database type: pg_catalog.text */
   projectId: ColumnType<ProjectId, ProjectId, ProjectId>;
@@ -48,7 +48,7 @@ export const sessionId = z.string();
 export const session = z.object({
   id: sessionId,
   hardwareId: hardwareId,
-  userId: userId,
+  userId: userId.nullable(),
   projectId: projectId,
   stationId: stationId,
   commitHash: z.string().nullable(),
@@ -59,7 +59,7 @@ export const session = z.object({
 export const sessionInitializer = z.object({
   id: sessionId,
   hardwareId: hardwareId,
-  userId: userId,
+  userId: userId.optional().nullable(),
   projectId: projectId,
   stationId: stationId,
   commitHash: z.string().optional().nullable(),
@@ -70,7 +70,7 @@ export const sessionInitializer = z.object({
 export const sessionMutator = z.object({
   id: sessionId.optional(),
   hardwareId: hardwareId.optional(),
-  userId: userId.optional(),
+  userId: userId.optional().nullable(),
   projectId: projectId.optional(),
   stationId: stationId.optional(),
   commitHash: z.string().optional().nullable(),
