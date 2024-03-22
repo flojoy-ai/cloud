@@ -1,37 +1,24 @@
-import { TRPCError } from "@trpc/server";
-
 import type DB from "@/schemas/Database";
 import { Kysely } from "kysely";
-import { withDBErrorCheck, generateDatabaseId } from "@/lib/db-utils";
+import { generateDatabaseId } from "@/lib/db-utils";
 import { markUpdatedAt } from "@/db/query";
 import { InsertModel } from "@/types/model";
-import { Model } from "@/schemas/public/Model";
+import { err } from "neverthrow";
 
-export async function createModel(
-  db: Kysely<DB>,
-  input: InsertModel,
-): Promise<Model> {
+export async function createModel(db: Kysely<DB>, input: InsertModel) {
   const { components, ...newModel } = input;
-  const model = await withDBErrorCheck(
-    db
-      .insertInto("model")
-      .values({
-        id: generateDatabaseId("model"),
-        ...newModel,
-      })
-      .returningAll()
-      .executeTakeFirstOrThrow(
-        () =>
-          new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create model",
-          }),
-      ),
-    {
-      errorCode: "DUPLICATE",
-      errorMsg: `A model with identifier "${input.name}" already exists!`,
-    },
-  );
+  const model = await db
+    .insertInto("model")
+    .values({
+      id: generateDatabaseId("model"),
+      ...newModel,
+    })
+    .returningAll()
+    .executeTakeFirst();
+
+  if (model === undefined) {
+    return err("Failed to create model");
+  }
 
   if (components.length > 0) {
     await db

@@ -1,10 +1,10 @@
 import { generateDatabaseId } from "@/lib/db-utils";
 import { Kysely } from "kysely";
 import type DB from "@/schemas/Database";
-import { CreateFamily } from "@/types/family";
+import { InsertFamily } from "@/types/family";
 import { err, ok } from "neverthrow";
 
-export async function createFamily(db: Kysely<DB>, family: CreateFamily) {
+export async function createFamily(db: Kysely<DB>, family: InsertFamily) {
   const res = await db
     .insertInto("family")
     .values({

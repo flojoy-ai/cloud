@@ -1,10 +1,10 @@
 import { generateDatabaseId } from "@/lib/db-utils";
 import { Kysely } from "kysely";
 import type DB from "@/schemas/Database";
-import { CreateProduct } from "@/types/product";
+import { InsertProduct } from "@/types/product";
 import { err, ok } from "neverthrow";
 
-export async function createProduct(db: Kysely<DB>, product: CreateProduct) {
+export async function createProduct(db: Kysely<DB>, product: InsertProduct) {
   const res = await db
     .insertInto("product")
     .values({
