@@ -90,8 +90,10 @@ const SearchBar = ({ workspaceId, namespace }: Props) => {
     queryKey: ["search", query, workspaceId],
     queryFn: async () => {
       const { error, data } = await client.search.index.get({
-        query,
-        workspaceId,
+        query: {
+          query,
+          workspaceId,
+        },
       });
       if (error) {
         // TODO: Handle error better

@@ -8,11 +8,11 @@ export const searchRoute = new Elysia({ prefix: "/search" })
   .use(AuthMiddleware)
   .get(
     "/",
-    async ({ body }) => {
-      if (body.query.length === 0) {
+    async ({ query: queryParams }) => {
+      if (queryParams.query.length === 0) {
         return [];
       }
-      const { query, workspaceId } = body;
+      const { query, workspaceId } = queryParams;
 
       // Postgres driver complains about not being able to
       // tell what type 'type' is if i extract this into a function :(
@@ -49,5 +49,5 @@ export const searchRoute = new Elysia({ prefix: "/search" })
 
       return res;
     },
-    { body: searchInput },
+    { query: searchInput },
   );
