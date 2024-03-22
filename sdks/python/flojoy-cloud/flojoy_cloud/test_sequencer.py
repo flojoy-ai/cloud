@@ -49,8 +49,11 @@ def _get_most_recent_data(
     if test_id is not None:
         _set_output_loc(test_id)
 
-    output_dir, prefix_file = __get_location()
-    output_file = __get_most_recent_file(output_dir, prefix_file)
+    try:
+        output_dir, prefix_file = __get_location()
+        output_file = __get_most_recent_file(output_dir, prefix_file)
+    except FileNotFoundError:
+        return None
 
     if output_file is None:
         return None
