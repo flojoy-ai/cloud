@@ -4,6 +4,9 @@ format:
   poetry run ruff format
 
 check:
+  poetry run ruff format --check
+
+lint:
   poetry run ruff check
 
 install:

@@ -13,6 +13,9 @@ format:
   bun run prettier --write .
   just packages/python/format
 
+lint:
+  just packages/python/lint
+
 check:
   bun run prettier --check .
   just packages/python/check
