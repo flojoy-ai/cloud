@@ -9,6 +9,7 @@ import { AuthProvider } from "./auth";
 import { ThemeProvider } from "./components/theme-provider";
 import { queryClient } from "./lib/client";
 import { App } from "./app";
+import { Toaster } from "./components/ui/sonner";
 
 // Render the app
 const rootElement = document.getElementById("root")!;
@@ -19,6 +20,7 @@ if (!rootElement.innerHTML) {
       <ThemeProvider>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
+            <Toaster />
             <App />
           </AuthProvider>
         </QueryClientProvider>
