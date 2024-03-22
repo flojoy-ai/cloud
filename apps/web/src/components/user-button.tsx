@@ -11,8 +11,8 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import type { User } from "lucia";
 import { useMutation } from "@tanstack/react-query";
-import axios from "axios";
-import { useNavigate, useRouter } from "@tanstack/react-router";
+import { useRouter } from "@tanstack/react-router";
+import { client } from "@/lib/client";
 
 // TODO: Fix user type here
 type Props = {
@@ -23,7 +23,7 @@ function UserButton({ user }: Props) {
   const router = useRouter();
   const logout = useMutation({
     mutationFn: async () => {
-      await axios.post("/api/logout");
+      await client.auth.logout.get();
     },
     onSuccess: () => {
       router.invalidate();

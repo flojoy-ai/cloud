@@ -5,6 +5,7 @@ import { authRoute } from "./routes/auth";
 import { workspacesRoute } from "./routes/workspaces";
 import { authGoogleRoute } from "./routes/auth/google";
 import { cors } from "@elysiajs/cors";
+import { searchRoute } from "./routes/search";
 
 const app = new Elysia()
   .use(swagger())
@@ -19,6 +20,7 @@ const app = new Elysia()
   .use(authRoute)
   .use(authGoogleRoute)
   .use(workspacesRoute)
+  .use(searchRoute)
   .listen(3000);
 
 console.log(

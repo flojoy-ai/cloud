@@ -17,6 +17,7 @@ import { Route as PublicImport } from './routes/_public'
 import { Route as ProtectedImport } from './routes/_protected'
 import { Route as ProtectedSetupImport } from './routes/_protected/setup'
 import { Route as ProtectedWorkspaceIndexImport } from './routes/_protected/workspace/index'
+import { Route as ProtectedProfileIndexImport } from './routes/_protected/profile/index'
 import { Route as ProtectedWorkspaceNamespaceNamespaceImport } from './routes/_protected/workspace/$namespace/_namespace'
 import { Route as ProtectedWorkspaceNamespaceNamespaceIndexImport } from './routes/_protected/workspace/$namespace/_namespace/index'
 
@@ -74,6 +75,11 @@ const ProtectedWorkspaceIndexRoute = ProtectedWorkspaceIndexImport.update({
   getParentRoute: () => ProtectedRoute,
 } as any)
 
+const ProtectedProfileIndexRoute = ProtectedProfileIndexImport.update({
+  path: '/profile/',
+  getParentRoute: () => ProtectedRoute,
+} as any)
+
 const ProtectedWorkspaceNamespaceNamespaceRoute =
   ProtectedWorkspaceNamespaceNamespaceImport.update({
     id: '/_namespace',
@@ -114,6 +120,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicIndexLazyImport
       parentRoute: typeof PublicImport
     }
+    '/_protected/profile/': {
+      preLoaderRoute: typeof ProtectedProfileIndexImport
+      parentRoute: typeof ProtectedImport
+    }
     '/_protected/workspace/': {
       preLoaderRoute: typeof ProtectedWorkspaceIndexImport
       parentRoute: typeof ProtectedImport
@@ -138,6 +148,7 @@ declare module '@tanstack/react-router' {
 export const routeTree = rootRoute.addChildren([
   ProtectedRoute.addChildren([
     ProtectedSetupRoute,
+    ProtectedProfileIndexRoute,
     ProtectedWorkspaceIndexRoute,
     ProtectedWorkspaceNamespaceRoute.addChildren([
       ProtectedWorkspaceNamespaceNamespaceRoute.addChildren([

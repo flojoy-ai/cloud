@@ -16,6 +16,6 @@ export const authRoute = new Elysia({ prefix: "/auth" })
       ...sessionCookie.attributes,
     });
 
+    // FIXME: Redirect doesn't work
     set.redirect = env.WEB_URL;
-    return;
   });
