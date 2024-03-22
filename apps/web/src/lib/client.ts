@@ -7,7 +7,6 @@ export const queryClient = new QueryClient();
 
 export const client = treaty<App>(env.VITE_SERVER_URL, {
   headers: {
-    "Content-Type": "application/json",
     Origin: env.VITE_SERVER_URL,
   },
   fetch: {
