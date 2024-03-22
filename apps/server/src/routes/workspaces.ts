@@ -3,7 +3,7 @@ import { createWorkspace } from "@/types/workspace";
 import { Elysia, NotFoundError, t } from "elysia";
 import { db } from "@/db/kysely";
 import { DatabaseError } from "pg";
-import { generateDatabaseId } from "@/db/id";
+import { generateDatabaseId } from "@/lib/db-utils";
 import { withDBErrorCheck } from "@/lib/db-utils";
 
 export const workspacesRoute = new Elysia({ prefix: "/workspaces" })

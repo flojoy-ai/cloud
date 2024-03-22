@@ -6,7 +6,7 @@ import {
 } from "arctic";
 import { google, lucia } from "@/auth/lucia";
 import { env } from "@/env";
-import { generateDatabaseId } from "@/db/id";
+import { generateDatabaseId } from "@/lib/db-utils";
 import { db } from "@/db/kysely";
 
 export const authGoogleRoute = new Elysia({ prefix: "/auth/google" })

@@ -36,6 +36,7 @@ const formSchema = createWorkspace;
 
 function Setup() {
   const form = useForm<CreateWorkspace>({
+    // @ts-expect-error elysia typebox gives type error with typebox resolver but still works
     resolver: typeboxResolver(formSchema),
     defaultValues: {
       populateData: false,
