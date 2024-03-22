@@ -1,4 +1,5 @@
 import { lucia } from "@/auth/lucia";
+import { env } from "@/env";
 import { Elysia } from "elysia";
 import { verifyRequestOrigin } from "lucia";
 
@@ -13,22 +14,21 @@ export const AuthMiddleware = new Elysia()
       session: Session | null;
     }> => {
       // CSRF check
-      // TODO: Fix CSRF Check
-      // if (context.request.method !== "GET") {
-      //   const originHeader = context.request.headers.get("Origin");
-      //   // NOTE: You may need to use `X-Forwarded-Host` instead
-      //   const hostHeader = context.request.headers.get("Host");
-      //   if (
-      //     !originHeader ||
-      //     !hostHeader ||
-      //     !verifyRequestOrigin(originHeader, [hostHeader])
-      //   ) {
-      //     return {
-      //       user: null,
-      //       session: null,
-      //     };
-      //   }
-      // }
+      if (context.request.method !== "GET") {
+        const originHeader = context.request.headers.get("Origin");
+        // NOTE: You may need to use `X-Forwarded-Host` instead
+        const hostHeader = context.request.headers.get("Host");
+        if (
+          !originHeader ||
+          !hostHeader ||
+          !verifyRequestOrigin(originHeader, [hostHeader, env.WEB_URL])
+        ) {
+          return {
+            user: null,
+            session: null,
+          };
+        }
+      }
 
       // use headers instead of Cookie API to prevent type coercion
       const cookieHeader = context.request.headers.get("Cookie") ?? "";
