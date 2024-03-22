@@ -1,5 +1,7 @@
 .venv
 
-apps/platform/src/schemas/**
-
 *.gen.ts
+
+apps/platform/*
+
+apps/server/src/schemas/*

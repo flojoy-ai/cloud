@@ -1,0 +1,13 @@
+set fallback
+
+format:
+  poetry run ruff format
+
+check:
+  poetry run ruff check
+
+install:
+  poetry install
+
+update:
+  poetry update

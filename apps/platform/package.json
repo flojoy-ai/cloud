@@ -6,7 +6,6 @@
   "scripts": {
     "build": "pnpm migrate:to-latest && next build",
     "build:analyze": "ANALYZE=true next build",
-    "bruh": "pnpm kanel && next dev",
     "with-env": "dotenv -c --",
     "lint": "next lint",
     "start": "next start",

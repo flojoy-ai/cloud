@@ -7,9 +7,7 @@
     "lint": "turbo run lint",
     "clean": "turbo run clean",
     "commitlint": "commitlint --edit",
-    "prepare": "husky",
-    "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "prepare": "husky"
   },
   "workspaces": [
     "apps/*",

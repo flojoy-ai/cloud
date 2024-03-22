@@ -1,7 +1,7 @@
 from __future__ import annotations
-import datetime
-from typing import ForwardRef, Literal, Optional
 
+import datetime
+from typing import Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel

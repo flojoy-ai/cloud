@@ -1,4 +1,4 @@
-name: Code Style Check
+name: Style Check
 
 on:
   - push
@@ -16,8 +16,10 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Install dependencies
-        run: bun install
+      - uses: extractions/setup-just@v1
 
-      - name: Prettier Check
-        run: bun format:check
+      - name: Install
+        run: just install
+
+      - name: Check
+        run: just check
