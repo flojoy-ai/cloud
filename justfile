@@ -14,6 +14,7 @@ format:
   just packages/python/format
 
 lint:
+  bun run lint
   just packages/python/lint
 
 check:

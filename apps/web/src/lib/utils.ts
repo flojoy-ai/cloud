@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const handleError = (error: any, defaultMessage?: string) => {
+export const handleError = (error: unknown, defaultMessage?: string) => {
   //TODO: Make this work for elysia
 
   // if (error instanceof TRPCClientError) {
