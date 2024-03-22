@@ -49,11 +49,8 @@ def _get_most_recent_data(
     if test_id is not None:
         _set_output_loc(test_id)
 
-    try:
-        output_dir, prefix_file = __get_location()
-        output_file = __get_most_recent_file(output_dir, prefix_file)
-    except FileNotFoundError:
-        return None
+    output_dir, prefix_file = __get_location()
+    output_file = __get_most_recent_file(output_dir, prefix_file)
 
     if output_file is None:
         return None
@@ -98,6 +95,8 @@ def __get_location():
 def __get_most_recent_file(output_dir: str, prefix_file: str):
     most_recent_file = None
     most_recent_time = 0
+    if not os.path.exists(output_dir):
+        return None
     for file in os.listdir(output_dir):
         logging.info(f"Available data: {file}")
         if file.startswith(prefix_file):
