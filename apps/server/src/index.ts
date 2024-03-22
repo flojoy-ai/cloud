@@ -6,8 +6,16 @@ import { workspacesRoute } from "./routes/workspaces";
 import { authGoogleRoute } from "./routes/auth/google";
 import { cors } from "@elysiajs/cors";
 import { searchRoute } from "./routes/search";
+import { logger } from "@bogeychan/elysia-logger";
+import { env } from "./env";
 
 const app = new Elysia()
+  .use(
+    logger({
+      level: env.NODE_ENV === "production" ? "error" : "info",
+      autoLogging: true,
+    }),
+  )
   .use(swagger())
   .use(
     // NOTE: https://github.com/elysiajs/elysia-cors/issues/41
