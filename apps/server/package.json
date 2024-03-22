@@ -3,7 +3,9 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "bun build src/index.ts",
+    "start": "NODE_ENV=production bun src/index.ts",
+    "test": "bun test",
     "dev": "bun run --watch src/index.ts",
     "kanel": "bunx kanel",
     "bruh": "tsx ./scripts/migrate/bruh.ts",
