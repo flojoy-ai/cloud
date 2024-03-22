@@ -10,9 +10,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import type { User } from "lucia";
-import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
-import { client } from "@/lib/client";
+import { env } from "@/env";
 
 // TODO: Fix user type here
 type Props = {
@@ -21,14 +20,12 @@ type Props = {
 
 function UserButton({ user }: Props) {
   const router = useRouter();
-  const logout = useMutation({
-    mutationFn: async () => {
-      await client.auth.logout.get();
-    },
-    onSuccess: () => {
-      router.invalidate();
-    },
-  });
+
+  async function handleLogout() {
+    router.invalidate();
+    window.location.href = env.VITE_SERVER_URL + "/auth/logout";
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -59,12 +56,7 @@ function UserButton({ user }: Props) {
           Profile
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onSelect={async () => {
-            logout.mutate();
-          }}
-        >
+        <DropdownMenuItem className="cursor-pointer" onSelect={handleLogout}>
           Logout
         </DropdownMenuItem>
       </DropdownMenuContent>
