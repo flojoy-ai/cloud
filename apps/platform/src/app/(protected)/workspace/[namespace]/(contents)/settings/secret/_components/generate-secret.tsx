@@ -22,14 +22,14 @@ const GenerateAPIKey = ({ workspaceId }: Props) => {
     <Button
       onClick={() =>
         toast.promise(generateSecret.mutateAsync({ workspaceId }), {
-          loading: "Creating your API key...",
-          success: "Your API key is ready.",
+          loading: "Creating your workspace secret...",
+          success: "Your workspace secret is ready.",
           error: handleError,
         })
       }
       variant="secondary"
     >
-      Generate API Key
+      Generate Secret
     </Button>
   );
 };

@@ -95,6 +95,8 @@ def __get_location():
 def __get_most_recent_file(output_dir: str, prefix_file: str):
     most_recent_file = None
     most_recent_time = 0
+    if not os.path.exists(output_dir):
+        return None
     for file in os.listdir(output_dir):
         logging.info(f"Available data: {file}")
         if file.startswith(prefix_file):

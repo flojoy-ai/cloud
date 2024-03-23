@@ -1,7 +1,18 @@
 from flojoy_cloud import test_sequencer
 from random import randint, random
 import pandas as pd
+import os
+import shutil
 
+def test_no_output():
+
+    output_dir, prefix_file = test_sequencer.__get_location()
+    # delete the dir if it exists
+    if os.path.exists(output_dir):
+        shutil.rmtree(output_dir)
+    # Try to get the most recent data
+    data = test_sequencer._get_most_recent_data(prefix_file)
+    assert data is None
 
 def test_set_output():
     # Set the output location to simulate a test run in the test sequencer
