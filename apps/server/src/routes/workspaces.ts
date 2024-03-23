@@ -4,7 +4,6 @@ import { Elysia, NotFoundError, t } from "elysia";
 import { db } from "@/db/kysely";
 import { DatabaseError } from "pg";
 import { generateDatabaseId } from "@/lib/db-utils";
-import { withDBErrorCheck } from "@/lib/db-utils";
 import { populateExample } from "@/db/example";
 
 export const workspacesRoute = new Elysia({ prefix: "/workspaces" })
@@ -83,7 +82,9 @@ export const workspacesRoute = new Elysia({ prefix: "/workspaces" })
       }),
     },
   )
-  .get("/:id", getWorkspace)
+  .get("/:id", async ({ params }) => {
+    console.log(params.id);
+  })
   .get(
     "/id/:namespace",
     async ({ params }) => {
@@ -104,7 +105,3 @@ export const workspacesRoute = new Elysia({ prefix: "/workspaces" })
       params: t.Object({ namespace: t.String() }),
     },
   );
-
-function getWorkspace(req: Request, res: Response) {
-  // ...
-}

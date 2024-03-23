@@ -1,9 +1,6 @@
-import { TRPCError } from "@trpc/server";
-
 import type DB from "@/schemas/Database";
 import { Kysely } from "kysely";
-import { generateDatabaseId, withDBErrorCheck } from "@/lib/db-utils";
-import { Test } from "@/schemas/public/Test";
+import { generateDatabaseId } from "@/lib/db-utils";
 import { InsertTest } from "@/types/test";
 import { err, ok } from "neverthrow";
 
