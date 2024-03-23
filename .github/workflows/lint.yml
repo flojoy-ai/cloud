@@ -1,16 +1,39 @@
-name: Style Check
+name: Lint Check
 
 on:
   - push
   - pull_request
 
 jobs:
-  prettier-check:
+  ruff:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v4
+      - uses: abatilo/actions-poetry@v2
+
+      - uses: actions/cache@v3
+        with:
+          path: ./packages/python/.venv
+          key: venv-${{ hashFiles('poetry.lock') }}
+
+      - uses: extractions/setup-just@v1
+
+      - name: Install
+        run: just install-poetry
+
+      - name: Check
+        run: just lint-ruff
+
+  eslint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - uses: oven-sh/setup-bun@v1
         with:
@@ -19,7 +42,7 @@ jobs:
       - uses: extractions/setup-just@v1
 
       - name: Install
-        run: just install
+        run: just install-bun
 
       - name: Check
-        run: just check
+        run: just lint-eslint
