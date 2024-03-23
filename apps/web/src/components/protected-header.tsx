@@ -197,23 +197,27 @@ export function ProtectedHeader() {
               </>
             )}
 
-            <Link
-              href={siteConfig.links.discord as Route}
-              target="_blank"
-              rel="noreferrer"
-            >
+            <a href={siteConfig.links.github} target="_blank" rel="noreferrer">
               <div
                 className={cn(
-                  buttonVariants({
-                    variant: "ghost",
-                  }),
-                  "w-9 px-0",
+                  buttonVariants({ variant: "ghost", size: "icon" }),
+                )}
+              >
+                <Icons.github className="h-4 w-4" />
+                <span className="sr-only">GitHub</span>
+              </div>
+            </a>
+            <a href={siteConfig.links.discord} target="_blank" rel="noreferrer">
+              <div
+                className={cn(
+                  buttonVariants({ variant: "ghost", size: "icon" }),
                 )}
               >
                 <Icons.discord className="h-4 w-4" />
                 <span className="sr-only">Discord</span>
               </div>
-            </Link>
+            </a>
+
             <ModeToggle />
           </nav>
         </div>
