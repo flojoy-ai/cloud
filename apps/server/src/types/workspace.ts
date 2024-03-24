@@ -1,5 +1,4 @@
 import { t, Static } from "elysia";
-import { date } from "./utils";
 
 export const createWorkspace = t.Object({
   name: t.String({ minLength: 1 }),
@@ -18,8 +17,8 @@ export const workspace = t.Object({
   name: t.String(),
   namespace: t.String(),
   planType: planType,
-  createdAt: date,
-  updatedAt: date,
+  createdAt: t.Date(),
+  updatedAt: t.Date(),
 });
 
 export type CreateWorkspace = Static<typeof createWorkspace>;
