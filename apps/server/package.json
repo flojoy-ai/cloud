@@ -21,7 +21,6 @@
     "@elysiajs/swagger": "^0.8.5",
     "@lucia-auth/adapter-postgresql": "^3.1.1",
     "@paralleldrive/cuid2": "^2.2.2",
-    "@sinclair/typebox": "^0.32.18",
     "@t3-oss/env-core": "^0.9.2",
     "arctic": "^1.2.1",
     "elysia": "^1.0.7",

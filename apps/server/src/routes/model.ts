@@ -3,22 +3,20 @@ import { AuthMiddleware } from "@/middlewares/auth";
 import Elysia, { t } from "elysia";
 import { createModel, getModelTree } from "@/db/model";
 import { insertModel } from "@/types/model";
+import { WorkspaceMiddleware } from "@/middlewares/workspace";
 
 export const ModelRoute = new Elysia({ prefix: "/model" })
   .use(AuthMiddleware)
-  .get(
-    "/",
-    async ({ query: { workspaceId } }) => {
-      const models = await db
-        .selectFrom("model")
-        .selectAll("model")
-        .where("model.workspaceId", "=", workspaceId)
-        .execute();
+  .use(WorkspaceMiddleware)
+  .get("/", async ({ headers: { "Flojoy-Workspace-Id": workspaceId } }) => {
+    const models = await db
+      .selectFrom("model")
+      .selectAll("model")
+      .where("model.workspaceId", "=", workspaceId)
+      .execute();
 
-      return models;
-    },
-    { query: t.Object({ workspaceId: t.String() }) },
-  )
+    return models;
+  })
   .post(
     "/",
     async ({ body, error }) => {
@@ -32,7 +30,11 @@ export const ModelRoute = new Elysia({ prefix: "/model" })
   )
   .get(
     "/:modelId",
-    async ({ params: { modelId }, query: { workspaceId }, error }) => {
+    async ({
+      params: { modelId },
+      error,
+      headers: { "Flojoy-Workspace-Id": workspaceId },
+    }) => {
       const model = await db
         .selectFrom("model")
         .selectAll()

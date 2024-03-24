@@ -4,12 +4,12 @@ import { db } from "@/db/kysely";
 
 export const WorkspaceMiddleware = new Elysia({ name: "WorkspaceMiddleware" })
   .guard({
-    params: t.Object({
-      workspaceId: t.String(),
+    headers: t.Object({
+      "Flojoy-Workspace-Id": t.String(),
     }),
   })
   .use(AuthMiddleware)
-  .derive(async ({ params: { workspaceId }, user }) => {
+  .derive(async ({ headers: { "Flojoy-Workspace-Id": workspaceId }, user }) => {
     const workspace = await db
       .selectFrom("workspace as w")
       .selectAll()

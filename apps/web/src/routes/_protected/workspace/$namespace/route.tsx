@@ -4,20 +4,22 @@ import { client } from "@/lib/client";
 export const Route = createFileRoute("/_protected/workspace/$namespace")({
   component: Page,
   beforeLoad: async ({ params: { namespace } }) => {
-    const { data: workspace, error } = await client
+    const workspaceQuery = await client
       .workspace({
         namespace,
       })
       .get();
-    if (error) throw error;
-    return { workspace };
+    if (workspaceQuery.error) throw workspaceQuery.error;
+
+    const modelsQuery = await client.model.index.get({
+      headers: { "Flojoy-Workspace-Id": workspaceQuery.data.id },
+    });
+    if (modelsQuery.error) throw modelsQuery.error;
+
+    return { workspace: workspaceQuery.data, models: modelsQuery.data };
   },
 });
 
 function Page() {
-  return (
-    <div>
-      <Outlet />
-    </div>
-  );
+  return <Outlet />;
 }
