@@ -7,7 +7,15 @@ import {
   PageHeaderHeading,
 } from "@/components/small-header";
 import { client } from "@/lib/client";
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/project/",
@@ -30,6 +38,25 @@ function Page() {
   const { projects, workspace, models } = Route.useRouteContext();
   return (
     <div className="container max-w-screen-2xl">
+      <div className="py-2"></div>
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink>
+              <Link
+                to="/workspace/$namespace"
+                params={{ namespace: workspace.namespace }}
+              >
+                Home
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Projects</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       <PageHeader>
         <PageHeaderHeading className="">Projects</PageHeaderHeading>
         <PageHeaderDescription>
