@@ -63,7 +63,6 @@ export function ThemeProvider({
     theme,
     resolvedTheme,
     setTheme: (theme: Theme) => {
-      console.log("theme");
       localStorage.setItem(storageKey, theme);
       setTheme(theme);
     },

@@ -22,9 +22,7 @@ function Workspaces() {
   return (
     <div className="container max-w-screen-2xl">
       <PageHeader>
-        <PageHeaderHeading className="">
-          Welcome to Flojoy Cloud
-        </PageHeaderHeading>
+        <PageHeaderHeading className="">Welcome</PageHeaderHeading>
         <PageHeaderDescription>
           Select a workspace to get started!
         </PageHeaderDescription>
