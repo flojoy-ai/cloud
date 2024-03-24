@@ -1,6 +1,5 @@
 import { db } from "@/db/kysely";
 import { createProject } from "@/db/project";
-import { AuthMiddleware } from "@/middlewares/auth";
 import { ProjectMiddleware } from "@/middlewares/project";
 import { WorkspaceMiddleware } from "@/middlewares/workspace";
 import { CreateProjectSchema } from "@/types/project";
@@ -11,7 +10,6 @@ export const ProjectRoute = new Elysia({
   prefix: "/project",
   name: "ProjectRoute",
 })
-  .use(AuthMiddleware)
   .use(WorkspaceMiddleware)
   .error({
     DatabaseError,

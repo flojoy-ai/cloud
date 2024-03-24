@@ -5,11 +5,13 @@ import { db } from "@/db/kysely";
 export const WorkspaceMiddleware = new Elysia({ name: "WorkspaceMiddleware" })
   .guard({
     headers: t.Object({
-      "Flojoy-Workspace-Id": t.String(),
+      // NOTE: wasted half an hour here, http headers are case insensitive and
+      // they are lowercased by default
+      "flojoy-workspace-id": t.String(),
     }),
   })
   .use(AuthMiddleware)
-  .derive(async ({ headers: { "Flojoy-Workspace-Id": workspaceId }, user }) => {
+  .derive(async ({ headers: { "flojoy-workspace-id": workspaceId }, user }) => {
     const workspace = await db
       .selectFrom("workspace as w")
       .selectAll()
@@ -17,6 +19,7 @@ export const WorkspaceMiddleware = new Elysia({ name: "WorkspaceMiddleware" })
       .executeTakeFirst();
 
     if (!workspace) {
+      console.log("HERE");
       return error("Bad Request");
     }
 
@@ -28,6 +31,7 @@ export const WorkspaceMiddleware = new Elysia({ name: "WorkspaceMiddleware" })
       .executeTakeFirst();
 
     if (!workspaceUser) {
+      console.log("THERE");
       return error("Bad Request");
     }
 

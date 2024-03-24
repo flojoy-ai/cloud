@@ -13,10 +13,14 @@ export const Route = createFileRoute(
   "/_protected/workspace/$namespace/project/",
 )({
   beforeLoad: async ({ context }) => {
+    console.log("context", context);
     const { data: projects, error } = await client.project.index.get({
       headers: { "Flojoy-Workspace-Id": context.workspace.id },
     });
-    if (error) throw error;
+    if (error) {
+      console.log(error.value);
+      throw error;
+    }
     return { projects };
   },
   component: Page,

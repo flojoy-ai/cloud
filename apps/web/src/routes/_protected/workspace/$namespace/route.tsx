@@ -11,6 +11,7 @@ export const Route = createFileRoute("/_protected/workspace/$namespace")({
       .get();
     if (workspaceQuery.error) throw workspaceQuery.error;
 
+    console.log("workspaceQuery", workspaceQuery);
     const modelsQuery = await client.model.index.get({
       headers: { "Flojoy-Workspace-Id": workspaceQuery.data.id },
     });
