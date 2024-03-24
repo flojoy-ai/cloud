@@ -1,13 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
+
 import { Link } from "@tanstack/react-router";
 import { Icons } from "@/components/icons";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 import SearchBar from "@/components/workspace/search-bar";
 
-export const Route = createFileRoute(
-  "/_protected/workspace/$namespace/_namespace/",
-)({
+export const Route = createFileRoute("/_protected/workspace/$namespace/")({
   component: Page,
 });
 
@@ -65,3 +64,4 @@ function Page() {
     </div>
   );
 }
+
