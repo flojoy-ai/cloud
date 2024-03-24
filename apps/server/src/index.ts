@@ -9,8 +9,15 @@ import { SearchRoute } from "./routes/search";
 import { logger } from "@bogeychan/elysia-logger";
 import { env } from "./env";
 import { ProjectRoute } from "./routes/project";
+import { FamilyRoute } from "./routes/family";
+import SuperJSON from "superjson";
 
 const app = new Elysia()
+  .mapResponse(({ response, set }) => {
+    return new Response(SuperJSON.stringify(response), {
+      status: set.status as number,
+    });
+  })
   .use(
     logger({
       level: env.NODE_ENV === "production" ? "error" : "info",
@@ -31,6 +38,7 @@ const app = new Elysia()
   .use(WorkspaceRoute)
   .use(ProjectRoute)
   .use(SearchRoute)
+  .use(FamilyRoute)
   .listen(3000);
 
 console.log(

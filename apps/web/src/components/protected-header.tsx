@@ -23,20 +23,16 @@ import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 import { CheckIcon, ChevronsUpDown, PlusCircleIcon } from "lucide-react";
 import { useState } from "react";
-import {
-  Link,
-  useLoaderData,
-  useRouter,
-  useRouterState,
-} from "@tanstack/react-router";
+import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
+import { useWorkspaces } from "@/hooks/use-workspaces";
 
 export function ProtectedNav() {
   const router = useRouter();
   const pathname = useRouterState().location.pathname;
   const [open, setOpen] = useState(false);
   const segments = pathname.split("/");
-  const { workspaces } = useLoaderData({ from: "/_protected" });
+  const workspaces = useWorkspaces();
 
   const namespace = segments[2];
 

@@ -5,7 +5,7 @@ import "./index.css";
 
 // Import the generated route tree
 import { QueryClientProvider } from "@tanstack/react-query";
-import { AuthProvider } from "./auth";
+import { AuthProvider } from "./context/auth";
 import { ThemeProvider } from "./components/theme-provider";
 import { queryClient } from "./lib/client";
 import { App } from "./app";

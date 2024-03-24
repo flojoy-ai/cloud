@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createContext } from "react";
-import { client } from "./lib/client";
+import { client } from "@/lib/client";
 import { User } from "lucia";
 
 export interface AuthContext {
