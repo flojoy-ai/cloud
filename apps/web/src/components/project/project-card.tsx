@@ -29,8 +29,8 @@ export function ProjectCard({ project, workspace, models }: Props) {
     <ContextMenu>
       <ContextMenuTrigger>
         <Link
-          to={"/workspace/$namespace/project/$id"}
-          params={{ namespace: workspace.namespace, id: project.id }}
+          to={"/workspace/$namespace/project/$projectId"}
+          params={{ namespace: workspace.namespace, projectId: project.id }}
         >
           <Card className="transition-all duration-300 hover:bg-secondary/80">
             <CardHeader>

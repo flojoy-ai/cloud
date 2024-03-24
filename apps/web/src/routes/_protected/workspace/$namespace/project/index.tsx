@@ -1,4 +1,3 @@
-// import { ProjectCard } from "@/components/project/project-card";
 import NewProject from "@/components/project/new-project";
 import { ProjectCard } from "@/components/project/project-card";
 import {
@@ -6,7 +5,6 @@ import {
   PageHeaderDescription,
   PageHeaderHeading,
 } from "@/components/small-header";
-import { client } from "@/lib/client";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import {
   Breadcrumb,
@@ -20,17 +18,6 @@ import {
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/project/",
 )({
-  beforeLoad: async ({ context }) => {
-    console.log("context", context);
-    const { data: projects, error } = await client.project.index.get({
-      headers: { "flojoy-workspace-id": context.workspace.id },
-    });
-    if (error) {
-      console.log(error.value);
-      throw error;
-    }
-    return { projects };
-  },
   component: Page,
 });
 
@@ -42,7 +29,7 @@ function Page() {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink>
+            <BreadcrumbLink asChild>
               <Link
                 to="/workspace/$namespace"
                 params={{ namespace: workspace.namespace }}
