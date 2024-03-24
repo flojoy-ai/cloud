@@ -2,7 +2,7 @@ import swagger from "@elysiajs/swagger";
 import { Elysia } from "elysia";
 import { userRoute } from "./routes/user";
 import { authRoute } from "./routes/auth";
-import { workspacesRoute } from "./routes/workspaces";
+import { workspaceRoute as workspaceRoute } from "./routes/workspace";
 import { authGoogleRoute } from "./routes/auth/google";
 import { cors } from "@elysiajs/cors";
 import { searchRoute } from "./routes/search";
@@ -27,7 +27,7 @@ const app = new Elysia()
   .use(userRoute)
   .use(authRoute)
   .use(authGoogleRoute)
-  .use(workspacesRoute)
+  .use(workspaceRoute)
   .use(searchRoute)
   .listen(3000);
 

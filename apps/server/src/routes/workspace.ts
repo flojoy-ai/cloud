@@ -6,7 +6,7 @@ import { DatabaseError } from "pg";
 import { generateDatabaseId } from "@/lib/db-utils";
 import { populateExample } from "@/db/example";
 
-export const workspacesRoute = new Elysia({ prefix: "/workspaces" })
+export const workspaceRoute = new Elysia({ prefix: "/workspace" })
   .use(AuthMiddleware)
   .error({
     DatabaseError,
