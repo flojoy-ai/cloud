@@ -10,6 +10,8 @@ export const WorkspaceMiddleware = new Elysia({ name: "WorkspaceMiddleware" })
       "flojoy-workspace-id": t.String(),
     }),
   })
+  // FIXME: need to move AuthMiddleware out to each individual routes
+  // but I could not find a way to get the user here
   .use(AuthMiddleware)
   .derive(async ({ headers: { "flojoy-workspace-id": workspaceId }, user }) => {
     const workspace = await db
@@ -19,7 +21,6 @@ export const WorkspaceMiddleware = new Elysia({ name: "WorkspaceMiddleware" })
       .executeTakeFirst();
 
     if (!workspace) {
-      console.log("HERE");
       return error("Bad Request");
     }
 
@@ -31,7 +32,6 @@ export const WorkspaceMiddleware = new Elysia({ name: "WorkspaceMiddleware" })
       .executeTakeFirst();
 
     if (!workspaceUser) {
-      console.log("THERE");
       return error("Bad Request");
     }
 
