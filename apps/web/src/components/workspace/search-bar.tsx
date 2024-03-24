@@ -90,8 +90,8 @@ const SearchBar = ({ workspaceId, namespace }: Props) => {
       const { error, data } = await client.search.index.get({
         query: {
           query,
-          workspaceId,
         },
+        headers: { "flojoy-workspace-id": workspaceId },
       });
       if (error) {
         // TODO: Handle error better

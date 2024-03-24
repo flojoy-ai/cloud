@@ -46,7 +46,7 @@ const CreateFamily = ({ workspaceId }: Props) => {
   const { data: products } = useSuspenseQuery({
     queryFn: async () => {
       const { data, error } = await client.product.index.get({
-        query: { workspaceId },
+        headers: { "flojoy-workspace-id": workspaceId },
       });
       if (error) throw error;
       return data;
@@ -56,7 +56,9 @@ const CreateFamily = ({ workspaceId }: Props) => {
 
   const createFamily = useMutation({
     mutationFn: async (vals: FormSchema) => {
-      const { error } = await client.family.index.post(vals);
+      const { error } = await client.family.index.post(vals, {
+        headers: { "flojoy-workspace-id": workspaceId },
+      });
       if (error) {
         if (typeof error.value === "string") {
           throw new Error(error.value);

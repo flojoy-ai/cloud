@@ -1,18 +1,18 @@
 import { db } from "@/db/kysely";
-import { AuthMiddleware } from "@/middlewares/auth";
+import { WorkspaceMiddleware } from "@/middlewares/workspace";
 import { SearchResult, searchInput } from "@/types/search";
 import Elysia from "elysia";
 import { sql, SqlBool } from "kysely";
 
 export const SearchRoute = new Elysia({ prefix: "/search" })
-  .use(AuthMiddleware)
+  .use(WorkspaceMiddleware)
   .get(
     "/",
-    async ({ query: queryParams }) => {
+    async ({ query: queryParams, workspace }) => {
       if (queryParams.query.length === 0) {
         return [];
       }
-      const { query, workspaceId } = queryParams;
+      const { query } = queryParams;
 
       // Postgres driver complains about not being able to
       // tell what type 'type' is if i extract this into a function :(
@@ -22,7 +22,7 @@ export const SearchRoute = new Elysia({ prefix: "/search" })
         .select(sql<SearchResult["type"]>`'model'`.as("type"))
         .select(sql`name <-> ${query}`.as("dist"))
         .where(sql<SqlBool>`(name <-> ${query}) < 0.85`)
-        .where("workspaceId", "=", workspaceId);
+        .where("workspaceId", "=", workspace.id);
 
       const projectQuery = db
         .selectFrom("project")
@@ -30,7 +30,7 @@ export const SearchRoute = new Elysia({ prefix: "/search" })
         .select(sql<SearchResult["type"]>`'project'`.as("type"))
         .select(sql`name <-> ${query}`.as("dist"))
         .where(sql<SqlBool>`(name <-> ${query}) < 0.85`)
-        .where("workspaceId", "=", workspaceId);
+        .where("workspaceId", "=", workspace.id);
 
       const hardwareQuery = db
         .selectFrom("hardware")
@@ -38,7 +38,7 @@ export const SearchRoute = new Elysia({ prefix: "/search" })
         .select(sql<SearchResult["type"]>`'hardware'`.as("type"))
         .select(sql`name <-> ${query}`.as("dist"))
         .where(sql<SqlBool>`(name <-> ${query}) < 0.85`)
-        .where("workspaceId", "=", workspaceId);
+        .where("workspaceId", "=", workspace.id);
 
       const res = await modelQuery
         .unionAll(projectQuery)

@@ -1,20 +1,14 @@
 import { db } from "@/db/kysely";
-import { AuthMiddleware } from "@/middlewares/auth";
-import Elysia, { t } from "elysia";
+import { WorkspaceMiddleware } from "@/middlewares/workspace";
+import Elysia from "elysia";
 
 export const ProductRoute = new Elysia({ prefix: "/product" })
-  .use(AuthMiddleware)
-  .get(
-    "/",
-    async ({ query: { workspaceId } }) => {
-      const products = await db
-        .selectFrom("product")
-        .selectAll()
-        .where("workspaceId", "=", workspaceId)
-        .execute();
-      return products;
-    },
-    {
-      query: t.Object({ workspaceId: t.String() }),
-    },
-  );
+  .use(WorkspaceMiddleware)
+  .get("/", async ({ workspace }) => {
+    const products = await db
+      .selectFrom("product")
+      .selectAll()
+      .where("workspaceId", "=", workspace.id)
+      .execute();
+    return products;
+  });

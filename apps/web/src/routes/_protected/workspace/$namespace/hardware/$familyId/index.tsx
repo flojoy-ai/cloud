@@ -23,15 +23,13 @@ export const Route = createFileRoute(
   component: FamilyPage,
   beforeLoad: async ({ context: { workspace }, params: { familyId } }) => {
     const { data: models, error: modelError } = await client.model.index.get({
-      // TODO: this should be in header
-      query: { workspaceId: workspace.id },
+      headers: { "flojoy-workspace-id": workspace.id },
     });
     if (modelError) throw modelError;
     const { data: family, error: familyError } = await client
       .family({ familyId })
       .get({
-        // TODO: this should be in header
-        query: { workspaceId: workspace.id },
+        headers: { "flojoy-workspace-id": workspace.id },
       });
 
     if (familyError) throw familyError;
@@ -77,8 +75,9 @@ function FamilyPage() {
       if (!selectedModelId) return undefined;
       const { data, error } = await client
         .model({ modelId: selectedModelId })
-        // TODO: this should be in header
-        .get({ query: { workspaceId: workspace.id } });
+        .get({
+          headers: { "flojoy-workspace-id": workspace.id },
+        });
       if (error) throw error;
       return data;
     },

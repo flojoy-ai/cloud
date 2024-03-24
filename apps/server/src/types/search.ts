@@ -2,7 +2,6 @@ import { t, Static } from "elysia";
 
 export const searchInput = t.Object({
   query: t.String(),
-  workspaceId: t.String(),
 });
 
 export type SearchInput = Static<typeof searchInput>;

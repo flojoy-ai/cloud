@@ -42,7 +42,6 @@ export const ModelRoute = new Elysia({ prefix: "/model" })
       return await getModelTree(model);
     },
     {
-      query: t.Object({ workspaceId: t.String() }),
       params: t.Object({ modelId: t.String() }),
     },
   );
