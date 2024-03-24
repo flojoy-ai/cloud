@@ -61,7 +61,7 @@ function HardwareInventory() {
   const { data: families } = useSuspenseQuery({
     queryFn: async () => {
       const { data, error } = await client.family.index.get({
-        query: { workspaceId: workspace.id },
+        headers: { "flojoy-workspace-id": workspace.id },
       });
       if (error) throw error;
       return data;
@@ -85,7 +85,7 @@ function HardwareInventory() {
       <div>
         <div className="py-2" />
 
-        <h1 className="text-xl font-bold">Part families</h1>
+        <h1 className="text-xl font-bold">Part Families</h1>
         <div className="py-1" />
         <CreateFamily workspaceId={workspace.id} />
         <div className="py-4" />

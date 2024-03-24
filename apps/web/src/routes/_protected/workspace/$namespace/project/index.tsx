@@ -15,7 +15,7 @@ export const Route = createFileRoute(
   beforeLoad: async ({ context }) => {
     console.log("context", context);
     const { data: projects, error } = await client.project.index.get({
-      headers: { "Flojoy-Workspace-Id": context.workspace.id },
+      headers: { "flojoy-workspace-id": context.workspace.id },
     });
     if (error) {
       console.log(error.value);

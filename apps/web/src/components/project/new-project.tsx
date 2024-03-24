@@ -55,7 +55,7 @@ export default function NewProjectButton({ workspace, models }: Props) {
   const createProject = useMutation({
     mutationFn: async (values: CreateProjectSchema) => {
       const { data, error } = await client.project.index.post(values, {
-        headers: { "Flojoy-Workspace-Id": workspace.id },
+        headers: { "flojoy-workspace-id": workspace.id },
       });
       if (error) {
         switch (error.status) {
