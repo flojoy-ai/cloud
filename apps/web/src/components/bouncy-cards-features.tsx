@@ -13,6 +13,9 @@ export const BouncyCardsFeatures = () => {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           className="whitespace-nowrap rounded-lg bg-primary px-4 py-2 font-medium text-primary-foreground shadow-xl transition-colors hover:bg-primary/90"
+          onClick={() => {
+            window.open("https://flojoy.ai", "_blank");
+          }}
         >
           Learn more
         </motion.button>
