@@ -21,15 +21,17 @@ export const Route = createFileRoute(
   "/_protected/workspace/$namespace/hardware/$familyId/",
 )({
   component: FamilyPage,
-  beforeLoad: async ({ context: { workspaceId }, params: { familyId } }) => {
+  beforeLoad: async ({ context: { workspace }, params: { familyId } }) => {
     const { data: models, error: modelError } = await client.model.index.get({
-      query: { workspaceId },
+      // TODO: this should be in header
+      query: { workspaceId: workspace.id },
     });
     if (modelError) throw modelError;
     const { data: family, error: familyError } = await client
       .family({ familyId })
       .get({
-        query: { workspaceId },
+        // TODO: this should be in header
+        query: { workspaceId: workspace.id },
       });
 
     if (familyError) throw familyError;
@@ -65,7 +67,7 @@ const modelComponentColumns: ColumnDef<ModelTree & { count: number }>[] = [
 ];
 
 function FamilyPage() {
-  const { workspaceId, models, family } = Route.useRouteContext();
+  const { workspace, models, family } = Route.useRouteContext();
   const [selectedModelId, setSelectedModelId] = useState<string | undefined>(
     undefined,
   );
@@ -75,7 +77,8 @@ function FamilyPage() {
       if (!selectedModelId) return undefined;
       const { data, error } = await client
         .model({ modelId: selectedModelId })
-        .get({ query: { workspaceId } });
+        // TODO: this should be in header
+        .get({ query: { workspaceId: workspace.id } });
       if (error) throw error;
       return data;
     },
@@ -96,16 +99,12 @@ function FamilyPage() {
         </PageHeaderDescription>
       </PageHeader>
       <div className="py-4" />
-
       <Separator />
-
       <div className="py-2" />
-
-      <CreateModel workspaceId={workspaceId} models={models} family={family} />
+      <CreateModel workspaceId={workspace.id} models={models} family={family} />
       <div className="py-2" />
       <h1 className="text-xl font-bold">Part Variations</h1>
       <div className="py-2" />
-
       <DataTable
         columns={modelColumns}
         data={models}
@@ -113,7 +112,6 @@ function FamilyPage() {
         highlightRow={(row) => row.id === selectedModelId}
       />
       <div className="py-4" />
-
       {selectedModelId && isPending ? (
         <Icons.spinner className="mx-auto animate-spin" />
       ) : (
@@ -135,11 +133,8 @@ function FamilyPage() {
           </>
         )
       )}
-
       <div className="py-4" />
-
       <Separator />
-
       <div className="py-4" />
     </div>
   );

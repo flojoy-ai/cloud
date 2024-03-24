@@ -4,11 +4,13 @@ import { client } from "@/lib/client";
 export const Route = createFileRoute("/_protected/workspace/$namespace")({
   component: Page,
   beforeLoad: async ({ params: { namespace } }) => {
-    const { data: workspaceId, error } = await client.workspace
-      .id({ namespace })
+    const { data: workspace, error } = await client
+      .workspace({
+        namespace,
+      })
       .get();
     if (error) throw error;
-    return { workspaceId };
+    return { workspace };
   },
 });
 

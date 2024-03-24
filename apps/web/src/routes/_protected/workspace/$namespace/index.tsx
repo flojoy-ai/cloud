@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_protected/workspace/$namespace/")({
 
 function Page() {
   const { namespace } = Route.useParams();
-  const { workspaceId } = Route.useRouteContext();
+  const { workspace } = Route.useRouteContext();
 
   return (
     <div className="container flex h-[calc(100vh-56px)] max-w-screen-2xl justify-center items-center">
@@ -55,7 +55,7 @@ function Page() {
         <div className="py-2" />
         <div className="relative w-full">
           <div className="absolute w-full">
-            <SearchBar workspaceId={workspaceId} namespace={namespace} />
+            <SearchBar workspaceId={workspace.id} namespace={namespace} />
           </div>
         </div>
       </div>
@@ -64,4 +64,3 @@ function Page() {
     </div>
   );
 }
-

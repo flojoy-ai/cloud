@@ -53,7 +53,7 @@ const familyColumns: ColumnDef<FamilyEntry>[] = [
 ];
 
 function HardwareInventory() {
-  const { workspaceId } = Route.useRouteContext();
+  const { workspace } = Route.useRouteContext();
   const { namespace } = Route.useParams();
 
   const router = useRouter();
@@ -61,7 +61,7 @@ function HardwareInventory() {
   const { data: families } = useSuspenseQuery({
     queryFn: async () => {
       const { data, error } = await client.family.index.get({
-        query: { workspaceId },
+        query: { workspaceId: workspace.id },
       });
       if (error) throw error;
       return data;
@@ -87,7 +87,7 @@ function HardwareInventory() {
 
         <h1 className="text-xl font-bold">Part families</h1>
         <div className="py-1" />
-        <CreateFamily workspaceId={workspaceId} />
+        <CreateFamily workspaceId={workspace.id} />
         <div className="py-4" />
 
         <DataTable

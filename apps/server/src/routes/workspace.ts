@@ -83,26 +83,15 @@ export const workspaceRoute = new Elysia({ prefix: "/workspace" })
       }),
     },
   )
-  .get("/:id", async ({ params }) => {
-    console.log(params.id);
-  })
-  .get(
-    "/id/:namespace",
-    async ({ params }) => {
-      const res = await db
-        .selectFrom("workspace")
-        .select("id")
-        .where("workspace.namespace", "=", params.namespace)
-        .executeTakeFirstOrThrow(
-          () =>
-            new NotFoundError(
-              `Workspace with namespace '${params.namespace}' not found`,
-            ),
-        );
-
-      return res.id;
-    },
-    {
-      params: t.Object({ namespace: t.String() }),
-    },
-  );
+  .get("/:namespace", async ({ params }) => {
+    return await db
+      .selectFrom("workspace")
+      .selectAll()
+      .where("workspace.namespace", "=", params.namespace)
+      .executeTakeFirstOrThrow(
+        () =>
+          new NotFoundError(
+            `Workspace with namespace '${params.namespace}' not found`,
+          ),
+      );
+  });
