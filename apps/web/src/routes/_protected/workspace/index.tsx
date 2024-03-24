@@ -4,7 +4,7 @@ import {
   PageHeader,
   PageHeaderDescription,
   PageHeaderHeading,
-} from "@/components/page-header";
+} from "@/components/small-header";
 import { Button } from "@/components/ui/button";
 import WorkspaceCard from "@/components/workspace/workspace-card";
 
@@ -30,6 +30,8 @@ function Workspaces() {
         </PageHeaderDescription>
       </PageHeader>
 
+      <div className="py-2"></div>
+
       <div className="space-x-2">
         <Button size="sm" asChild>
           <Link to="/setup">New Workspace</Link>
@@ -40,7 +42,6 @@ function Workspaces() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
         {workspaces
-          // TODO: Fix date deserialization with eden treaty
           .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
           .map((workspace) => {
             return <WorkspaceCard key={workspace.id} workspace={workspace} />;
