@@ -7,13 +7,19 @@ import {
 } from "@/components/small-header";
 import { Button } from "@/components/ui/button";
 import WorkspaceCard from "@/components/workspace/workspace-card";
+import { getWorkspacesOpts } from "@/lib/queries/workspace";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_protected/workspace/")({
   component: Workspaces,
+  loader: async ({ context }) => {
+    context.queryClient.ensureQueryData(getWorkspacesOpts());
+  },
 });
 
 function Workspaces() {
-  const { workspaces } = Route.useRouteContext();
+  const workspacesQuery = useSuspenseQuery(getWorkspacesOpts());
+  const { data: workspaces } = workspacesQuery;
 
   if (workspaces.length === 0) {
     redirect({ to: "/setup" });

@@ -14,15 +14,31 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { getProjectsOpts } from "@/lib/queries/project";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { getModelsOpts } from "@/lib/queries/model";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/project/",
 )({
+  loader: ({ context }) => {
+    context.queryClient.ensureQueryData(getProjectsOpts({ context }));
+    context.queryClient.ensureQueryData(getModelsOpts({ context }));
+  },
   component: Page,
 });
 
 function Page() {
-  const { projects, workspace, models } = Route.useRouteContext();
+  const { workspace } = Route.useRouteContext();
+
+  const { data: projects } = useSuspenseQuery(
+    getProjectsOpts({ context: { workspace } }),
+  );
+
+  const { data: models } = useSuspenseQuery(
+    getModelsOpts({ context: { workspace } }),
+  );
+
   return (
     <div className="container max-w-screen-2xl">
       <div className="py-2"></div>

@@ -12,20 +12,22 @@ import { ModelTreeVisualization } from "@/components/visualization/tree-visualiz
 import { client } from "@/lib/client";
 import { ModelTree } from "@cloud/server/src/types/model";
 import { Model } from "@cloud/server/src/schemas/public/Model";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
 import { useState } from "react";
+import { getModelsOpts } from "@/lib/queries/model";
+import { getFamilyOpts } from "@/lib/queries/family";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/hardware/$familyId/",
 )({
   component: FamilyPage,
+  loader: ({ context, params: { familyId } }) => {
+    context.queryClient.ensureQueryData(getModelsOpts({ context }));
+    context.queryClient.ensureQueryData(getFamilyOpts({ familyId, context }));
+  },
   beforeLoad: async ({ context: { workspace }, params: { familyId } }) => {
-    const { data: models, error: modelError } = await client.model.index.get({
-      headers: { "flojoy-workspace-id": workspace.id },
-    });
-    if (modelError) throw modelError;
     const { data: family, error: familyError } = await client
       .family({ familyId })
       .get({
@@ -33,7 +35,7 @@ export const Route = createFileRoute(
       });
 
     if (familyError) throw familyError;
-    return { models, family };
+    return { family };
   },
 });
 
@@ -65,7 +67,17 @@ const modelComponentColumns: ColumnDef<ModelTree & { count: number }>[] = [
 ];
 
 function FamilyPage() {
-  const { workspace, models, family } = Route.useRouteContext();
+  const { workspace } = Route.useRouteContext();
+  const { familyId } = Route.useParams();
+
+  const { data: models } = useSuspenseQuery(
+    getModelsOpts({ context: { workspace } }),
+  );
+
+  const { data: family } = useSuspenseQuery(
+    getFamilyOpts({ familyId, context: { workspace } }),
+  );
+
   const [selectedModelId, setSelectedModelId] = useState<string | undefined>(
     undefined,
   );

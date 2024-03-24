@@ -57,7 +57,6 @@ export const ProjectRoute = new Elysia({
   )
   .group("/:projectId", (project) =>
     project.use(ProjectMiddleware).get("/", async ({ params, project }) => {
-      console.log(params.projectId);
-      console.log(project);
+      return project;
     }),
   );

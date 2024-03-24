@@ -12,15 +12,15 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { getProjectOpts } from "@/lib/queries/project";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/project/$projectId/",
 )({
-  beforeLoad: async ({ context: { projects }, params }) => {
-    const project = projects.find((p) => p.id === params.projectId);
-    if (!project) {
-      throw new Error("Project not found");
-    }
+  beforeLoad: async ({ context, params: { projectId } }) => {
+    const project = await context.queryClient.ensureQueryData(
+      getProjectOpts({ projectId, context }),
+    );
     return { project };
   },
   component: Page,

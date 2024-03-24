@@ -1,18 +1,25 @@
+import { Icons } from "@/components/icons";
 import { ProtectedHeader } from "@/components/protected-header";
-import { client } from "@/lib/client";
+import { getWorkspacesOpts } from "@/lib/queries/workspace";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_protected")({
   component: Protected,
-  beforeLoad: async () => {
-    const { data: workspaces, error } = await client.workspace.index.get();
-    if (error) throw error;
-    return { workspaces };
+  loader: async ({ context }) => {
+    context.queryClient.ensureQueryData(getWorkspacesOpts());
   },
+  pendingComponent: () => (
+    <div>
+      <Icons.spinner className="animate-spin" />,
+    </div>
+  ),
 });
 
 function Protected() {
-  const { workspaces } = Route.useRouteContext();
+  const workspacesQuery = useSuspenseQuery(getWorkspacesOpts());
+  const { data: workspaces } = workspacesQuery;
+
   return (
     <div>
       <ProtectedHeader workspaces={workspaces} />
