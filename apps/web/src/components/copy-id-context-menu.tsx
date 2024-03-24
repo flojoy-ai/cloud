@@ -1,7 +1,5 @@
-"use client";
-
 import { toast } from "sonner";
-import { ContextMenuItem } from "@cloud/ui/components/ui/context-menu";
+import { ContextMenuItem } from "@/components/ui/context-menu";
 
 type Props = {
   value: string;

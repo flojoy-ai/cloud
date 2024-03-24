@@ -23,6 +23,7 @@ import { Route as ProtectedWorkspaceNamespaceSettingsIndexImport } from './route
 import { Route as ProtectedWorkspaceNamespaceProjectIndexImport } from './routes/_protected/workspace/$namespace/project/index'
 import { Route as ProtectedWorkspaceNamespaceHardwareIndexImport } from './routes/_protected/workspace/$namespace/hardware/index'
 import { Route as ProtectedWorkspaceNamespaceNamespaceIndexImport } from './routes/_protected/workspace/$namespace/_namespace/index'
+import { Route as ProtectedWorkspaceNamespaceProjectIdIndexImport } from './routes/_protected/workspace/$namespace/project/$id/index'
 
 // Create Virtual Routes
 
@@ -113,6 +114,12 @@ const ProtectedWorkspaceNamespaceNamespaceIndexRoute =
     getParentRoute: () => ProtectedWorkspaceNamespaceNamespaceRoute,
   } as any)
 
+const ProtectedWorkspaceNamespaceProjectIdIndexRoute =
+  ProtectedWorkspaceNamespaceProjectIdIndexImport.update({
+    path: '/project/$id/',
+    getParentRoute: () => ProtectedWorkspaceNamespaceRoute,
+  } as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -173,6 +180,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceSettingsIndexImport
       parentRoute: typeof ProtectedWorkspaceNamespaceImport
     }
+    '/_protected/workspace/$namespace/project/$id/': {
+      preLoaderRoute: typeof ProtectedWorkspaceNamespaceProjectIdIndexImport
+      parentRoute: typeof ProtectedWorkspaceNamespaceImport
+    }
   }
 }
 
@@ -190,6 +201,7 @@ export const routeTree = rootRoute.addChildren([
       ProtectedWorkspaceNamespaceHardwareIndexRoute,
       ProtectedWorkspaceNamespaceProjectIndexRoute,
       ProtectedWorkspaceNamespaceSettingsIndexRoute,
+      ProtectedWorkspaceNamespaceProjectIdIndexRoute,
     ]),
   ]),
   PublicRoute.addChildren([
