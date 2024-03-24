@@ -1,11 +1,18 @@
-import React, { useMemo } from "react";
-import ReactFlow, { ConnectionLineType, Node, Edge, Position } from "reactflow";
+import { useEffect, useMemo } from "react";
+import ReactFlow, {
+  ConnectionLineType,
+  Node,
+  Edge,
+  Position,
+  ReactFlowProvider,
+  useReactFlow,
+} from "reactflow";
 import dagre from "@dagrejs/dagre";
 
 import "reactflow/dist/style.css";
-import { ModelTree } from "~/types/model";
-import { makeHardwareGraph, makeModelGraph } from "~/lib/tree";
-import { HardwareTree } from "~/types/hardware";
+import { ModelTree } from "@cloud/server/src/types/model";
+import { makeHardwareGraph, makeModelGraph } from "@/lib/tree";
+import { HardwareTree } from "@cloud/server/src/types/hardware";
 
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
@@ -44,6 +51,32 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
   return { nodes, edges };
 };
 
+type FlowProps = {
+  nodes: Node[];
+  edges: Edge[];
+};
+const Flow = ({ nodes, edges }: FlowProps) => {
+  const rf = useReactFlow();
+  useEffect(() => {
+    setTimeout(rf.fitView);
+  }, [rf, nodes, edges]);
+
+  return (
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      connectionLineType={ConnectionLineType.SmoothStep}
+      fitView
+      proOptions={{
+        hideAttribution: true,
+      }}
+      // allows the user to scroll the page normally
+      // even when the pointer is in the reactflow canvas
+      preventScrolling={false}
+    />
+  );
+};
+
 type Props = {
   nodes: Node[];
   edges: Edge[];
@@ -56,18 +89,9 @@ export const TreeVisualization = ({ nodes, edges }: Props) => {
   );
 
   return (
-    <ReactFlow
-      nodes={layoutedNodes}
-      edges={layoutedEdges}
-      connectionLineType={ConnectionLineType.SmoothStep}
-      fitView
-      proOptions={{
-        hideAttribution: true,
-      }}
-      // allows the user to scroll the page normally
-      // even when the pointer is in the reactflow canvas
-      preventScrolling={false}
-    />
+    <ReactFlowProvider>
+      <Flow nodes={layoutedNodes} edges={layoutedEdges} />
+    </ReactFlowProvider>
   );
 };
 
