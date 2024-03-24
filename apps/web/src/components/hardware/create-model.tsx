@@ -58,7 +58,9 @@ const CreateModel = ({ workspaceId, models, family }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const createModel = useMutation({
     mutationFn: async (values: Static<typeof insertModel>) => {
-      const { error } = await client.model.index.post(values);
+      const { error } = await client.model.index.post(values, {
+        headers: { "flojoy-workspace-id": workspaceId },
+      });
       if (error) throw error;
     },
     onSuccess: () => {
