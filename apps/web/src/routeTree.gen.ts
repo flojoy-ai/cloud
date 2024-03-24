@@ -24,6 +24,7 @@ import { Route as ProtectedWorkspaceNamespaceProjectIndexImport } from './routes
 import { Route as ProtectedWorkspaceNamespaceHardwareIndexImport } from './routes/_protected/workspace/$namespace/hardware/index'
 import { Route as ProtectedWorkspaceNamespaceNamespaceIndexImport } from './routes/_protected/workspace/$namespace/_namespace/index'
 import { Route as ProtectedWorkspaceNamespaceProjectIdIndexImport } from './routes/_protected/workspace/$namespace/project/$id/index'
+import { Route as ProtectedWorkspaceNamespaceHardwareFamilyIdIndexImport } from './routes/_protected/workspace/$namespace/hardware/$familyId/index'
 
 // Create Virtual Routes
 
@@ -111,6 +112,12 @@ const ProtectedWorkspaceNamespaceProjectIdIndexRoute =
     getParentRoute: () => ProtectedWorkspaceNamespaceRouteRoute,
   } as any)
 
+const ProtectedWorkspaceNamespaceHardwareFamilyIdIndexRoute =
+  ProtectedWorkspaceNamespaceHardwareFamilyIdIndexImport.update({
+    path: '/hardware/$familyId/',
+    getParentRoute: () => ProtectedWorkspaceNamespaceRouteRoute,
+  } as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -167,6 +174,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceSettingsIndexImport
       parentRoute: typeof ProtectedWorkspaceNamespaceRouteImport
     }
+    '/_protected/workspace/$namespace/hardware/$familyId/': {
+      preLoaderRoute: typeof ProtectedWorkspaceNamespaceHardwareFamilyIdIndexImport
+      parentRoute: typeof ProtectedWorkspaceNamespaceRouteImport
+    }
     '/_protected/workspace/$namespace/project/$id/': {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceProjectIdIndexImport
       parentRoute: typeof ProtectedWorkspaceNamespaceRouteImport
@@ -184,6 +195,7 @@ export const routeTree = rootRoute.addChildren([
       ProtectedWorkspaceNamespaceHardwareIndexRoute,
       ProtectedWorkspaceNamespaceProjectIndexRoute,
       ProtectedWorkspaceNamespaceSettingsIndexRoute,
+      ProtectedWorkspaceNamespaceHardwareFamilyIdIndexRoute,
       ProtectedWorkspaceNamespaceProjectIdIndexRoute,
     ]),
     ProtectedProfileIndexRoute,

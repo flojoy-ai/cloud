@@ -13,6 +13,7 @@ import { FamilyRoute } from "./routes/family";
 import SuperJSON from "superjson";
 import { ELYSIA_RESPONSE } from "elysia";
 import { ProductRoute } from "./routes/product";
+import { ModelRoute } from "./routes/model";
 
 const app = new Elysia()
   .mapResponse(({ response, set }) => {
@@ -55,8 +56,9 @@ const app = new Elysia()
   .use(WorkspaceRoute)
   .use(ProjectRoute)
   .use(SearchRoute)
-  .use(FamilyRoute)
   .use(ProductRoute)
+  .use(FamilyRoute)
+  .use(ModelRoute)
   .listen(3000);
 
 console.log(

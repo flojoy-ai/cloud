@@ -1,20 +1,4 @@
-"use client";
-
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Button } from "@cloud/ui/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@cloud/ui/components/ui/form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useFieldArray, useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogClose,
@@ -24,52 +8,70 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@cloud/ui/components/ui/dialog";
-import { Input } from "@cloud/ui/components/ui/input";
-import { api } from "~/trpc/react";
-import { z } from "zod";
-import { insertModelSchema } from "~/types/model";
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@cloud/ui/components/ui/select";
+} from "@/components/ui/select";
+import { client } from "@/lib/client";
+import { handleError } from "@/lib/utils";
+import { Family } from "@cloud/server/src/schemas/public/Family";
+import { Model } from "@cloud/server/src/schemas/public/Model";
+import { insertModel } from "@cloud/server/src/types/model";
+import { typeboxResolver } from "@hookform/resolvers/typebox";
+import { Static, Type as t } from "@sinclair/typebox";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "@tanstack/react-router";
 import { Cpu, Plus, Trash2 } from "lucide-react";
-import { handleError } from "~/lib/utils";
-import { Model } from "~/schemas/public/Model";
+import { useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
+import { toast } from "sonner";
 
-const modelFormSchema = insertModelSchema.extend({
-  type: z.enum(["device", "system"]),
-});
-
-type FormSchema = z.infer<typeof modelFormSchema>;
+const modelFormSchema = t.Composite([
+  insertModel,
+  t.Object({ type: t.Union([t.Literal("device"), t.Literal("system")]) }),
+]);
+type FormSchema = Static<typeof modelFormSchema>;
 
 type Props = {
   workspaceId: string;
   models: Model[];
+  family: Family;
 };
 
-const CreateModel = ({ workspaceId, models }: Props) => {
+const CreateModel = ({ workspaceId, models, family }: Props) => {
   const router = useRouter();
-  const utils = api.useUtils();
 
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-
-  const createModel = api.model.createModel.useMutation({
+  const createModel = useMutation({
+    mutationFn: async (values: Static<typeof insertModel>) => {
+      const { error } = await client.model.index.post(values);
+      if (error) throw error;
+    },
     onSuccess: () => {
-      router.refresh();
-      utils.model.getAllModels.invalidate();
-
+      router.invalidate();
       setIsDialogOpen(false);
     },
   });
 
   const form = useForm<FormSchema>({
-    resolver: zodResolver(modelFormSchema),
+    resolver: typeboxResolver(modelFormSchema),
     defaultValues: {
       workspaceId,
+      familyId: family.id,
       type: "device",
       components: [{ modelId: "", count: 1 }],
     },
@@ -88,10 +90,11 @@ const CreateModel = ({ workspaceId, models }: Props) => {
   };
 
   function onSubmit(values: FormSchema) {
-    if (values.type === "device") {
+    const { type, ...rest } = values;
+    if (type === "device") {
       toast.promise(
         createModel.mutateAsync({
-          ...values,
+          ...rest,
           components: [],
         }),
         {
@@ -102,7 +105,7 @@ const CreateModel = ({ workspaceId, models }: Props) => {
       );
     }
 
-    if (values.type === "system") {
+    if (type === "system") {
       let hasError = false;
       for (let i = 0; i < values.components.length; i++) {
         if (values.components[i]?.modelId === "") {
@@ -116,7 +119,7 @@ const CreateModel = ({ workspaceId, models }: Props) => {
         return;
       }
 
-      toast.promise(createModel.mutateAsync(values), {
+      toast.promise(createModel.mutateAsync(rest), {
         loading: "Creating your model...",
         success: "Model created.",
         error: handleError,
@@ -148,7 +151,10 @@ const CreateModel = ({ workspaceId, models }: Props) => {
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit, (e) => console.log(e))}
+            className="space-y-4"
+          >
             <FormField
               control={form.control}
               name="name"

@@ -1,16 +1,19 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 
 import {
   PageHeader,
   PageHeaderDescription,
   PageHeaderHeading,
-} from "@/components/page-header";
-import HardwareFamilies from "@/components/hardware/hardware-families";
+} from "@/components/small-header";
 import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
 import { client } from "@/lib/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Icons } from "@/components/icons";
+import { Family } from "@cloud/server/src/schemas/public/Family";
+import { ColumnDef } from "@tanstack/react-table";
+import { Badge } from "@/components/ui/badge";
+import CreateFamily from "@/components/hardware/create-family";
+import { DataTable } from "@/components/ui/data-table";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/hardware/",
@@ -23,9 +26,37 @@ export const Route = createFileRoute(
   ),
 });
 
+type FamilyEntry = Family & { modelCount: number; hardwareCount: number };
+
+const familyColumns: ColumnDef<FamilyEntry>[] = [
+  {
+    accessorKey: "name",
+    header: "Name",
+    cell: ({ row }) => {
+      return <Badge>{row.original.name}</Badge>;
+    },
+  },
+  {
+    accessorKey: "modelCount",
+    header: "Variants",
+    cell: ({ row }) => {
+      return <div className="font-bold">{row.original.modelCount}</div>;
+    },
+  },
+  {
+    accessorKey: "hardwareCount",
+    header: "Total Parts",
+    cell: ({ row }) => {
+      return <div className="font-bold">{row.original.hardwareCount}</div>;
+    },
+  },
+];
+
 function HardwareInventory() {
   const { workspaceId } = Route.useRouteContext();
   const { namespace } = Route.useParams();
+
+  const router = useRouter();
 
   const { data: families } = useSuspenseQuery({
     queryFn: async () => {
@@ -51,22 +82,27 @@ function HardwareInventory() {
 
       <Separator />
 
-      <HardwareFamilies
-        workspaceId={workspaceId}
-        namespace={namespace}
-        families={families}
-      />
+      <div>
+        <div className="py-2" />
 
-      <div className="py-4" />
+        <h1 className="text-xl font-bold">Part families</h1>
+        <div className="py-1" />
+        <CreateFamily workspaceId={workspaceId} />
+        <div className="py-4" />
 
-      {/* <Separator /> */}
-      {/**/}
-      {/* <HardwareInstances */}
-      {/*   hardware={hardware} */}
-      {/*   models={models} */}
-      {/*   workspaceId={workspaceId} */}
-      {/*   namespace={params.namespace} */}
-      {/* /> */}
+        <DataTable
+          columns={familyColumns}
+          data={families}
+          onRowClick={(row) => {
+            console.log(row);
+            router.navigate({
+              to: "/workspace/$namespace/hardware/$familyId/",
+              params: { namespace, familyId: row.id },
+            });
+          }}
+        />
+      </div>
+
       <div className="py-4" />
     </div>
   );

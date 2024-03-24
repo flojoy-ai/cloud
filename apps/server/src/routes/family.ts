@@ -25,6 +25,23 @@ export const FamilyRoute = new Elysia({ prefix: "/family" })
     },
     { query: t.Object({ workspaceId: t.String() }) },
   )
+  .get(
+    "/:familyId",
+    async ({ query: { workspaceId }, params: { familyId } }) => {
+      const family = await db
+        .selectFrom("family")
+        .selectAll()
+        .where("family.workspaceId", "=", workspaceId)
+        .where("id", "=", familyId)
+        .executeTakeFirst();
+      if (family === undefined) return error(404, "Family not found");
+      return family;
+    },
+    {
+      query: t.Object({ workspaceId: t.String() }),
+      params: t.Object({ familyId: t.String() }),
+    },
+  )
   .post(
     "/",
     async ({ body, error }) => {
