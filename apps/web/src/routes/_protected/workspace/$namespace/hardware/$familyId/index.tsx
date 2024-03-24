@@ -87,6 +87,9 @@ function FamilyPage() {
     <div className="container max-w-screen-2xl">
       <PageHeader>
         <PageHeaderHeading>{family.name}</PageHeaderHeading>
+        <div className="text-muted-foreground font-bold">
+          Product: {family.productName}
+        </div>
         <PageHeaderDescription>
           Here you can find all of the parts registered under this family.
           <br />

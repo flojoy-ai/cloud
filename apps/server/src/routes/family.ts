@@ -27,12 +27,14 @@ export const FamilyRoute = new Elysia({ prefix: "/family" })
   )
   .get(
     "/:familyId",
-    async ({ query: { workspaceId }, params: { familyId } }) => {
+    async ({ query: { workspaceId }, params: { familyId }, error }) => {
       const family = await db
         .selectFrom("family")
-        .selectAll()
+        .selectAll("family")
         .where("family.workspaceId", "=", workspaceId)
-        .where("id", "=", familyId)
+        .where("family.id", "=", familyId)
+        .innerJoin("product", "product.id", "family.productId")
+        .select("product.name as productName")
         .executeTakeFirst();
       if (family === undefined) return error(404, "Family not found");
       return family;
