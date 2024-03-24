@@ -1,16 +1,22 @@
 import { ProtectedHeader } from "@/components/protected-header";
-import { WorkspacesProvider } from "@/context/workspaces";
+import { client } from "@/lib/client";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_protected")({
   component: Protected,
+  beforeLoad: async () => {
+    const { data: workspaces, error } = await client.workspace.index.get();
+    if (error) throw error;
+    return { workspaces };
+  },
 });
 
 function Protected() {
+  const { workspaces } = Route.useRouteContext();
   return (
-    <WorkspacesProvider>
-      <ProtectedHeader />
+    <div>
+      <ProtectedHeader workspaces={workspaces} />
       <Outlet />
-    </WorkspacesProvider>
+    </div>
   );
 }

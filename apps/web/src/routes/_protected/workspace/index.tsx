@@ -1,9 +1,4 @@
-import {
-  Link,
-  createFileRoute,
-  redirect,
-  useLoaderData,
-} from "@tanstack/react-router";
+import { Link, createFileRoute, redirect } from "@tanstack/react-router";
 
 import {
   PageHeader,
@@ -12,21 +7,13 @@ import {
 } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import WorkspaceCard from "@/components/workspace/workspace-card";
-import { client } from "@/lib/client";
 
 export const Route = createFileRoute("/_protected/workspace/")({
   component: Workspaces,
-  loader: async () => {
-    const { data, error } = await client.workspaces.index.get();
-    if (error) {
-      throw error;
-    }
-    return data;
-  },
 });
 
 function Workspaces() {
-  const workspaces = useLoaderData({ from: "/_protected/workspace/" });
+  const { workspaces } = Route.useRouteContext();
 
   if (workspaces.length === 0) {
     redirect({ to: "/setup" });

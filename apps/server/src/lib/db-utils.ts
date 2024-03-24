@@ -1,6 +1,7 @@
-import { DatabaseError } from "pg";
-import { createId } from "@paralleldrive/cuid2";
 import type PublicSchema from "@/schemas/public/PublicSchema";
+import { createId } from "@paralleldrive/cuid2";
+import { ResultAsync, fromPromise } from "neverthrow";
+import { DatabaseError } from "pg";
 
 export function generateDatabaseId(table: keyof PublicSchema) {
   const cuid = createId();
@@ -13,34 +14,48 @@ export function generateDatabaseId(table: keyof PublicSchema) {
 }
 
 // For postgresql error codes https://www.postgresql.org/docs/current/errcodes-appendix.html
-export const dbErrorCodes = {
-  DUPLICATE: "23505",
-  FOREIGN_KEY_VIOLATION: "23503",
-} as const;
+enum ErrorCode {
+  DUPLICATE = "23505",
+  FOREIGN_KEY_VIOLATION = "23503",
+}
 
-export const defaultDBErrorMsg = {
-  [dbErrorCodes.DUPLICATE]: "Record already exists!",
-  [dbErrorCodes.FOREIGN_KEY_VIOLATION]: "Resource is in use!",
+type DBError = DuplicateError | ForeignKeyError | GenericError;
+
+// TODO: Allow overriding these error messages
+type DuplicateError = {
+  type: "duplicate";
+  message: "Record already exists!";
 };
 
-export async function withDBErrorCheck<T>(
-  promise: Promise<T>,
-  options: {
-    errorCode: keyof typeof dbErrorCodes;
-    errorMsg?: string;
-  },
-): Promise<typeof promise> {
-  try {
-    return await promise;
-  } catch (error) {
-    const err = error as DatabaseError;
-    if (err.code === dbErrorCodes[options.errorCode]) {
-      throw new DatabaseError(
-        options.errorMsg ?? defaultDBErrorMsg[dbErrorCodes[options.errorCode]],
-        err.length,
-        err.name,
-      );
+type ForeignKeyError = {
+  type: "foreign key";
+  message: "Resource is in use!";
+};
+
+type GenericError = {
+  type: "generic";
+  message: string;
+};
+
+export function tryQuery<T>(promise: Promise<T>): ResultAsync<T, DBError> {
+  return fromPromise(promise, (e) => {
+    const err = e as DatabaseError;
+    switch (err.code) {
+      case ErrorCode.DUPLICATE:
+        return {
+          type: "duplicate",
+          message: "Record already exists!",
+        };
+      case ErrorCode.FOREIGN_KEY_VIOLATION:
+        return {
+          type: "foreign key",
+          message: "Resource is in use!",
+        };
+      default:
+        return {
+          type: "generic",
+          message: err.message,
+        };
     }
-    throw error;
-  }
+  });
 }

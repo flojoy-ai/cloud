@@ -1,46 +1,45 @@
-import { generateDatabaseId } from "@/lib/db-utils";
-import { Kysely } from "kysely";
+import { generateDatabaseId, tryQuery } from "@/lib/db-utils";
 import type DB from "@/schemas/Database";
 import { InsertFamily } from "@/types/family";
-import { Result, err, ok, safeTry } from "neverthrow";
-import { Family } from "@/schemas/public/Family";
+import { Kysely } from "kysely";
+import { err, ok, safeTry } from "neverthrow";
 import { createProduct } from "./product";
 
-export async function createFamily(
-  db: Kysely<DB>,
-  family: InsertFamily,
-): Promise<Result<Family, string>> {
-  let product = await db
-    .selectFrom("product")
-    .selectAll()
-    .where("name", "=", family.name)
-    .executeTakeFirst();
+export async function createFamily(db: Kysely<DB>, family: InsertFamily) {
+  const { productName, ...rest } = family;
 
-  if (product === undefined) {
-    console.log("Creating product");
-    product = (
-      await createProduct(db, {
-        workspaceId: family.workspaceId,
-        name: family.productName,
-      })
-    )._unsafeUnwrap();
-  }
+  return safeTry(async function* () {
+    let product = await db
+      .selectFrom("product")
+      .selectAll()
+      .where("name", "=", productName)
+      .executeTakeFirst();
 
-  console.log("Creating family");
-  const res = await db
-    .insertInto("family")
-    .values({
-      id: generateDatabaseId("family"),
-      productId: product.id,
-      ...family,
-    })
-    .returningAll()
-    .executeTakeFirst();
-  console.log(res);
+    if (product === undefined) {
+      product = yield* (
+        await createProduct(db, {
+          workspaceId: family.workspaceId,
+          name: productName,
+        })
+      ).safeUnwrap();
+    }
 
-  if (res === undefined) {
-    return err("Failed to create family");
-  }
+    const res = yield* tryQuery(
+      db
+        .insertInto("family")
+        .values({
+          id: generateDatabaseId("family"),
+          productId: product.id,
+          ...rest,
+        })
+        .returningAll()
+        .executeTakeFirst(),
+    ).safeUnwrap();
 
-  return ok(res);
+    if (res === undefined) {
+      return err("Failed to create family");
+    }
+
+    return ok(res);
+  });
 }

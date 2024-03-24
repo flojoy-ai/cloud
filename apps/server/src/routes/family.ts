@@ -11,10 +11,16 @@ export const FamilyRoute = new Elysia({ prefix: "/family" })
     async ({ query: { workspaceId } }) => {
       const families = await db
         .selectFrom("family")
-        .selectAll()
-        .where("workspaceId", "=", workspaceId)
+        .selectAll("family")
+        .where("family.workspaceId", "=", workspaceId)
+        .leftJoin("model", "model.familyId", "family.id")
+        .leftJoin("hardware", "model.id", "hardware.modelId")
+        .select(({ fn }) =>
+          fn.count<number>("model.id").distinct().as("modelCount"),
+        )
+        .select(({ fn }) => fn.count<number>("hardware.id").as("hardwareCount"))
+        .groupBy("family.id")
         .execute();
-      console.log(families);
       return families;
     },
     { query: t.Object({ workspaceId: t.String() }) },

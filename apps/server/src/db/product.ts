@@ -1,26 +1,23 @@
-import { generateDatabaseId } from "@/lib/db-utils";
-import { Kysely } from "kysely";
+import { generateDatabaseId, tryQuery } from "@/lib/db-utils";
 import type DB from "@/schemas/Database";
 import { InsertProduct } from "@/types/product";
-import { Result, err, ok } from "neverthrow";
-import { Product } from "@/schemas/public/Product";
+import { Kysely } from "kysely";
+import { errAsync, okAsync } from "neverthrow";
 
-export async function createProduct(
-  db: Kysely<DB>,
-  product: InsertProduct,
-): Promise<Result<Product, string>> {
-  const res = await db
-    .insertInto("product")
-    .values({
-      id: generateDatabaseId("product"),
-      ...product,
-    })
-    .returningAll()
-    .executeTakeFirst();
-
-  if (res === undefined) {
-    return err("Failed to create product");
-  }
-
-  return ok(res);
+export async function createProduct(db: Kysely<DB>, product: InsertProduct) {
+  return tryQuery(
+    db
+      .insertInto("product")
+      .values({
+        id: generateDatabaseId("product"),
+        ...product,
+      })
+      .returningAll()
+      .executeTakeFirst(),
+  ).andThen((p) => {
+    if (p === undefined) {
+      return errAsync("No product returned when creating");
+    }
+    return okAsync(p);
+  });
 }

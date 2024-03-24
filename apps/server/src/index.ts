@@ -11,11 +11,28 @@ import { env } from "./env";
 import { ProjectRoute } from "./routes/project";
 import { FamilyRoute } from "./routes/family";
 import SuperJSON from "superjson";
+import { ELYSIA_RESPONSE } from "elysia";
+import { ProductRoute } from "./routes/product";
 
 const app = new Elysia()
   .mapResponse(({ response, set }) => {
+    // FIXME: this disgusting mess
+    // this exists so that we get superjson but also the proper status code
+    // when using the error() function in the routes
+    if (
+      typeof response === "object" &&
+      response !== null &&
+      ELYSIA_RESPONSE in response
+    ) {
+      return response as unknown as Response;
+    }
     return new Response(SuperJSON.stringify(response), {
-      status: set.status as number,
+      status:
+        typeof response === "object" &&
+        response !== null &&
+        "status" in response
+          ? (response.status as number)
+          : (set.status as number),
     });
   })
   .use(
@@ -39,6 +56,7 @@ const app = new Elysia()
   .use(ProjectRoute)
   .use(SearchRoute)
   .use(FamilyRoute)
+  .use(ProductRoute)
   .listen(3000);
 
 console.log(

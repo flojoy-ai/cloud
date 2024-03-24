@@ -10,12 +10,17 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { client } from "@/lib/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { Icons } from "@/components/icons";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/hardware/",
 )({
   component: HardwareInventory,
-  pendingComponent: () => <div></div>,
+  pendingComponent: () => (
+    <div>
+      <Icons.spinner className="mx-auto animate-spin" />
+    </div>
+  ),
 });
 
 function HardwareInventory() {

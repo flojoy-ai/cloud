@@ -23,7 +23,7 @@ import { client } from "@/lib/client";
 import { handleError } from "@/lib/utils";
 import { insertFamily } from "@cloud/server/src/types/family";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import { Static } from "elysia";
 import { Cpu } from "lucide-react";
@@ -31,6 +31,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Textarea } from "../ui/textarea";
+import { Autocomplete } from "../ui/autocomplete";
 
 type FormSchema = Static<typeof insertFamily>;
 
@@ -42,11 +43,26 @@ const CreateFamily = ({ workspaceId }: Props) => {
   const router = useRouter();
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
+  const { data: products } = useSuspenseQuery({
+    queryFn: async () => {
+      const { data, error } = await client.product.index.get({
+        query: { workspaceId },
+      });
+      if (error) throw error;
+      return data;
+    },
+    queryKey: ["products"],
+  });
+
   const createFamily = useMutation({
     mutationFn: async (vals: FormSchema) => {
       const { error } = await client.family.index.post(vals);
       if (error) {
-        throw error;
+        if (typeof error.value === "string") {
+          throw new Error(error.value);
+        } else {
+          throw new Error(error.value.message);
+        }
       }
     },
     onSuccess: () => {
@@ -102,12 +118,19 @@ const CreateFamily = ({ workspaceId }: Props) => {
                 <FormItem>
                   <FormLabel>Product</FormLabel>
                   <FormControl>
-                    <Input placeholder="M1234" {...field} data-1p-ignore />
+                    {/*FIXME: this component UX is jank*/}
+                    <Autocomplete
+                      options={products.map((p) => p.name)}
+                      {...field}
+                      value={field.value}
+                      onChange={(val) => form.setValue("productName", val)}
+                      placeholder="M1234"
+                      data-1p-ignore
+                    />
                   </FormControl>
                   <FormDescription>
-                    A <b>device</b> is a standalone hardware device made up of
-                    just itself. A <b>system</b> is a set of interconnected{" "}
-                    <b>devices</b> together.
+                    Which product does this fall under? You can enter one that
+                    doesn't exist yet to create it.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -118,7 +141,7 @@ const CreateFamily = ({ workspaceId }: Props) => {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Hardware Family Name</FormLabel>
+                  <FormLabel>Name</FormLabel>
                   <FormControl>
                     <Input placeholder="M1234" {...field} data-1p-ignore />
                   </FormControl>
@@ -136,15 +159,8 @@ const CreateFamily = ({ workspaceId }: Props) => {
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="Description..."
-                      {...field}
-                      data-1p-ignore
-                    />
+                    <Textarea {...field} data-1p-ignore />
                   </FormControl>
-                  <FormDescription>
-                    A short description of this family of parts.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

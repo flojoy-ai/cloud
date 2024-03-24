@@ -1,6 +1,5 @@
 import { ModeToggle } from "@/components/mode-toggle";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { type Route } from "next";
 
 import { Icons } from "@/components/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -25,14 +24,17 @@ import { CheckIcon, ChevronsUpDown, PlusCircleIcon } from "lucide-react";
 import { useState } from "react";
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
-import { useWorkspaces } from "@/hooks/use-workspaces";
+import { Workspace } from "@cloud/server/src/schemas/public/Workspace";
 
-export function ProtectedNav() {
+type NavProps = {
+  workspaces: Workspace[];
+};
+
+export function ProtectedNav({ workspaces }: NavProps) {
   const router = useRouter();
   const pathname = useRouterState().location.pathname;
   const [open, setOpen] = useState(false);
   const segments = pathname.split("/");
-  const workspaces = useWorkspaces();
 
   const namespace = segments[2];
 
@@ -150,25 +152,29 @@ export function ProtectedNav() {
   );
 }
 
-export function ProtectedHeader() {
+type Props = {
+  workspaces: Workspace[];
+};
+
+export function ProtectedHeader({ workspaces }: Props) {
   const { user } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
-        <ProtectedNav />
+        <ProtectedNav workspaces={workspaces} />
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <nav className="flex items-center">
             {!user ? (
               <>
                 <Button size="sm" variant="outline" asChild>
-                  <Link href={siteConfig.links.login as Route}>Log In</Link>
+                  <a href={siteConfig.links.login}>Log In</a>
                 </Button>
 
                 <div className="px-1" />
 
                 <Button size="sm" asChild>
-                  <Link href={siteConfig.links.signup as Route}>Sign Up</Link>
+                  <a href={siteConfig.links.signup}>Sign Up</a>
                 </Button>
 
                 <div className="px-1" />

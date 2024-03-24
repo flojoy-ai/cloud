@@ -45,7 +45,7 @@ function Setup() {
 
   const createWorkspace = useMutation({
     mutationFn: async (values: CreateWorkspace) => {
-      const { data, error } = await client.workspaces.index.post(values);
+      const { data, error } = await client.workspace.index.post(values);
       if (error) {
         switch (error.status) {
           case 500:
