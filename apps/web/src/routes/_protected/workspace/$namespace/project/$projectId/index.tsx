@@ -27,7 +27,7 @@ export const Route = createFileRoute(
 });
 
 function Page() {
-  const { workspace, models, project } = Route.useRouteContext();
+  const { workspace, project } = Route.useRouteContext();
   return (
     <div className="container max-w-screen-2xl">
       <div className="py-2"></div>
@@ -62,10 +62,7 @@ function Page() {
       </Breadcrumb>
       <PageHeader>
         <PageHeaderHeading className="">{project.name}</PageHeaderHeading>
-        <PageHeaderDescription>
-          A project groups a set of test stations that run tests on a specific
-          hardware model.
-        </PageHeaderDescription>
+        <PageHeaderDescription></PageHeaderDescription>
       </PageHeader>
 
       <div className="py-4"></div>
