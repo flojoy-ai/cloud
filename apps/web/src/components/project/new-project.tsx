@@ -33,14 +33,13 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import Link from "next/link";
 import { handleError } from "@/lib/utils";
 
 import { Workspace } from "@cloud/server/src/schemas/public/Workspace";
 import { Model } from "@cloud/server/src/schemas/public/Model";
 import { CreateProjectSchema } from "@cloud/server/src/types/project";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
-import { useRouter } from "@tanstack/react-router";
+import { Link, useRouter } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
 import { client } from "@/lib/client";
 
@@ -168,7 +167,8 @@ export default function NewProjectButton({ workspace, models }: Props) {
                         <div className="text-sm">
                           No models found, go{" "}
                           <Link
-                            href={`/workspace/${workspace.namespace}/hardware`}
+                            to={"/workspace/$namespace/hardware"}
+                            params={{ namespace: workspace.namespace }}
                             className="underline"
                           >
                             register one!
@@ -180,7 +180,7 @@ export default function NewProjectButton({ workspace, models }: Props) {
                       Which hardware model is this project testing? <br />{" "}
                       Don&apos;t have a hardware model yet?{" "}
                       <Link
-                        href="/workspace"
+                        to="/workspace"
                         className="underline hover:text-primary"
                       >
                         Register one here.
