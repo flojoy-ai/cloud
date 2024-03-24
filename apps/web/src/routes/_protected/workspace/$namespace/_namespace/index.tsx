@@ -31,7 +31,7 @@ function Page() {
               "text-foreground/60 transition-colors hover:text-foreground/80",
             )}
           >
-            Test Stations
+            Projects
           </Link>
           <Link
             to={`/workspace/$namespace/hardware`}
@@ -50,7 +50,7 @@ function Page() {
               "text-foreground/60 transition-colors hover:text-foreground/80",
             )}
           >
-            Settings
+            Workspace Settings
           </Link>
         </div>
         <div className="py-2" />
