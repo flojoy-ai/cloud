@@ -3,7 +3,6 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
-  getExpandedRowModel,
 } from "@tanstack/react-table";
 
 import {
@@ -20,15 +19,19 @@ interface DataTableProps<TData> {
   columns: ColumnDef<TData>[];
   data: TData[];
   onRowClick?: (row: TData) => void;
+  highlightRow?: (row: TData) => boolean;
 }
 
-export function DataTable<T>({ columns, data, onRowClick }: DataTableProps<T>) {
+export function DataTable<T>({
+  columns,
+  data,
+  onRowClick,
+  highlightRow,
+}: DataTableProps<T>) {
   const table = useReactTable({
     data,
     columns,
-    getRowCanExpand: () => true,
     getCoreRowModel: getCoreRowModel(),
-    getExpandedRowModel: getExpandedRowModel(),
   });
 
   return (
@@ -58,7 +61,10 @@ export function DataTable<T>({ columns, data, onRowClick }: DataTableProps<T>) {
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
-                className={cn({ "cursor-pointer": onRowClick !== undefined })}
+                className={cn({
+                  "cursor-pointer": onRowClick !== undefined,
+                  "bg-muted": highlightRow ? highlightRow(row.original) : false,
+                })}
                 onClick={() =>
                   onRowClick ? onRowClick(row.original) : undefined
                 }
