@@ -7,4 +7,3 @@ export const Route = createFileRoute(
     <div>Hello /_protected/workspace/$namespace/project/$id/!</div>
   ),
 });
-
