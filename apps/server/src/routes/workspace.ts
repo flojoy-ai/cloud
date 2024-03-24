@@ -12,6 +12,7 @@ export const workspaceRoute = new Elysia({ prefix: "/workspace" })
     DatabaseError,
   })
   .onError(({ code, error, set }) => {
+    // TODO: handle this better
     switch (code) {
       case "DatabaseError":
         set.status = 409;

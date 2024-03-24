@@ -1,13 +1,14 @@
 import swagger from "@elysiajs/swagger";
 import { Elysia } from "elysia";
-import { userRoute } from "./routes/user";
-import { authRoute } from "./routes/auth";
-import { workspaceRoute as workspaceRoute } from "./routes/workspace";
-import { authGoogleRoute } from "./routes/auth/google";
+import { UserRoute } from "./routes/user";
+import { AuthRoute } from "./routes/auth";
+import { workspaceRoute as WorkspaceRoute } from "./routes/workspace";
+import { AuthGoogleRoute } from "./routes/auth/google";
 import { cors } from "@elysiajs/cors";
-import { searchRoute } from "./routes/search";
+import { SearchRoute } from "./routes/search";
 import { logger } from "@bogeychan/elysia-logger";
 import { env } from "./env";
+import { ProjectRoute } from "./routes/project";
 
 const app = new Elysia()
   .use(
@@ -24,11 +25,12 @@ const app = new Elysia()
       allowedHeaders: "Content-Type",
     }),
   )
-  .use(userRoute)
-  .use(authRoute)
-  .use(authGoogleRoute)
-  .use(workspaceRoute)
-  .use(searchRoute)
+  .use(UserRoute)
+  .use(AuthRoute)
+  .use(AuthGoogleRoute)
+  .use(WorkspaceRoute)
+  .use(ProjectRoute)
+  .use(SearchRoute)
   .listen(3000);
 
 console.log(

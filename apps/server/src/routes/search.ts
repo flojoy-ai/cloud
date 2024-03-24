@@ -4,7 +4,7 @@ import { SearchResult, searchInput } from "@/types/search";
 import Elysia from "elysia";
 import { sql, SqlBool } from "kysely";
 
-export const searchRoute = new Elysia({ prefix: "/search" })
+export const SearchRoute = new Elysia({ prefix: "/search" })
   .use(AuthMiddleware)
   .get(
     "/",

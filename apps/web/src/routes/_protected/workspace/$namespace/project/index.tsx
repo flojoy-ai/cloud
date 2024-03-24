@@ -1,4 +1,4 @@
-import { ProjectCard } from "@/components/project/project-card";
+// import { ProjectCard } from "@/components/project/project-card";
 import {
   PageHeader,
   PageHeaderDescription,
@@ -13,8 +13,6 @@ export const Route = createFileRoute(
 });
 
 function Page() {
-  const projects = [];
-
   return (
     <div className="container max-w-screen-2xl">
       <PageHeader>
@@ -33,24 +31,24 @@ function Page() {
       <div className="py-2"></div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-        {projects
-          .sort(
-            (a, b) =>
-              (b.updatedAt?.getTime() ?? 0) - (a.updatedAt?.getTime() ?? 0),
-          )
-          .map((project) => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              models={models}
-              workspace={workspace}
-            />
-          ))}
-        {projects.length === 0 && (
-          <div className="text-muted-foreground">
-            No project found here, go create one!
-          </div>
-        )}
+        {/* {projects */}
+        {/*   .sort( */}
+        {/*     (a, b) => */}
+        {/*       (b.updatedAt?.getTime() ?? 0) - (a.updatedAt?.getTime() ?? 0), */}
+        {/*   ) */}
+        {/*   .map((project) => ( */}
+        {/*     <ProjectCard */}
+        {/*       key={project.id} */}
+        {/*       project={project} */}
+        {/*       models={models} */}
+        {/*       workspace={workspace} */}
+        {/*     /> */}
+        {/*   ))} */}
+        {/* {projects.length === 0 && ( */}
+        {/*   <div className="text-muted-foreground"> */}
+        {/*     No project found here, go create one! */}
+        {/*   </div> */}
+        {/* )} */}
       </div>
 
       <div className="py-8" />

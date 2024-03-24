@@ -3,7 +3,7 @@ import { env } from "@/env";
 import { AuthMiddleware } from "@/middlewares/auth";
 import { Elysia } from "elysia";
 
-export const authRoute = new Elysia({ prefix: "/auth" })
+export const AuthRoute = new Elysia({ prefix: "/auth" })
   .use(AuthMiddleware)
   .get("/logout", async ({ set, session, cookie }) => {
     // make sure to invalidate the current session!
