@@ -135,7 +135,7 @@ export function ProtectedNav({ workspaces }: NavProps) {
           </PopoverContent>
         </Popover>
 
-        <Link
+        <a
           href={"https://rest.flojoy.ai"}
           target="_blank"
           className={cn(
@@ -143,7 +143,7 @@ export function ProtectedNav({ workspaces }: NavProps) {
           )}
         >
           API Docs
-        </Link>
+        </a>
       </nav>
     </div>
   );
