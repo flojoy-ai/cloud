@@ -120,13 +120,12 @@ const CreateFamily = ({ workspaceId }: Props) => {
                 <FormItem>
                   <FormLabel>Product</FormLabel>
                   <FormControl>
-                    {/*FIXME: this component UX is jank*/}
                     <Autocomplete
                       options={products.map((p) => p.name)}
                       {...field}
                       value={field.value}
                       onChange={(val) => form.setValue("productName", val)}
-                      placeholder="M1234"
+                      placeholder="Search or create new..."
                       data-1p-ignore
                     />
                   </FormControl>

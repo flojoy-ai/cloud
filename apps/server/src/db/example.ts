@@ -38,7 +38,7 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
       await createFamily(db, {
         name: "HL1000",
         workspaceId,
-        productId: product.id,
+        productName: product.name,
         description: "HL 1000 family",
       })
     ).safeUnwrap();

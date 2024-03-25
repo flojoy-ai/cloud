@@ -14,7 +14,7 @@ export function getFamilyOpts({ familyId, context }: GetFamilyParams) {
     queryFn: async () => {
       const { data: family, error: familyError } = await client
         .family({ familyId })
-        .get({
+        .index.get({
           headers: { "flojoy-workspace-id": context.workspace.id },
         });
 
@@ -42,6 +42,6 @@ export function getFamiliesOpts({ context }: GetFamiliesParams) {
       if (familyError) throw familyError;
       return families;
     },
-    queryKey: ["family"],
+    queryKey: ["families"],
   });
 }

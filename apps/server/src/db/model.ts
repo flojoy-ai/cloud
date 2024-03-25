@@ -43,6 +43,22 @@ export async function createModel(
   return ok(model);
 }
 
+export async function getModel(modelId: string) {
+  return await db
+    .selectFrom("model")
+    .selectAll()
+    .where("model.id", "=", modelId)
+    .executeTakeFirst();
+}
+
+export async function getModelComponents(modelId: string) {
+  return await db
+    .selectFrom("model_relation")
+    .select(["childModelId as modelId", "count"])
+    .where("parentModelId", "=", modelId)
+    .execute();
+}
+
 type ModelEdge = {
   name: string;
   modelId: string;

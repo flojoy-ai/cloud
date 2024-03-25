@@ -14,6 +14,7 @@ import SuperJSON from "superjson";
 import { ELYSIA_RESPONSE } from "elysia";
 import { ProductRoute } from "./routes/product";
 import { ModelRoute } from "./routes/model";
+import { HardwareRoute } from "./routes/hardware";
 
 const app = new Elysia()
   .mapResponse(({ response, set }) => {
@@ -61,6 +62,7 @@ const app = new Elysia()
   .use(ProductRoute)
   .use(FamilyRoute)
   .use(ModelRoute)
+  .use(HardwareRoute)
   .listen(3000);
 
 console.log(

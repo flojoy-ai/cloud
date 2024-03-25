@@ -13,6 +13,8 @@ export const ModelRoute = new Elysia({ prefix: "/model" })
       .where("model.workspaceId", "=", workspace.id)
       .execute();
 
+    console.log("models", models);
+
     return models;
   })
   .post(
@@ -26,22 +28,39 @@ export const ModelRoute = new Elysia({ prefix: "/model" })
     },
     { body: insertModel },
   )
-  .get(
-    "/:modelId",
-    async ({ workspace, params: { modelId }, error }) => {
-      const model = await db
-        .selectFrom("model")
-        .selectAll()
-        .where("id", "=", modelId)
-        .where("workspaceId", "=", workspace.id)
-        .executeTakeFirst();
-      if (model === undefined) {
-        return error(404, "Model not found");
-      }
+  .group("/:modelId", (app) =>
+    app
+      .get(
+        "/",
+        async ({ workspace, params: { modelId }, error }) => {
+          const model = await db
+            .selectFrom("model")
+            .selectAll()
+            .where("id", "=", modelId)
+            .where("workspaceId", "=", workspace.id)
+            .executeTakeFirst();
+          if (model === undefined) {
+            return error(404, "Model not found");
+          }
 
-      return await getModelTree(model);
-    },
-    {
-      params: t.Object({ modelId: t.String() }),
-    },
+          return await getModelTree(model);
+        },
+        {
+          params: t.Object({ modelId: t.String() }),
+        },
+      )
+      .get(
+        "/hardware",
+        async ({ workspace, params: { modelId } }) => {
+          const models = await db
+            .selectFrom("hardware")
+            .selectAll("hardware")
+            .where("hardware.workspaceId", "=", workspace.id)
+            .where("hardware.modelId", "=", modelId)
+            .execute();
+
+          return models;
+        },
+        { params: t.Object({ modelId: t.String() }) },
+      ),
   );

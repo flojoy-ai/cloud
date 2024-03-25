@@ -19,7 +19,11 @@ enum ErrorCode {
   FOREIGN_KEY_VIOLATION = "23503",
 }
 
-type DBError = DuplicateError | ForeignKeyError | GenericError;
+export type DBError =
+  | DuplicateError
+  | ForeignKeyError
+  | NotFoundError
+  | GenericError;
 
 // TODO: Allow overriding these error messages
 type DuplicateError = {
@@ -31,6 +35,18 @@ type ForeignKeyError = {
   type: "foreign key";
   message: "Resource is in use!";
 };
+
+type NotFoundError = {
+  type: "not found";
+  message: string;
+};
+
+export function notFound(message: string) {
+  return {
+    type: "not found",
+    message,
+  };
+}
 
 type GenericError = {
   type: "generic";

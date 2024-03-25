@@ -6,11 +6,11 @@ import { WorkspaceMiddleware } from "@/middlewares/workspace";
 
 export const FamilyRoute = new Elysia({ prefix: "/family" })
   .use(WorkspaceMiddleware)
-  .get("/", async ({ headers: { "flojoy-workspace-id": workspaceId } }) => {
+  .get("/", async ({ workspace }) => {
     const families = await db
       .selectFrom("family")
       .selectAll("family")
-      .where("family.workspaceId", "=", workspaceId)
+      .where("family.workspaceId", "=", workspace.id)
       .leftJoin("model", "model.familyId", "family.id")
       .leftJoin("hardware", "model.id", "hardware.modelId")
       .select(({ fn }) =>
@@ -21,27 +21,40 @@ export const FamilyRoute = new Elysia({ prefix: "/family" })
       .execute();
     return families;
   })
-  .get(
-    "/:familyId",
-    async ({
-      headers: { "flojoy-workspace-id": workspaceId },
-      params: { familyId },
-      error,
-    }) => {
-      const family = await db
-        .selectFrom("family")
-        .selectAll("family")
-        .where("family.workspaceId", "=", workspaceId)
-        .where("family.id", "=", familyId)
-        .innerJoin("product", "product.id", "family.productId")
-        .select("product.name as productName")
-        .executeTakeFirst();
-      if (family === undefined) return error(404, "Family not found");
-      return family;
-    },
-    {
-      params: t.Object({ familyId: t.String() }),
-    },
+  .group("/:familyId", (app) =>
+    app
+      .get(
+        "/",
+        async ({ workspace, params: { familyId }, error }) => {
+          const family = await db
+            .selectFrom("family")
+            .selectAll("family")
+            .where("family.workspaceId", "=", workspace.id)
+            .where("family.id", "=", familyId)
+            .innerJoin("product", "product.id", "family.productId")
+            .select("product.name as productName")
+            .executeTakeFirst();
+          if (family === undefined) return error(404, "Family not found");
+          return family;
+        },
+        {
+          params: t.Object({ familyId: t.String() }),
+        },
+      )
+      .get(
+        "/models",
+        async ({ workspace, params: { familyId } }) => {
+          const models = await db
+            .selectFrom("model")
+            .selectAll("model")
+            .where("model.workspaceId", "=", workspace.id)
+            .where("model.familyId", "=", familyId)
+            .execute();
+
+          return models;
+        },
+        { params: t.Object({ familyId: t.String() }) },
+      ),
   )
   .post(
     "/",
