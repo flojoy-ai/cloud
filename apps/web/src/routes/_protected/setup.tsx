@@ -12,7 +12,7 @@ import {
   CreateWorkspace,
   createWorkspace,
 } from "@cloud/server/src/types/workspace";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Form,
   FormField,
@@ -27,6 +27,7 @@ import { env } from "@/env";
 import { Input } from "@/components/ui/input";
 import { client } from "@/lib/client";
 import { Button } from "@/components/ui/button";
+import { getWorkspacesOpts } from "@/lib/queries/workspace";
 
 export const Route = createFileRoute("/_protected/setup")({
   component: Setup,
@@ -42,6 +43,7 @@ function Setup() {
     },
   });
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const createWorkspace = useMutation({
     mutationFn: async (values: CreateWorkspace) => {
@@ -57,6 +59,7 @@ function Setup() {
       return data;
     },
     onSuccess: (data) => {
+      queryClient.invalidateQueries(getWorkspacesOpts());
       router.navigate({
         to: `/workspace/$namespace`,
         params: { namespace: data.namespace },

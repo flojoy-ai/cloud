@@ -28,7 +28,7 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
   return safeTry(async function* () {
     const product = yield* (
       await createProduct(db, {
-        name: "HL",
+        name: "iPhone 13 mini",
         workspaceId,
         description: "iPhone 13 mini",
       })
