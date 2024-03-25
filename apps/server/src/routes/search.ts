@@ -1,8 +1,24 @@
 import { db } from "@/db/kysely";
 import { WorkspaceMiddleware } from "@/middlewares/workspace";
-import { SearchResult, searchInput } from "@/types/search";
+import { SearchResult, searchInput, searchResultTypes } from "@/types/search";
 import Elysia from "elysia";
-import { sql, SqlBool } from "kysely";
+import { Kysely, sql, SqlBool } from "kysely";
+import DB from "@/schemas/Database";
+
+function nameSearch(
+  db: Kysely<DB>,
+  query: string,
+  workspaceId: string,
+  type: SearchResult["type"],
+) {
+  return db
+    .selectFrom(type)
+    .select(["name", "id"])
+    .select(sql<SearchResult["type"]>`${type}`.as("type"))
+    .select(sql`name <-> ${query}`.as("dist"))
+    .where(sql<SqlBool>`(name <-> ${query}) < 0.85`)
+    .where("workspaceId", "=", workspaceId);
+}
 
 export const SearchRoute = new Elysia({ prefix: "/search" })
   .use(WorkspaceMiddleware)
@@ -14,40 +30,16 @@ export const SearchRoute = new Elysia({ prefix: "/search" })
       }
       const { query } = queryParams;
 
-      // Postgres driver complains about not being able to
-      // tell what type 'type' is if i extract this into a function :(
-      const modelQuery = db
-        .selectFrom("model")
-        .select(["name", "id"])
-        .select(sql<SearchResult["type"]>`'model'`.as("type"))
-        .select(sql`name <-> ${query}`.as("dist"))
-        .where(sql<SqlBool>`(name <-> ${query}) < 0.85`)
-        .where("workspaceId", "=", workspace.id);
+      const queries = searchResultTypes.map((table) =>
+        nameSearch(db, query, workspace.id, table),
+      );
 
-      const projectQuery = db
-        .selectFrom("project")
-        .select(["name", "id"])
-        .select(sql<SearchResult["type"]>`'project'`.as("type"))
-        .select(sql`name <-> ${query}`.as("dist"))
-        .where(sql<SqlBool>`(name <-> ${query}) < 0.85`)
-        .where("workspaceId", "=", workspace.id);
-
-      const hardwareQuery = db
-        .selectFrom("hardware")
-        .select(["name", "id"])
-        .select(sql<SearchResult["type"]>`'hardware'`.as("type"))
-        .select(sql`name <-> ${query}`.as("dist"))
-        .where(sql<SqlBool>`(name <-> ${query}) < 0.85`)
-        .where("workspaceId", "=", workspace.id);
-
-      const res = await modelQuery
-        .unionAll(projectQuery)
-        .unionAll(hardwareQuery)
+      const searchQuery = queries
+        .reduce((q, acc) => acc.unionAll(q))
         .orderBy("dist")
-        .limit(10)
-        .execute();
+        .limit(10);
 
-      return res;
+      return await searchQuery.execute();
     },
     { query: searchInput },
   );

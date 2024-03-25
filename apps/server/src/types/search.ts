@@ -6,14 +6,23 @@ export const searchInput = t.Object({
 
 export type SearchInput = Static<typeof searchInput>;
 
+export const searchResultTypes = [
+  "product",
+  "family",
+  "model",
+  "hardware",
+  "project",
+] as const;
+
+export const searchResultType = t.Union(
+  searchResultTypes.map((r) => t.Literal(r)),
+);
+export type SearchResultType = Static<typeof searchResultType>;
+
 export const searchResult = t.Object({
   id: t.String(),
   name: t.String(),
-  type: t.Union([
-    t.Literal("model"),
-    t.Literal("hardware"),
-    t.Literal("project"),
-  ]),
+  type: searchResultType,
 });
 
 export type SearchResult = Static<typeof searchResult>;

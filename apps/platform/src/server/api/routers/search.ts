@@ -1,8 +1,7 @@
-import { createTRPCRouter, workspaceProcedure } from "../trpc";
+import { SqlBool, sql } from "kysely";
 import { SearchResult, searchInput, searchResult } from "~/types/search";
-import { Kysely, SqlBool, sql } from "kysely";
+import { createTRPCRouter, workspaceProcedure } from "../trpc";
 import { workspaceAccessMiddleware } from "./workspace";
-import type DB from "~/schemas/Database";
 
 export const searchRouter = createTRPCRouter({
   search: workspaceProcedure
@@ -16,6 +15,7 @@ export const searchRouter = createTRPCRouter({
 
       // Postgres driver complains about not being able to
       // tell what type 'type' is if i extract this into a function :(
+
       const modelQuery = ctx.db
         .selectFrom("model")
         .select(["name", "id"])

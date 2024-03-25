@@ -1,6 +1,15 @@
-import { Cpu, FolderKanban, Route } from "lucide-react";
+import {
+  Cpu,
+  FolderKanban,
+  FolderTree,
+  Route,
+  ShoppingCart,
+} from "lucide-react";
 import { useState } from "react";
-import { type SearchResult } from "@cloud/server/src/types/search";
+import {
+  searchResultTypes,
+  type SearchResult,
+} from "@cloud/server/src/types/search";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
 import {
@@ -15,6 +24,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { client } from "@/lib/client";
 import { Workspace } from "@cloud/server/src/schemas/public/Workspace";
 import { cn } from "@/lib/utils";
+import { typedObjectEntries, typedObjectFromEntries } from "@/lib/typed";
 
 type HighlightProps = {
   text: string;
@@ -45,6 +55,16 @@ const typeIcons = {
   model: Route,
   hardware: Cpu,
   project: FolderKanban,
+  product: ShoppingCart,
+  family: FolderTree,
+};
+
+const nameLookup = {
+  model: "Model",
+  hardware: "Part Instance",
+  project: "Test Project",
+  product: "Product",
+  family: "Part Family",
 };
 
 type SearchResultProps = {
@@ -59,6 +79,7 @@ const SearchResultItem = ({ result, query }: SearchResultProps) => {
   return (
     <CommandItem
       className="flex cursor-pointer"
+      value={`${result.name}-${type}`}
       onSelect={() => {
         throw new Error("Not implemented");
         // TODO: Fix this redirect
@@ -82,8 +103,14 @@ type Props = {
   width?: string;
 };
 
-const resultType = (type: SearchResult["type"]) => {
-  return (res: SearchResult) => res.type === type;
+const groupSearchResults = (results: SearchResult[]) => {
+  const groups = typedObjectFromEntries(
+    searchResultTypes.map((t) => [t, [] as SearchResult[]]),
+  );
+  for (const result of results) {
+    groups[result.type].push(result);
+  }
+  return groups;
 };
 
 const SearchBar = ({
@@ -115,9 +142,7 @@ const SearchBar = ({
   });
 
   const searchResults = data ?? [];
-  const hardware = searchResults.filter(resultType("hardware"));
-  const models = searchResults.filter(resultType("model"));
-  const projects = searchResults.filter(resultType("project"));
+  const groups = groupSearchResults(searchResults);
 
   const showResults = query !== "" && (searchResults.length > 0 || !isFetching);
 
@@ -134,7 +159,7 @@ const SearchBar = ({
         <CommandInput placeholder="Search..." onValueChange={setValue} />
         <CommandList
           className={cn(
-            "absolute w-full top-[46px] left-0",
+            "absolute w-full top-[46px] left-0 bg-background",
             {
               "border rounded-b-md border-t-0": query !== "",
             },
@@ -144,41 +169,19 @@ const SearchBar = ({
           {showResults && (
             <>
               <CommandEmpty>No results found.</CommandEmpty>
-              {hardware.length > 0 && (
-                <CommandGroup heading="Hardware">
-                  {hardware.map((r) => (
-                    <SearchResultItem
-                      workspace={workspace}
-                      result={r}
-                      key={r.id}
-                      query={query}
-                    />
-                  ))}
-                </CommandGroup>
-              )}
-              {models.length > 0 && (
-                <CommandGroup heading="Model">
-                  {models.map((r) => (
-                    <SearchResultItem
-                      workspace={workspace}
-                      result={r}
-                      key={r.id}
-                      query={query}
-                    />
-                  ))}
-                </CommandGroup>
-              )}
-              {projects.length > 0 && (
-                <CommandGroup heading="Projects">
-                  {projects.map((r) => (
-                    <SearchResultItem
-                      workspace={workspace}
-                      result={r}
-                      key={r.id}
-                      query={query}
-                    />
-                  ))}
-                </CommandGroup>
+              {typedObjectEntries(groups).map(([type, results]) =>
+                results.length === 0 ? null : (
+                  <CommandGroup heading={nameLookup[type]}>
+                    {results.map((r) => (
+                      <SearchResultItem
+                        workspace={workspace}
+                        result={r}
+                        key={r.id}
+                        query={query}
+                      />
+                    ))}
+                  </CommandGroup>
+                ),
               )}
             </>
           )}
