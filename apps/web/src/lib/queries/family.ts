@@ -2,35 +2,14 @@ import { queryOptions } from "@tanstack/react-query";
 import { client } from "../client";
 import { Workspace } from "@cloud/server/src/schemas/public/Workspace";
 
-// type getProjectsProps = {
-//   context: {
-//     workspace: Workspace;
-//   };
-// };
-//
-// export function getProjectsOpts({ context }: getProjectsProps) {
-//   return queryOptions({
-//     queryFn: async () => {
-//       const { data: projects, error } = await client.project.index.get({
-//         headers: { "flojoy-workspace-id": context.workspace.id },
-//       });
-//       if (error) {
-//         throw error;
-//       }
-//       return projects;
-//     },
-//     queryKey: ["projects"],
-//   });
-// }
-
-type getFamilyProps = {
+type GetFamilyParams = {
   familyId: string;
   context: {
     workspace: Workspace;
   };
 };
 
-export function getFamilyOpts({ familyId, context }: getFamilyProps) {
+export function getFamilyOpts({ familyId, context }: GetFamilyParams) {
   return queryOptions({
     queryFn: async () => {
       const { data: family, error: familyError } = await client
@@ -43,5 +22,26 @@ export function getFamilyOpts({ familyId, context }: getFamilyProps) {
       return family;
     },
     queryKey: ["family", familyId],
+  });
+}
+
+type GetFamiliesParams = {
+  context: {
+    workspace: Workspace;
+  };
+};
+
+export function getFamiliesOpts({ context }: GetFamiliesParams) {
+  return queryOptions({
+    queryFn: async () => {
+      const { data: families, error: familyError } =
+        await client.family.index.get({
+          headers: { "flojoy-workspace-id": context.workspace.id },
+        });
+
+      if (familyError) throw familyError;
+      return families;
+    },
+    queryKey: ["family"],
   });
 }

@@ -1,5 +1,5 @@
-import { ModeToggle } from "@/components/mode-toggle";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { ModeToggle } from "@/components/navbar/mode-toggle";
+import { Button } from "@/components/ui/button";
 
 import { Icons } from "@/components/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -19,26 +19,25 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { siteConfig } from "@/config/site";
+import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
+import { Workspace } from "@cloud/server/src/schemas/public/Workspace";
+import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { CheckIcon, ChevronsUpDown, PlusCircleIcon } from "lucide-react";
 import { useState } from "react";
-import { Link, useRouter, useRouterState } from "@tanstack/react-router";
-import { useAuth } from "@/hooks/use-auth";
-import { Workspace } from "@cloud/server/src/schemas/public/Workspace";
+import ExternalLinks from "./external-links";
+import UserButton from "./user-button";
+import AuthButtons from "./auth-buttons";
+import SearchBar from "../workspace/search-bar";
 
 type NavProps = {
   workspaces: Workspace[];
+  currentWorkspace: Workspace | undefined;
 };
 
-export function ProtectedNav({ workspaces }: NavProps) {
+export function ProtectedNav({ workspaces, currentWorkspace }: NavProps) {
   const router = useRouter();
-  const pathname = useRouterState().location.pathname;
   const [open, setOpen] = useState(false);
-  const segments = pathname.split("/");
-
-  const namespace = segments[2];
-
-  const currentWorkspace = workspaces.find((ws) => ws.namespace === namespace);
 
   return (
     <div className="mr-4 hidden md:flex">
@@ -156,26 +155,34 @@ type Props = {
 export function ProtectedHeader({ workspaces }: Props) {
   const { user } = useAuth();
 
+  const pathname = useRouterState().location.pathname;
+  const segments = pathname.split("/");
+
+  const namespace = segments[2];
+  const isWorkspaceIndexRoute = segments.length === 3;
+
+  const currentWorkspace = workspaces.find((ws) => ws.namespace === namespace);
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
-        <ProtectedNav workspaces={workspaces} />
+        <ProtectedNav
+          workspaces={workspaces}
+          currentWorkspace={currentWorkspace}
+        />
+        {currentWorkspace && !isWorkspaceIndexRoute && (
+          <>
+            <div className="px-3" />
+            <SearchBar
+              workspace={currentWorkspace}
+              className="max-w-96 w-full"
+            />
+          </>
+        )}
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <nav className="flex items-center">
             {!user ? (
-              <>
-                <Button size="sm" variant="outline" asChild>
-                  <a href={siteConfig.links.login}>Log In</a>
-                </Button>
-
-                <div className="px-1" />
-
-                <Button size="sm" asChild>
-                  <a href={siteConfig.links.signup}>Sign Up</a>
-                </Button>
-
-                <div className="px-1" />
-              </>
+              <AuthButtons />
             ) : (
               <>
                 {/*TODO: Add this back*/}
@@ -191,32 +198,11 @@ export function ProtectedHeader({ workspaces }: Props) {
                 {/* )} */}
                 {/* <div className="px-1" /> */}
                 {/**/}
-                {/* <UserButton user={user} /> */}
-                {/* <div className="px-1" /> */}
+                <UserButton user={user} />
               </>
             )}
-
-            <a href={siteConfig.links.github} target="_blank" rel="noreferrer">
-              <div
-                className={cn(
-                  buttonVariants({ variant: "ghost", size: "icon" }),
-                )}
-              >
-                <Icons.github className="h-4 w-4" />
-                <span className="sr-only">GitHub</span>
-              </div>
-            </a>
-            <a href={siteConfig.links.discord} target="_blank" rel="noreferrer">
-              <div
-                className={cn(
-                  buttonVariants({ variant: "ghost", size: "icon" }),
-                )}
-              >
-                <Icons.discord className="h-4 w-4" />
-                <span className="sr-only">Discord</span>
-              </div>
-            </a>
-
+            <div className="px-1" />
+            <ExternalLinks />
             <ModeToggle />
           </nav>
         </div>

@@ -20,6 +20,7 @@ const app = new Elysia()
     // FIXME: this disgusting mess
     // this exists so that we get superjson but also the proper status code
     // when using the error() function in the routes
+    // console.log("response", response);
     if (
       typeof response === "object" &&
       response !== null &&
@@ -27,14 +28,15 @@ const app = new Elysia()
     ) {
       return response as unknown as Response;
     }
-    return new Response(SuperJSON.stringify(response), {
-      status:
-        typeof response === "object" &&
-        response !== null &&
-        "status" in response
-          ? (response.status as number)
-          : (set.status as number),
-    });
+    if (response)
+      return new Response(SuperJSON.stringify(response), {
+        status:
+          typeof response === "object" &&
+          response !== null &&
+          "status" in response
+            ? (response.status as number)
+            : (set.status as number),
+      });
   })
   .use(
     logger({

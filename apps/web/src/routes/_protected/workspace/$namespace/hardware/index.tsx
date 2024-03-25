@@ -6,7 +6,6 @@ import {
   PageHeaderHeading,
 } from "@/components/small-header";
 import { Separator } from "@/components/ui/separator";
-import { client } from "@/lib/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Icons } from "@/components/icons";
 import { Family } from "@cloud/server/src/schemas/public/Family";
@@ -14,11 +13,15 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import CreateFamily from "@/components/hardware/create-family";
 import { DataTable } from "@/components/ui/data-table";
+import { getFamiliesOpts } from "@/lib/queries/family";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/hardware/",
 )({
   component: HardwareInventory,
+  loader: async ({ context }) => {
+    context.queryClient.ensureQueryData(getFamiliesOpts({ context }));
+  },
   pendingComponent: () => (
     <div>
       <Icons.spinner className="mx-auto animate-spin" />
@@ -53,21 +56,14 @@ const familyColumns: ColumnDef<FamilyEntry>[] = [
 ];
 
 function HardwareInventory() {
-  const { workspace } = Route.useRouteContext();
+  const context = Route.useRouteContext();
+  const { workspace } = context;
+
   const { namespace } = Route.useParams();
 
   const router = useRouter();
 
-  const { data: families } = useSuspenseQuery({
-    queryFn: async () => {
-      const { data, error } = await client.family.index.get({
-        headers: { "flojoy-workspace-id": workspace.id },
-      });
-      if (error) throw error;
-      return data;
-    },
-    queryKey: ["family"],
-  });
+  const { data: families } = useSuspenseQuery(getFamiliesOpts({ context }));
 
   return (
     <div className="container max-w-screen-2xl">

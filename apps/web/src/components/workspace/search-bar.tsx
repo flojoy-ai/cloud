@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/command";
 import { useDebounce } from "@/hooks/use-debounce";
 import { client } from "@/lib/client";
+import { Workspace } from "@cloud/server/src/schemas/public/Workspace";
+import { cn } from "@/lib/utils";
 
 type HighlightProps = {
   text: string;
@@ -48,7 +50,7 @@ const typeIcons = {
 type SearchResultProps = {
   result: SearchResult;
   query: string;
-  namespace: string;
+  workspace: Workspace;
 };
 
 const SearchResultItem = ({ result, query }: SearchResultProps) => {
@@ -72,26 +74,36 @@ const SearchResultItem = ({ result, query }: SearchResultProps) => {
 };
 
 type Props = {
-  workspaceId: string;
-  namespace: string;
+  workspace: Workspace;
+  className?: string;
+  emptyClassName?: string;
+  activeClassName?: string;
+  listClassName?: string;
+  width?: string;
 };
 
 const resultType = (type: SearchResult["type"]) => {
   return (res: SearchResult) => res.type === type;
 };
 
-const SearchBar = ({ workspaceId, namespace }: Props) => {
+const SearchBar = ({
+  workspace,
+  className,
+  emptyClassName,
+  activeClassName,
+  listClassName,
+}: Props) => {
   const [value, setValue] = useState("");
   const query = useDebounce(value, 200);
 
   const { data, isFetching } = useQuery({
-    queryKey: ["search", query, workspaceId],
+    queryKey: ["search", query, workspace.id],
     queryFn: async () => {
       const { error, data } = await client.search.index.get({
         query: {
           query,
         },
-        headers: { "flojoy-workspace-id": workspaceId },
+        headers: { "flojoy-workspace-id": workspace.id },
       });
       if (error) {
         // TODO: Handle error better
@@ -110,10 +122,25 @@ const SearchBar = ({ workspaceId, namespace }: Props) => {
   const showResults = query !== "" && (searchResults.length > 0 || !isFetching);
 
   return (
-    <div className="relative w-full">
-      <Command shouldFilter={false} className="rounded-lg border shadow-md">
+    <div className={cn("relative", className)}>
+      <Command
+        shouldFilter={false}
+        className={cn(
+          query === ""
+            ? cn("rounded-lg border", emptyClassName)
+            : cn("rounded-b-none border border-b-0", activeClassName),
+        )}
+      >
         <CommandInput placeholder="Search..." onValueChange={setValue} />
-        <CommandList className="max-h-min">
+        <CommandList
+          className={cn(
+            "absolute w-full top-[46px] left-0",
+            {
+              "border rounded-b-md border-t-0": query !== "",
+            },
+            listClassName,
+          )}
+        >
           {showResults && (
             <>
               <CommandEmpty>No results found.</CommandEmpty>
@@ -121,7 +148,7 @@ const SearchBar = ({ workspaceId, namespace }: Props) => {
                 <CommandGroup heading="Hardware">
                   {hardware.map((r) => (
                     <SearchResultItem
-                      namespace={namespace}
+                      workspace={workspace}
                       result={r}
                       key={r.id}
                       query={query}
@@ -133,7 +160,7 @@ const SearchBar = ({ workspaceId, namespace }: Props) => {
                 <CommandGroup heading="Model">
                   {models.map((r) => (
                     <SearchResultItem
-                      namespace={namespace}
+                      workspace={workspace}
                       result={r}
                       key={r.id}
                       query={query}
@@ -145,7 +172,7 @@ const SearchBar = ({ workspaceId, namespace }: Props) => {
                 <CommandGroup heading="Projects">
                   {projects.map((r) => (
                     <SearchResultItem
-                      namespace={namespace}
+                      workspace={workspace}
                       result={r}
                       key={r.id}
                       query={query}

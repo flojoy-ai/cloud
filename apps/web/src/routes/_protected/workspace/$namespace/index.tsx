@@ -66,7 +66,7 @@ function Page() {
         <div className="py-2" />
 
         <div className="w-[512px]">
-          <SearchBar workspaceId={workspace.id} namespace={namespace} />
+          <SearchBar workspace={workspace} emptyClassName="shadow-md" />
         </div>
       </div>
 
