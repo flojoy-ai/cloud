@@ -38,10 +38,10 @@ export const google = new Google(
 );
 
 export const entra = new MicrosoftEntraId(
-  env.ENTRA_ID_TENANT_ID,
-  env.ENTRA_ID_CLIENT_ID,
-  env.ENTRA_ID_CLIENT_SECRET,
-  env.ENTRA_ID_REDIRECT_URI,
+  env.ENTRA_TENANT_ID,
+  env.ENTRA_CLIENT_ID,
+  env.ENTRA_CLIENT_SECRET,
+  env.ENTRA_REDIRECT_URI,
 );
 
 declare module "lucia" {

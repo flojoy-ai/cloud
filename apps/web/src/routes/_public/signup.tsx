@@ -19,6 +19,7 @@ export const Route = createFileRoute("/_public/signup")({
 
 function SignUp() {
   const { authMethods } = Route.useRouteContext();
+  console.log(authMethods);
 
   return (
     <div>
@@ -30,32 +31,34 @@ function SignUp() {
             </h1>
           </div>
 
-          {authMethods.map((method) =>
-            match(method)
-              .with("google", () => (
-                <Button asChild variant="secondary">
-                  <a
-                    href={env.VITE_SERVER_URL + "/auth/google/login"}
-                    className="flex gap-2"
-                  >
-                    <Icons.google className="h-4 w-4" />
-                    Continue with Google
-                  </a>
-                </Button>
-              ))
-              .with("entra", () => (
-                <Button asChild variant="secondary">
-                  <a
-                    href={env.VITE_SERVER_URL + "/auth/entra/login"}
-                    className="flex gap-2"
-                  >
-                    <Icons.google className="h-4 w-4" />
-                    Continue with Entra
-                  </a>
-                </Button>
-              ))
-              .exhaustive(),
-          )}
+          <div className="flex space-y-2 flex-col">
+            {authMethods.map((method) =>
+              match(method)
+                .with("google", () => (
+                  <Button asChild variant="secondary" key={method}>
+                    <a
+                      href={env.VITE_SERVER_URL + "/auth/google/login"}
+                      className="flex gap-2"
+                    >
+                      <Icons.google className="h-4 w-4" />
+                      Continue with Google
+                    </a>
+                  </Button>
+                ))
+                .with("entra", () => (
+                  <Button asChild variant="secondary" key={method}>
+                    <a
+                      href={env.VITE_SERVER_URL + "/auth/entra/login"}
+                      className="flex gap-2"
+                    >
+                      <Icons.entra className="h-4 w-4" />
+                      Continue with Entra ID
+                    </a>
+                  </Button>
+                ))
+                .exhaustive(),
+            )}
+          </div>
 
           <TermsAndPrivacy />
         </div>

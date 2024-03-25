@@ -10,7 +10,7 @@ export const AuthRoute = new Elysia({ prefix: "/auth" })
     if (env.GOOGLE_CLIENT_ID) {
       availableMethods.push("google");
     }
-    if (env.ENTRA_ID_CLIENT_ID) {
+    if (env.ENTRA_CLIENT_ID) {
       availableMethods.push("entra");
     }
     return availableMethods;

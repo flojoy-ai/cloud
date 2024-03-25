@@ -25,10 +25,10 @@ export const env = createEnv({
       .url()
       .default("http://localhost:3000/auth/google/callback"),
 
-    ENTRA_ID_TENANT_ID: z.string().default(""),
-    ENTRA_ID_CLIENT_ID: z.string().default(""),
-    ENTRA_ID_CLIENT_SECRET: z.string().default(""),
-    ENTRA_ID_REDIRECT_URI: z
+    ENTRA_TENANT_ID: z.string().default(""),
+    ENTRA_CLIENT_ID: z.string().default(""),
+    ENTRA_CLIENT_SECRET: z.string().default(""),
+    ENTRA_REDIRECT_URI: z
       .string()
       .url()
       .default("http://localhost:3000/auth/entra-id/callback"),
