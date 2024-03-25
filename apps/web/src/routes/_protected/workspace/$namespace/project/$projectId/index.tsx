@@ -1,4 +1,12 @@
 import {
+  Card,
+  // CardContent,
+  CardDescription,
+  // CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
   PageHeader,
   PageHeaderDescription,
   PageHeaderHeading,
@@ -13,6 +21,12 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { getProjectOpts } from "@/lib/queries/project";
+import NewStation from "@/components/station/new-station";
+import { getStationsOpts } from "@/lib/queries/station";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { DataTable } from "@/components/ui/data-table";
+import { columns } from "@/components/station/columns";
+import { getModelOpts } from "@/lib/queries/model";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/project/$projectId/",
@@ -23,11 +37,30 @@ export const Route = createFileRoute(
     );
     return { project };
   },
+  loader: ({ context, params: { projectId } }) => {
+    context.queryClient.ensureQueryData(
+      getStationsOpts({ projectId, context }),
+    );
+
+    context.queryClient.ensureQueryData(
+      getModelOpts({ context, modelId: context.project.modelId }),
+    );
+  },
   component: Page,
 });
 
 function Page() {
   const { workspace, project } = Route.useRouteContext();
+  const { projectId } = Route.useParams();
+
+  const { data: stations } = useSuspenseQuery(
+    getStationsOpts({ projectId, context: { workspace } }),
+  );
+
+  const { data: model } = useSuspenseQuery(
+    getModelOpts({ context: { workspace }, modelId: project.modelId }),
+  );
+
   return (
     <div className="container max-w-screen-2xl">
       <div className="py-2"></div>
@@ -50,7 +83,7 @@ function Page() {
                 to="/workspace/$namespace/project"
                 params={{ namespace: workspace.namespace }}
               >
-                Projects
+                Production Lines
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
@@ -66,6 +99,34 @@ function Page() {
       </PageHeader>
 
       <div className="py-4"></div>
+
+      <div className="space-x-2">
+        <NewStation project={project} />
+      </div>
+
+      <div className="py-4"></div>
+
+      <div className="grid grid-cols-4 gap-4">
+        <div className="col-span-3">
+          <DataTable columns={columns} data={stations} />
+        </div>
+        <div className="col-span-1">
+          <Card>
+            <CardHeader>
+              <CardTitle>{model.name}</CardTitle>
+              <CardDescription>
+                This is the model being tested in this production line
+              </CardDescription>
+            </CardHeader>
+            {/* <CardContent> */}
+            {/*   <p>Card Content</p> */}
+            {/* </CardContent> */}
+            {/* <CardFooter> */}
+            {/*   <p>Card Footer</p> */}
+            {/* </CardFooter> */}
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }

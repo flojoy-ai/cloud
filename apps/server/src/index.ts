@@ -15,6 +15,7 @@ import { ELYSIA_RESPONSE } from "elysia";
 import { ProductRoute } from "./routes/product";
 import { ModelRoute } from "./routes/model";
 import { HardwareRoute } from "./routes/hardware";
+import { StationRoute } from "./routes/station";
 
 const app = new Elysia()
   .mapResponse(({ response, set }) => {
@@ -62,6 +63,7 @@ const app = new Elysia()
   .use(ProductRoute)
   .use(FamilyRoute)
   .use(ModelRoute)
+  .use(StationRoute)
   .use(HardwareRoute)
   .listen(3000);
 

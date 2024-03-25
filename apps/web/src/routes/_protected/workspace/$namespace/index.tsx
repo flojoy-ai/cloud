@@ -40,7 +40,7 @@ function Page() {
               "text-foreground/60 transition-colors hover:text-foreground/80",
             )}
           >
-            Projects
+            Production Lines
           </Link>
           <Link
             to={`/workspace/$namespace/hardware`}

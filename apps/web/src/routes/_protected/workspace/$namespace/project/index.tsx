@@ -56,15 +56,15 @@ function Page() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Projects</BreadcrumbPage>
+            <BreadcrumbPage>Production Lines</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
       <PageHeader>
-        <PageHeaderHeading className="">Projects</PageHeaderHeading>
+        <PageHeaderHeading className="">Production Lines</PageHeaderHeading>
         <PageHeaderDescription>
-          A project groups a set of test stations that run tests on a specific
-          hardware model.
+          A production line groups a set of test stations that run tests on a
+          specific hardware model.
         </PageHeaderDescription>
       </PageHeader>
       <div className="py-4"></div>

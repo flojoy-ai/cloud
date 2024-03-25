@@ -13,8 +13,6 @@ export const ModelRoute = new Elysia({ prefix: "/model" })
       .where("model.workspaceId", "=", workspace.id)
       .execute();
 
-    console.log("models", models);
-
     return models;
   })
   .post(

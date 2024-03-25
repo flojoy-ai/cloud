@@ -69,8 +69,8 @@ export default function NewProjectButton({ workspace, models }: Props) {
     },
     onSuccess: (data) => {
       router.navigate({
-        to: "/workspace/$namespace/project/$id",
-        params: { namespace: workspace.namespace, id: data.id },
+        to: "/workspace/$namespace/project/$projectId",
+        params: { namespace: workspace.namespace, projectId: data.id },
       });
     },
   });
@@ -103,15 +103,15 @@ export default function NewProjectButton({ workspace, models }: Props) {
       >
         <DialogTrigger asChild>
           <Button variant="default" size="sm">
-            New Project
+            New Production Line
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Create your new project</DialogTitle>
+            <DialogTitle>Create your new production line</DialogTitle>
             <DialogDescription>
-              A project is a collection of hardware instances that share the
-              same hardware model and a common set of tests.
+              A production line groups a set of test stations that run tests on
+              a specific hardware model.
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
@@ -124,13 +124,13 @@ export default function NewProjectButton({ workspace, models }: Props) {
                     <FormLabel>Name</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="My Circuit Testing Project"
+                        placeholder="iPhone 13 mini"
                         {...field}
                         data-1p-ignore
                       />
                     </FormControl>
                     <FormDescription>
-                      How do you want to call your project?
+                      How do you want to call your production line?
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -177,8 +177,8 @@ export default function NewProjectButton({ workspace, models }: Props) {
                       )}
                     </FormControl>
                     <FormDescription>
-                      Which hardware model is this project testing? <br />{" "}
-                      Don&apos;t have a hardware model yet?{" "}
+                      Which hardware model is this production line testing?{" "}
+                      <br /> Don&apos;t have a hardware model yet?{" "}
                       <Link
                         to="/workspace"
                         className="underline hover:text-primary"
