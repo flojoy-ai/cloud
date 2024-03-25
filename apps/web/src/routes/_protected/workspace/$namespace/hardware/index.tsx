@@ -1,4 +1,13 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { Link, createFileRoute, useRouter } from "@tanstack/react-router";
+
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 import {
   PageHeader,
@@ -67,6 +76,25 @@ function HardwareInventory() {
 
   return (
     <div className="container max-w-screen-2xl">
+      <div className="py-2"></div>
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link
+                to="/workspace/$namespace"
+                params={{ namespace: workspace.namespace }}
+              >
+                {workspace.name}
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Hardware Inventory</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       <PageHeader>
         <PageHeaderHeading>Hardware Inventory</PageHeaderHeading>
         <PageHeaderDescription>
