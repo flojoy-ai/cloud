@@ -4,12 +4,12 @@ import { db } from "@/db/kysely";
 
 export const ProjectMiddleware = new Elysia({ name: "ProjectMiddleware" })
   .guard({
-    params: t.Object({
+    query: t.Object({
       projectId: t.String(),
     }),
   })
   .use(AuthMiddleware)
-  .derive(async ({ params: { projectId }, user }) => {
+  .derive(async ({ query: { projectId }, user }) => {
     const project = await db
       .selectFrom("project as p")
       .selectAll()
