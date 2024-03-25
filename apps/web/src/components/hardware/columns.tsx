@@ -1,64 +1,64 @@
-import { MoreHorizontal } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+// import { MoreHorizontal } from "lucide-react";
+// import {
+//   AlertDialog,
+//   AlertDialogAction,
+//   AlertDialogCancel,
+//   AlertDialogContent,
+//   AlertDialogDescription,
+//   AlertDialogFooter,
+//   AlertDialogHeader,
+//   AlertDialogTitle,
+// } from "@/components/ui/alert-dialog";
 
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Row, type ColumnDef } from "@tanstack/react-table";
-import { toast } from "sonner";
+// import { Button } from "@/components/ui/button";
+// import {
+//   DropdownMenu,
+//   DropdownMenuContent,
+//   DropdownMenuItem,
+//   DropdownMenuLabel,
+//   DropdownMenuTrigger,
+// } from "@/components/ui/dropdown-menu";
+import { type ColumnDef } from "@tanstack/react-table";
+// import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
-import { handleError } from "@/lib/utils";
+// import { useState } from "react";
+// import { handleError } from "@/lib/utils";
 import { Project } from "@cloud/server/src/schemas/public/Project";
 import { Model } from "@cloud/server/src/schemas/public/Model";
 import { Hardware } from "@cloud/server/src/schemas/public/Hardware";
-import { Family } from "@cloud/server";
+import { Family } from "@cloud/server/src/schemas/public/Family";
 
-type ActionsProps = {
-  elem: { id: string };
-  children?: React.ReactNode;
-};
+// type ActionsProps = {
+//   elem: { id: string };
+//   children?: React.ReactNode;
+// };
 
-const Actions = ({ elem, children }: ActionsProps) => {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <span className="sr-only">Open menu</span>
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent onClick={(e) => e.stopPropagation()} align="end">
-        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <DropdownMenuItem
-          onClick={() =>
-            toast.promise(navigator.clipboard.writeText(elem.id), {
-              success: "Copied to clipboard",
-              error: (err) => "Failed to copy: " + err,
-            })
-          }
-        >
-          Copy ID
-        </DropdownMenuItem>
-        {children}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-};
+// const Actions = ({ elem, children }: ActionsProps) => {
+//   return (
+//     <DropdownMenu>
+//       <DropdownMenuTrigger asChild>
+//         <Button variant="ghost" className="h-8 w-8 p-0">
+//           <span className="sr-only">Open menu</span>
+//           <MoreHorizontal className="h-4 w-4" />
+//         </Button>
+//       </DropdownMenuTrigger>
+//       <DropdownMenuContent onClick={(e) => e.stopPropagation()} align="end">
+//         <DropdownMenuLabel>Actions</DropdownMenuLabel>
+//         <DropdownMenuItem
+//           onClick={() =>
+//             toast.promise(navigator.clipboard.writeText(elem.id), {
+//               success: "Copied to clipboard",
+//               error: (err) => "Failed to copy: " + err,
+//             })
+//           }
+//         >
+//           Copy ID
+//         </DropdownMenuItem>
+//         {children}
+//       </DropdownMenuContent>
+//     </DropdownMenu>
+//   );
+// };
 
 export const hardwareColumns: ColumnDef<
   Hardware & { projects: Project[]; model: Model }
@@ -122,7 +122,7 @@ export const hardwareColumns: ColumnDef<
   {
     id: "actions",
     header: "Actions",
-    cell: HardwareActions,
+    // cell: HardwareActions,
   },
 ];
 
@@ -262,22 +262,4 @@ export const familyColumns: ColumnDef<Family>[] = [
   // },
 ];
 
-// function ModelActions({ row }: { row: Row<Model> }) {
-//   const [isOpen, setIsOpen] = useState(false);
-//   const utils = api.useUtils();
-//   return (
-//     <>
-//       <DeleteDialog
-//         isOpen={isOpen}
-//         setIsOpen={setIsOpen}
-//         model={row.original}
-//         onSuccess={() => void utils.model.getAllModels.invalidate()}
-//       />
-//       <Actions elem={row.original}>
-//         <DropdownMenuItem onClick={() => setIsOpen(true)}>
-//           Delete
-//         </DropdownMenuItem>
-//       </Actions>
-//     </>
-//   );
-// }
+// function ModelActions({ row }: { row: Row<Model> }
