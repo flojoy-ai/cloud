@@ -30,22 +30,22 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
       await createProduct(db, {
         name: "HL",
         workspaceId,
-        description: "Hidden Level Product",
+        description: "iPhone 13 mini",
       })
     ).safeUnwrap();
 
     const family = yield* (
       await createFamily(db, {
-        name: "HL1000",
+        name: "iPhone",
         workspaceId,
         productName: product.name,
-        description: "HL 1000 family",
+        description: "The iPhone lineup from Apple",
       })
     ).safeUnwrap();
 
     const deviceModel1 = yield* (
       await createModel(db, {
-        name: "HL1000A",
+        name: "DISPLAY0001",
         workspaceId,
         familyId: family.id,
         components: [],
@@ -54,7 +54,7 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
 
     const deviceModel2 = yield* (
       await createModel(db, {
-        name: "HL1000B",
+        name: "SPEAKER0001",
         workspaceId,
         familyId: family.id,
         components: [],
@@ -63,7 +63,7 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
 
     yield* (
       await createModel(db, {
-        name: "HL1000",
+        name: "IP13MINI",
         workspaceId,
         familyId: family.id,
         components: [
@@ -75,7 +75,7 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
 
     const deviceProject = yield* (
       await createProject(db, {
-        name: "HL1000A Testing Project",
+        name: "DISPLAY0001 Production Line",
         modelId: deviceModel1.id,
         workspaceId,
       })
@@ -126,7 +126,7 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
 
     const station = yield* (
       await createStation(db, {
-        name: "HL1000A Station",
+        name: "Station 1",
         projectId: deviceProject.id,
       })
     ).safeUnwrap();
@@ -146,7 +146,7 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
       const val = Math.random() < 0.8;
       yield* (
         await createMeasurement(db, workspaceId, {
-          name: "Did Power On",
+          name: "Did Light Up",
           hardwareId: hardware.id,
           testId: booleanTest.id,
           projectId: deviceProject.id,
