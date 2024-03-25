@@ -10,8 +10,8 @@ export const Route = createFileRoute("/_protected")({
     context.queryClient.ensureQueryData(getWorkspacesOpts());
   },
   pendingComponent: () => (
-    <div>
-      <Icons.spinner className="animate-spin" />,
+    <div className="h-screen flex justify-center items-center">
+      <Icons.spinner className="animate-spin" />
     </div>
   ),
 });
