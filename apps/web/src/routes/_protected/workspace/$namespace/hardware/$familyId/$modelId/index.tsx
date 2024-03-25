@@ -1,4 +1,5 @@
 import CreateHardware from "@/components/hardware/create-hardware";
+import { Icons } from "@/components/icons";
 import {
   PageHeader,
   PageHeaderDescription,
@@ -7,7 +8,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/ui/data-table";
 import { Separator } from "@/components/ui/separator";
-import { ModelTreeVisualization } from "@/components/visualization/tree-visualization";
+import {
+  HardwareTreeVisualization,
+  ModelTreeVisualization,
+} from "@/components/visualization/tree-visualization";
 import { client } from "@/lib/client";
 import { getModelHardwareOpts } from "@/lib/queries/hardware";
 import { getModelOpts } from "@/lib/queries/model";
@@ -149,38 +153,26 @@ function ModelPage() {
       <div className="py-2" />
       <h1 className="text-xl font-bold">Part Variations</h1>
       <div className="py-2" />
-      <div className="flex items-center">
-        <DataTable
-          columns={hardwareColumns}
-          data={hardware}
-          onRowClick={(row) => setSelectedHardwareId(row.id)}
-          highlightRow={(row) => row.id === selectedHardwareId}
-        />
-        <div className="h-96 w-64">
-          <ModelTreeVisualization tree={model} />
+      <div className="flex gap-x-8">
+        <div className="w-1/2">
+          <DataTable
+            columns={hardwareColumns}
+            data={hardware}
+            onRowClick={(row) => setSelectedHardwareId(row.id)}
+            highlightRow={(row) => row.id === selectedHardwareId}
+          />
         </div>
-        {/* <div className="py-4" /> */}
-        {/* {selectedModelId && isPending ? ( */}
-        {/*   <Icons.spinner className="mx-auto animate-spin" /> */}
-        {/* ) : ( */}
-        {/*   hardwareTree && ( */}
-        {/*     <> */}
-        {/*       <h1 className="text-xl font-bold">Sub-assemblies</h1> */}
-        {/*       <div className="py-2" /> */}
-        {/*       <DataTable */}
-        {/*         columns={} */}
-        {/*         data={hardwareTree.components.map((child) => ({ */}
-        {/*           count: child.count, */}
-        {/*           ...child.model, */}
-        {/*         }))} */}
-        {/*         onRowClick={(row) => setSelectedModelId(row.id)} */}
-        {/*       /> */}
-        {/*     </> */}
-        {/*   ) */}
-        {/* )} */}
+        <div className="w-1/2 h-96 border rounded-lg">
+          {isPending ? (
+            <Icons.spinner className="mx-auto animate-spin" />
+          ) : (
+            hardwareTree && <HardwareTreeVisualization tree={hardwareTree} />
+          )}
+        </div>
       </div>
-      <div className="py-4" />
-      <Separator />
+      <div className="w-full h-96 border rounded-lg">
+        <ModelTreeVisualization tree={model} />
+      </div>
       <div className="py-4" />
     </div>
   );
