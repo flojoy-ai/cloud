@@ -1,10 +1,13 @@
 # nixpacks.toml
 
 [phases.setup]
+nixPkgs = ['bun']
+
+[phases.install]
 nixPkgs = ['bun install']
 
-# [phases.build]
-# cmds = ['yarn run server:build']
+[phases.build]
+cmds = ['bun build']
 
 [start]
 cmd = 'bun start'
