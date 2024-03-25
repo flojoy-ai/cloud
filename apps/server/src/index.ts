@@ -16,6 +16,7 @@ import { ProductRoute } from "./routes/product";
 import { ModelRoute } from "./routes/model";
 import { HardwareRoute } from "./routes/hardware";
 import { StationRoute } from "./routes/station";
+import { AuthEntraRoute } from "./routes/auth/entra";
 
 const app = new Elysia()
   .mapResponse(({ response, set }) => {
@@ -57,6 +58,7 @@ const app = new Elysia()
   .use(UserRoute)
   .use(AuthRoute)
   .use(AuthGoogleRoute)
+  .use(AuthEntraRoute)
   .use(WorkspaceRoute)
   .use(ProjectRoute)
   .use(SearchRoute)

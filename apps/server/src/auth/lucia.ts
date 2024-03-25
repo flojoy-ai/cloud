@@ -1,4 +1,5 @@
 import { Lucia } from "lucia";
+import { MicrosoftEntraId } from "arctic";
 
 import { env } from "@/env";
 import { Google } from "arctic";
@@ -34,6 +35,13 @@ export const google = new Google(
   env.GOOGLE_CLIENT_ID,
   env.GOOGLE_CLIENT_SECRET,
   env.GOOGLE_REDIRECT_URI,
+);
+
+export const entra = new MicrosoftEntraId(
+  env.ENTRA_ID_TENANT_ID,
+  env.ENTRA_ID_CLIENT_ID,
+  env.ENTRA_ID_CLIENT_SECRET,
+  env.ENTRA_ID_REDIRECT_URI,
 );
 
 declare module "lucia" {
