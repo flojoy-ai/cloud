@@ -41,7 +41,7 @@ export function ProtectedNav({ workspaces, currentWorkspace }: NavProps) {
 
   return (
     <div className="mr-4 hidden md:flex">
-      <Link to="/" className="mr-6 flex items-center space-x-2">
+      <Link to="/workspace" className="mr-6 flex items-center space-x-2">
         <Icons.logo className="h-6 w-6" />
         <span className="hidden font-bold sm:inline-block">
           {siteConfig.name}
@@ -56,7 +56,7 @@ export function ProtectedNav({ workspaces, currentWorkspace }: NavProps) {
               role="combobox"
               aria-expanded={open}
               aria-label="Select a workspace"
-              className={cn("justify-between gap-2")}
+              className={cn("justify-between gap-2 w-64")}
             >
               {currentWorkspace ? (
                 <>

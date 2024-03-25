@@ -39,7 +39,7 @@ function Page() {
                 to="/workspace/$namespace"
                 params={{ namespace: workspace.namespace }}
               >
-                Home
+                {workspace.name}
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
