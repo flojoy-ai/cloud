@@ -27,6 +27,20 @@ export async function createHardware(
       if (!model) {
         throw new Error("Model not found");
       }
+
+      const created = await tx
+        .insertInto("hardware")
+        .values({
+          id: generateDatabaseId("hardware"),
+          workspaceId,
+          ...newHardware,
+        })
+        .returningAll()
+        .executeTakeFirst();
+      if (created === undefined) {
+        throw new Error("Failed to create hardware");
+      }
+
       const modelComponents = await getModelComponents(model.id);
 
       if (modelComponents.length > 0) {
@@ -56,18 +70,6 @@ export async function createHardware(
           throw new Error("Components do not satisfy model requirements");
         }
 
-        const created = await tx
-          .insertInto("hardware")
-          .values({
-            id: generateDatabaseId("hardware"),
-            workspaceId,
-            ...newHardware,
-          })
-          .returningAll()
-          .executeTakeFirst();
-        if (created === undefined) {
-          throw new Error("Failed to create hardware");
-        }
         await tx
           .insertInto("hardware_relation")
           .values(
@@ -90,21 +92,21 @@ export async function createHardware(
             })),
           )
           .execute();
-
-        if (projectId !== undefined) {
-          await tx
-            .insertInto("project_hardware")
-            .values({
-              hardwareId: created.id,
-              projectId,
-            })
-            .execute();
-        }
-
-        await markUpdatedAt(tx, "workspace", workspaceId);
-
-        return created;
       }
+
+      if (projectId !== undefined) {
+        await tx
+          .insertInto("project_hardware")
+          .values({
+            hardwareId: created.id,
+            projectId,
+          })
+          .execute();
+      }
+
+      await markUpdatedAt(tx, "workspace", workspaceId);
+
+      return created;
     }),
     (e) => e as Error,
   );

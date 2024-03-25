@@ -52,7 +52,7 @@ export const HardwareRoute = new Elysia({ prefix: "/hardware" })
     async ({ body, error, workspace, user }) => {
       const res = await createHardware(db, workspace.id, user, body);
       if (res.isErr()) {
-        return error(500, res.error);
+        return error(500, res.error.message);
       }
       return res.value;
     },
