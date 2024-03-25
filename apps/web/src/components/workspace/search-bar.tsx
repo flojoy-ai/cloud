@@ -121,6 +121,7 @@ const SearchBar = ({
   listClassName,
 }: Props) => {
   const [value, setValue] = useState("");
+  const [selected, setSelected] = useState(false);
   const query = useDebounce(value, 200);
 
   const { data, isFetching } = useQuery({
@@ -144,24 +145,30 @@ const SearchBar = ({
   const searchResults = data ?? [];
   const groups = groupSearchResults(searchResults);
 
-  const showResults = query !== "" && (searchResults.length > 0 || !isFetching);
+  const showResults =
+    query !== "" && selected && (searchResults.length > 0 || !isFetching);
 
   return (
     <div className={cn("relative", className)}>
       <Command
         shouldFilter={false}
         className={cn(
-          query === ""
+          !showResults
             ? cn("rounded-lg border", emptyClassName)
             : cn("rounded-b-none border border-b-0", activeClassName),
         )}
       >
-        <CommandInput placeholder="Search..." onValueChange={setValue} />
+        <CommandInput
+          placeholder="Search..."
+          onValueChange={setValue}
+          onSelect={() => setSelected(true)}
+          onBlur={() => setSelected(false)}
+        />
         <CommandList
           className={cn(
             "absolute w-full top-[46px] left-0 bg-background",
             {
-              "border rounded-b-md border-t-0": query !== "",
+              "border rounded-b-md border-t-0": showResults,
             },
             listClassName,
           )}
