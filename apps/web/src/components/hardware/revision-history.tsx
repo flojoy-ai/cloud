@@ -1,7 +1,6 @@
-"use client";
 import { useState } from "react";
-import { Button } from "@cloud/ui/components/ui/button";
-import { SelectHardwareRevision } from "~/types/hardware";
+import { Button } from "@/components/ui/button";
+import { HardwareRevision } from "@cloud/server/src/types/hardware";
 
 import {
   Dialog,
@@ -12,11 +11,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@cloud/ui/components/ui/dialog";
+} from "@/components/ui/dialog";
 import { Cpu, History, MinusCircle, PlusCircle } from "lucide-react";
-import { Card } from "@cloud/ui/components/ui/card";
-import RevisionType from "~/schemas/public/RevisionType";
-import { api } from "~/trpc/react";
+import { Card } from "@/components/ui/card";
+import RevisionType from "@cloud/server/src/schemas/public/RevisionType";
 
 const iconMap: Record<RevisionType, JSX.Element> = {
   add: <PlusCircle size={20} className="stroke-green-500/60" />,
@@ -25,19 +23,11 @@ const iconMap: Record<RevisionType, JSX.Element> = {
 };
 
 type Props = {
-  revisions: SelectHardwareRevision[];
-  hardwareId: string;
+  revisions: HardwareRevision[];
 };
 
-const RevisionHistory = (props: Props) => {
+const RevisionHistory = ({ revisions }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-
-  const { data: revisions } = api.hardware.getRevisions.useQuery(
-    {
-      hardwareId: props.hardwareId,
-    },
-    { initialData: props.revisions },
-  );
 
   return (
     <Dialog

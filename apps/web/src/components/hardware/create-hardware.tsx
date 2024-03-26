@@ -35,7 +35,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { client } from "@/lib/client";
-import { getHardwareOpts } from "@/lib/queries/hardware";
+import { getAllHardwareOpts } from "@/lib/queries/hardware";
 import { getModelOpts, getModelsOpts } from "@/lib/queries/model";
 import { handleError } from "@/lib/utils";
 import { Workspace } from "@cloud/server/src/schemas/public/Workspace";
@@ -94,7 +94,7 @@ const CreateHardware = ({ children, workspace, modelId, projectId }: Props) => {
   });
 
   const { data: hardware } = useSuspenseQuery(
-    getHardwareOpts({ onlyAvailable: true, context: { workspace } }),
+    getAllHardwareOpts({ onlyAvailable: true, context: { workspace } }),
   );
   const { data: models } = useSuspenseQuery(
     getModelsOpts({ context: { workspace } }),

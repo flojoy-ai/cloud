@@ -6,6 +6,14 @@ import {
   PageHeaderHeading,
 } from "@/components/small-header";
 import { Badge } from "@/components/ui/badge";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { DataTable } from "@/components/ui/data-table";
 import { Separator } from "@/components/ui/separator";
 import { client } from "@/lib/client";
@@ -78,7 +86,7 @@ function FamilyPage() {
   );
 
   const [selectedModelId, setSelectedModelId] = useState<string | undefined>(
-    undefined,
+    models[0]?.id,
   );
 
   const { data: modelTree, isPending } = useQuery({
@@ -98,6 +106,36 @@ function FamilyPage() {
 
   return (
     <div className="container max-w-screen-2xl">
+      <div className="py-2"></div>
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link
+                to="/workspace/$namespace"
+                params={{ namespace: workspace.namespace }}
+              >
+                {workspace.name}
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link
+                to="/workspace/$namespace/hardware"
+                params={{ namespace: workspace.namespace }}
+              >
+                Hardware Inventory
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>{family.name}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       <PageHeader>
         <PageHeaderHeading>{family.name}</PageHeaderHeading>
         <div className="text-muted-foreground font-bold">
@@ -137,14 +175,9 @@ function FamilyPage() {
               }))}
               onRowClick={(row) => setSelectedModelId(row.id)}
             />
-            {/* <div className="h-96 w-full border rounded-md"> */}
-            {/*   <ModelTreeVisualization tree={modelTree} /> */}
-            {/* </div> */}
           </>
         )
       )}
-      <div className="py-4" />
-      <Separator />
       <div className="py-4" />
     </div>
   );

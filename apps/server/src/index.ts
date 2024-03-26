@@ -52,7 +52,8 @@ const app = new Elysia()
     // NOTE: https://github.com/elysiajs/elysia-cors/issues/41
     cors({
       origin: "localhost:5173", // FIXME: Switch this in .env
-      allowedHeaders: ["Content-Type", "flojoy-workspace-id"],
+      allowedHeaders: ["content-type", "flojoy-workspace-id"],
+      methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     }),
   )
   .use(UserRoute)

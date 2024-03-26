@@ -1,7 +1,20 @@
 import { generateDatabaseId } from "@/lib/db-utils";
+import {
+  BadRequestError,
+  DuplicateError,
+  RouteError,
+  InternalServerError,
+  NotFoundError,
+} from "@/lib/error";
 import DB from "@/schemas/Database";
 import { Model } from "@/schemas/public/Model";
-import { Hardware, HardwareTree, InsertHardware } from "@/types/hardware";
+import { WorkspaceUser } from "@/schemas/public/WorkspaceUser";
+import {
+  Hardware,
+  HardwareTree,
+  InsertHardware,
+  SwapHardwareComponent,
+} from "@/types/hardware";
 import { ExpressionBuilder, Kysely } from "kysely";
 import { jsonObjectFrom } from "kysely/helpers/postgres";
 import _ from "lodash";
@@ -11,7 +24,14 @@ import { db } from "./kysely";
 import { getModel, getModelComponents } from "./model";
 import { markUpdatedAt } from "./query";
 
-// TODO: Make this return a proper error type
+export async function getHardware(id: string) {
+  return await db
+    .selectFrom("hardware")
+    .selectAll()
+    .where("hardware.id", "=", id)
+    .executeTakeFirst();
+}
+
 export async function createHardware(
   db: Kysely<DB>,
   workspaceId: string,
@@ -25,7 +45,7 @@ export async function createHardware(
 
       const model = await getModel(hardware.modelId);
       if (!model) {
-        throw new Error("Model not found");
+        throw new NotFoundError("Model not found");
       }
 
       const created = await tx
@@ -38,7 +58,7 @@ export async function createHardware(
         .returningAll()
         .executeTakeFirst();
       if (created === undefined) {
-        throw new Error("Failed to create hardware");
+        throw new InternalServerError("Failed to create hardware");
       }
 
       const modelComponents = await getModelComponents(model.id);
@@ -46,7 +66,7 @@ export async function createHardware(
       if (modelComponents.length > 0) {
         const ids = components;
         if (_.uniq(ids).length !== ids.length) {
-          throw new Error("Duplicate hardware devices");
+          throw new BadRequestError("Duplicate hardware devices");
         }
 
         const hardwares = await db
@@ -57,7 +77,7 @@ export async function createHardware(
           .execute();
 
         if (hardwares.length !== components.length) {
-          throw new Error("Some hardware devices are already in use!");
+          throw new DuplicateError("Some hardware devices are already in use!");
         }
 
         const modelCount = _.countBy(hardwares, (h) => h.modelId);
@@ -67,7 +87,9 @@ export async function createHardware(
         );
 
         if (!matches) {
-          throw new Error("Components do not satisfy model requirements");
+          throw new BadRequestError(
+            "Components do not satisfy model requirements",
+          );
         }
 
         await tx
@@ -108,7 +130,99 @@ export async function createHardware(
 
       return created;
     }),
-    (e) => e as Error,
+    (e) => e as RouteError,
+  );
+}
+
+export async function getHardwareRevisions(hardwareId: string) {
+  return await db
+    .selectFrom("hardware_revision as hr")
+    .selectAll("hr")
+    .innerJoin("hardware", "hardware.id", "hr.componentId")
+    .innerJoin("user", "user.id", "hr.userId")
+    .select("hardware.name as componentName")
+    .select("user.email as userEmail")
+    .where("hr.hardwareId", "=", hardwareId)
+    .orderBy("hr.createdAt", "desc")
+    .execute();
+}
+
+export async function doHardwareComponentSwap(
+  hardware: Hardware,
+  user: WorkspaceUser,
+  input: SwapHardwareComponent,
+) {
+  const hardwareComponents = await getHardwareComponentsWithModel(hardware.id);
+
+  return fromPromise(
+    db.transaction().execute(async (tx) => {
+      const oldHardwareComponent = await tx
+        .selectFrom("hardware")
+        .selectAll()
+        .where("hardware.id", "=", input.oldHardwareComponentId)
+        .where("hardware.workspaceId", "=", user.workspaceId)
+        .executeTakeFirstOrThrow(
+          () => new NotFoundError("Old component not found"),
+        );
+
+      const newHardwareComponent = await tx
+        .selectFrom("hardware")
+        .selectAll()
+        .where("hardware.id", "=", input.newHardwareComponentId)
+        .where("hardware.workspaceId", "=", user.workspaceId)
+        .executeTakeFirstOrThrow(
+          () => new NotFoundError("New component not found"),
+        );
+
+      if (oldHardwareComponent.modelId !== newHardwareComponent.modelId) {
+        throw new BadRequestError("Model mismatch");
+      }
+
+      if (
+        !hardwareComponents.some(
+          (hc) => hc.hardwareId === input.oldHardwareComponentId,
+        )
+      ) {
+        throw new BadRequestError(
+          "Old component is not a part of the hardware",
+        );
+      }
+
+      await tx
+        .deleteFrom("hardware_relation as hr")
+        .where("hr.parentHardwareId", "=", hardware.id)
+        .where("hr.childHardwareId", "=", input.oldHardwareComponentId)
+        .execute();
+
+      await tx
+        .insertInto("hardware_relation")
+        .values({
+          parentHardwareId: hardware.id,
+          childHardwareId: input.newHardwareComponentId,
+        })
+        .execute();
+
+      await tx
+        .insertInto("hardware_revision")
+        .values([
+          {
+            revisionType: "remove",
+            userId: user.userId,
+            hardwareId: hardware.id,
+            componentId: input.oldHardwareComponentId,
+            reason: input.reason ?? "Component swap",
+          },
+          {
+            revisionType: "add",
+            userId: user.userId,
+            hardwareId: hardware.id,
+            componentId: input.newHardwareComponentId,
+            reason: input.reason ?? "Component swap",
+          },
+        ])
+        .execute();
+    }),
+    (e) => e as RouteError,
   );
 }
 
@@ -217,4 +331,14 @@ export function buildHardwareTree(
   }
 
   return nodes.get(root.id)!;
+}
+
+export async function getHardwareComponentsWithModel(id: string) {
+  return await db
+    .selectFrom("hardware_relation as hr")
+    .innerJoin("hardware", "hardware.id", "hr.childHardwareId")
+    .innerJoin("model", "model.id", "hardware.modelId")
+    .select(["hr.childHardwareId as hardwareId", "model.id as modelId"])
+    .where("hr.parentHardwareId", "=", id)
+    .execute();
 }

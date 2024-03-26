@@ -1,12 +1,15 @@
 import {
   createHardware,
+  doHardwareComponentSwap,
+  getHardwareRevisions,
   getHardwareTree,
   notInUse,
   withHardwareModel,
 } from "@/db/hardware";
 import { db } from "@/db/kysely";
+import { HardwareMiddleware } from "@/middlewares/hardware";
 import { WorkspaceMiddleware } from "@/middlewares/workspace";
-import { insertHardware } from "@/types/hardware";
+import { insertHardware, swapHardwareComponent } from "@/types/hardware";
 import { Model } from "@/types/model";
 import Elysia, { t } from "elysia";
 
@@ -58,24 +61,47 @@ export const HardwareRoute = new Elysia({ prefix: "/hardware" })
     },
     { body: insertHardware },
   )
-  .get(
+  .group(
     "/:hardwareId",
-    async ({ workspace, params: { hardwareId }, error }) => {
-      const hardware = await db
-        .selectFrom("hardware")
-        .selectAll("hardware")
-        .where("id", "=", hardwareId)
-        .where("workspaceId", "=", workspace.id)
-        .select((eb) => withHardwareModel(eb))
-        .$narrowType<{ model: Model }>()
-        .executeTakeFirst();
-      if (hardware === undefined) {
-        return error(404, "Model not found");
-      }
+    { params: t.Object({ hardwareId: t.String() }) },
+    (app) =>
+      app
+        .use(HardwareMiddleware)
+        .get("/", async ({ workspace, params: { hardwareId }, error }) => {
+          const hardware = await db
+            .selectFrom("hardware")
+            .selectAll("hardware")
+            .where("id", "=", hardwareId)
+            .where("workspaceId", "=", workspace.id)
+            .select((eb) => withHardwareModel(eb))
+            .$narrowType<{ model: Model }>()
+            .executeTakeFirst();
+          if (hardware === undefined) {
+            return error(404, "Model not found");
+          }
 
-      return await getHardwareTree(hardware);
-    },
-    {
-      params: t.Object({ hardwareId: t.String() }),
-    },
+          return await getHardwareTree(hardware);
+        })
+        .patch(
+          "/",
+          async ({ hardware, workspaceUser, body, error }) => {
+            if (workspaceUser.role === "member") {
+              return error("Forbidden");
+            }
+            const res = await doHardwareComponentSwap(
+              hardware,
+              workspaceUser,
+              body,
+            );
+            if (res.isErr()) {
+              return error(res.error.code, res.error.message);
+            }
+
+            return {};
+          },
+          { body: swapHardwareComponent },
+        )
+        .get("/revisions", async ({ hardware }) => {
+          return await getHardwareRevisions(hardware.id);
+        }),
   );

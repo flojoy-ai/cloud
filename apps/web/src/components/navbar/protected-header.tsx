@@ -175,7 +175,7 @@ export function ProtectedHeader({ workspaces }: Props) {
             <div className="px-3" />
             <SearchBar
               workspace={currentWorkspace}
-              className="max-w-96 w-full"
+              className="max-w-72 w-full"
               emptyClassName="border-b-0"
             />
           </>

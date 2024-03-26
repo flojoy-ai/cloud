@@ -2,6 +2,12 @@ import type PublicSchema from "@/schemas/public/PublicSchema";
 import { createId } from "@paralleldrive/cuid2";
 import { ResultAsync, fromPromise } from "neverthrow";
 import { DatabaseError } from "pg";
+import {
+  DBError,
+  DuplicateError,
+  ForeignKeyError,
+  InternalServerError,
+} from "./error";
 
 export function generateDatabaseId(table: keyof PublicSchema) {
   const cuid = createId();
@@ -19,59 +25,16 @@ enum ErrorCode {
   FOREIGN_KEY_VIOLATION = "23503",
 }
 
-export type DBError =
-  | DuplicateError
-  | ForeignKeyError
-  | NotFoundError
-  | GenericError;
-
-// TODO: Allow overriding these error messages
-type DuplicateError = {
-  type: "duplicate";
-  message: "Record already exists!";
-};
-
-type ForeignKeyError = {
-  type: "foreign key";
-  message: "Resource is in use!";
-};
-
-type NotFoundError = {
-  type: "not found";
-  message: string;
-};
-
-export function notFound(message: string) {
-  return {
-    type: "not found",
-    message,
-  };
-}
-
-type GenericError = {
-  type: "generic";
-  message: string;
-};
-
 export function tryQuery<T>(promise: Promise<T>): ResultAsync<T, DBError> {
   return fromPromise(promise, (e) => {
     const err = e as DatabaseError;
     switch (err.code) {
       case ErrorCode.DUPLICATE:
-        return {
-          type: "duplicate",
-          message: "Record already exists!",
-        };
+        return new DuplicateError("Record already exists!");
       case ErrorCode.FOREIGN_KEY_VIOLATION:
-        return {
-          type: "foreign key",
-          message: "Resource is in use!",
-        };
+        return new ForeignKeyError("Resource is in use!");
       default:
-        return {
-          type: "generic",
-          message: err.message,
-        };
+        return new InternalServerError(err.message);
     }
   });
 }
