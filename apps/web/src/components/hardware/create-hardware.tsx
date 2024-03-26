@@ -35,7 +35,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { client } from "@/lib/client";
-import { getHardwaresQueryOpts } from "@/lib/queries/hardware";
+import { getHardwaresQueryKey, getHardwaresQueryOpts } from "@/lib/queries/hardware";
 import { getModelQueryOpts, getModelsQueryOpts } from "@/lib/queries/model";
 import { handleError } from "@/lib/utils";
 import { Workspace } from "@cloud/server/src/schemas/public/Workspace";
@@ -88,7 +88,7 @@ const CreateHardware = ({ children, workspace, modelId, projectId }: Props) => {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["hardware"] });
+      queryClient.invalidateQueries({queryKey: getHardwaresQueryKey()});
       setIsDialogOpen(false);
     },
   });

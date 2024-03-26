@@ -41,7 +41,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { client } from "@/lib/client";
-import { getHardwaresQueryOpts } from "@/lib/queries/hardware";
+import {
+  getHardwareQueryKey,
+  getHardwaresQueryOpts,
+} from "@/lib/queries/hardware";
 import { Workspace } from "@cloud/server/src/schemas/public/Workspace";
 
 type FormSchema = SwapHardwareComponent;
@@ -73,7 +76,9 @@ const SwapHardware = ({ workspace, hardware }: Props) => {
     },
     onSuccess: () => {
       setIsDialogOpen(false);
-      queryClient.invalidateQueries({ queryKey: ["hardware", hardware.id] });
+      queryClient.invalidateQueries({
+        queryKey: getHardwareQueryKey(hardware.id),
+      });
     },
   });
 
