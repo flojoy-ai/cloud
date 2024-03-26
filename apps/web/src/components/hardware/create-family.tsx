@@ -23,7 +23,7 @@ import { client } from "@/lib/client";
 import { handleError } from "@/lib/utils";
 import { insertFamily } from "@cloud/server/src/types/family";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import { Static } from "elysia";
 import { Cpu } from "lucide-react";
@@ -32,27 +32,19 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Textarea } from "../ui/textarea";
 import { Autocomplete } from "../ui/autocomplete";
+import { Product } from "@cloud/server/src/schemas/public/Product";
+import { getProductsQueryKeys } from "@/lib/queries/product";
 
 type FormSchema = Static<typeof insertFamily>;
 
 type Props = {
   workspaceId: string;
+  products: Product[];
 };
 
-const CreateFamily = ({ workspaceId }: Props) => {
-  const router = useRouter();
+const CreateFamily = ({ workspaceId, products }: Props) => {
+  const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-
-  const { data: products } = useSuspenseQuery({
-    queryFn: async () => {
-      const { data, error } = await client.product.index.get({
-        headers: { "flojoy-workspace-id": workspaceId },
-      });
-      if (error) throw error;
-      return data;
-    },
-    queryKey: ["products"],
-  });
 
   const createFamily = useMutation({
     mutationFn: async (vals: FormSchema) => {
@@ -68,7 +60,7 @@ const CreateFamily = ({ workspaceId }: Props) => {
       }
     },
     onSuccess: () => {
-      router.invalidate();
+      queryClient.invalidateQueries({ queryKey: getProductsQueryKeys() });
       setIsDialogOpen(false);
     },
   });

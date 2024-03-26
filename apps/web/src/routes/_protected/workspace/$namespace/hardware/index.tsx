@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import CreateFamily from "@/components/hardware/create-family";
 import { DataTable } from "@/components/ui/data-table";
 import { getFamiliesOpts } from "@/lib/queries/family";
+import { getProductsQueryOpts } from "@/lib/queries/product";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/hardware/",
@@ -30,6 +31,7 @@ export const Route = createFileRoute(
   component: HardwareInventory,
   loader: async ({ context }) => {
     context.queryClient.ensureQueryData(getFamiliesOpts({ context }));
+    context.queryClient.ensureQueryData(getProductsQueryOpts({ context }));
   },
   pendingComponent: () => (
     <div>
@@ -73,6 +75,9 @@ function HardwareInventory() {
   const router = useRouter();
 
   const { data: families } = useSuspenseQuery(getFamiliesOpts({ context }));
+  const { data: products } = useSuspenseQuery(
+    getProductsQueryOpts({ context }),
+  );
 
   return (
     <div className="container max-w-screen-2xl">
@@ -111,7 +116,7 @@ function HardwareInventory() {
 
         <h1 className="text-xl font-bold">Part Families</h1>
         <div className="py-1" />
-        <CreateFamily workspaceId={workspace.id} />
+        <CreateFamily workspaceId={workspace.id} products={products} />
         <div className="py-4" />
 
         <DataTable
