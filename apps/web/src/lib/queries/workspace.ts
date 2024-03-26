@@ -1,14 +1,18 @@
 import { queryOptions } from "@tanstack/react-query";
 import { client } from "../client";
 
-export function getWorkspacesOpts() {
+export function getWorkspacesQueryKey() {
+  return ["workspaces"];
+}
+
+export function getWorkspacesQueryOpts() {
   return queryOptions({
     queryFn: async () => {
       const { data: workspaces, error } = await client.workspace.index.get();
       if (error) throw error;
       return workspaces;
     },
-    queryKey: ["workspaces"],
+    queryKey: getWorkspacesQueryKey(),
   });
 }
 
@@ -16,7 +20,11 @@ type getProjectProps = {
   namespace: string;
 };
 
-export function getWorkspaceOpts({ namespace }: getProjectProps) {
+export function getWorkspaceQueryKey(namespace: string) {
+  return ["workspace", namespace];
+}
+
+export function getWorkspaceQueryOpts({ namespace }: getProjectProps) {
   return queryOptions({
     queryFn: async () => {
       const workspaceQuery = await client
@@ -28,6 +36,6 @@ export function getWorkspaceOpts({ namespace }: getProjectProps) {
 
       return workspaceQuery.data;
     },
-    queryKey: ["workspace", namespace],
+    queryKey: getWorkspaceQueryKey(namespace),
   });
 }

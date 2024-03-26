@@ -27,7 +27,7 @@ import { env } from "@/env";
 import { Input } from "@/components/ui/input";
 import { client } from "@/lib/client";
 import { Button } from "@/components/ui/button";
-import { getWorkspacesOpts } from "@/lib/queries/workspace";
+import { getWorkspacesQueryOpts } from "@/lib/queries/workspace";
 
 export const Route = createFileRoute("/_protected/setup")({
   component: Setup,
@@ -59,7 +59,7 @@ function Setup() {
       return data;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries(getWorkspacesOpts());
+      queryClient.invalidateQueries(getWorkspacesQueryOpts());
       router.navigate({
         to: `/workspace/$namespace`,
         params: { namespace: data.namespace },

@@ -8,7 +8,11 @@ type getProjectsProps = {
   };
 };
 
-export function getProjectsOpts({ context }: getProjectsProps) {
+export function getProjectsQueryKey() {
+  return ["projects"];
+}
+
+export function getProjectsQueryOpts({ context }: getProjectsProps) {
   return queryOptions({
     queryFn: async () => {
       const { data: projects, error } = await client.project.index.get({
@@ -19,7 +23,7 @@ export function getProjectsOpts({ context }: getProjectsProps) {
       }
       return projects;
     },
-    queryKey: ["projects"],
+    queryKey: getProjectsQueryKey(),
   });
 }
 
@@ -30,7 +34,11 @@ type getProjectProps = {
   };
 };
 
-export function getProjectOpts({ projectId, context }: getProjectProps) {
+export function getProjectQueryKey(projectId: string) {
+  return ["project", projectId];
+}
+
+export function getProjectQueryOpts({ projectId, context }: getProjectProps) {
   return queryOptions({
     queryFn: async () => {
       const { data: project, error } = await client
@@ -43,6 +51,6 @@ export function getProjectOpts({ projectId, context }: getProjectProps) {
       }
       return project;
     },
-    queryKey: ["project", projectId],
+    queryKey: getProjectQueryKey(projectId),
   });
 }

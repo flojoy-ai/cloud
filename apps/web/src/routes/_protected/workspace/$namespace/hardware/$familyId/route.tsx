@@ -1,4 +1,4 @@
-import { getFamilyOpts } from "@/lib/queries/family";
+import { getFamilyQueryOpts } from "@/lib/queries/family";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute(
@@ -7,7 +7,7 @@ export const Route = createFileRoute(
   component: Page,
   beforeLoad: async ({ context, params: { familyId } }) => {
     const family = await context.queryClient.ensureQueryData(
-      getFamilyOpts({ familyId, context }),
+      getFamilyQueryOpts({ familyId, context }),
     );
     return { family };
   },

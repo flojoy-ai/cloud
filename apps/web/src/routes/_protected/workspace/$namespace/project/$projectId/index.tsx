@@ -20,30 +20,30 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { getProjectOpts } from "@/lib/queries/project";
+import { getProjectQueryOpts } from "@/lib/queries/project";
 import NewStation from "@/components/station/new-station";
-import { getStationsOpts } from "@/lib/queries/station";
+import { getStationsQueryOpts } from "@/lib/queries/station";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { DataTable } from "@/components/ui/data-table";
 import { columns } from "@/components/station/columns";
-import { getModelOpts } from "@/lib/queries/model";
+import { getModelQueryOpts } from "@/lib/queries/model";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/project/$projectId/",
 )({
   beforeLoad: async ({ context, params: { projectId } }) => {
     const project = await context.queryClient.ensureQueryData(
-      getProjectOpts({ projectId, context }),
+      getProjectQueryOpts({ projectId, context }),
     );
     return { project };
   },
   loader: ({ context, params: { projectId } }) => {
     context.queryClient.ensureQueryData(
-      getStationsOpts({ projectId, context }),
+      getStationsQueryOpts({ projectId, context }),
     );
 
     context.queryClient.ensureQueryData(
-      getModelOpts({ context, modelId: context.project.modelId }),
+      getModelQueryOpts({ context, modelId: context.project.modelId }),
     );
   },
   component: Page,
@@ -54,11 +54,11 @@ function Page() {
   const { projectId } = Route.useParams();
 
   const { data: stations } = useSuspenseQuery(
-    getStationsOpts({ projectId, context: { workspace } }),
+    getStationsQueryOpts({ projectId, context: { workspace } }),
   );
 
   const { data: model } = useSuspenseQuery(
-    getModelOpts({ context: { workspace }, modelId: project.modelId }),
+    getModelQueryOpts({ context: { workspace }, modelId: project.modelId }),
   );
 
   return (

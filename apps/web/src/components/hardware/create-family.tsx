@@ -33,7 +33,7 @@ import { toast } from "sonner";
 import { Textarea } from "../ui/textarea";
 import { Autocomplete } from "../ui/autocomplete";
 import { Product } from "@cloud/server/src/schemas/public/Product";
-import { getProductsQueryKeys } from "@/lib/queries/product";
+import { getProductsQueryKey } from "@/lib/queries/product";
 
 type FormSchema = Static<typeof insertFamily>;
 
@@ -60,7 +60,7 @@ const CreateFamily = ({ workspaceId, products }: Props) => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: getProductsQueryKeys() });
+      queryClient.invalidateQueries({ queryKey: getProductsQueryKey() });
       setIsDialogOpen(false);
     },
   });

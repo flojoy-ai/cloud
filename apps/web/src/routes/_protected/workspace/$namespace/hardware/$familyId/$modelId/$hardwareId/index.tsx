@@ -21,8 +21,8 @@ import {
 } from "@/components/ui/breadcrumb";
 import { HardwareTreeVisualization } from "@/components/visualization/tree-visualization";
 import {
-  getHardwareOpts,
-  getHardwareRevisionsOpts,
+  getHardwareQueryOpts,
+  getHardwareRevisionsQueryOpts,
 } from "@/lib/queries/hardware";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
@@ -33,13 +33,13 @@ export const Route = createFileRoute(
   component: HardwarePage,
   beforeLoad: async ({ context, params: { hardwareId } }) => {
     const hardware = await context.queryClient.ensureQueryData(
-      getHardwareOpts({ hardwareId, context }),
+      getHardwareQueryOpts({ hardwareId, context }),
     );
     return { hardware };
   },
   loader: async ({ context, params: { hardwareId } }) => {
     context.queryClient.ensureQueryData(
-      getHardwareRevisionsOpts({ hardwareId, context }),
+      getHardwareRevisionsQueryOpts({ hardwareId, context }),
     );
   },
 });
@@ -48,7 +48,7 @@ function HardwarePage() {
   const context = Route.useRouteContext();
   const { workspace, hardware, family, model } = context;
   const { data: revisions } = useSuspenseQuery(
-    getHardwareRevisionsOpts({ hardwareId: hardware.id, context }),
+    getHardwareRevisionsQueryOpts({ hardwareId: hardware.id, context }),
   );
 
   return (

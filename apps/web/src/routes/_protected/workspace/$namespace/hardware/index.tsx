@@ -22,7 +22,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import CreateFamily from "@/components/hardware/create-family";
 import { DataTable } from "@/components/ui/data-table";
-import { getFamiliesOpts } from "@/lib/queries/family";
+import { getFamiliesQueryOpts } from "@/lib/queries/family";
 import { getProductsQueryOpts } from "@/lib/queries/product";
 
 export const Route = createFileRoute(
@@ -30,7 +30,7 @@ export const Route = createFileRoute(
 )({
   component: HardwareInventory,
   loader: async ({ context }) => {
-    context.queryClient.ensureQueryData(getFamiliesOpts({ context }));
+    context.queryClient.ensureQueryData(getFamiliesQueryOpts({ context }));
     context.queryClient.ensureQueryData(getProductsQueryOpts({ context }));
   },
   pendingComponent: () => (
@@ -74,7 +74,9 @@ function HardwareInventory() {
 
   const router = useRouter();
 
-  const { data: families } = useSuspenseQuery(getFamiliesOpts({ context }));
+  const { data: families } = useSuspenseQuery(
+    getFamiliesQueryOpts({ context }),
+  );
   const { data: products } = useSuspenseQuery(
     getProductsQueryOpts({ context }),
   );

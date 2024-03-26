@@ -1,7 +1,11 @@
 import { queryOptions } from "@tanstack/react-query";
 import { client } from "../client";
 
-export function getAuthMethodsOpts() {
+export function getAuthMethodsQueryKey() {
+  return ["authMethods"];
+}
+
+export function getAuthMethodsQueryOpts() {
   return queryOptions({
     queryFn: async () => {
       const { data: authMethods, error } = await client.auth.index.get();
@@ -9,6 +13,6 @@ export function getAuthMethodsOpts() {
       if (error) throw error;
       return authMethods;
     },
-    queryKey: ["authMethods"],
+    queryKey: getAuthMethodsQueryKey(),
   });
 }

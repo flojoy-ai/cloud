@@ -8,7 +8,11 @@ type GetModelsParams = {
   };
 };
 
-export function getModelsOpts({ context }: GetModelsParams) {
+export function getModelsQueryKey() {
+  return ["models"];
+}
+
+export function getModelsQueryOpts({ context }: GetModelsParams) {
   return queryOptions({
     queryFn: async () => {
       const modelsQuery = await client.model.index.get({
@@ -17,7 +21,7 @@ export function getModelsOpts({ context }: GetModelsParams) {
       if (modelsQuery.error) throw modelsQuery.error;
       return modelsQuery.data;
     },
-    queryKey: ["models"],
+    queryKey: getModelsQueryKey(),
   });
 }
 
@@ -28,7 +32,11 @@ type GetModelParams = {
   };
 };
 
-export function getModelOpts({ context, modelId }: GetModelParams) {
+export function getModelQueryKey(modelId: string) {
+  return ["model", modelId];
+}
+
+export function getModelQueryOpts({ context, modelId }: GetModelParams) {
   return queryOptions({
     queryFn: async () => {
       const modelsQuery = await client.model({ modelId }).index.get({
@@ -37,7 +45,7 @@ export function getModelOpts({ context, modelId }: GetModelParams) {
       if (modelsQuery.error) throw modelsQuery.error;
       return modelsQuery.data;
     },
-    queryKey: ["model", modelId],
+    queryKey: getModelQueryKey(modelId),
   });
 }
 
@@ -48,7 +56,11 @@ type GetFamilyModelsParams = {
   };
 };
 
-export function getFamilyModelsOpts({
+export function getFamilyModelsQueryKey(familyId: string) {
+  return ["models", familyId];
+}
+
+export function getFamilyModelsQueryOpts({
   familyId,
   context,
 }: GetFamilyModelsParams) {
@@ -60,6 +72,6 @@ export function getFamilyModelsOpts({
       if (modelsQuery.error) throw modelsQuery.error;
       return modelsQuery.data;
     },
-    queryKey: ["models", familyId],
+    queryKey: getFamilyModelsQueryKey(familyId),
   });
 }

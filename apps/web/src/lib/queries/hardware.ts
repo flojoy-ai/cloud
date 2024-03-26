@@ -9,7 +9,14 @@ type GetHardwareParams = {
   };
 };
 
-export function getHardwareOpts({ hardwareId, context }: GetHardwareParams) {
+export function getHardwareQueryKey(hardwareId: string) {
+  return ["hardware", hardwareId];
+}
+
+export function getHardwareQueryOpts({
+  hardwareId,
+  context,
+}: GetHardwareParams) {
   return queryOptions({
     queryFn: async () => {
       const hardwareQuery = await client.hardware({ hardwareId }).index.get({
@@ -18,7 +25,7 @@ export function getHardwareOpts({ hardwareId, context }: GetHardwareParams) {
       if (hardwareQuery.error) throw hardwareQuery.error;
       return hardwareQuery.data;
     },
-    queryKey: ["hardware", hardwareId],
+    queryKey: getHardwareQueryKey(hardwareId),
   });
 }
 
@@ -29,7 +36,11 @@ type GetHardwareRevisionsParams = {
   };
 };
 
-export function getHardwareRevisionsOpts({
+export function getHardwareRevisionsQueryKey(hardwareId: string) {
+  return ["hardware", "revisions", hardwareId];
+}
+
+export function getHardwareRevisionsQueryOpts({
   hardwareId,
   context,
 }: GetHardwareRevisionsParams) {
@@ -43,7 +54,7 @@ export function getHardwareRevisionsOpts({
       if (hardwareQuery.error) throw hardwareQuery.error;
       return hardwareQuery.data;
     },
-    queryKey: ["hardware", "revisions", hardwareId],
+    queryKey: getHardwareRevisionsQueryKey(hardwareId),
   });
 }
 
@@ -54,7 +65,11 @@ type GetAllHardwareParams = {
   };
 };
 
-export function getAllHardwareOpts({
+export function getHardwaresQueryKey() {
+  return ["hardwares"];
+}
+
+export function getHardwaresQueryOpts({
   onlyAvailable,
   context,
 }: GetAllHardwareParams) {
@@ -67,7 +82,7 @@ export function getAllHardwareOpts({
       if (hardwareQuery.error) throw hardwareQuery.error;
       return hardwareQuery.data;
     },
-    queryKey: ["hardware"],
+    queryKey: getHardwaresQueryKey(),
   });
 }
 
@@ -78,7 +93,11 @@ type GetModelHardwareParams = {
   };
 };
 
-export function getModelHardwareOpts({
+export function getModelHardwareQueryKey(modelId: string) {
+  return ["hardware", modelId];
+}
+
+export function getModelHardwareQueryOpts({
   modelId,
   context,
 }: GetModelHardwareParams) {
@@ -90,6 +109,6 @@ export function getModelHardwareOpts({
       if (hardwareQuery.error) throw hardwareQuery.error;
       return hardwareQuery.data;
     },
-    queryKey: ["hardware", modelId],
+    queryKey: getModelHardwareQueryKey(modelId),
   });
 }

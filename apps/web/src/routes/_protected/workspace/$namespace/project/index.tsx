@@ -14,16 +14,16 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { getProjectsOpts } from "@/lib/queries/project";
+import { getProjectsQueryOpts } from "@/lib/queries/project";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { getModelsOpts } from "@/lib/queries/model";
+import { getModelsQueryOpts } from "@/lib/queries/model";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/project/",
 )({
   loader: ({ context }) => {
-    context.queryClient.ensureQueryData(getProjectsOpts({ context }));
-    context.queryClient.ensureQueryData(getModelsOpts({ context }));
+    context.queryClient.ensureQueryData(getProjectsQueryOpts({ context }));
+    context.queryClient.ensureQueryData(getModelsQueryOpts({ context }));
   },
   component: Page,
 });
@@ -32,11 +32,11 @@ function Page() {
   const { workspace } = Route.useRouteContext();
 
   const { data: projects } = useSuspenseQuery(
-    getProjectsOpts({ context: { workspace } }),
+    getProjectsQueryOpts({ context: { workspace } }),
   );
 
   const { data: models } = useSuspenseQuery(
-    getModelsOpts({ context: { workspace } }),
+    getModelsQueryOpts({ context: { workspace } }),
   );
 
   return (

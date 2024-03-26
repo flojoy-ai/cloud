@@ -41,7 +41,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { client } from "@/lib/client";
-import { getAllHardwareOpts } from "@/lib/queries/hardware";
+import { getHardwaresQueryOpts } from "@/lib/queries/hardware";
 import { Workspace } from "@cloud/server/src/schemas/public/Workspace";
 
 type FormSchema = SwapHardwareComponent;
@@ -78,7 +78,7 @@ const SwapHardware = ({ workspace, hardware }: Props) => {
   });
 
   const { data: availableHardware } = useQuery(
-    getAllHardwareOpts({ onlyAvailable: true, context: { workspace } }),
+    getHardwaresQueryOpts({ onlyAvailable: true, context: { workspace } }),
   );
 
   function onSubmit(values: FormSchema) {

@@ -1,13 +1,13 @@
 import { Icons } from "@/components/icons";
 import { ProtectedHeader } from "@/components/navbar/protected-header";
-import { getWorkspacesOpts } from "@/lib/queries/workspace";
+import { getWorkspacesQueryOpts } from "@/lib/queries/workspace";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_protected")({
   component: Protected,
   loader: async ({ context }) => {
-    context.queryClient.ensureQueryData(getWorkspacesOpts());
+    context.queryClient.ensureQueryData(getWorkspacesQueryOpts());
   },
   pendingComponent: () => (
     <div className="h-screen flex justify-center items-center">
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/_protected")({
 });
 
 function Protected() {
-  const workspacesQuery = useSuspenseQuery(getWorkspacesOpts());
+  const workspacesQuery = useSuspenseQuery(getWorkspacesQueryOpts());
   const { data: workspaces } = workspacesQuery;
 
   return (

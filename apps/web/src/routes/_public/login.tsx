@@ -4,14 +4,14 @@ import { Icons } from "@/components/icons";
 import TermsAndPrivacy from "@/components/terms-and-privacy";
 import { Button } from "@/components/ui/button";
 import { env } from "@/env";
-import { getAuthMethodsOpts } from "@/lib/queries/auth";
+import { getAuthMethodsQueryOpts } from "@/lib/queries/auth";
 
 import { match } from "ts-pattern";
 
 export const Route = createFileRoute("/_public/login")({
   beforeLoad: async ({ context: { queryClient } }) => {
     return {
-      authMethods: await queryClient.ensureQueryData(getAuthMethodsOpts()),
+      authMethods: await queryClient.ensureQueryData(getAuthMethodsQueryOpts()),
     };
   },
   component: Login,
@@ -67,4 +67,3 @@ function Login() {
     </div>
   );
 }
-

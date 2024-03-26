@@ -26,7 +26,7 @@ import {
   ModelTreeVisualization,
 } from "@/components/visualization/tree-visualization";
 import { client } from "@/lib/client";
-import { getModelHardwareOpts } from "@/lib/queries/hardware";
+import { getModelHardwareQueryOpts } from "@/lib/queries/hardware";
 import { Hardware } from "@cloud/server/src/types/hardware";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
@@ -40,7 +40,7 @@ export const Route = createFileRoute(
   component: ModelPage,
   loader: ({ context, params: { modelId } }) => {
     context.queryClient.ensureQueryData(
-      getModelHardwareOpts({ modelId, context }),
+      getModelHardwareQueryOpts({ modelId, context }),
     );
   },
 });
@@ -90,7 +90,7 @@ function ModelPage() {
   const { modelId } = Route.useParams();
 
   const { data: hardware } = useSuspenseQuery(
-    getModelHardwareOpts({ modelId, context: { workspace } }),
+    getModelHardwareQueryOpts({ modelId, context: { workspace } }),
   );
 
   const [selectedHardwareId, setSelectedHardwareId] = useState<

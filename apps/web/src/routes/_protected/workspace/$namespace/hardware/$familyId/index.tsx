@@ -17,8 +17,8 @@ import {
 import { DataTable } from "@/components/ui/data-table";
 import { Separator } from "@/components/ui/separator";
 import { client } from "@/lib/client";
-import { getFamilyOpts } from "@/lib/queries/family";
-import { getFamilyModelsOpts } from "@/lib/queries/model";
+import { getFamilyQueryOpts } from "@/lib/queries/family";
+import { getFamilyModelsQueryOpts } from "@/lib/queries/model";
 import { Model } from "@cloud/server/src/schemas/public/Model";
 import { ModelTree } from "@cloud/server/src/types/model";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
@@ -32,9 +32,11 @@ export const Route = createFileRoute(
   component: FamilyPage,
   loader: ({ context, params: { familyId } }) => {
     context.queryClient.ensureQueryData(
-      getFamilyModelsOpts({ familyId, context }),
+      getFamilyModelsQueryOpts({ familyId, context }),
     );
-    context.queryClient.ensureQueryData(getFamilyOpts({ familyId, context }));
+    context.queryClient.ensureQueryData(
+      getFamilyQueryOpts({ familyId, context }),
+    );
   },
 });
 
@@ -78,11 +80,11 @@ function FamilyPage() {
   const { familyId } = Route.useParams();
 
   const { data: models } = useSuspenseQuery(
-    getFamilyModelsOpts({ familyId, context: { workspace } }),
+    getFamilyModelsQueryOpts({ familyId, context: { workspace } }),
   );
 
   const { data: family } = useSuspenseQuery(
-    getFamilyOpts({ familyId, context: { workspace } }),
+    getFamilyQueryOpts({ familyId, context: { workspace } }),
   );
 
   const [selectedModelId, setSelectedModelId] = useState<string | undefined>(

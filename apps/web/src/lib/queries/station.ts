@@ -9,7 +9,11 @@ type getStationsProps = {
   };
 };
 
-export function getStationsOpts({ projectId, context }: getStationsProps) {
+export function getStationsQueryKey() {
+  return ["stations"];
+}
+
+export function getStationsQueryOpts({ projectId, context }: getStationsProps) {
   return queryOptions({
     queryFn: async () => {
       const { data: stations, error } = await client.station.index.get({
@@ -21,7 +25,7 @@ export function getStationsOpts({ projectId, context }: getStationsProps) {
       }
       return stations;
     },
-    queryKey: ["stations"],
+    queryKey: getStationsQueryKey(),
   });
 }
 

@@ -9,7 +9,11 @@ type GetFamilyParams = {
   };
 };
 
-export function getFamilyOpts({ familyId, context }: GetFamilyParams) {
+export function getFamilyQueryKey(familyId: string) {
+  return ["family", familyId];
+}
+
+export function getFamilyQueryOpts({ familyId, context }: GetFamilyParams) {
   return queryOptions({
     queryFn: async () => {
       const { data: family, error: familyError } = await client
@@ -21,7 +25,7 @@ export function getFamilyOpts({ familyId, context }: GetFamilyParams) {
       if (familyError) throw familyError;
       return family;
     },
-    queryKey: ["family", familyId],
+    queryKey: getFamilyQueryKey(familyId),
   });
 }
 
@@ -31,7 +35,11 @@ type GetFamiliesParams = {
   };
 };
 
-export function getFamiliesOpts({ context }: GetFamiliesParams) {
+export function getFamiliesQueryKey() {
+  return ["families"];
+}
+
+export function getFamiliesQueryOpts({ context }: GetFamiliesParams) {
   return queryOptions({
     queryFn: async () => {
       const { data: families, error: familyError } =
@@ -42,6 +50,6 @@ export function getFamiliesOpts({ context }: GetFamiliesParams) {
       if (familyError) throw familyError;
       return families;
     },
-    queryKey: ["families"],
+    queryKey: getFamiliesQueryKey(),
   });
 }
