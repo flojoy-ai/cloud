@@ -11,17 +11,29 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { getProjectQueryOpts } from "@/lib/queries/project";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { Link, createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute(
-  "/_protected/workspace/$namespace/project/$projectId/station/$stationId/",
+  "/_protected/workspace/$namespace/station/$stationId/",
 )({
+  loader: ({ context }) => {
+    context.queryClient.ensureQueryData(
+      getProjectQueryOpts({ projectId: context.station.projectId, context }),
+    );
+  },
   component: Page,
 });
 
 function Page() {
-  const { workspace, project, station } = Route.useRouteContext();
+  const context = Route.useRouteContext();
+  const { workspace, station } = context;
+
+  const { data: project } = useSuspenseQuery(
+    getProjectQueryOpts({ projectId: station.projectId, context }),
+  );
 
   return (
     <div className="container max-w-screen-2xl">
@@ -68,3 +80,4 @@ function Page() {
     </div>
   );
 }
+

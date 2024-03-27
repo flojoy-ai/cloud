@@ -2,7 +2,7 @@ import { getStationQueryOpts } from "@/lib/queries/station";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute(
-  "/_protected/workspace/$namespace/project/$projectId/station/$stationId",
+  "/_protected/workspace/$namespace/station/$stationId",
 )({
   beforeLoad: async ({ context, params: { stationId } }) => {
     const station = await context.queryClient.ensureQueryData(
@@ -10,10 +10,6 @@ export const Route = createFileRoute(
     );
     return { station };
   },
-  component: Page,
+  component: () => <Outlet />,
 });
-
-function Page() {
-  return <Outlet />;
-}
 
