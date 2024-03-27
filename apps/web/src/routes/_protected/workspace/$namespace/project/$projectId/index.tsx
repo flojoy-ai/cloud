@@ -69,7 +69,8 @@ function Page() {
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
               <Link
-                to="/workspace/$namespace"
+                from={Route.fullPath}
+                to="../.."
                 params={{ namespace: workspace.namespace }}
               >
                 {workspace.name}
@@ -80,7 +81,8 @@ function Page() {
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
               <Link
-                to="/workspace/$namespace/project"
+                from={Route.fullPath}
+                to=".."
                 params={{ namespace: workspace.namespace }}
               >
                 Production Lines
