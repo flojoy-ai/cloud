@@ -1,8 +1,5 @@
 {
   "extends": "@cloud/tsconfig/react-library.json",
   "include": ["."],
-  "exclude": ["dist", "build", "node_modules"],
-  "compilerOptions": {
-    "moduleResolution": "Bundler"
-  }
+  "exclude": ["dist", "build", "node_modules"]
 }

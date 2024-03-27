@@ -1,4 +1,4 @@
-export { api } from "./eden";
+export { createClient } from "./eden";
 
 // TODO: find a way to automate this
 export * as EmailVerification from "./schemas/public/EmailVerification";
