@@ -1,6 +1,11 @@
-type Props = {};
+import { Workspace } from "@cloud/server/src/schemas/public/Workspace";
 
-const WorkspaceUsers = (props: Props) => {
+type Props = {
+  workspace: Workspace;
+};
+
+const WorkspaceUsers = ({ workspace }: Props) => {
+  console.log(workspace);
   return <div>WorkspaceUsers</div>;
 };
 
