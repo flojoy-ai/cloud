@@ -44,7 +44,7 @@ import { getModelQueryOpts, getModelsQueryOpts } from "@/lib/queries/model";
 import { handleError } from "@/lib/utils";
 import { Workspace } from "@cloud/server/src/schemas/public/Workspace";
 import { insertHardware } from "@cloud/server/src/types/hardware";
-import { ModelTree } from "@cloud/server/src/types/model";
+import { ModelTreeRoot } from "@cloud/server/src/types/model";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
 import { Static, Type as t } from "@sinclair/typebox";
 import {
@@ -70,7 +70,7 @@ type Props = {
   children?: React.ReactNode;
 };
 
-const getComponentModelIds = (tree: ModelTree) => {
+const getComponentModelIds = (tree: ModelTreeRoot) => {
   // TODO: Only get depth 1
   return tree.components.flatMap((m) =>
     new Array<string>(m.count).fill(m.model.id),

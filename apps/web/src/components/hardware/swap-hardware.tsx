@@ -14,7 +14,7 @@ import {
 
 import { useForm } from "react-hook-form";
 import {
-  HardwareTree,
+  HardwareTreeRoot,
   SwapHardwareComponent,
   swapHardwareComponent,
 } from "@cloud/server/src/types/hardware";
@@ -51,7 +51,7 @@ type FormSchema = SwapHardwareComponent;
 
 type Props = {
   workspace: Workspace;
-  hardware: HardwareTree;
+  hardware: HardwareTreeRoot;
 };
 
 const SwapHardware = ({ workspace, hardware }: Props) => {

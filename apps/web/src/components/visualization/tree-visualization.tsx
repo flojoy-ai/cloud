@@ -10,8 +10,8 @@ import ReactFlow, {
 import dagre from "@dagrejs/dagre";
 
 import "reactflow/dist/style.css";
-import { ModelTree } from "@cloud/server/src/types/model";
 import { makeHardwareGraph, makeModelGraph } from "@/lib/tree";
+import { ModelTreeRoot } from "@cloud/server/src/types/model";
 import { HardwareTreeRoot } from "@cloud/server/src/types/hardware";
 
 const dagreGraph = new dagre.graphlib.Graph();
@@ -96,7 +96,7 @@ export const TreeVisualization = ({ nodes, edges }: Props) => {
 };
 
 type ModelTreeVisualizationProps = {
-  tree: ModelTree;
+  tree: ModelTreeRoot;
 };
 
 export const ModelTreeVisualization = ({

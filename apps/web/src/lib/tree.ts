@@ -1,15 +1,15 @@
-import { ModelTree } from "@cloud/server/src/types/model";
+import { ModelTreeRoot, ModelTreeNode } from "@cloud/server/src/types/model";
 import { Node, Edge } from "reactflow";
 import {
   HardwareTreeNode,
   HardwareTreeRoot,
 } from "@cloud/server/src/types/hardware";
 
-export const makeModelGraph = (root: ModelTree) => {
+export const makeModelGraph = (root: ModelTreeRoot) => {
   const nodes: Node[] = [];
   const edges: Edge[] = [];
 
-  const traverse = (node: ModelTree, count?: number): string => {
+  const traverse = (node: ModelTreeNode, count?: number): string => {
     const duplicates = nodes.filter((n) => n.id.startsWith(node.id)).length;
     const id = duplicates === 0 ? node.id : `${node.id}_${duplicates}`;
     if (node.components.length === 0) {

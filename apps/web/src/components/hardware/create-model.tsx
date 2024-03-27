@@ -64,7 +64,7 @@ const CreateModel = ({ workspaceId, models, family }: Props) => {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(getModelsQueryKey());
+      queryClient.invalidateQueries({ queryKey: getModelsQueryKey() });
 
       setIsDialogOpen(false);
     },
