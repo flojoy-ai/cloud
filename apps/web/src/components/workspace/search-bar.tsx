@@ -24,7 +24,6 @@ import { client } from "@/lib/client";
 import { typedObjectEntries, typedObjectFromEntries } from "@/lib/typed";
 import { cn } from "@/lib/utils";
 import { Workspace } from "@cloud/server/src/schemas/public/Workspace";
-import { useRouter } from "@tanstack/react-router";
 
 type HighlightProps = {
   text: string;
@@ -73,10 +72,9 @@ type SearchResultProps = {
   workspace: Workspace;
 };
 
-const SearchResultItem = ({ result, query, workspace }: SearchResultProps) => {
+const SearchResultItem = ({ result, query }: SearchResultProps) => {
   const type = result.type;
   const Icon = typeIcons[type];
-  const router = useRouter();
   return (
     <CommandItem
       className="flex cursor-pointer"
