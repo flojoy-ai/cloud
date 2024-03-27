@@ -159,7 +159,7 @@ export function ProtectedHeader({ workspaces }: Props) {
   const segments = pathname.split("/");
 
   const namespace = segments[2];
-  const isWorkspaceIndexRoute = segments.length === 3;
+  const isWorkspaceIndexRoute = !segments[3];
 
   const currentWorkspace = workspaces.find((ws) => ws.namespace === namespace);
 
