@@ -24,6 +24,7 @@ import { client } from "@/lib/client";
 import { typedObjectEntries, typedObjectFromEntries } from "@/lib/typed";
 import { cn } from "@/lib/utils";
 import { Workspace } from "@cloud/server/src/schemas/public/Workspace";
+import { useRouter } from "@tanstack/react-router";
 
 type HighlightProps = {
   text: string;
@@ -72,58 +73,48 @@ type SearchResultProps = {
   workspace: Workspace;
 };
 
-const SearchResultItem = ({ result, query }: SearchResultProps) => {
+const SearchResultItem = ({ result, query, workspace }: SearchResultProps) => {
   const type = result.type;
   const Icon = typeIcons[type];
+  const router = useRouter();
   return (
     <CommandItem
       className="flex cursor-pointer"
       value={`${result.name}-${type}`}
       onSelect={() => {
-        // match(result)
-        //   .with({ type: "product" }, (r) => {
-        //     throw new Error("not implemented");
-        //   })
-        //   .with({ type: "family" }, (r) =>
-        //     router.navigate({
-        //       to: `/workspace/$namespace/family/$familyId`,
-        //       params: { namespace: workspace.namespace, familyId: r.id },
-        //     }),
-        //   )
-        //   .with({ type: "model" }, (r) =>
-        //     router.navigate({
-        //       to: `/workspace/$namespace/family/$familyId/model/$modelId`,
-        //       params: {
-        //         namespace: workspace.namespace,
-        //         familyId: r.familyId,
-        //         modelId: r.id,
-        //       },
-        //     }),
-        //   )
-        //   .with({ type: "hardware" }, (r) => {
-        //     router.navigate({
-        //       to: `/workspace/$namespace/family/$familyId/model/$modelId/hardware/$hardwareId`,
-        //       params: {
-        //         namespace: workspace.namespace,
-        //         familyId: r.familyId,
-        //         modelId: r.modelId,
-        //         hardwareId: r.id,
-        //       },
-        //     });
-        //   })
-        //   .with({ type: "project" }, (r) => {
-        //     router.navigate({
-        //       to: `/workspace/$namespace/project/$projectId`,
-        //       params: {
-        //         namespace: workspace.namespace,
-        //         projectId: r.id,
-        //       },
-        //     });
-        //   })
-        //   .exhaustive();
-        throw new Error("Not implemented");
-        // TODO: Fix this redirect
-        // router.navigate({ to: `/workspace/${namespace}/${type}/${result.id}` })
+        switch (result.type) {
+          case "product":
+            throw new Error("not implemented");
+          case "family":
+            return router.navigate({
+              to: `/workspace/$namespace/family/$familyId`,
+              params: { namespace: workspace.namespace, familyId: result.id },
+            });
+          case "model":
+            return router.navigate({
+              to: `/workspace/$namespace/model/$modelId`,
+              params: {
+                namespace: workspace.namespace,
+                modelId: result.id,
+              },
+            });
+          case "project":
+            return router.navigate({
+              to: `/workspace/$namespace/project/$projectId`,
+              params: {
+                namespace: workspace.namespace,
+                projectId: result.id,
+              },
+            });
+          case "hardware":
+            return router.navigate({
+              to: `/workspace/$namespace/hardware/$hardwareId`,
+              params: {
+                namespace: workspace.namespace,
+                hardwareId: result.id,
+              },
+            });
+        }
       }}
     >
       <Icon className="mr-2 mt-0.5 h-4 w-4 stroke-muted-foreground" />
