@@ -1,4 +1,9 @@
 import {
+  searchResultTypes,
+  type SearchResult,
+} from "@cloud/server/src/types/search";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import {
   Cpu,
   FolderKanban,
   FolderTree,
@@ -6,15 +11,9 @@ import {
   ShoppingCart,
 } from "lucide-react";
 import { useState } from "react";
-import {
-  searchResultTypes,
-  type SearchResult,
-} from "@cloud/server/src/types/search";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
 import {
   Command,
-  CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
@@ -22,9 +21,10 @@ import {
 } from "@/components/ui/command";
 import { useDebounce } from "@/hooks/use-debounce";
 import { client } from "@/lib/client";
-import { Workspace } from "@cloud/server/src/schemas/public/Workspace";
-import { cn } from "@/lib/utils";
 import { typedObjectEntries, typedObjectFromEntries } from "@/lib/typed";
+import { cn } from "@/lib/utils";
+import { Workspace } from "@cloud/server/src/schemas/public/Workspace";
+import { useRouter } from "@tanstack/react-router";
 
 type HighlightProps = {
   text: string;
@@ -73,14 +73,56 @@ type SearchResultProps = {
   workspace: Workspace;
 };
 
-const SearchResultItem = ({ result, query }: SearchResultProps) => {
+const SearchResultItem = ({ result, query, workspace }: SearchResultProps) => {
   const type = result.type;
   const Icon = typeIcons[type];
+  const router = useRouter();
   return (
     <CommandItem
       className="flex cursor-pointer"
       value={`${result.name}-${type}`}
       onSelect={() => {
+        // match(result)
+        //   .with({ type: "product" }, (r) => {
+        //     throw new Error("not implemented");
+        //   })
+        //   .with({ type: "family" }, (r) =>
+        //     router.navigate({
+        //       to: `/workspace/$namespace/family/$familyId`,
+        //       params: { namespace: workspace.namespace, familyId: r.id },
+        //     }),
+        //   )
+        //   .with({ type: "model" }, (r) =>
+        //     router.navigate({
+        //       to: `/workspace/$namespace/family/$familyId/model/$modelId`,
+        //       params: {
+        //         namespace: workspace.namespace,
+        //         familyId: r.familyId,
+        //         modelId: r.id,
+        //       },
+        //     }),
+        //   )
+        //   .with({ type: "hardware" }, (r) => {
+        //     router.navigate({
+        //       to: `/workspace/$namespace/family/$familyId/model/$modelId/hardware/$hardwareId`,
+        //       params: {
+        //         namespace: workspace.namespace,
+        //         familyId: r.familyId,
+        //         modelId: r.modelId,
+        //         hardwareId: r.id,
+        //       },
+        //     });
+        //   })
+        //   .with({ type: "project" }, (r) => {
+        //     router.navigate({
+        //       to: `/workspace/$namespace/project/$projectId`,
+        //       params: {
+        //         namespace: workspace.namespace,
+        //         projectId: r.id,
+        //       },
+        //     });
+        //   })
+        //   .exhaustive();
         throw new Error("Not implemented");
         // TODO: Fix this redirect
         // router.navigate({ to: `/workspace/${namespace}/${type}/${result.id}` })
@@ -115,7 +157,6 @@ const groupSearchResults = (results: SearchResult[]) => {
 
 const SearchBar = ({
   workspace,
-  className,
   emptyClassName,
   activeClassName,
   listClassName,
@@ -149,48 +190,46 @@ const SearchBar = ({
     query !== "" && selected && (searchResults.length > 0 || !isFetching);
 
   return (
-    <div className={cn("relative", className)}>
+    <div className="relative">
       <Command
-        shouldFilter={false}
         className={cn(
+          "rounded-lg border",
           !showResults
             ? cn("rounded-lg border", emptyClassName)
             : cn("rounded-b-none border border-b-0", activeClassName),
         )}
       >
         <CommandInput
-          placeholder="Search..."
+          placeholder="Type a command or search..."
           onValueChange={setValue}
-          onSelect={() => setSelected(true)}
-          onBlur={() => setSelected(false)}
+          // FIXME: this hack to allow the links to be clicked properly before the component unmounts
+          onBlur={() => setTimeout(() => setSelected(false), 75)}
+          onFocus={() => setSelected(true)}
         />
         <CommandList
           className={cn(
-            "absolute w-full top-[46px] left-0 bg-background",
+            "absolute w-full bg-background top-[46px] left-0",
             {
               "border rounded-b-md border-t-0": showResults,
             },
             listClassName,
           )}
         >
-          {showResults && (
-            <>
-              <CommandEmpty>No results found.</CommandEmpty>
-              {typedObjectEntries(groups).map(([type, results]) =>
-                results.length === 0 ? null : (
-                  <CommandGroup heading={nameLookup[type]}>
-                    {results.map((r) => (
-                      <SearchResultItem
-                        workspace={workspace}
-                        result={r}
-                        key={r.id}
-                        query={query}
-                      />
-                    ))}
-                  </CommandGroup>
-                ),
-              )}
-            </>
+          {showResults && searchResults.length === 0 && (
+            <div className="py-6 text-center text-sm">No results found.</div>
+          )}
+          {typedObjectEntries(nameLookup).map(([type, name]) =>
+            groups[type].length === 0 || !showResults ? null : (
+              <CommandGroup heading={name} key={type}>
+                {groups[type].map((r) => (
+                  <SearchResultItem
+                    result={r}
+                    query={query}
+                    workspace={workspace}
+                  />
+                ))}
+              </CommandGroup>
+            ),
           )}
         </CommandList>
       </Command>
