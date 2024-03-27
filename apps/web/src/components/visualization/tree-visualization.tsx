@@ -12,7 +12,7 @@ import dagre from "@dagrejs/dagre";
 import "reactflow/dist/style.css";
 import { ModelTree } from "@cloud/server/src/types/model";
 import { makeHardwareGraph, makeModelGraph } from "@/lib/tree";
-import { HardwareTree } from "@cloud/server/src/types/hardware";
+import { HardwareTreeRoot } from "@cloud/server/src/types/hardware";
 
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
@@ -108,7 +108,7 @@ export const ModelTreeVisualization = ({
 };
 
 type HardwareTreeVisualizationProps = {
-  tree: HardwareTree;
+  tree: HardwareTreeRoot;
 };
 
 export const HardwareTreeVisualization = ({
