@@ -16,25 +16,31 @@ import {
 import { DataTable } from "@/components/ui/data-table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { HardwareTreeVisualization } from "@/components/visualization/tree-visualization";
+import { getFamilyQueryOpts } from "@/lib/queries/family";
 import {
   getHardwareQueryOpts,
   getHardwareRevisionsQueryOpts,
 } from "@/lib/queries/hardware";
+import { getModelQueryOpts } from "@/lib/queries/model";
 import { getSessionsOpts } from "@/lib/queries/session";
 import { Session } from "@cloud/server/src/types/session";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
+import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
 
 export const Route = createFileRoute(
-  "/_protected/workspace/$namespace/family/$familyId/model/$modelId/hardware/$hardwareId/",
+  "/_protected/workspace/$namespace/hardware/$hardwareId/",
 )({
   component: HardwarePage,
   beforeLoad: async ({ context, params: { hardwareId } }) => {
     const hardware = await context.queryClient.ensureQueryData(
       getHardwareQueryOpts({ hardwareId, context }),
     );
-    return { hardware };
+    const model = await context.queryClient.ensureQueryData(
+      getModelQueryOpts({ modelId: hardware.modelId, context }),
+    );
+    return { hardware, model };
   },
   loader: async ({ context, params: { hardwareId } }) => {
     context.queryClient.ensureQueryData(
@@ -42,6 +48,9 @@ export const Route = createFileRoute(
     );
     context.queryClient.ensureQueryData(
       getSessionsOpts({ hardwareId, context }),
+    );
+    context.queryClient.ensureQueryData(
+      getFamilyQueryOpts({ familyId: context.model.familyId, context }),
     );
   },
 });
@@ -63,12 +72,15 @@ const columns: ColumnDef<Session>[] = [
 
 function HardwarePage() {
   const context = Route.useRouteContext();
-  const { workspace, hardware, family, model } = context;
+  const { workspace, hardware, model } = context;
   const { data: revisions } = useSuspenseQuery(
     getHardwareRevisionsQueryOpts({ hardwareId: hardware.id, context }),
   );
   const { data: sessions } = useSuspenseQuery(
     getSessionsOpts({ hardwareId: hardware.id, context }),
+  );
+  const { data: family } = useSuspenseQuery(
+    getFamilyQueryOpts({ familyId: model.familyId, context }),
   );
 
   return (
@@ -78,21 +90,13 @@ function HardwarePage() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link
-                to="/workspace/$namespace"
-                params={{ namespace: workspace.namespace }}
-              >
-                {workspace.name}
-              </Link>
+              <Link to={WorkspaceIndexRoute.to}>{workspace.name}</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link
-                to="/workspace/$namespace/family"
-                params={{ namespace: workspace.namespace }}
-              >
+              <Link from={WorkspaceIndexRoute.fullPath} to="family">
                 Hardware Inventory
               </Link>
             </BreadcrumbLink>
@@ -101,8 +105,9 @@ function HardwarePage() {
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
               <Link
-                to="/workspace/$namespace/family/$familyId"
-                params={{ namespace: workspace.namespace, familyId: family.id }}
+                from={WorkspaceIndexRoute.fullPath}
+                to="family/$familyId"
+                params={{ familyId: family.id }}
               >
                 {family.name}
               </Link>
@@ -112,12 +117,9 @@ function HardwarePage() {
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
               <Link
-                to="/workspace/$namespace/family/$familyId/model/$modelId"
-                params={{
-                  namespace: workspace.namespace,
-                  familyId: family.id,
-                  modelId: model.id,
-                }}
+                from={WorkspaceIndexRoute.fullPath}
+                to="model/$modelId"
+                params={{ modelId: model.id }}
               >
                 {model.name}
               </Link>
@@ -151,11 +153,9 @@ function HardwarePage() {
         <div>
           <span className="font-medium text-muted-foreground">In use: </span>
           <Link
-            to="/workspace/$namespace/family/$familyId/model/$modelId/hardware/$hardwareId"
+            from={WorkspaceIndexRoute.fullPath}
+            to="hardware/$hardwareId"
             params={{
-              namespace: workspace.namespace,
-              familyId: hardware.parent.model.familyId,
-              modelId: hardware.parent.model.id,
               hardwareId: hardware.parent.id,
             }}
           >

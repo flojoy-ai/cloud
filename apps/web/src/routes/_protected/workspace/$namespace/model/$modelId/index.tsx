@@ -16,20 +16,25 @@ import {
 import { DataTable } from "@/components/ui/data-table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ModelTreeVisualization } from "@/components/visualization/tree-visualization";
+import { getFamilyQueryOpts } from "@/lib/queries/family";
 import { getModelHardwareQueryOpts } from "@/lib/queries/hardware";
 import { HardwareWithParent } from "@cloud/server/src/types/hardware";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute, useRouter } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
 
 export const Route = createFileRoute(
-  "/_protected/workspace/$namespace/family/$familyId/model/$modelId/",
+  "/_protected/workspace/$namespace/model/$modelId/",
 )({
   component: ModelPage,
   loader: ({ context, params: { modelId } }) => {
     context.queryClient.ensureQueryData(
       getModelHardwareQueryOpts({ modelId, context }),
+    );
+    context.queryClient.ensureQueryData(
+      getFamilyQueryOpts({ familyId: context.model.familyId, context }),
     );
   },
 });
@@ -59,7 +64,7 @@ const hardwareColumns: ColumnDef<HardwareWithParent>[] = [
 ];
 
 function ModelPage() {
-  const { workspace, family, model } = Route.useRouteContext();
+  const { workspace, model } = Route.useRouteContext();
   const { modelId } = Route.useParams();
   const router = useRouter();
 
@@ -67,20 +72,12 @@ function ModelPage() {
     getModelHardwareQueryOpts({ modelId, context: { workspace } }),
   );
 
-  // const { data: hardwareTree, isPending } = useQuery({
-  //   queryFn: async () => {
-  //     if (!selectedHardwareId) return undefined;
-  //     const { data, error } = await client
-  //       .hardware({ hardwareId: selectedHardwareId })
-  //       .index.get({
-  //         headers: { "flojoy-workspace-id": workspace.id },
-  //       });
-  //     if (error) throw error;
-  //     return data;
-  //   },
-  //   queryKey: ["hardware", selectedHardwareId],
-  //   enabled: selectedHardwareId !== undefined,
-  // });
+  const { data: family } = useSuspenseQuery(
+    getFamilyQueryOpts({
+      familyId: model.familyId,
+      context: { workspace },
+    }),
+  );
 
   return (
     <div className="container max-w-screen-2xl">
@@ -89,21 +86,13 @@ function ModelPage() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link
-                to="/workspace/$namespace"
-                params={{ namespace: workspace.namespace }}
-              >
-                {workspace.name}
-              </Link>
+              <Link to={WorkspaceIndexRoute.to}>{workspace.name}</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link
-                to="/workspace/$namespace/family"
-                params={{ namespace: workspace.namespace }}
-              >
+              <Link from={WorkspaceIndexRoute.fullPath} to="family">
                 Hardware Inventory
               </Link>
             </BreadcrumbLink>
@@ -112,8 +101,9 @@ function ModelPage() {
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
               <Link
-                to="/workspace/$namespace/family/$familyId"
-                params={{ namespace: workspace.namespace, familyId: family.id }}
+                from={WorkspaceIndexRoute.fullPath}
+                to="family/$familyId"
+                params={{ familyId: family.id }}
               >
                 {family.name}
               </Link>
@@ -153,7 +143,7 @@ function ModelPage() {
               data={hardware}
               onRowClick={(row) =>
                 router.navigate({
-                  from: Route.fullPath,
+                  from: WorkspaceIndexRoute.fullPath,
                   to: "hardware/$hardwareId",
                   params: { hardwareId: row.id },
                 })

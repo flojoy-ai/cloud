@@ -18,6 +18,10 @@ export const insertModel = t.Object({
 
 export type InsertModel = Static<typeof insertModel>;
 
-export type ModelTree = Pick<Model, "name" | "id"> & {
-  components: { count: number; model: ModelTree }[];
+export type ModelTreeRoot = Model & {
+  components: { count: number; model: ModelTreeNode }[];
+};
+
+export type ModelTreeNode = Pick<Model, "name" | "id"> & {
+  components: { count: number; model: ModelTreeNode }[];
 };

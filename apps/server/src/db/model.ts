@@ -2,7 +2,7 @@ import type DB from "@/schemas/Database";
 import { Kysely } from "kysely";
 import { generateDatabaseId } from "@/lib/db-utils";
 import { markUpdatedAt } from "@/db/query";
-import { InsertModel, ModelTree } from "@/types/model";
+import { InsertModel, ModelTreeNode, ModelTreeRoot } from "@/types/model";
 import { Result, err, ok } from "neverthrow";
 import { Model } from "@/schemas/public/Model";
 import { db } from "./kysely";
@@ -66,7 +66,7 @@ type ModelEdge = {
   count: number;
 };
 
-export async function getModelTree(model: Model): Promise<ModelTree> {
+export async function getModelTree(model: Model): Promise<ModelTreeRoot> {
   const edges = await db
     .withRecursive("model_tree", (qb) =>
       qb
@@ -99,15 +99,12 @@ export async function getModelTree(model: Model): Promise<ModelTree> {
   return buildModelTree(model, edges);
 }
 
-function buildModelTree(root: Model, edges: ModelEdge[]) {
-  const nodes = new Map<string, ModelTree>();
-  nodes.set(root.id, { id: root.id, name: root.name, components: [] });
+function buildModelTree(rootModel: Model, edges: ModelEdge[]) {
+  const nodes = new Map<string, ModelTreeNode>();
+  const root: ModelTreeRoot = { ...rootModel, components: [] };
 
   for (const edge of edges) {
-    const parent = nodes.get(edge.parentModelId);
-    if (!parent) {
-      throw new Error("Shouldn't happen");
-    }
+    const parent = nodes.get(edge.parentModelId) ?? root;
     let cur = nodes.get(edge.modelId);
 
     if (!cur) {
@@ -118,5 +115,5 @@ function buildModelTree(root: Model, edges: ModelEdge[]) {
     parent.components.push({ count: edge.count, model: cur });
   }
 
-  return nodes.get(root.id)!;
+  return root;
 }

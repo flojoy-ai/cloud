@@ -25,6 +25,7 @@ import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
 import { useState } from "react";
+import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/family/$familyId/",
@@ -47,7 +48,7 @@ const modelColumns: ColumnDef<Model>[] = [
     cell: ({ row }) => {
       return (
         <Link
-          from={Route.fullPath}
+          from={WorkspaceIndexRoute.fullPath}
           to="model/$modelId"
           params={{ modelId: row.original.id }}
         >
@@ -113,19 +114,15 @@ function FamilyPage() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link
-                to="/workspace/$namespace"
-                params={{ namespace: workspace.namespace }}
-              >
-                {workspace.name}
-              </Link>
+              <Link to={WorkspaceIndexRoute.to}>{workspace.name}</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
               <Link
-                to="/workspace/$namespace/family"
+                from={WorkspaceIndexRoute.fullPath}
+                to="family"
                 params={{ namespace: workspace.namespace }}
               >
                 Hardware Inventory

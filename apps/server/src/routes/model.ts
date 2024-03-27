@@ -1,7 +1,7 @@
 import { db } from "@/db/kysely";
 import Elysia, { t } from "elysia";
 import { createModel, getModelTree } from "@/db/model";
-import { insertModel } from "@/types/model";
+import { Model, insertModel } from "@/types/model";
 import { WorkspaceMiddleware } from "@/middlewares/workspace";
 import { jsonObjectFrom } from "kysely/helpers/postgres";
 
@@ -66,6 +66,15 @@ export const ModelRoute = new Elysia({ prefix: "/model" })
                 eb
                   .selectFrom("hardware as h")
                   .selectAll("h")
+                  .select((eb) =>
+                    jsonObjectFrom(
+                      eb
+                        .selectFrom("model")
+                        .selectAll("model")
+                        .whereRef("model.id", "=", "h.modelId"),
+                    ).as("model"),
+                  )
+                  .$narrowType<{ model: Model }>()
                   .whereRef("h.id", "=", "hardware_relation.parentHardwareId"),
               ).as("parent"),
             )

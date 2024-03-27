@@ -30,13 +30,15 @@ import { Route as ProtectedWorkspaceNamespaceProjectIndexImport } from './routes
 import { Route as ProtectedWorkspaceNamespaceFamilyIndexImport } from './routes/_protected/workspace/$namespace/family/index'
 import { Route as ProtectedWorkspaceNamespaceStationStationIdRouteImport } from './routes/_protected/workspace/$namespace/station/$stationId/route'
 import { Route as ProtectedWorkspaceNamespaceProjectProjectIdRouteImport } from './routes/_protected/workspace/$namespace/project/$projectId/route'
+import { Route as ProtectedWorkspaceNamespaceModelModelIdRouteImport } from './routes/_protected/workspace/$namespace/model/$modelId/route'
 import { Route as ProtectedWorkspaceNamespaceFamilyFamilyIdRouteImport } from './routes/_protected/workspace/$namespace/family/$familyId/route'
 import { Route as ProtectedWorkspaceNamespaceStationStationIdIndexImport } from './routes/_protected/workspace/$namespace/station/$stationId/index'
 import { Route as ProtectedWorkspaceNamespaceProjectProjectIdIndexImport } from './routes/_protected/workspace/$namespace/project/$projectId/index'
+import { Route as ProtectedWorkspaceNamespaceModelModelIdIndexImport } from './routes/_protected/workspace/$namespace/model/$modelId/index'
+import { Route as ProtectedWorkspaceNamespaceHardwareHardwareIdIndexImport } from './routes/_protected/workspace/$namespace/hardware/$hardwareId/index'
 import { Route as ProtectedWorkspaceNamespaceFamilyFamilyIdIndexImport } from './routes/_protected/workspace/$namespace/family/$familyId/index'
-import { Route as ProtectedWorkspaceNamespaceFamilyFamilyIdModelModelIdRouteImport } from './routes/_protected/workspace/$namespace/family/$familyId/model/$modelId/route'
-import { Route as ProtectedWorkspaceNamespaceFamilyFamilyIdModelModelIdIndexImport } from './routes/_protected/workspace/$namespace/family/$familyId/model/$modelId/index'
-import { Route as ProtectedWorkspaceNamespaceFamilyFamilyIdModelModelIdHardwareHardwareIdIndexImport } from './routes/_protected/workspace/$namespace/family/$familyId/model/$modelId/hardware/$hardwareId/index'
+import { Route as ProtectedWorkspaceNamespaceProjectProjectIdStationStationIdSessionSessionIdRouteImport } from './routes/_protected/workspace/$namespace/project/$projectId/station/$stationId/session/$sessionId/route'
+import { Route as ProtectedWorkspaceNamespaceProjectProjectIdStationStationIdSessionSessionIdIndexImport } from './routes/_protected/workspace/$namespace/project/$projectId/station/$stationId/session/$sessionId/index'
 
 // Create Virtual Routes
 
@@ -144,6 +146,12 @@ const ProtectedWorkspaceNamespaceProjectProjectIdRouteRoute =
     getParentRoute: () => ProtectedWorkspaceNamespaceProjectRouteRoute,
   } as any)
 
+const ProtectedWorkspaceNamespaceModelModelIdRouteRoute =
+  ProtectedWorkspaceNamespaceModelModelIdRouteImport.update({
+    path: '/model/$modelId',
+    getParentRoute: () => ProtectedWorkspaceNamespaceRouteRoute,
+  } as any)
+
 const ProtectedWorkspaceNamespaceFamilyFamilyIdRouteRoute =
   ProtectedWorkspaceNamespaceFamilyFamilyIdRouteImport.update({
     path: '/family/$familyId',
@@ -162,31 +170,39 @@ const ProtectedWorkspaceNamespaceProjectProjectIdIndexRoute =
     getParentRoute: () => ProtectedWorkspaceNamespaceProjectProjectIdRouteRoute,
   } as any)
 
+const ProtectedWorkspaceNamespaceModelModelIdIndexRoute =
+  ProtectedWorkspaceNamespaceModelModelIdIndexImport.update({
+    path: '/',
+    getParentRoute: () => ProtectedWorkspaceNamespaceModelModelIdRouteRoute,
+  } as any)
+
+const ProtectedWorkspaceNamespaceHardwareHardwareIdIndexRoute =
+  ProtectedWorkspaceNamespaceHardwareHardwareIdIndexImport.update({
+    path: '/hardware/$hardwareId/',
+    getParentRoute: () => ProtectedWorkspaceNamespaceRouteRoute,
+  } as any)
+
 const ProtectedWorkspaceNamespaceFamilyFamilyIdIndexRoute =
   ProtectedWorkspaceNamespaceFamilyFamilyIdIndexImport.update({
     path: '/',
     getParentRoute: () => ProtectedWorkspaceNamespaceFamilyFamilyIdRouteRoute,
   } as any)
 
-const ProtectedWorkspaceNamespaceFamilyFamilyIdModelModelIdRouteRoute =
-  ProtectedWorkspaceNamespaceFamilyFamilyIdModelModelIdRouteImport.update({
-    path: '/model/$modelId',
-    getParentRoute: () => ProtectedWorkspaceNamespaceFamilyFamilyIdRouteRoute,
-  } as any)
-
-const ProtectedWorkspaceNamespaceFamilyFamilyIdModelModelIdIndexRoute =
-  ProtectedWorkspaceNamespaceFamilyFamilyIdModelModelIdIndexImport.update({
-    path: '/',
-    getParentRoute: () =>
-      ProtectedWorkspaceNamespaceFamilyFamilyIdModelModelIdRouteRoute,
-  } as any)
-
-const ProtectedWorkspaceNamespaceFamilyFamilyIdModelModelIdHardwareHardwareIdIndexRoute =
-  ProtectedWorkspaceNamespaceFamilyFamilyIdModelModelIdHardwareHardwareIdIndexImport.update(
+const ProtectedWorkspaceNamespaceProjectProjectIdStationStationIdSessionSessionIdRouteRoute =
+  ProtectedWorkspaceNamespaceProjectProjectIdStationStationIdSessionSessionIdRouteImport.update(
     {
-      path: '/hardware/$hardwareId/',
+      path: '/station/$stationId/session/$sessionId',
       getParentRoute: () =>
-        ProtectedWorkspaceNamespaceFamilyFamilyIdModelModelIdRouteRoute,
+        ProtectedWorkspaceNamespaceProjectProjectIdRouteRoute,
+    } as any,
+  )
+
+const ProtectedWorkspaceNamespaceProjectProjectIdStationStationIdSessionSessionIdIndexRoute =
+  ProtectedWorkspaceNamespaceProjectProjectIdStationStationIdSessionSessionIdIndexImport.update(
+    {
+      path: '/',
+      getParentRoute: () =>
+        ProtectedWorkspaceNamespaceProjectProjectIdStationStationIdSessionSessionIdRouteRoute,
     } as any,
   )
 
@@ -250,6 +266,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceFamilyFamilyIdRouteImport
       parentRoute: typeof ProtectedWorkspaceNamespaceRouteImport
     }
+    '/_protected/workspace/$namespace/model/$modelId': {
+      preLoaderRoute: typeof ProtectedWorkspaceNamespaceModelModelIdRouteImport
+      parentRoute: typeof ProtectedWorkspaceNamespaceRouteImport
+    }
     '/_protected/workspace/$namespace/project/$projectId': {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceProjectProjectIdRouteImport
       parentRoute: typeof ProtectedWorkspaceNamespaceProjectRouteImport
@@ -274,6 +294,14 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceFamilyFamilyIdIndexImport
       parentRoute: typeof ProtectedWorkspaceNamespaceFamilyFamilyIdRouteImport
     }
+    '/_protected/workspace/$namespace/hardware/$hardwareId/': {
+      preLoaderRoute: typeof ProtectedWorkspaceNamespaceHardwareHardwareIdIndexImport
+      parentRoute: typeof ProtectedWorkspaceNamespaceRouteImport
+    }
+    '/_protected/workspace/$namespace/model/$modelId/': {
+      preLoaderRoute: typeof ProtectedWorkspaceNamespaceModelModelIdIndexImport
+      parentRoute: typeof ProtectedWorkspaceNamespaceModelModelIdRouteImport
+    }
     '/_protected/workspace/$namespace/project/$projectId/': {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceProjectProjectIdIndexImport
       parentRoute: typeof ProtectedWorkspaceNamespaceProjectProjectIdRouteImport
@@ -282,17 +310,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceStationStationIdIndexImport
       parentRoute: typeof ProtectedWorkspaceNamespaceStationStationIdRouteImport
     }
-    '/_protected/workspace/$namespace/family/$familyId/model/$modelId': {
-      preLoaderRoute: typeof ProtectedWorkspaceNamespaceFamilyFamilyIdModelModelIdRouteImport
-      parentRoute: typeof ProtectedWorkspaceNamespaceFamilyFamilyIdRouteImport
+    '/_protected/workspace/$namespace/project/$projectId/station/$stationId/session/$sessionId': {
+      preLoaderRoute: typeof ProtectedWorkspaceNamespaceProjectProjectIdStationStationIdSessionSessionIdRouteImport
+      parentRoute: typeof ProtectedWorkspaceNamespaceProjectProjectIdRouteImport
     }
-    '/_protected/workspace/$namespace/family/$familyId/model/$modelId/': {
-      preLoaderRoute: typeof ProtectedWorkspaceNamespaceFamilyFamilyIdModelModelIdIndexImport
-      parentRoute: typeof ProtectedWorkspaceNamespaceFamilyFamilyIdModelModelIdRouteImport
-    }
-    '/_protected/workspace/$namespace/family/$familyId/model/$modelId/hardware/$hardwareId/': {
-      preLoaderRoute: typeof ProtectedWorkspaceNamespaceFamilyFamilyIdModelModelIdHardwareHardwareIdIndexImport
-      parentRoute: typeof ProtectedWorkspaceNamespaceFamilyFamilyIdModelModelIdRouteImport
+    '/_protected/workspace/$namespace/project/$projectId/station/$stationId/session/$sessionId/': {
+      preLoaderRoute: typeof ProtectedWorkspaceNamespaceProjectProjectIdStationStationIdSessionSessionIdIndexImport
+      parentRoute: typeof ProtectedWorkspaceNamespaceProjectProjectIdStationStationIdSessionSessionIdRouteImport
     }
   }
 }
@@ -306,6 +330,11 @@ export const routeTree = rootRoute.addChildren([
       ProtectedWorkspaceNamespaceProjectRouteRoute.addChildren([
         ProtectedWorkspaceNamespaceProjectProjectIdRouteRoute.addChildren([
           ProtectedWorkspaceNamespaceProjectProjectIdIndexRoute,
+          ProtectedWorkspaceNamespaceProjectProjectIdStationStationIdSessionSessionIdRouteRoute.addChildren(
+            [
+              ProtectedWorkspaceNamespaceProjectProjectIdStationStationIdSessionSessionIdIndexRoute,
+            ],
+          ),
         ]),
         ProtectedWorkspaceNamespaceProjectIndexRoute,
       ]),
@@ -320,14 +349,12 @@ export const routeTree = rootRoute.addChildren([
       ProtectedWorkspaceNamespaceIndexRoute,
       ProtectedWorkspaceNamespaceFamilyFamilyIdRouteRoute.addChildren([
         ProtectedWorkspaceNamespaceFamilyFamilyIdIndexRoute,
-        ProtectedWorkspaceNamespaceFamilyFamilyIdModelModelIdRouteRoute.addChildren(
-          [
-            ProtectedWorkspaceNamespaceFamilyFamilyIdModelModelIdIndexRoute,
-            ProtectedWorkspaceNamespaceFamilyFamilyIdModelModelIdHardwareHardwareIdIndexRoute,
-          ],
-        ),
+      ]),
+      ProtectedWorkspaceNamespaceModelModelIdRouteRoute.addChildren([
+        ProtectedWorkspaceNamespaceModelModelIdIndexRoute,
       ]),
       ProtectedWorkspaceNamespaceFamilyIndexRoute,
+      ProtectedWorkspaceNamespaceHardwareHardwareIdIndexRoute,
     ]),
     ProtectedProfileIndexRoute,
     ProtectedWorkspaceIndexRoute,
