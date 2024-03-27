@@ -96,6 +96,7 @@ function Page() {
                 {station.name}
               </Link>
             </BreadcrumbLink>
+            <BreadcrumbSeparator />
             <BreadcrumbPage>Test Session</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
