@@ -167,7 +167,7 @@ export default function NewProjectButton({ workspace, models }: Props) {
                         <div className="text-sm">
                           No models found, go{" "}
                           <Link
-                            to={"/workspace/$namespace/hardware"}
+                            to={"/workspace/$namespace/family"}
                             params={{ namespace: workspace.namespace }}
                             className="underline"
                           >
