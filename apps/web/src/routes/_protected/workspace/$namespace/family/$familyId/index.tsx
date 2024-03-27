@@ -48,7 +48,7 @@ const modelColumns: ColumnDef<Model>[] = [
       return (
         <Link
           from={Route.fullPath}
-          to="$modelId"
+          to="model/$modelId"
           params={{ modelId: row.original.id }}
         >
           <Badge>{row.original.name}</Badge>
@@ -124,10 +124,7 @@ function FamilyPage() {
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link
-                to="/workspace/$namespace/hardware"
-                params={{ namespace: workspace.namespace }}
-              >
+              <Link from={Route.fullPath} to="../">
                 Hardware Inventory
               </Link>
             </BreadcrumbLink>

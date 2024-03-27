@@ -89,10 +89,7 @@ function HardwarePage() {
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link
-                to="/workspace/$namespace/hardware"
-                params={{ namespace: workspace.namespace }}
-              >
+              <Link from={Route.fullPath} to="../../../../">
                 Hardware Inventory
               </Link>
             </BreadcrumbLink>
@@ -100,10 +97,7 @@ function HardwarePage() {
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link
-                to="/workspace/$namespace/hardware/$familyId"
-                params={{ namespace: workspace.namespace, familyId: family.id }}
-              >
+              <Link from={Route.fullPath} to="../../../">
                 {family.name}
               </Link>
             </BreadcrumbLink>
@@ -111,14 +105,7 @@ function HardwarePage() {
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link
-                to="/workspace/$namespace/hardware/$familyId/$modelId"
-                params={{
-                  namespace: workspace.namespace,
-                  familyId: family.id,
-                  modelId: model.id,
-                }}
-              >
+              <Link from={Route.fullPath} to="../../">
                 {model.name}
               </Link>
             </BreadcrumbLink>
