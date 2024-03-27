@@ -75,6 +75,8 @@ export const HardwareRoute = new Elysia({ prefix: "/hardware" })
                 eb
                   .selectFrom("hardware as h")
                   .selectAll("h")
+                  .select((eb) => withHardwareModel(eb))
+                  .$narrowType<{ model: Model }>()
                   .whereRef("h.id", "=", "hardware_relation.parentHardwareId"),
               ).as("parent"),
             )

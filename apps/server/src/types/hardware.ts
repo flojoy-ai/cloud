@@ -7,7 +7,7 @@ export type { Hardware };
 export type HardwareWithModel = Hardware & { model: Model };
 
 export type HardwareWithParent = Hardware & {
-  parent: Hardware | null;
+  parent: HardwareWithModel | null;
 };
 
 export const insertHardware = t.Object({
