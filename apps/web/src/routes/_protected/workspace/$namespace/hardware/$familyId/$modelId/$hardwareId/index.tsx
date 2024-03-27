@@ -5,6 +5,7 @@ import {
   PageHeaderHeading,
   PageHeaderDescription,
 } from "@/components/page-header";
+import { SessionsTable } from "@/components/session/sessions-table";
 import {
   Accordion,
   AccordionContent,
@@ -24,6 +25,7 @@ import {
   getHardwareQueryOpts,
   getHardwareRevisionsQueryOpts,
 } from "@/lib/queries/hardware";
+import { getSessionsOpts } from "@/lib/queries/session";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 
@@ -41,6 +43,9 @@ export const Route = createFileRoute(
     context.queryClient.ensureQueryData(
       getHardwareRevisionsQueryOpts({ hardwareId, context }),
     );
+    context.queryClient.ensureQueryData(
+      getSessionsOpts({ hardwareId, context }),
+    );
   },
 });
 
@@ -49,6 +54,9 @@ function HardwarePage() {
   const { workspace, hardware, family, model } = context;
   const { data: revisions } = useSuspenseQuery(
     getHardwareRevisionsQueryOpts({ hardwareId: hardware.id, context }),
+  );
+  const { data: sessions } = useSuspenseQuery(
+    getSessionsOpts({ hardwareId: hardware.id, context }),
   );
 
   return (
@@ -143,6 +151,8 @@ function HardwarePage() {
       </Accordion>
 
       <div className="py-4" />
+
+      <SessionsTable data={sessions} />
 
       {/* <HardwareMeasurements */}
       {/*   hardwareId={params.hardwareId} */}

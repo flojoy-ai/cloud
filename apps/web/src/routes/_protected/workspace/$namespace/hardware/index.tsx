@@ -16,7 +16,7 @@ import {
 } from "@/components/small-header";
 import { Separator } from "@/components/ui/separator";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Icons } from "@/components/icons";
+// import { Icons } from "@/components/icons";
 import { Family } from "@cloud/server/src/schemas/public/Family";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
@@ -33,11 +33,6 @@ export const Route = createFileRoute(
     context.queryClient.ensureQueryData(getFamiliesQueryOpts({ context }));
     context.queryClient.ensureQueryData(getProductsQueryOpts({ context }));
   },
-  pendingComponent: () => (
-    <div>
-      <Icons.spinner className="mx-auto animate-spin" />
-    </div>
-  ),
 });
 
 type FamilyEntry = Family & { modelCount: number; hardwareCount: number };
