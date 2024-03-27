@@ -54,6 +54,7 @@ function Page() {
           <Link
             from={Route.fullPath}
             to="settings"
+            search={{ tab: "general" }}
             className={cn(
               "text-foreground/60 transition-colors hover:text-foreground/80",
             )}
