@@ -106,7 +106,7 @@ function Page() {
           Test Session for {hardware.name}
         </PageHeaderHeading>
         <PageHeaderDescription>
-          {session.createdAt.toISOString()}
+          {session.createdAt.toLocaleString()}
         </PageHeaderDescription>
       </PageHeader>
     </div>
