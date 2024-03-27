@@ -33,6 +33,7 @@ import { Route as ProtectedWorkspaceNamespaceProjectProjectIdRouteImport } from 
 import { Route as ProtectedWorkspaceNamespaceModelModelIdRouteImport } from './routes/_protected/workspace/$namespace/model/$modelId/route'
 import { Route as ProtectedWorkspaceNamespaceFamilyFamilyIdRouteImport } from './routes/_protected/workspace/$namespace/family/$familyId/route'
 import { Route as ProtectedWorkspaceNamespaceStationStationIdIndexImport } from './routes/_protected/workspace/$namespace/station/$stationId/index'
+import { Route as ProtectedWorkspaceNamespaceSessionSessionIdIndexImport } from './routes/_protected/workspace/$namespace/session/$sessionId/index'
 import { Route as ProtectedWorkspaceNamespaceProjectProjectIdIndexImport } from './routes/_protected/workspace/$namespace/project/$projectId/index'
 import { Route as ProtectedWorkspaceNamespaceModelModelIdIndexImport } from './routes/_protected/workspace/$namespace/model/$modelId/index'
 import { Route as ProtectedWorkspaceNamespaceHardwareHardwareIdIndexImport } from './routes/_protected/workspace/$namespace/hardware/$hardwareId/index'
@@ -162,6 +163,12 @@ const ProtectedWorkspaceNamespaceStationStationIdIndexRoute =
   ProtectedWorkspaceNamespaceStationStationIdIndexImport.update({
     path: '/',
     getParentRoute: () => ProtectedWorkspaceNamespaceStationStationIdRouteRoute,
+  } as any)
+
+const ProtectedWorkspaceNamespaceSessionSessionIdIndexRoute =
+  ProtectedWorkspaceNamespaceSessionSessionIdIndexImport.update({
+    path: '/session/$sessionId/',
+    getParentRoute: () => ProtectedWorkspaceNamespaceRouteRoute,
   } as any)
 
 const ProtectedWorkspaceNamespaceProjectProjectIdIndexRoute =
@@ -306,6 +313,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceProjectProjectIdIndexImport
       parentRoute: typeof ProtectedWorkspaceNamespaceProjectProjectIdRouteImport
     }
+    '/_protected/workspace/$namespace/session/$sessionId/': {
+      preLoaderRoute: typeof ProtectedWorkspaceNamespaceSessionSessionIdIndexImport
+      parentRoute: typeof ProtectedWorkspaceNamespaceRouteImport
+    }
     '/_protected/workspace/$namespace/station/$stationId/': {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceStationStationIdIndexImport
       parentRoute: typeof ProtectedWorkspaceNamespaceStationStationIdRouteImport
@@ -355,6 +366,7 @@ export const routeTree = rootRoute.addChildren([
       ]),
       ProtectedWorkspaceNamespaceFamilyIndexRoute,
       ProtectedWorkspaceNamespaceHardwareHardwareIdIndexRoute,
+      ProtectedWorkspaceNamespaceSessionSessionIdIndexRoute,
     ]),
     ProtectedProfileIndexRoute,
     ProtectedWorkspaceIndexRoute,

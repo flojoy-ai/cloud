@@ -22,12 +22,13 @@ import {
   getHardwareRevisionsQueryOpts,
 } from "@/lib/queries/hardware";
 import { getModelQueryOpts } from "@/lib/queries/model";
-import { getSessionsOpts } from "@/lib/queries/session";
+import { getSessionsQueryOpts } from "@/lib/queries/session";
 import { Session } from "@cloud/server/src/types/session";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
 import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
+import { useRouter } from "@tanstack/react-router";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/hardware/$hardwareId/",
@@ -47,7 +48,7 @@ export const Route = createFileRoute(
       getHardwareRevisionsQueryOpts({ hardwareId, context }),
     );
     context.queryClient.ensureQueryData(
-      getSessionsOpts({ hardwareId, context }),
+      getSessionsQueryOpts({ hardwareId, context }),
     );
     context.queryClient.ensureQueryData(
       getFamilyQueryOpts({ familyId: context.model.familyId, context }),
@@ -77,11 +78,12 @@ function HardwarePage() {
     getHardwareRevisionsQueryOpts({ hardwareId: hardware.id, context }),
   );
   const { data: sessions } = useSuspenseQuery(
-    getSessionsOpts({ hardwareId: hardware.id, context }),
+    getSessionsQueryOpts({ hardwareId: hardware.id, context }),
   );
   const { data: family } = useSuspenseQuery(
     getFamilyQueryOpts({ familyId: model.familyId, context }),
   );
+  const router = useRouter();
 
   return (
     <div className="container max-w-screen-2xl">
@@ -169,7 +171,17 @@ function HardwarePage() {
       <div className="flex gap-x-8">
         <div className="w-3/5">
           <ScrollArea className="h-[380px]">
-            <DataTable columns={columns} data={sessions} />
+            <DataTable
+              columns={columns}
+              data={sessions}
+              onRowClick={(row) =>
+                router.navigate({
+                  from: WorkspaceIndexRoute.fullPath,
+                  to: "session/$sessionId",
+                  params: { sessionId: row.id },
+                })
+              }
+            />
           </ScrollArea>
         </div>
         <div className="w-2/5 h-[380px] border rounded-lg">

@@ -9,7 +9,10 @@ type GetSessionsParams = {
   };
 };
 
-export function getSessionsOpts({ hardwareId, context }: GetSessionsParams) {
+export function getSessionsQueryOpts({
+  hardwareId,
+  context,
+}: GetSessionsParams) {
   return queryOptions({
     queryFn: async () => {
       const hardwareQuery = await client.session.hardware({ hardwareId }).get({
@@ -22,6 +25,8 @@ export function getSessionsOpts({ hardwareId, context }: GetSessionsParams) {
   });
 }
 
+export const getSessionsQueryKey = () => ["session"];
+
 type GetSessionParams = {
   sessionId: string;
   context: {
@@ -29,7 +34,7 @@ type GetSessionParams = {
   };
 };
 
-export function getSessionOpts({ sessionId, context }: GetSessionParams) {
+export function getSessionQueryOpts({ sessionId, context }: GetSessionParams) {
   return queryOptions({
     queryFn: async () => {
       const sessionQuery = await client.session({ sessionId }).get({
@@ -41,3 +46,5 @@ export function getSessionOpts({ sessionId, context }: GetSessionParams) {
     queryKey: ["session", sessionId],
   });
 }
+
+export const getSessionQueryKey = (sessionId: string) => ["session", sessionId];

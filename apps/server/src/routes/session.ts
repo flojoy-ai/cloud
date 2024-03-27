@@ -9,16 +9,18 @@ export const SessionRoute = new Elysia({ prefix: "/session" })
   .get(
     "/hardware/:hardwareId",
     async ({ params: { hardwareId } }) => {
-      const sessions = await getSessions(db, hardwareId);
-      console.log(sessions);
-      return sessions;
+      return await getSessions(db, hardwareId);
     },
     { params: t.Object({ hardwareId: t.String() }) },
   )
   .get(
     "/:sessionId",
-    async ({ params: { sessionId } }) => {
-      return await getSession(db, sessionId);
+    async ({ error, params: { sessionId } }) => {
+      const session = await getSession(db, sessionId);
+      if (session === undefined) {
+        return error(404, "Test session not found");
+      }
+      return session;
     },
     { params: t.Object({ sessionId: t.String() }) },
   );

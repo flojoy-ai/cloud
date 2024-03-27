@@ -29,7 +29,7 @@ export async function getSession(db: Kysely<DB>, sessionId: string) {
     .selectAll("session")
     .select((eb) => withSessionMeasurements(eb))
     .where("session.id", "=", sessionId)
-    .execute();
+    .executeTakeFirst();
 }
 
 export async function createSession(
