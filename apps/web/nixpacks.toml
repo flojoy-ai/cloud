@@ -7,7 +7,7 @@ nixPkgs = ['bun']
 cmds = ['bun install']
 
 [phases.build]
-cmds = ['cd apps/web && bun build']
+cmds = ['bun build']
 
 [start]
-cmd = 'cd apps/web && bun start'
+cmd = 'bun start'
