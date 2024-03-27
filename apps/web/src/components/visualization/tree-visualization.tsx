@@ -72,7 +72,7 @@ const Flow = ({ nodes, edges }: FlowProps) => {
       }}
       // allows the user to scroll the page normally
       // even when the pointer is in the reactflow canvas
-      preventScrolling={false}
+      // preventScrolling={false}
     />
   );
 };
