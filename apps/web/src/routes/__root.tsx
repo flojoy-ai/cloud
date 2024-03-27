@@ -20,4 +20,5 @@ export const Route = createRootRouteWithContext<{
       )}
     </div>
   ),
+  wrapInSuspense: true,
 });
