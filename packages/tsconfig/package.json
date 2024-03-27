@@ -1,0 +1,13 @@
+{
+  "name": "@cloud/tsconfig",
+  "version": "0.0.1",
+  "dependencies": {
+    "bun-types": "^0.3.0"
+  },
+  "files": [
+    "base.json",
+    "elysia.json",
+    "react.json",
+    "react-library.json"
+  ]
+}
