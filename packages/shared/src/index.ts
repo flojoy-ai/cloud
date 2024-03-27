@@ -1,5 +1,6 @@
 export { api } from "./eden";
 
+// TODO: find a way to automate this
 export * as EmailVerification from "./schemas/public/EmailVerification";
 export * as Family from "./schemas/public/Family";
 export * as Hardware from "./schemas/public/Hardware";
