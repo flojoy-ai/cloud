@@ -150,7 +150,17 @@ function HardwarePage() {
       {hardware.parent && (
         <div>
           <span className="font-medium text-muted-foreground">In use: </span>
-          <Link to=""></Link>
+          <Link
+            to="/workspace/$namespace/family/$familyId/model/$modelId/hardware/$hardwareId"
+            params={{
+              namespace: workspace.namespace,
+              familyId: hardware.parent.model.familyId,
+              modelId: hardware.parent.model.id,
+              hardwareId: hardware.parent.id,
+            }}
+          >
+            {hardware.parent.name}
+          </Link>
         </div>
       )}
       <div className="py-4" />
