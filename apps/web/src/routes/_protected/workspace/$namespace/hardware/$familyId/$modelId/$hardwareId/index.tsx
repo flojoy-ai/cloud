@@ -14,6 +14,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { DataTable } from "@/components/ui/data-table";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { HardwareTreeVisualization } from "@/components/visualization/tree-visualization";
 import {
   getHardwareQueryOpts,
@@ -150,14 +151,11 @@ function HardwarePage() {
 
       <div className="flex gap-x-8">
         <div className="w-3/5">
-          <DataTable
-            columns={columns}
-            data={sessions}
-            scrollable
-            scrollHeight={328}
-          />
+          <ScrollArea className="h-[380px]">
+            <DataTable columns={columns} data={sessions} />
+          </ScrollArea>
         </div>
-        <div className="w-2/5 h-[379px] border rounded-lg">
+        <div className="w-2/5 h-[380px] border rounded-lg">
           <HardwareTreeVisualization tree={hardware} />
         </div>
       </div>

@@ -7,11 +7,11 @@ import {
   NotFoundError,
 } from "@/lib/error";
 import DB from "@/schemas/Database";
-import { Model } from "@/schemas/public/Model";
 import { WorkspaceUser } from "@/schemas/public/WorkspaceUser";
 import {
   Hardware,
   HardwareTree,
+  HardwareWithModel,
   InsertHardware,
   SwapHardwareComponent,
 } from "@/types/hardware";
@@ -239,8 +239,6 @@ export const notInUse = ({
     ),
   );
 };
-
-type HardwareWithModel = Hardware & { model: Model };
 
 export function withHardwareModel(eb: ExpressionBuilder<DB, "hardware">) {
   return jsonObjectFrom(

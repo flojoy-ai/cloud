@@ -14,7 +14,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { ScrollArea } from "./scroll-area";
 
 interface DataTableProps<TData> {
   columns: ColumnDef<TData>[];
@@ -30,8 +29,6 @@ export function DataTable<T>({
   data,
   onRowClick,
   highlightRow,
-  scrollable,
-  scrollHeight = 256,
 }: DataTableProps<T>) {
   const table = useReactTable({
     data,
@@ -91,13 +88,7 @@ export function DataTable<T>({
           ))}{" "}
         </TableHeader>
         <TableBody>
-          {scrollable ? (
-            <ScrollArea style={{ height: scrollHeight }}>
-              <TableRows />
-            </ScrollArea>
-          ) : (
-            <TableRows />
-          )}
+          <TableRows />
         </TableBody>
       </Table>
     </div>

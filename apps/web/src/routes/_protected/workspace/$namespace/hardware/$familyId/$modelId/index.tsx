@@ -14,9 +14,10 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { DataTable } from "@/components/ui/data-table";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { ModelTreeVisualization } from "@/components/visualization/tree-visualization";
 import { getModelHardwareQueryOpts } from "@/lib/queries/hardware";
-import { Hardware } from "@cloud/server/src/types/hardware";
+import { HardwareWithParent } from "@cloud/server/src/types/hardware";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute, useRouter } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
@@ -33,7 +34,7 @@ export const Route = createFileRoute(
   },
 });
 
-const hardwareColumns: ColumnDef<Hardware>[] = [
+const hardwareColumns: ColumnDef<HardwareWithParent>[] = [
   {
     accessorKey: "name",
     header: "Instance SN",
@@ -41,23 +42,15 @@ const hardwareColumns: ColumnDef<Hardware>[] = [
       return <Badge variant="secondary">{row.original.name}</Badge>;
     },
   },
-  // {
-  //   accessorKey: "project",
-  //   header: "Project",
-  //   cell: ({ row }) => {
-  //     const projects = row.original.projects;
-  //
-  //     return (
-  //       <div>
-  //         {projects.map((p) => (
-  //           <Badge key={p.id} variant="outline">
-  //             {p.name}
-  //           </Badge>
-  //         ))}
-  //       </div>
-  //     );
-  //   },
-  // },
+  {
+    accessorKey: "parent",
+    header: "Parent",
+    cell: ({ row }) => {
+      const parentName = row.original.parent?.name;
+      if (!parentName) return null;
+      return <Badge variant="outline">{parentName}</Badge>;
+    },
+  },
   // {
   //   id: "actions",
   //   header: "Actions",
@@ -154,19 +147,19 @@ function ModelPage() {
       <div className="py-2" />
       <div className="flex gap-x-8">
         <div className="w-3/5">
-          <DataTable
-            columns={hardwareColumns}
-            data={hardware}
-            onRowClick={(row) =>
-              router.navigate({
-                from: Route.fullPath,
-                to: "$hardwareId",
-                params: { hardwareId: row.id },
-              })
-            }
-            scrollable
-            scrollHeight={328}
-          />
+          <ScrollArea className="h-[379px]">
+            <DataTable
+              columns={hardwareColumns}
+              data={hardware}
+              onRowClick={(row) =>
+                router.navigate({
+                  from: Route.fullPath,
+                  to: "$hardwareId",
+                  params: { hardwareId: row.id },
+                })
+              }
+            />
+          </ScrollArea>
         </div>
         <div className="w-2/5 h-[379px] border rounded-lg">
           <ModelTreeVisualization tree={model} />

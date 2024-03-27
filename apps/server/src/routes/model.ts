@@ -3,6 +3,7 @@ import Elysia, { t } from "elysia";
 import { createModel, getModelTree } from "@/db/model";
 import { insertModel } from "@/types/model";
 import { WorkspaceMiddleware } from "@/middlewares/workspace";
+import { jsonObjectFrom } from "kysely/helpers/postgres";
 
 export const ModelRoute = new Elysia({ prefix: "/model" })
   .use(WorkspaceMiddleware)
@@ -55,6 +56,19 @@ export const ModelRoute = new Elysia({ prefix: "/model" })
             .selectAll("hardware")
             .where("hardware.workspaceId", "=", workspace.id)
             .where("hardware.modelId", "=", modelId)
+            .leftJoin(
+              "hardware_relation",
+              "hardware.id",
+              "hardware_relation.childHardwareId",
+            )
+            .select((eb) =>
+              jsonObjectFrom(
+                eb
+                  .selectFrom("hardware as h")
+                  .selectAll("h")
+                  .whereRef("h.id", "=", "hardware_relation.parentHardwareId"),
+              ).as("parent"),
+            )
             .execute();
 
           return models;

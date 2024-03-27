@@ -1,7 +1,14 @@
 import { Hardware } from "@/schemas/public/Hardware";
 import { Static, t } from "elysia";
+import { Model } from "./model";
 
 export type { Hardware };
+
+export type HardwareWithModel = Hardware & { model: Model };
+
+export type HardwareWithParent = Hardware & {
+  parent: Hardware | null;
+};
 
 export const insertHardware = t.Object({
   projectId: t.Optional(t.String()),
