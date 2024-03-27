@@ -16,4 +16,3 @@ export const Route = createFileRoute(
 function Page() {
   return <Outlet />;
 }
-

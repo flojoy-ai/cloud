@@ -5,3 +5,4 @@
 apps/platform/*
 
 apps/server/src/schemas/*
+packages/shared/src/schemas/*
