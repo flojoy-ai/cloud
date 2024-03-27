@@ -86,7 +86,7 @@ function ModelPage() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link from={WorkspaceIndexRoute.to} to="/">
+              <Link from={WorkspaceIndexRoute.to} to=".">
                 {workspace.name}
               </Link>
             </BreadcrumbLink>

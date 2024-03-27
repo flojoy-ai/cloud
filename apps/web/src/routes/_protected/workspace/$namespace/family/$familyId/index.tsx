@@ -20,7 +20,7 @@ import { client } from "@/lib/client";
 import { getFamilyQueryOpts } from "@/lib/queries/family";
 import { getFamilyModelsQueryOpts } from "@/lib/queries/model";
 import { Model } from "@cloud/server/src/schemas/public/Model";
-import { ModelTree } from "@cloud/server/src/types/model";
+import { ModelTreeNode } from "@cloud/server/src/types/model";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
@@ -59,7 +59,7 @@ const modelColumns: ColumnDef<Model>[] = [
   },
 ];
 
-const modelComponentColumns: ColumnDef<ModelTree & { count: number }>[] = [
+const modelComponentColumns: ColumnDef<ModelTreeNode & { count: number }>[] = [
   {
     accessorKey: "name",
     header: "Name",
@@ -114,7 +114,7 @@ function FamilyPage() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link from={WorkspaceIndexRoute.to} to="/">
+              <Link from={WorkspaceIndexRoute.fullPath} to=".">
                 {workspace.name}
               </Link>
             </BreadcrumbLink>

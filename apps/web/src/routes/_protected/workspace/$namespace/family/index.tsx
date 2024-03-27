@@ -24,6 +24,7 @@ import CreateFamily from "@/components/hardware/create-family";
 import { DataTable } from "@/components/ui/data-table";
 import { getFamiliesQueryOpts } from "@/lib/queries/family";
 import { getProductsQueryOpts } from "@/lib/queries/product";
+import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/family/",
@@ -81,10 +82,7 @@ function HardwareInventory() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link
-                to="/workspace/$namespace"
-                params={{ namespace: workspace.namespace }}
-              >
+              <Link from={WorkspaceIndexRoute.fullPath} to=".">
                 {workspace.name}
               </Link>
             </BreadcrumbLink>
