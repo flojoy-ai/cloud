@@ -6,7 +6,6 @@
   "private": true,
   "scripts": {
     "test": "pnpm run build && jest --testTimeout 10000 --rootDir ./dist",
-    "build": "pnpm run clean && tsc",
     "clean": "rimraf ./dist ./build",
     "watch": "pnpm run clean && tsc --watch"
   },
