@@ -14,15 +14,15 @@ export const Route = createFileRoute(
 });
 
 function Page() {
-  // const context = Route.useRouteContext();
-  // const { workspace } = context;
+  const context = Route.useRouteContext();
+  const { workspace } = context;
 
   const { tab } = Route.useSearch();
   return (
     <div className="">
-      {tab === "general" && <WorkspaceGeneral />}
-      {tab === "users" && <WorkspaceUsers />}
-      {tab === "secret" && <WorkspaceSecret />}
+      {tab === "general" && <WorkspaceGeneral workspace={workspace} />}
+      {tab === "users" && <WorkspaceUsers workspace={workspace} />}
+      {tab === "secret" && <WorkspaceSecret workspace={workspace} />}
     </div>
   );
 }
