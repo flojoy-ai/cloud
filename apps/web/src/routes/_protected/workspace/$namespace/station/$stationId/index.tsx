@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/breadcrumb";
 import { getProjectQueryOpts } from "@/lib/queries/project";
 import { useSuspenseQuery } from "@tanstack/react-query";
-
 import { Link, createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute(
@@ -54,7 +53,11 @@ function Page() {
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link from={Route.fullPath} to="../../..">
+              <Link
+                from={Route.fullPath}
+                to="/workspace/$namespace/project"
+                params={{ namespace: workspace.namespace }}
+              >
                 Production Lines
               </Link>
             </BreadcrumbLink>
@@ -62,7 +65,14 @@ function Page() {
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link from={Route.fullPath} to="../..">
+              <Link
+                from={Route.fullPath}
+                to="/workspace/$namespace/project/$projectId"
+                params={{
+                  namespace: workspace.namespace,
+                  projectId: project.id,
+                }}
+              >
                 {project.name}
               </Link>
             </BreadcrumbLink>

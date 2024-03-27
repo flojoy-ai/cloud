@@ -20,8 +20,8 @@ export const columns: ColumnDef<Station>[] = [
     cell: ({ row }) => {
       return (
         <Link
-          from={"/workspace/$namespace/project/$projectId"}
-          to={"/workspace/$namespace/project/$projectId/station/$stationId"}
+          from={"/workspace/$namespace/project/"}
+          to={"/workspace/$namespace/station/$stationId"}
           params={{ stationId: row.original.id }}
         >
           <ArrowRight />
