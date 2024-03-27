@@ -1,6 +1,6 @@
-import { generateDatabaseId, tryQuery } from "@/lib/db-utils";
-import type DB from "@/schemas/Database";
-import { InsertFamily } from "@/types/family";
+import { generateDatabaseId, tryQuery } from "../lib/db-utils";
+import type DB from "../schemas/Database";
+import { InsertFamily } from "../types/family";
 import { Kysely } from "kysely";
 import { err, ok, safeTry } from "neverthrow";
 import { createProduct } from "./product";

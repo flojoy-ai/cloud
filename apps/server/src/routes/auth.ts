@@ -1,7 +1,7 @@
-import { lucia } from "@/auth/lucia";
-import { env } from "@/env";
-import { AuthMiddleware } from "@/middlewares/auth";
-import { AuthMethod } from "@/types/auth";
+import { lucia } from "../auth/lucia";
+import { env } from "../env";
+import { AuthMiddleware } from "../middlewares/auth";
+import { AuthMethod } from "../types/auth";
 import { Elysia } from "elysia";
 
 export const AuthRoute = new Elysia({ prefix: "/auth" })

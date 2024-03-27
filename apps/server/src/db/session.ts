@@ -1,9 +1,9 @@
-import type DB from "@/schemas/Database";
+import type DB from "../schemas/Database";
 import { ExpressionBuilder, Kysely } from "kysely";
-import { generateDatabaseId } from "@/lib/db-utils";
+import { generateDatabaseId } from "../lib/db-utils";
 import { Result, err, ok } from "neverthrow";
-import { Session } from "@/schemas/public/Session";
-import { InsertSession } from "@/types/session";
+import { Session } from "../schemas/public/Session";
+import { InsertSession } from "../types/session";
 import { jsonArrayFrom } from "kysely/helpers/postgres";
 
 export async function getSessions(db: Kysely<DB>, hardwareId: string) {

@@ -1,8 +1,8 @@
-import { db } from "@/db/kysely";
+import { db } from "../db/kysely";
 import Elysia, { t } from "elysia";
-import { createFamily } from "@/db/family";
-import { insertFamily } from "@/types/family";
-import { WorkspaceMiddleware } from "@/middlewares/workspace";
+import { createFamily } from "../db/family";
+import { insertFamily } from "../types/family";
+import { WorkspaceMiddleware } from "../middlewares/workspace";
 
 export const FamilyRoute = new Elysia({ prefix: "/family" })
   .use(WorkspaceMiddleware)

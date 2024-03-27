@@ -1,6 +1,6 @@
 import { Elysia, error, t } from "elysia";
 import { AuthMiddleware } from "./auth";
-import { db } from "@/db/kysely";
+import { db } from "../db/kysely";
 
 export const WorkspaceMiddleware = new Elysia({ name: "WorkspaceMiddleware" })
   .guard({

@@ -1,7 +1,7 @@
-import { db } from "@/db/kysely";
+import { db } from "../db/kysely";
 import Elysia, { t } from "elysia";
-import { WorkspaceMiddleware } from "@/middlewares/workspace";
-import { getSession, getSessions } from "@/db/session";
+import { WorkspaceMiddleware } from "../middlewares/workspace";
+import { getSession, getSessions } from "../db/session";
 
 export const SessionRoute = new Elysia({ prefix: "/session" })
   .use(WorkspaceMiddleware)

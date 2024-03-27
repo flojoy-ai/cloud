@@ -1,4 +1,4 @@
-import { Hardware } from "@/schemas/public/Hardware";
+import { Hardware } from "../schemas/public/Hardware";
 import { Static, t } from "elysia";
 import { Model } from "./model";
 

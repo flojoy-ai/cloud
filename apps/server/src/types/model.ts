@@ -1,4 +1,4 @@
-import { Model } from "@/schemas/public/Model";
+import { Model } from "../schemas/public/Model";
 import { t, Static } from "elysia";
 
 export type { Model };

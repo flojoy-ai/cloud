@@ -1,10 +1,10 @@
-import type DB from "@/schemas/Database";
+import type DB from "../schemas/Database";
 import { Kysely } from "kysely";
-import { generateDatabaseId } from "@/lib/db-utils";
-import { markUpdatedAt } from "@/db/query";
-import { InsertModel, ModelTreeNode, ModelTreeRoot } from "@/types/model";
+import { generateDatabaseId } from "../lib/db-utils";
+import { markUpdatedAt } from "../db/query";
+import { InsertModel, ModelTreeNode, ModelTreeRoot } from "../types/model";
 import { Result, err, ok } from "neverthrow";
-import { Model } from "@/schemas/public/Model";
+import { Model } from "../schemas/public/Model";
 import { db } from "./kysely";
 
 export async function createModel(

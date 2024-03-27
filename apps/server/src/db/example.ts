@@ -1,7 +1,7 @@
-import type DB from "@/schemas/Database";
+import type DB from "../schemas/Database";
 import _ from "lodash";
 
-import { generateDatabaseId } from "@/lib/db-utils";
+import { generateDatabaseId } from "../lib/db-utils";
 import { Kysely } from "kysely";
 import { err, ok, safeTry } from "neverthrow";
 import { createFamily } from "./family";

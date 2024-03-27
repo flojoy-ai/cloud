@@ -4,10 +4,10 @@ import {
   generateCodeVerifier,
   OAuth2RequestError,
 } from "arctic";
-import { entra, lucia } from "@/auth/lucia";
-import { env } from "@/env";
-import { generateDatabaseId } from "@/lib/db-utils";
-import { db } from "@/db/kysely";
+import { entra, lucia } from "../../auth/lucia";
+import { env } from "../../env";
+import { generateDatabaseId } from "../../lib/db-utils";
+import { db } from "../../db/kysely";
 
 export const AuthEntraRoute = new Elysia({ prefix: "/auth/entra" })
   .get(

@@ -1,22 +1,6 @@
-import { env } from "@/env";
-import type { App } from "@cloud/server/src/index";
-import { treaty } from "@elysiajs/eden";
 import { QueryClient } from "@tanstack/react-query";
-import SuperJSON from "superjson";
+import { api } from "@cloud/shared";
 
 export const queryClient = new QueryClient();
 
-export const client = treaty<App>(env.VITE_SERVER_URL, {
-  async onResponse(response) {
-    if (response.ok) {
-      return SuperJSON.parse(await response.text());
-    }
-    throw response;
-  },
-  headers: {
-    Origin: env.VITE_SERVER_URL,
-  },
-  fetch: {
-    credentials: "include",
-  },
-});
+export const client = api;

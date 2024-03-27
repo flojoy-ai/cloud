@@ -4,10 +4,10 @@ import {
   generateCodeVerifier,
   OAuth2RequestError,
 } from "arctic";
-import { google, lucia } from "@/auth/lucia";
-import { env } from "@/env";
-import { generateDatabaseId } from "@/lib/db-utils";
-import { db } from "@/db/kysely";
+import { google, lucia } from "../../auth/lucia";
+import { env } from "../../env";
+import { generateDatabaseId } from "../../lib/db-utils";
+import { db } from "../../db/kysely";
 
 export const AuthGoogleRoute = new Elysia({ prefix: "/auth/google" })
   .get(

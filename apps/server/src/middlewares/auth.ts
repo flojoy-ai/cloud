@@ -1,5 +1,5 @@
-import { lucia } from "@/auth/lucia";
-import { env } from "@/env";
+import { lucia } from "../auth/lucia";
+import { env } from "../env";
 import { Elysia } from "elysia";
 import { verifyRequestOrigin } from "lucia";
 

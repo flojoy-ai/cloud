@@ -1,4 +1,4 @@
-import type PublicSchema from "@/schemas/public/PublicSchema";
+import type PublicSchema from "../schemas/public/PublicSchema";
 import { createId } from "@paralleldrive/cuid2";
 import { ResultAsync, fromPromise } from "neverthrow";
 import { DatabaseError } from "pg";

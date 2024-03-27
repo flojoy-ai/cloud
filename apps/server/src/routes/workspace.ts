@@ -1,10 +1,10 @@
-import { AuthMiddleware } from "@/middlewares/auth";
-import { createWorkspace } from "@/types/workspace";
+import { AuthMiddleware } from "../middlewares/auth";
+import { createWorkspace } from "../types/workspace";
 import { Elysia, NotFoundError, t } from "elysia";
-import { db } from "@/db/kysely";
+import { db } from "../db/kysely";
 import { DatabaseError } from "pg";
-import { generateDatabaseId } from "@/lib/db-utils";
-import { populateExample } from "@/db/example";
+import { generateDatabaseId } from "../lib/db-utils";
+import { populateExample } from "../db/example";
 
 export const workspaceRoute = new Elysia({ prefix: "/workspace" })
   .use(AuthMiddleware)

@@ -23,7 +23,7 @@ import {
 } from "@/lib/queries/hardware";
 import { getModelQueryOpts } from "@/lib/queries/model";
 import { getSessionsQueryOpts } from "@/lib/queries/session";
-import { Session } from "@cloud/server/src/types/session";
+import { Session } from "@cloud/shared";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
@@ -56,7 +56,7 @@ export const Route = createFileRoute(
   },
 });
 
-const columns: ColumnDef<Session>[] = [
+const columns: ColumnDef<Session.Session>[] = [
   {
     accessorKey: "createdAt",
     header: "Date",

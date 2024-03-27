@@ -5,13 +5,13 @@ import {
   getHardwareTree,
   notInUse,
   withHardwareModel,
-} from "@/db/hardware";
-import { db } from "@/db/kysely";
-import { HardwareMiddleware } from "@/middlewares/hardware";
-import { WorkspaceMiddleware } from "@/middlewares/workspace";
-import { insertHardware, swapHardwareComponent } from "@/types/hardware";
-import { Model } from "@/types/model";
-import { queryBool } from "@/types/utils";
+} from "../db/hardware";
+import { db } from "../db/kysely";
+import { HardwareMiddleware } from "../middlewares/hardware";
+import { WorkspaceMiddleware } from "../middlewares/workspace";
+import { insertHardware, swapHardwareComponent } from "../types/hardware";
+import { Model } from "../types/model";
+import { queryBool } from "../types/utils";
 import Elysia, { t } from "elysia";
 import { jsonObjectFrom } from "kysely/helpers/postgres";
 

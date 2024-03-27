@@ -1,5 +1,5 @@
 import { t, Static } from "elysia";
-import { Session } from "@/schemas/public/Session";
+import { Session } from "../schemas/public/Session";
 
 export type { Session };
 

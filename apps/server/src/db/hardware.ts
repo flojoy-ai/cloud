@@ -1,20 +1,20 @@
-import { generateDatabaseId } from "@/lib/db-utils";
+import { generateDatabaseId } from "../lib/db-utils";
 import {
   BadRequestError,
   DuplicateError,
   RouteError,
   InternalServerError,
   NotFoundError,
-} from "@/lib/error";
-import DB from "@/schemas/Database";
-import { WorkspaceUser } from "@/schemas/public/WorkspaceUser";
+} from "../lib/error";
+import DB from "../schemas/Database";
+import { WorkspaceUser } from "../schemas/public/WorkspaceUser";
 import {
   Hardware,
   HardwareTreeNode,
   HardwareTreeRoot,
   InsertHardware,
   SwapHardwareComponent,
-} from "@/types/hardware";
+} from "../types/hardware";
 import { ExpressionBuilder, Kysely } from "kysely";
 import { jsonObjectFrom } from "kysely/helpers/postgres";
 import _ from "lodash";

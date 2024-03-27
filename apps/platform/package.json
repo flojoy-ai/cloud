@@ -4,7 +4,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "pnpm migrate:to-latest && next build",
     "build:analyze": "ANALYZE=true next build",
     "with-env": "dotenv -c --",
     "start": "next start",

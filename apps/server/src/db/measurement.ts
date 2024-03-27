@@ -1,8 +1,8 @@
-import type DB from "@/schemas/Database";
+import type DB from "../schemas/Database";
 import { type Kysely } from "kysely";
-import { InsertMeasurement } from "@/types/measurement";
-import { generateDatabaseId } from "@/lib/db-utils";
-import { getTagsByNames, markUpdatedAt } from "@/db/query";
+import { InsertMeasurement } from "../types/measurement";
+import { generateDatabaseId } from "../lib/db-utils";
+import { getTagsByNames, markUpdatedAt } from "../db/query";
 import { err } from "neverthrow";
 
 export async function createMeasurement(

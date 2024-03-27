@@ -1,5 +1,5 @@
-import { db } from "@/db/kysely";
-import { WorkspaceMiddleware } from "@/middlewares/workspace";
+import { db } from "../db/kysely";
+import { WorkspaceMiddleware } from "../middlewares/workspace";
 import Elysia from "elysia";
 
 export const ProductRoute = new Elysia({ prefix: "/product" })

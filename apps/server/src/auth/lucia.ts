@@ -1,10 +1,10 @@
 import { Lucia } from "lucia";
 import { MicrosoftEntraId } from "arctic";
 
-import { env } from "@/env";
+import { env } from "../env";
 import { Google } from "arctic";
 import { NodePostgresAdapter } from "@lucia-auth/adapter-postgresql";
-import { pool } from "@/db/kysely";
+import { pool } from "../db/kysely";
 
 const adapter = new NodePostgresAdapter(pool, {
   user: "user",

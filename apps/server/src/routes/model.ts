@@ -1,8 +1,8 @@
-import { db } from "@/db/kysely";
+import { db } from "../db/kysely";
 import Elysia, { t } from "elysia";
-import { createModel, getModelTree } from "@/db/model";
-import { Model, insertModel } from "@/types/model";
-import { WorkspaceMiddleware } from "@/middlewares/workspace";
+import { createModel, getModelTree } from "../db/model";
+import { Model, insertModel } from "../types/model";
+import { WorkspaceMiddleware } from "../middlewares/workspace";
 import { jsonObjectFrom } from "kysely/helpers/postgres";
 
 export const ModelRoute = new Elysia({ prefix: "/model" })

@@ -19,7 +19,6 @@ export const Route = createFileRoute("/_public/signup")({
 
 function SignUp() {
   const { authMethods } = Route.useRouteContext();
-  console.log(authMethods);
 
   return (
     <div>

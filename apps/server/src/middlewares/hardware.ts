@@ -1,7 +1,7 @@
 import { Elysia, error, t } from "elysia";
 import { AuthMiddleware } from "./auth";
-import { getHardware } from "@/db/hardware";
-import { getWorkspaceUser } from "@/db/workspace";
+import { getHardware } from "../db/hardware";
+import { getWorkspaceUser } from "../db/workspace";
 
 export const HardwareMiddleware = new Elysia({ name: "HardwareMiddleware" })
   .guard({
