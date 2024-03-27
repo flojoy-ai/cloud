@@ -13,6 +13,7 @@
   "dependencies": {
     "@cloud/eslint-config": "workspace:*",
     "@cloud/shared": "workspace:*",
+    "@cloud/tsconfig": "workspace:*",
     "@cloud/server": "workspace:*",
     "@dagrejs/dagre": "^1.1.1",
     "@elysiajs/eden": "^1.0.5",
