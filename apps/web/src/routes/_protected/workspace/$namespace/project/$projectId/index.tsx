@@ -1,4 +1,12 @@
 import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import {
   Card,
   // CardContent,
   CardDescription,
@@ -12,15 +20,6 @@ import {
   PageHeaderHeading,
 } from "@/components/small-header";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { getProjectQueryOpts } from "@/lib/queries/project";
 import NewStation from "@/components/station/new-station";
 import { getStationsQueryOpts } from "@/lib/queries/station";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -31,12 +30,6 @@ import { getModelQueryOpts } from "@/lib/queries/model";
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/project/$projectId/",
 )({
-  beforeLoad: async ({ context, params: { projectId } }) => {
-    const project = await context.queryClient.ensureQueryData(
-      getProjectQueryOpts({ projectId, context }),
-    );
-    return { project };
-  },
   loader: ({ context, params: { projectId } }) => {
     context.queryClient.ensureQueryData(
       getStationsQueryOpts({ projectId, context }),
@@ -68,11 +61,7 @@ function Page() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link
-                from={Route.fullPath}
-                to="../.."
-                params={{ namespace: workspace.namespace }}
-              >
+              <Link from={Route.fullPath} to="../..">
                 {workspace.name}
               </Link>
             </BreadcrumbLink>
@@ -80,11 +69,7 @@ function Page() {
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link
-                from={Route.fullPath}
-                to=".."
-                params={{ namespace: workspace.namespace }}
-              >
+              <Link from={Route.fullPath} to="..">
                 Production Lines
               </Link>
             </BreadcrumbLink>

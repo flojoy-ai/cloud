@@ -23,6 +23,15 @@ export const StationRoute = new Elysia({
     }
   })
   // .use(ProjectMiddleware)
+  .get("/:stationId", async ({ params: { stationId } }) => {
+    // FIXME: permission check
+    const station = await db
+      .selectFrom("station as s")
+      .selectAll()
+      .where("s.id", "=", stationId)
+      .executeTakeFirstOrThrow();
+    return station;
+  })
   .get(
     "/",
     async ({ query }) => {

@@ -29,26 +29,28 @@ export function getStationsQueryOpts({ projectId, context }: getStationsProps) {
   });
 }
 
-// type getStationProps = {
-//   stationId: string;
-//   context: {
-//     workspace: Workspace;
-//   };
-// };
-//
-// export function getStationOpts({ stationId, context }: getStationProps) {
-//   return queryOptions({
-//     queryFn: async () => {
-//       const { data: station, error } = await client
-//         .station({ stationId })
-//         .index.get({
-//           headers: { "flojoy-workspace-id": context.workspace.id },
-//         });
-//       if (error) {
-//         throw error;
-//       }
-//       return station;
-//     },
-//     queryKey: ["project", projectId],
-//   });
-// }
+type getStationProps = {
+  stationId: string;
+  context: {
+    workspace: Workspace;
+  };
+};
+
+export function getStationQueryKey(stationId: string) {
+  return ["station", stationId];
+}
+
+export function getStationQueryOpts({ stationId, context }: getStationProps) {
+  return queryOptions({
+    queryFn: async () => {
+      const { data: station, error } = await client.station({ stationId }).get({
+        headers: { "flojoy-workspace-id": context.workspace.id },
+      });
+      if (error) {
+        throw error;
+      }
+      return station;
+    },
+    queryKey: getStationQueryKey(stationId),
+  });
+}
