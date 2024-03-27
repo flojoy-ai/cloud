@@ -101,7 +101,7 @@ function ModelPage() {
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
               <Link
-                to="/workspace/$namespace/hardware"
+                to="/workspace/$namespace/family"
                 params={{ namespace: workspace.namespace }}
               >
                 Hardware Inventory
@@ -112,7 +112,7 @@ function ModelPage() {
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
               <Link
-                to="/workspace/$namespace/hardware/$familyId"
+                to="/workspace/$namespace/family/$familyId"
                 params={{ namespace: workspace.namespace, familyId: family.id }}
               >
                 {family.name}
@@ -154,7 +154,7 @@ function ModelPage() {
               onRowClick={(row) =>
                 router.navigate({
                   from: Route.fullPath,
-                  to: "$hardwareId",
+                  to: "hardware/$hardwareId",
                   params: { hardwareId: row.id },
                 })
               }

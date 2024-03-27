@@ -65,8 +65,6 @@ function HardwareInventory() {
   const context = Route.useRouteContext();
   const { workspace } = context;
 
-  const { namespace } = Route.useParams();
-
   const router = useRouter();
 
   const { data: families } = useSuspenseQuery(
@@ -122,8 +120,9 @@ function HardwareInventory() {
           onRowClick={(row) => {
             console.log(row);
             router.navigate({
-              to: "/workspace/$namespace/hardware/$familyId/",
-              params: { namespace, familyId: row.id },
+              from: Route.fullPath,
+              to: "$familyId",
+              params: { familyId: row.id },
             });
           }}
         />
