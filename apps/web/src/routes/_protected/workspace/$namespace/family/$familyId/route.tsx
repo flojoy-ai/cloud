@@ -2,7 +2,7 @@ import { getFamilyQueryOpts } from "@/lib/queries/family";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute(
-  "/_protected/workspace/$namespace/hardware/$familyId",
+  "/_protected/workspace/$namespace/family/$familyId",
 )({
   component: Page,
   beforeLoad: async ({ context, params: { familyId } }) => {

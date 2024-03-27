@@ -19,9 +19,14 @@ export const insertHardware = t.Object({
 
 export type InsertHardware = Static<typeof insertHardware>;
 
-export type HardwareTree = Pick<Hardware, "name" | "id" | "modelId"> & {
+export type HardwareTreeRoot = HardwareWithModel &
+  HardwareWithParent & {
+    components: HardwareTreeNode[];
+  };
+
+export type HardwareTreeNode = Pick<Hardware, "name" | "id" | "modelId"> & {
   modelName: string;
-  components: HardwareTree[];
+  components: HardwareTreeNode[];
 };
 
 export const swapHardwareComponent = t.Object({

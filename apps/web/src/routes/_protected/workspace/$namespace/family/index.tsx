@@ -26,7 +26,7 @@ import { getFamiliesQueryOpts } from "@/lib/queries/family";
 import { getProductsQueryOpts } from "@/lib/queries/product";
 
 export const Route = createFileRoute(
-  "/_protected/workspace/$namespace/hardware/",
+  "/_protected/workspace/$namespace/family/",
 )({
   component: HardwareInventory,
   loader: async ({ context }) => {

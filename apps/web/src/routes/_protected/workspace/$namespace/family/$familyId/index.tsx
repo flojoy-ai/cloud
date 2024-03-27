@@ -27,7 +27,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { useState } from "react";
 
 export const Route = createFileRoute(
-  "/_protected/workspace/$namespace/hardware/$familyId/",
+  "/_protected/workspace/$namespace/family/$familyId/",
 )({
   component: FamilyPage,
   loader: ({ context, params: { familyId } }) => {

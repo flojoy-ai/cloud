@@ -10,8 +10,8 @@ import DB from "@/schemas/Database";
 import { WorkspaceUser } from "@/schemas/public/WorkspaceUser";
 import {
   Hardware,
-  HardwareTree,
-  HardwareWithModel,
+  HardwareTreeNode,
+  HardwareTreeRoot,
   InsertHardware,
   SwapHardwareComponent,
 } from "@/types/hardware";
@@ -250,8 +250,8 @@ export function withHardwareModel(eb: ExpressionBuilder<DB, "hardware">) {
 }
 
 export async function getHardwareTree(
-  hardware: HardwareWithModel,
-): Promise<HardwareTree> {
+  hardware: Omit<HardwareTreeRoot, "components">,
+): Promise<HardwareTreeRoot> {
   const edges = await db
     .withRecursive("hardware_tree", (qb) =>
       qb
@@ -301,17 +301,14 @@ type HardwareEdge = {
 };
 
 export function buildHardwareTree(
-  root: HardwareWithModel,
+  rootHardware: Omit<HardwareTreeRoot, "components">,
   edges: HardwareEdge[],
 ) {
-  const nodes = new Map<string, HardwareTree>();
-  nodes.set(root.id, { ...root, modelName: root.model.name, components: [] });
+  const nodes = new Map<string, HardwareTreeNode>();
+  const root: HardwareTreeRoot = { ...rootHardware, components: [] };
 
   for (const edge of edges) {
-    const parent = nodes.get(edge.parentHardwareId);
-    if (!parent) {
-      throw new Error("Shouldn't happen");
-    }
+    const parent = nodes.get(edge.parentHardwareId) ?? root;
     let cur = nodes.get(edge.hardwareId);
 
     if (!cur) {
@@ -328,7 +325,7 @@ export function buildHardwareTree(
     parent.components.push(cur);
   }
 
-  return nodes.get(root.id)!;
+  return root;
 }
 
 export async function getHardwareComponentsWithModel(id: string) {

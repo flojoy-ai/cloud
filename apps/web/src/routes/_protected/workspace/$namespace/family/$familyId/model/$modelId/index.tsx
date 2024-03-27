@@ -24,7 +24,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 
 export const Route = createFileRoute(
-  "/_protected/workspace/$namespace/hardware/$familyId/$modelId/",
+  "/_protected/workspace/$namespace/family/$familyId/model/$modelId/",
 )({
   component: ModelPage,
   loader: ({ context, params: { modelId } }) => {

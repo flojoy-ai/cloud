@@ -4,7 +4,7 @@ import {
   PageHeader,
   PageHeaderDescription,
   PageHeaderHeading,
-} from "@/components/page-header";
+} from "@/components/small-header";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -27,7 +27,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
 
 export const Route = createFileRoute(
-  "/_protected/workspace/$namespace/hardware/$familyId/$modelId/$hardwareId/",
+  "/_protected/workspace/$namespace/family/$familyId/model/$modelId/hardware/$hardwareId/",
 )({
   component: HardwarePage,
   beforeLoad: async ({ context, params: { hardwareId } }) => {
@@ -146,9 +146,14 @@ function HardwarePage() {
           listed here.
         </PageHeaderDescription>
       </PageHeader>
-
+      <div className="py-2" />
+      {hardware.parent && (
+        <div>
+          <span className="font-medium text-muted-foreground">In use: </span>
+          <Link to=""></Link>
+        </div>
+      )}
       <div className="py-4" />
-
       <div className="flex gap-x-8">
         <div className="w-3/5">
           <ScrollArea className="h-[380px]">

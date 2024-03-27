@@ -11,7 +11,9 @@ import { HardwareMiddleware } from "@/middlewares/hardware";
 import { WorkspaceMiddleware } from "@/middlewares/workspace";
 import { insertHardware, swapHardwareComponent } from "@/types/hardware";
 import { Model } from "@/types/model";
+import { queryBool } from "@/types/utils";
 import Elysia, { t } from "elysia";
+import { jsonObjectFrom } from "kysely/helpers/postgres";
 
 export const HardwareRoute = new Elysia({ prefix: "/hardware" })
   .use(WorkspaceMiddleware)
@@ -35,18 +37,7 @@ export const HardwareRoute = new Elysia({ prefix: "/hardware" })
     },
     {
       query: t.Object({
-        onlyAvailable: t
-          .Transform(t.String())
-          .Decode((arg) => {
-            if (arg === "true" || arg === "1") {
-              return true;
-            }
-            if (arg === "false" || arg === "0") {
-              return false;
-            }
-            return false;
-          })
-          .Encode((arg) => (arg ? "true" : "false")),
+        onlyAvailable: queryBool,
       }),
     },
   )
@@ -74,6 +65,19 @@ export const HardwareRoute = new Elysia({ prefix: "/hardware" })
             .where("id", "=", hardwareId)
             .where("workspaceId", "=", workspace.id)
             .select((eb) => withHardwareModel(eb))
+            .leftJoin(
+              "hardware_relation",
+              "hardware.id",
+              "hardware_relation.childHardwareId",
+            )
+            .select((eb) =>
+              jsonObjectFrom(
+                eb
+                  .selectFrom("hardware as h")
+                  .selectAll("h")
+                  .whereRef("h.id", "=", "hardware_relation.parentHardwareId"),
+              ).as("parent"),
+            )
             .$narrowType<{ model: Model }>()
             .executeTakeFirst();
           if (hardware === undefined) {

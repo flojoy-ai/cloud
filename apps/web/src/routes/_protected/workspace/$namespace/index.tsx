@@ -10,7 +10,6 @@ export const Route = createFileRoute("/_protected/workspace/$namespace/")({
 });
 
 function Page() {
-  const { namespace } = Route.useParams();
   const { workspace } = Route.useRouteContext();
 
   return (
@@ -34,8 +33,8 @@ function Page() {
 
         <div className="flex gap-x-6">
           <Link
-            to={`/workspace/$namespace/project`}
-            params={{ namespace }}
+            from={Route.fullPath}
+            to="project"
             className={cn(
               "text-foreground/60 transition-colors hover:text-foreground/80",
             )}
@@ -43,8 +42,8 @@ function Page() {
             Production Lines
           </Link>
           <Link
-            to={`/workspace/$namespace/hardware`}
-            params={{ namespace }}
+            from={Route.fullPath}
+            to="family"
             className={cn(
               "text-foreground/60 transition-colors hover:text-foreground/80",
             )}
@@ -53,8 +52,8 @@ function Page() {
           </Link>
 
           <Link
-            to={`/workspace/$namespace/settings`}
-            params={{ namespace }}
+            from={Route.fullPath}
+            to="settings"
             className={cn(
               "text-foreground/60 transition-colors hover:text-foreground/80",
             )}
