@@ -2,32 +2,28 @@ import RevisionHistory from "@/components/hardware/revision-history";
 import SwapHardware from "@/components/hardware/swap-hardware";
 import {
   PageHeader,
-  PageHeaderHeading,
   PageHeaderDescription,
+  PageHeaderHeading,
 } from "@/components/page-header";
-import { SessionsTable } from "@/components/session/sessions-table";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import {
   Breadcrumb,
-  BreadcrumbList,
   BreadcrumbItem,
   BreadcrumbLink,
-  BreadcrumbSeparator,
+  BreadcrumbList,
   BreadcrumbPage,
+  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { DataTable } from "@/components/ui/data-table";
 import { HardwareTreeVisualization } from "@/components/visualization/tree-visualization";
 import {
   getHardwareQueryOpts,
   getHardwareRevisionsQueryOpts,
 } from "@/lib/queries/hardware";
 import { getSessionsOpts } from "@/lib/queries/session";
+import { Session } from "@cloud/server/src/types/session";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { ColumnDef } from "@tanstack/react-table";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/hardware/$familyId/$modelId/$hardwareId/",
@@ -48,6 +44,21 @@ export const Route = createFileRoute(
     );
   },
 });
+
+const columns: ColumnDef<Session>[] = [
+  {
+    accessorKey: "createdAt",
+    header: "Date",
+  },
+  {
+    accessorKey: "userId",
+    header: "User",
+  },
+  {
+    accessorKey: "notes",
+    header: "Notes",
+  },
+];
 
 function HardwarePage() {
   const context = Route.useRouteContext();
@@ -135,31 +146,21 @@ function HardwarePage() {
         </PageHeaderDescription>
       </PageHeader>
 
-      <Accordion type="single" collapsible>
-        <AccordionItem value="item-1">
-          <AccordionTrigger className="hover:no-underline">
-            Component Graph
-          </AccordionTrigger>
-          <AccordionContent>
-            <div className="w-full p-1">
-              <div className="h-96 rounded-md border border-muted">
-                <HardwareTreeVisualization tree={hardware} />
-              </div>
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
-
       <div className="py-4" />
 
-      <SessionsTable data={sessions} />
-
-      {/* <HardwareMeasurements */}
-      {/*   hardwareId={params.hardwareId} */}
-      {/*   hardware={hardware} */}
-      {/*   namespace={params.namespace} */}
-      {/*   initialMeasurements={measurements} */}
-      {/* /> */}
+      <div className="flex gap-x-8">
+        <div className="w-3/5">
+          <DataTable
+            columns={columns}
+            data={sessions}
+            scrollable
+            scrollHeight={328}
+          />
+        </div>
+        <div className="w-2/5 h-[379px] border rounded-lg">
+          <HardwareTreeVisualization tree={hardware} />
+        </div>
+      </div>
     </div>
   );
 }

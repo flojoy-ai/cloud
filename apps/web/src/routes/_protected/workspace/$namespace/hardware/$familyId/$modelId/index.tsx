@@ -1,38 +1,26 @@
 import CreateHardware from "@/components/hardware/create-hardware";
-import { Icons } from "@/components/icons";
 import {
   PageHeader,
   PageHeaderDescription,
   PageHeaderHeading,
 } from "@/components/small-header";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import {
   Breadcrumb,
-  BreadcrumbList,
   BreadcrumbItem,
   BreadcrumbLink,
-  BreadcrumbSeparator,
+  BreadcrumbList,
   BreadcrumbPage,
+  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { DataTable } from "@/components/ui/data-table";
-import {
-  HardwareTreeVisualization,
-  ModelTreeVisualization,
-} from "@/components/visualization/tree-visualization";
-import { client } from "@/lib/client";
+import { ModelTreeVisualization } from "@/components/visualization/tree-visualization";
 import { getModelHardwareQueryOpts } from "@/lib/queries/hardware";
 import { Hardware } from "@cloud/server/src/types/hardware";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { Link, createFileRoute, useRouter } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
-import { useState } from "react";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/hardware/$familyId/$modelId/",
@@ -50,15 +38,7 @@ const hardwareColumns: ColumnDef<Hardware>[] = [
     accessorKey: "name",
     header: "Instance SN",
     cell: ({ row }) => {
-      return (
-        <Link
-          from={Route.fullPath}
-          to="./$hardwareId"
-          params={{ hardwareId: row.original.id }}
-        >
-          <Badge variant="secondary">{row.original.name}</Badge>
-        </Link>
-      );
+      return <Badge variant="secondary">{row.original.name}</Badge>;
     },
   },
   // {
@@ -88,29 +68,26 @@ const hardwareColumns: ColumnDef<Hardware>[] = [
 function ModelPage() {
   const { workspace, family, model } = Route.useRouteContext();
   const { modelId } = Route.useParams();
+  const router = useRouter();
 
   const { data: hardware } = useSuspenseQuery(
     getModelHardwareQueryOpts({ modelId, context: { workspace } }),
   );
 
-  const [selectedHardwareId, setSelectedHardwareId] = useState<
-    string | undefined
-  >(hardware[0]?.id);
-
-  const { data: hardwareTree, isPending } = useQuery({
-    queryFn: async () => {
-      if (!selectedHardwareId) return undefined;
-      const { data, error } = await client
-        .hardware({ hardwareId: selectedHardwareId })
-        .index.get({
-          headers: { "flojoy-workspace-id": workspace.id },
-        });
-      if (error) throw error;
-      return data;
-    },
-    queryKey: ["hardware", selectedHardwareId],
-    enabled: selectedHardwareId !== undefined,
-  });
+  // const { data: hardwareTree, isPending } = useQuery({
+  //   queryFn: async () => {
+  //     if (!selectedHardwareId) return undefined;
+  //     const { data, error } = await client
+  //       .hardware({ hardwareId: selectedHardwareId })
+  //       .index.get({
+  //         headers: { "flojoy-workspace-id": workspace.id },
+  //       });
+  //     if (error) throw error;
+  //     return data;
+  //   },
+  //   queryKey: ["hardware", selectedHardwareId],
+  //   enabled: selectedHardwareId !== undefined,
+  // });
 
   return (
     <div className="container max-w-screen-2xl">
@@ -165,20 +142,6 @@ function ModelPage() {
           <br />
         </PageHeaderDescription>
       </PageHeader>
-      <Accordion type="single" collapsible>
-        <AccordionItem value="item-1">
-          <AccordionTrigger className="hover:no-underline">
-            Component Graph
-          </AccordionTrigger>
-          <AccordionContent>
-            <div className="w-full p-1">
-              <div className="h-96 rounded-md border border-muted">
-                <ModelTreeVisualization tree={model} />
-              </div>
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
       <div className="py-4" />
       <CreateHardware workspace={workspace} modelId={model.id}>
         <div className="flex items-center gap-1">
@@ -190,22 +153,23 @@ function ModelPage() {
       <h1 className="text-xl font-bold">Part Variations</h1>
       <div className="py-2" />
       <div className="flex gap-x-8">
-        <div className="w-1/2">
+        <div className="w-3/5">
           <DataTable
             columns={hardwareColumns}
             data={hardware}
-            onRowClick={(row) => setSelectedHardwareId(row.id)}
-            highlightRow={(row) => row.id === selectedHardwareId}
+            onRowClick={(row) =>
+              router.navigate({
+                from: Route.fullPath,
+                to: "$hardwareId",
+                params: { hardwareId: row.id },
+              })
+            }
             scrollable
             scrollHeight={328}
           />
         </div>
-        <div className="w-1/2 h-[379px] border rounded-lg">
-          {isPending ? (
-            <Icons.spinner className="mx-auto animate-spin" />
-          ) : (
-            hardwareTree && <HardwareTreeVisualization tree={hardwareTree} />
-          )}
+        <div className="w-2/5 h-[379px] border rounded-lg">
+          <ModelTreeVisualization tree={model} />
         </div>
       </div>
       <div className="py-4" />
