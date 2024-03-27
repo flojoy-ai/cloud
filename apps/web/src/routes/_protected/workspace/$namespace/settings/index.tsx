@@ -1,64 +1,28 @@
-import { Link, createFileRoute } from "@tanstack/react-router";
-
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-
-import {
-  PageHeader,
-  PageHeaderDescription,
-  PageHeaderHeading,
-} from "@/components/small-header";
-import { Separator } from "@/components/ui/separator";
+import { createFileRoute } from "@tanstack/react-router";
+import { workspaceSettingsTabSchema } from "@/types/setting";
+import WorkspaceGeneral from "@/components/settings/workspace-general";
+import WorkspaceUsers from "@/components/settings/workspace-users";
+import WorkspaceSecret from "@/components/settings/workspace-secret";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/settings/",
 )({
+  validateSearch: (search) => {
+    return workspaceSettingsTabSchema.parse(search);
+  },
   component: Page,
 });
 
 function Page() {
-  const context = Route.useRouteContext();
-  const { workspace } = context;
+  // const context = Route.useRouteContext();
+  // const { workspace } = context;
 
+  const { tab } = Route.useSearch();
   return (
-    <div className="container max-w-screen-2xl">
-      <div className="py-2"></div>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link
-                to="/workspace/$namespace"
-                params={{ namespace: workspace.namespace }}
-              >
-                {workspace.name}
-              </Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Workspace Settings</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-      <PageHeader>
-        <PageHeaderHeading>Workspace Settings</PageHeaderHeading>
-        <PageHeaderDescription>
-          Here you can find all your registered devices and systems in this
-          workspace. <br />
-        </PageHeaderDescription>
-      </PageHeader>
-      <div className="py-4" />
-
-      <Separator />
-
-      <div className="py-4" />
+    <div className="">
+      {tab === "general" && <WorkspaceGeneral />}
+      {tab === "users" && <WorkspaceUsers />}
+      {tab === "secret" && <WorkspaceSecret />}
     </div>
   );
 }

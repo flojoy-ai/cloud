@@ -22,6 +22,7 @@ import { Route as ProtectedWorkspaceIndexImport } from './routes/_protected/work
 import { Route as ProtectedProfileIndexImport } from './routes/_protected/profile/index'
 import { Route as ProtectedWorkspaceNamespaceRouteImport } from './routes/_protected/workspace/$namespace/route'
 import { Route as ProtectedWorkspaceNamespaceIndexImport } from './routes/_protected/workspace/$namespace/index'
+import { Route as ProtectedWorkspaceNamespaceSettingsRouteImport } from './routes/_protected/workspace/$namespace/settings/route'
 import { Route as ProtectedWorkspaceNamespaceSettingsIndexImport } from './routes/_protected/workspace/$namespace/settings/index'
 import { Route as ProtectedWorkspaceNamespaceProjectIndexImport } from './routes/_protected/workspace/$namespace/project/index'
 import { Route as ProtectedWorkspaceNamespaceHardwareIndexImport } from './routes/_protected/workspace/$namespace/hardware/index'
@@ -91,10 +92,16 @@ const ProtectedWorkspaceNamespaceIndexRoute =
     getParentRoute: () => ProtectedWorkspaceNamespaceRouteRoute,
   } as any)
 
+const ProtectedWorkspaceNamespaceSettingsRouteRoute =
+  ProtectedWorkspaceNamespaceSettingsRouteImport.update({
+    path: '/settings',
+    getParentRoute: () => ProtectedWorkspaceNamespaceRouteRoute,
+  } as any)
+
 const ProtectedWorkspaceNamespaceSettingsIndexRoute =
   ProtectedWorkspaceNamespaceSettingsIndexImport.update({
-    path: '/settings/',
-    getParentRoute: () => ProtectedWorkspaceNamespaceRouteRoute,
+    path: '/',
+    getParentRoute: () => ProtectedWorkspaceNamespaceSettingsRouteRoute,
   } as any)
 
 const ProtectedWorkspaceNamespaceProjectIndexRoute =
@@ -197,6 +204,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedWorkspaceIndexImport
       parentRoute: typeof ProtectedImport
     }
+    '/_protected/workspace/$namespace/settings': {
+      preLoaderRoute: typeof ProtectedWorkspaceNamespaceSettingsRouteImport
+      parentRoute: typeof ProtectedWorkspaceNamespaceRouteImport
+    }
     '/_protected/workspace/$namespace/': {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceIndexImport
       parentRoute: typeof ProtectedWorkspaceNamespaceRouteImport
@@ -215,7 +226,7 @@ declare module '@tanstack/react-router' {
     }
     '/_protected/workspace/$namespace/settings/': {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceSettingsIndexImport
-      parentRoute: typeof ProtectedWorkspaceNamespaceRouteImport
+      parentRoute: typeof ProtectedWorkspaceNamespaceSettingsRouteImport
     }
     '/_protected/workspace/$namespace/hardware/$familyId/$modelId': {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceHardwareFamilyIdModelIdRouteImport
@@ -250,6 +261,9 @@ export const routeTree = rootRoute.addChildren([
   ProtectedRoute.addChildren([
     ProtectedSetupRoute,
     ProtectedWorkspaceNamespaceRouteRoute.addChildren([
+      ProtectedWorkspaceNamespaceSettingsRouteRoute.addChildren([
+        ProtectedWorkspaceNamespaceSettingsIndexRoute,
+      ]),
       ProtectedWorkspaceNamespaceIndexRoute,
       ProtectedWorkspaceNamespaceHardwareFamilyIdRouteRoute.addChildren([
         ProtectedWorkspaceNamespaceHardwareFamilyIdModelIdRouteRoute.addChildren(
@@ -262,7 +276,6 @@ export const routeTree = rootRoute.addChildren([
       ]),
       ProtectedWorkspaceNamespaceHardwareIndexRoute,
       ProtectedWorkspaceNamespaceProjectIndexRoute,
-      ProtectedWorkspaceNamespaceSettingsIndexRoute,
       ProtectedWorkspaceNamespaceProjectProjectIdIndexRoute,
       ProtectedWorkspaceNamespaceProjectProjectIdStationStationIdIndexRoute,
     ]),
