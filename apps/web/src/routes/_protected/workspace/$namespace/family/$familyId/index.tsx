@@ -114,7 +114,9 @@ function FamilyPage() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link to={WorkspaceIndexRoute.to}>{workspace.name}</Link>
+              <Link from={WorkspaceIndexRoute.to} to="/">
+                {workspace.name}
+              </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
