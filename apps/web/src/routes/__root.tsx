@@ -20,5 +20,6 @@ export const Route = createRootRouteWithContext<{
       )}
     </div>
   ),
+  // FIXME: this is kinda bad
   wrapInSuspense: true,
 });
