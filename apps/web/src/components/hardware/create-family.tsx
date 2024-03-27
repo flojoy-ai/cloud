@@ -33,6 +33,7 @@ import { Textarea } from "../ui/textarea";
 import { Autocomplete } from "../ui/autocomplete";
 import { Product } from "@cloud/server/src/schemas/public/Product";
 import { getProductsQueryKey } from "@/lib/queries/product";
+import { getFamiliesQueryKey } from "@/lib/queries/family";
 
 type FormSchema = Static<typeof insertFamily>;
 
@@ -60,6 +61,7 @@ const CreateFamily = ({ workspaceId, products }: Props) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getProductsQueryKey() });
+      queryClient.invalidateQueries({ queryKey: getFamiliesQueryKey() });
       setIsDialogOpen(false);
     },
   });
@@ -106,6 +108,22 @@ const CreateFamily = ({ workspaceId, products }: Props) => {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="M1234" {...field} data-1p-ignore />
+                  </FormControl>
+                  <FormDescription>
+                    What are you calling this family of parts?
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="productName"
               render={({ field }) => (
                 <FormItem>
@@ -123,22 +141,6 @@ const CreateFamily = ({ workspaceId, products }: Props) => {
                   <FormDescription>
                     Which product does this fall under? You can enter one that
                     doesn't exist yet to create it.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="M1234" {...field} data-1p-ignore />
-                  </FormControl>
-                  <FormDescription>
-                    What are you calling this family of parts?
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

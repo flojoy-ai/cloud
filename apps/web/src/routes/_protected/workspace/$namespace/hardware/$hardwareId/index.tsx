@@ -171,17 +171,24 @@ function HardwarePage() {
       <div className="flex gap-x-8">
         <div className="w-3/5">
           <ScrollArea className="h-[380px]">
-            <DataTable
-              columns={columns}
-              data={sessions}
-              onRowClick={(row) =>
-                router.navigate({
-                  from: WorkspaceIndexRoute.fullPath,
-                  to: "session/$sessionId",
-                  params: { sessionId: row.id },
-                })
-              }
-            />
+            {sessions.length === 0 ? (
+              <div className="text-muted-foreground">
+                No test sessions found, go upload one using the test sequencer
+                in Flojoy Studio!
+              </div>
+            ) : (
+              <DataTable
+                columns={columns}
+                data={sessions}
+                onRowClick={(row) =>
+                  router.navigate({
+                    from: WorkspaceIndexRoute.fullPath,
+                    to: "session/$sessionId",
+                    params: { sessionId: row.id },
+                  })
+                }
+              />
+            )}
           </ScrollArea>
         </div>
         <div className="w-2/5 h-[380px] border rounded-lg">

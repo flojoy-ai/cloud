@@ -135,23 +135,29 @@ function ModelPage() {
         </div>
       </CreateHardware>
       <div className="py-2" />
-      <h1 className="text-xl font-bold">Part Variations</h1>
+      <h1 className="text-xl font-bold">Part Instances</h1>
       <div className="py-2" />
       <div className="flex gap-x-8">
         <div className="w-3/5">
-          <ScrollArea className="h-[379px]">
-            <DataTable
-              columns={hardwareColumns}
-              data={hardware}
-              onRowClick={(row) =>
-                router.navigate({
-                  from: WorkspaceIndexRoute.fullPath,
-                  to: "hardware/$hardwareId",
-                  params: { hardwareId: row.id },
-                })
-              }
-            />
-          </ScrollArea>
+          {hardware.length === 0 ? (
+            <div className="text-muted-foreground">
+              No hardware found for this model, go register one!
+            </div>
+          ) : (
+            <ScrollArea className="h-[379px]">
+              <DataTable
+                columns={hardwareColumns}
+                data={hardware}
+                onRowClick={(row) =>
+                  router.navigate({
+                    from: WorkspaceIndexRoute.fullPath,
+                    to: "hardware/$hardwareId",
+                    params: { hardwareId: row.id },
+                  })
+                }
+              />
+            </ScrollArea>
+          )}
         </div>
         <div className="w-2/5 h-[379px] border rounded-lg">
           <ModelTreeVisualization tree={model} />

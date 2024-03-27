@@ -154,30 +154,39 @@ function FamilyPage() {
       <div className="py-2" />
       <h1 className="text-xl font-bold">Part Variations</h1>
       <div className="py-2" />
-      <DataTable
-        columns={modelColumns}
-        data={models}
-        onRowClick={(row) => setSelectedModelId(row.id)}
-        highlightRow={(row) => row.id === selectedModelId}
-      />
-      <div className="py-4" />
-      {selectedModelId && isPending ? (
-        <Icons.spinner className="mx-auto animate-spin" />
+
+      {models.length === 0 ? (
+        <div className="text-muted-foreground">
+          No models found, go create one!
+        </div>
       ) : (
-        modelTree && (
-          <>
-            <h1 className="text-xl font-bold">Sub-assemblies</h1>
-            <div className="py-2" />
-            <DataTable
-              columns={modelComponentColumns}
-              data={modelTree.components.map((child) => ({
-                count: child.count,
-                ...child.model,
-              }))}
-              onRowClick={(row) => setSelectedModelId(row.id)}
-            />
-          </>
-        )
+        <>
+          <DataTable
+            columns={modelColumns}
+            data={models}
+            onRowClick={(row) => setSelectedModelId(row.id)}
+            highlightRow={(row) => row.id === selectedModelId}
+          />
+          <div className="py-4" />
+          {selectedModelId && isPending ? (
+            <Icons.spinner className="mx-auto animate-spin" />
+          ) : (
+            modelTree && (
+              <>
+                <h1 className="text-xl font-bold">Sub-assemblies</h1>
+                <div className="py-2" />
+                <DataTable
+                  columns={modelComponentColumns}
+                  data={modelTree.components.map((child) => ({
+                    count: child.count,
+                    ...child.model,
+                  }))}
+                  onRowClick={(row) => setSelectedModelId(row.id)}
+                />
+              </>
+            )
+          )}
+        </>
       )}
       <div className="py-4" />
     </div>

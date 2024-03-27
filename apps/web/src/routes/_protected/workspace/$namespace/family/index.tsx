@@ -96,8 +96,7 @@ function HardwareInventory() {
       <PageHeader>
         <PageHeaderHeading>Hardware Inventory</PageHeaderHeading>
         <PageHeaderDescription>
-          Here you can find all your registered devices and systems in this
-          workspace. <br />
+          Here you can find all your registered part families.
         </PageHeaderDescription>
       </PageHeader>
       <div className="py-4" />
@@ -112,18 +111,24 @@ function HardwareInventory() {
         <CreateFamily workspaceId={workspace.id} products={products} />
         <div className="py-4" />
 
-        <DataTable
-          columns={familyColumns}
-          data={families}
-          onRowClick={(row) => {
-            console.log(row);
-            router.navigate({
-              from: Route.fullPath,
-              to: "$familyId",
-              params: { familyId: row.id },
-            });
-          }}
-        />
+        {families.length === 0 ? (
+          <div className="text-muted-foreground">
+            No part families found, go create one!
+          </div>
+        ) : (
+          <DataTable
+            columns={familyColumns}
+            data={families}
+            onRowClick={(row) => {
+              console.log(row);
+              router.navigate({
+                from: Route.fullPath,
+                to: "$familyId",
+                params: { familyId: row.id },
+              });
+            }}
+          />
+        )}
       </div>
 
       <div className="py-4" />

@@ -27,14 +27,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { client } from "@/lib/client";
+import { getModelsQueryKey } from "@/lib/queries/model";
 import { handleError } from "@/lib/utils";
 import { Family } from "@cloud/server/src/schemas/public/Family";
 import { Model } from "@cloud/server/src/schemas/public/Model";
 import { insertModel } from "@cloud/server/src/types/model";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
 import { Static, Type as t } from "@sinclair/typebox";
-import { useMutation } from "@tanstack/react-query";
-import { useRouter } from "@tanstack/react-router";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Cpu, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -53,7 +53,7 @@ type Props = {
 };
 
 const CreateModel = ({ workspaceId, models, family }: Props) => {
-  const router = useRouter();
+  const queryClient = useQueryClient();
 
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const createModel = useMutation({
@@ -64,7 +64,8 @@ const CreateModel = ({ workspaceId, models, family }: Props) => {
       if (error) throw error;
     },
     onSuccess: () => {
-      router.invalidate();
+      queryClient.invalidateQueries(getModelsQueryKey());
+
       setIsDialogOpen(false);
     },
   });
