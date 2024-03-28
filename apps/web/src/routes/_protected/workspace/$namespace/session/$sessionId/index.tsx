@@ -76,10 +76,13 @@ const columns: ColumnDef<Measurement>[] = [
     header: "Status",
     accessorKey: "pass",
     cell: (row) => {
-      if (row.row.original.pass === true) return <Badge className="bg-green-300 text-green-900">Pass</Badge>
-      else if (row.row.original.pass === false) return <Badge className="bg-red-300 text-red-900">Fail</Badge>
-      else return <Badge className="bg-gray-300 text-gray-600">Unevaluated</Badge>
-    }
+      if (row.row.original.pass === true)
+        return <Badge className="bg-green-300 text-green-900">Pass</Badge>;
+      else if (row.row.original.pass === false)
+        return <Badge className="bg-red-300 text-red-900">Fail</Badge>;
+      else
+        return <Badge className="bg-gray-300 text-gray-600">Unevaluated</Badge>;
+    },
   },
 ];
 
@@ -120,7 +123,10 @@ function Page() {
     getProjectQueryOpts({ projectId: station.projectId, context }),
   );
 
-  const status = useMemo(() => computePassingStatus(session.measurements), [session]);
+  const status = useMemo(
+    () => computePassingStatus(session.measurements),
+    [session],
+  );
 
   return (
     <div className="container max-w-screen-2xl">
@@ -174,7 +180,15 @@ function Page() {
       </Breadcrumb>
       <PageHeader>
         <PageHeaderHeading className="">
-          Test Session for <Link className="underline hover:text-muted-foreground" from={WorkspaceIndexRoute.fullPath} to="hardware/$hardwareId" params={{ hardwareId: hardware.id }}>{hardware.name}</Link>
+          Test Session for{" "}
+          <Link
+            className="underline hover:text-muted-foreground"
+            from={WorkspaceIndexRoute.fullPath}
+            to="hardware/$hardwareId"
+            params={{ hardwareId: hardware.id }}
+          >
+            {hardware.name}
+          </Link>
         </PageHeaderHeading>
         <PageHeaderDescription>
           {session.createdAt.toLocaleString()}

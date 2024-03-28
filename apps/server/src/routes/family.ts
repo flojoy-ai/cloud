@@ -50,7 +50,9 @@ export const FamilyRoute = new Elysia({ prefix: "/family" })
             .where("model.workspaceId", "=", workspace.id)
             .where("model.familyId", "=", familyId)
             .leftJoin("hardware", "model.id", "hardware.modelId")
-            .select(({ fn }) => fn.count<number>("hardware.id").as("hardwareCount"))
+            .select(({ fn }) =>
+              fn.count<number>("hardware.id").as("hardwareCount"),
+            )
             .groupBy("model.id")
             .execute();
 

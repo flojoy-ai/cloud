@@ -4,7 +4,6 @@ const { resolveType } = require("kanel");
 const { recase } = require("@kristiandupont/recase");
 const { tryParse } = require("tagged-comment-parser");
 
-
 const toCamelCase = recase("snake", "camel");
 const toPascalCase = recase("snake", "pascal");
 const outputPath = "../../packages/shared/src/schemas";

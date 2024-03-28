@@ -25,18 +25,22 @@ export function withSessionMeasurements(eb: ExpressionBuilder<DB, "session">) {
 }
 
 export function withStatus(eb: ExpressionBuilder<DB, "session">) {
-  return eb
-    .selectFrom("measurement as m")
-    // TODO: Write this with kysely
-    .select(sql<boolean | null>`
+  return (
+    eb
+      .selectFrom("measurement as m")
+      // TODO: Write this with kysely
+      .select(
+        sql<boolean | null>`
       CASE
         WHEN COUNT(CASE WHEN m.pass = false THEN 1 END) > 0 THEN false
         WHEN COUNT(CASE WHEN m.pass IS NULL then 1 END) > 0 THEN NULL
         ELSE true
       END
-`.as("pass"))
-    .whereRef("m.sessionId", "=", "session.id")
-    .as("status");
+`.as("pass"),
+      )
+      .whereRef("m.sessionId", "=", "session.id")
+      .as("status")
+  );
 }
 
 export async function getSession(db: Kysely<DB>, sessionId: string) {

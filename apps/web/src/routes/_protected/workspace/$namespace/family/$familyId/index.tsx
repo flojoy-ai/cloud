@@ -62,14 +62,14 @@ const modelColumns: ColumnDef<Model & { hardwareCount: number }>[] = [
     accessorKey: "id",
     header: "Number of units",
     cell: ({ row }) => {
-      return <div className="font-bold">{row.original.hardwareCount}</div>
+      return <div className="font-bold">{row.original.hardwareCount}</div>;
     },
   },
   {
     accessorKey: "hardwareCount",
     header: "Number of units",
     cell: ({ row }) => {
-      return <div className="font-bold">{row.original.hardwareCount}</div>
+      return <div className="font-bold">{row.original.hardwareCount}</div>;
     },
   },
 ];
