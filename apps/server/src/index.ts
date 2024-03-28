@@ -56,7 +56,7 @@ const app = new Elysia()
     cors({
       // FIXME: im losing my mind, still does not work on railway
       credentials: true,
-      origin: env.WEB_URL.substring(env.NODE_ENV === "production" ? 8 : 7),
+      origin: [env.WEB_URL.substring(7), env.WEB_URL.substring(8)],
       allowedHeaders: ["content-type", "flojoy-workspace-id"],
     }),
   )
