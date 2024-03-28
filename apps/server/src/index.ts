@@ -1,5 +1,6 @@
 import swagger from "@elysiajs/swagger";
 import { Elysia } from "elysia";
+import { fixCtxRequest } from "./lib/fix";
 import { UserRoute } from "./routes/user";
 import { AuthRoute } from "./routes/auth";
 import { WorkspaceRoute } from "./routes/workspace";
@@ -20,6 +21,7 @@ import { AuthEntraRoute } from "./routes/auth/entra";
 import { SessionRoute } from "./routes/session";
 
 const app = new Elysia()
+  .derive((ctx) => fixCtxRequest(ctx.request))
   .mapResponse(({ response, set }) => {
     // FIXME: this disgusting mess
     // this exists so that we get superjson but also the proper status code
