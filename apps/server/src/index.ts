@@ -33,12 +33,13 @@ const app = new Elysia()
   )
   .mapResponse(({ request, response }) => {
     const isJson = typeof response === "object";
+    if (!isJson) return response as Response;
 
-    const text = isJson
-      ? request.headers.get("use-superjson") === "true"
-        ? SuperJSON.stringify(response)
-        : JSON.stringify(response)
-      : response?.toString() ?? "";
+    const wantSuperJson = request.headers.get("use-superjson") === "true";
+
+    const text = wantSuperJson
+      ? SuperJSON.stringify(response)
+      : JSON.stringify(response);
 
     return new Response(Bun.gzipSync(encoder.encode(text)), {
       headers: {
