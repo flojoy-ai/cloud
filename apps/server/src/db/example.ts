@@ -46,6 +46,7 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
     const deviceModel1 = yield* (
       await createModel(db, {
         name: "DISPLAY0001",
+        description: "iPhone 13 mini display",
         workspaceId,
         familyId: family.id,
         components: [],
@@ -55,6 +56,7 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
     const deviceModel2 = yield* (
       await createModel(db, {
         name: "SPEAKER0001",
+        description: "iPhone 13 mini speaker",
         workspaceId,
         familyId: family.id,
         components: [],
@@ -64,6 +66,7 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
     yield* (
       await createModel(db, {
         name: "IP13MINI",
+        description: "iPhone 13 mini",
         workspaceId,
         familyId: family.id,
         components: [
