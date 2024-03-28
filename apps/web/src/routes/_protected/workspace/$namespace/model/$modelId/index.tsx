@@ -95,7 +95,7 @@ function ModelPage() {
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
               <Link from={WorkspaceIndexRoute.fullPath} to="family">
-                Hardware Inventory
+                Inventory
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
@@ -135,7 +135,7 @@ function ModelPage() {
         </div>
       </CreateHardware>
       <div className="py-2" />
-      <h1 className="text-xl font-bold">Part Instances</h1>
+      <h1 className="text-xl font-bold">Instances</h1>
       <div className="py-2" />
       <div className="flex gap-x-8">
         <div className="w-3/5">

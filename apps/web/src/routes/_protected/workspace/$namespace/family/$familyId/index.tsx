@@ -26,6 +26,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
 import { useState } from "react";
 import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
+import { ModelTreeVisualization } from "@/components/visualization/tree-visualization";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/family/$familyId/",
@@ -41,7 +42,7 @@ export const Route = createFileRoute(
   },
 });
 
-const modelColumns: ColumnDef<Model>[] = [
+const modelColumns: ColumnDef<Model & { hardwareCount: number }>[] = [
   {
     accessorKey: "name",
     header: "Name",
@@ -55,6 +56,13 @@ const modelColumns: ColumnDef<Model>[] = [
           <Badge>{row.original.name}</Badge>
         </Link>
       );
+    },
+  },
+  {
+    accessorKey: "hardwareCount",
+    header: "Number of units",
+    cell: ({ row }) => {
+      return <div className="font-bold">{row.original.hardwareCount}</div>
     },
   },
 ];
@@ -127,7 +135,7 @@ function FamilyPage() {
                 to="family"
                 params={{ namespace: workspace.namespace }}
               >
-                Hardware Inventory
+                Inventory
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
@@ -175,14 +183,21 @@ function FamilyPage() {
               <>
                 <h1 className="text-xl font-bold">Sub-assemblies</h1>
                 <div className="py-2" />
-                <DataTable
-                  columns={modelComponentColumns}
-                  data={modelTree.components.map((child) => ({
-                    count: child.count,
-                    ...child.model,
-                  }))}
-                  onRowClick={(row) => setSelectedModelId(row.id)}
-                />
+                <div className="flex">
+                  <div className="w-3/5">
+                    <DataTable
+                      columns={modelComponentColumns}
+                      data={modelTree.components.map((child) => ({
+                        count: child.count,
+                        ...child.model,
+                      }))}
+                      onRowClick={(row) => setSelectedModelId(row.id)}
+                    />
+                  </div>
+                  <div className="w-2/5">
+                    <ModelTreeVisualization tree={modelTree} />
+                  </div>
+                </div>
               </>
             )
           )}

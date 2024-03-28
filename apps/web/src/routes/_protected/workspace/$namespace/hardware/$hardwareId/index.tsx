@@ -112,7 +112,7 @@ function HardwarePage() {
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
               <Link from={WorkspaceIndexRoute.fullPath} to="family">
-                Hardware Inventory
+                Inventory
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>

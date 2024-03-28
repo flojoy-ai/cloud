@@ -55,7 +55,7 @@ const familyColumns: ColumnDef<FamilyEntry>[] = [
   },
   {
     accessorKey: "hardwareCount",
-    header: "Total Parts",
+    header: "Total number of units",
     cell: ({ row }) => {
       return <div className="font-bold">{row.original.hardwareCount}</div>;
     },
@@ -89,12 +89,12 @@ function HardwareInventory() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Hardware Inventory</BreadcrumbPage>
+            <BreadcrumbPage>Inventory</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
       <PageHeader>
-        <PageHeaderHeading>Hardware Inventory</PageHeaderHeading>
+        <PageHeaderHeading>Inventory</PageHeaderHeading>
         <PageHeaderDescription>
           Here you can find all your registered part families.
         </PageHeaderDescription>
@@ -120,7 +120,6 @@ function HardwareInventory() {
             columns={familyColumns}
             data={families}
             onRowClick={(row) => {
-              console.log(row);
               router.navigate({
                 from: Route.fullPath,
                 to: "$familyId",

@@ -12,6 +12,9 @@ export const ModelRoute = new Elysia({ prefix: "/model" })
       .selectFrom("model")
       .selectAll("model")
       .where("model.workspaceId", "=", workspace.id)
+      .leftJoin("hardware", "model.id", "hardware.modelId")
+      .select(({ fn }) => fn.count<number>("hardware.id").as("hardwareCount"))
+      .groupBy("model.id")
       .execute();
 
     return models;
