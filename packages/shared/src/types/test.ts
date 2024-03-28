@@ -1,5 +1,7 @@
 import { t, Static } from "elysia";
-import { measurementType } from "./data";
+import { measurementType } from "./measurement";
+
+export type { Test } from "../schemas/public/Test";
 
 export const insertTest = t.Object({
   name: t.String({ minLength: 1 }),

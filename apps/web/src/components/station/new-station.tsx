@@ -28,11 +28,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { handleError } from "@/lib/utils";
 
-import { Project } from "@cloud/server/src/schemas/public/Project";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
 import { useMutation } from "@tanstack/react-query";
 import { client } from "@/lib/client";
-import { InsertStation } from "@cloud/server/src/types/station";
+import { Project, InsertStation } from "@cloud/shared";
 
 type Props = {
   project: Project;

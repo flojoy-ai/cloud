@@ -1,9 +1,7 @@
-import type DB from "../schemas/Database";
 import { Kysely } from "kysely";
 import { generateDatabaseId } from "../lib/db-utils";
-import { CreateProjectSchema } from "../types/project";
+import { DB, Project, CreateProjectSchema } from "@cloud/shared";
 import { Result, err, ok } from "neverthrow";
-import { Project } from "../schemas/public/Project";
 
 export async function createProject(
   db: Kysely<DB>,

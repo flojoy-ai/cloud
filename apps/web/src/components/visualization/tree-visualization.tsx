@@ -11,8 +11,7 @@ import dagre from "@dagrejs/dagre";
 
 import "reactflow/dist/style.css";
 import { makeHardwareGraph, makeModelGraph } from "@/lib/tree";
-import { ModelTreeRoot } from "@cloud/server/src/types/model";
-import { HardwareTreeRoot } from "@cloud/server/src/types/hardware";
+import { HardwareTreeRoot, ModelTreeRoot } from "@cloud/shared";
 
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));

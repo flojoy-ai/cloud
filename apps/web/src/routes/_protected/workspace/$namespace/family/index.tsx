@@ -17,7 +17,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useSuspenseQuery } from "@tanstack/react-query";
 // import { Icons } from "@/components/icons";
-import { Family } from "@cloud/server/src/schemas/public/Family";
+import { Family } from "@cloud/shared";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import CreateFamily from "@/components/hardware/create-family";

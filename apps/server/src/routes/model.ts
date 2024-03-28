@@ -1,7 +1,7 @@
 import { db } from "../db/kysely";
 import Elysia, { t } from "elysia";
 import { createModel, getModelTree } from "../db/model";
-import { Model, insertModel } from "../types/model";
+import { Model, insertModel } from "@cloud/shared";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
 import { jsonObjectFrom } from "kysely/helpers/postgres";
 

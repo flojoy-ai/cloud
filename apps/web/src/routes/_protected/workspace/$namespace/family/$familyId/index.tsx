@@ -19,8 +19,7 @@ import { Separator } from "@/components/ui/separator";
 import { client } from "@/lib/client";
 import { getFamilyQueryOpts } from "@/lib/queries/family";
 import { getFamilyModelsQueryOpts } from "@/lib/queries/model";
-import { Model } from "@cloud/server/src/schemas/public/Model";
-import { ModelTreeNode } from "@cloud/server/src/types/model";
+import { Model, ModelTreeNode } from "@cloud/shared";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
@@ -59,11 +58,8 @@ const modelColumns: ColumnDef<Model & { hardwareCount: number }>[] = [
     },
   },
   {
-    accessorKey: "id",
-    header: "Number of units",
-    cell: ({ row }) => {
-      return <div className="font-bold">{row.original.hardwareCount}</div>;
-    },
+    accessorKey: "description",
+    header: "Description",
   },
   {
     accessorKey: "hardwareCount",
@@ -98,6 +94,7 @@ function FamilyPage() {
   const { data: models } = useSuspenseQuery(
     getFamilyModelsQueryOpts({ familyId, context: { workspace } }),
   );
+  console.log(models);
 
   const { data: family } = useSuspenseQuery(
     getFamilyQueryOpts({ familyId, context: { workspace } }),

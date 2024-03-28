@@ -1,9 +1,10 @@
-import { ModelTreeRoot, ModelTreeNode } from "@cloud/server/src/types/model";
-import { Node, Edge } from "reactflow";
 import {
+  ModelTreeRoot,
+  ModelTreeNode,
   HardwareTreeNode,
   HardwareTreeRoot,
-} from "@cloud/server/src/types/hardware";
+} from "@cloud/shared";
+import { Node, Edge } from "reactflow";
 
 export const makeModelGraph = (root: ModelTreeRoot) => {
   const nodes: Node[] = [];

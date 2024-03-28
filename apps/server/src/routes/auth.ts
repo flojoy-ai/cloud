@@ -2,7 +2,7 @@ import { lucia } from "../auth/lucia";
 import { env } from "../env";
 import { getUrlFromUri } from "../lib/url";
 import { AuthMiddleware } from "../middlewares/auth";
-import { AuthMethod } from "../types/auth";
+import { AuthMethod } from "@cloud/shared";
 import { Elysia } from "elysia";
 
 export const AuthRoute = new Elysia({ prefix: "/auth" })

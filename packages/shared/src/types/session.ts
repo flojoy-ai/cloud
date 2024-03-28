@@ -1,7 +1,6 @@
 import { t, Static } from "elysia";
-import { Session } from "../schemas/public/Session";
 
-export type { Session };
+export type { Session } from "../schemas/public/Session";
 
 export const insertSession = t.Object({
   hardwareId: t.String(),

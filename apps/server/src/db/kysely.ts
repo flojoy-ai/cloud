@@ -2,13 +2,13 @@ import { env } from "../env";
 
 import { CamelCasePlugin, Kysely, PostgresDialect } from "kysely";
 import { Pool } from "pg";
-import type Database from "../schemas/Database";
+import { DB } from "@cloud/shared";
 
 export const pool = new Pool({
   connectionString: env.DATABASE_URL,
 });
 
-export const db = new Kysely<Database>({
+export const db = new Kysely<DB>({
   dialect: new PostgresDialect({
     pool,
   }),

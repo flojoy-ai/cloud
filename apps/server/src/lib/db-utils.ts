@@ -1,4 +1,3 @@
-import type PublicSchema from "../schemas/public/PublicSchema";
 import { createId } from "@paralleldrive/cuid2";
 import { ResultAsync, fromPromise } from "neverthrow";
 import { DatabaseError } from "pg";
@@ -8,8 +7,9 @@ import {
   ForeignKeyError,
   InternalServerError,
 } from "./error";
+import { DB } from "@cloud/shared";
 
-export function generateDatabaseId(table: keyof PublicSchema) {
+export function generateDatabaseId(table: keyof DB) {
   const cuid = createId();
   switch (table) {
     // can add more case here if we need custom handling

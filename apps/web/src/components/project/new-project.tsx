@@ -35,9 +35,7 @@ import {
 } from "@/components/ui/select";
 import { handleError } from "@/lib/utils";
 
-import { Workspace } from "@cloud/server/src/schemas/public/Workspace";
-import { Model } from "@cloud/server/src/schemas/public/Model";
-import { CreateProjectSchema } from "@cloud/server/src/types/project";
+import { Workspace, CreateProjectSchema, Model } from "@cloud/shared";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
 import { Link, useRouter } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";

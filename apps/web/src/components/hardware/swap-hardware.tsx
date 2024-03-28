@@ -13,11 +13,6 @@ import {
 } from "@/components/ui/form";
 
 import { useForm } from "react-hook-form";
-import {
-  HardwareTreeRoot,
-  SwapHardwareComponent,
-  swapHardwareComponent,
-} from "@cloud/server/src/types/hardware";
 
 import {
   Dialog,
@@ -45,7 +40,12 @@ import {
   getHardwareQueryKey,
   getHardwaresQueryOpts,
 } from "@/lib/queries/hardware";
-import { Workspace } from "@cloud/server/src/schemas/public/Workspace";
+import {
+  Workspace,
+  HardwareTreeRoot,
+  SwapHardwareComponent,
+  swapHardwareComponent,
+} from "@cloud/shared";
 
 type FormSchema = SwapHardwareComponent;
 

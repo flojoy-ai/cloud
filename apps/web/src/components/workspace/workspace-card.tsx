@@ -13,7 +13,7 @@ import {
   ContextMenuContent,
 } from "@/components/ui/context-menu";
 import CopyIdContextMenuItem from "@/components/copy-id-context-menu-item";
-import { Workspace } from "@cloud/server/src/schemas/public/Workspace";
+import { Workspace } from "@cloud/shared";
 
 type Props = {
   workspace: Workspace;

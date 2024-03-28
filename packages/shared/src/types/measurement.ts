@@ -1,4 +1,6 @@
-import { t, Static } from "elysia";
+import { Static, t } from "elysia";
+
+export type { Measurement } from "../schemas/public/Measurement";
 
 // Step 1: Add the measurement name here
 export const allMeasurementDataTypes = [
@@ -55,6 +57,20 @@ export const measurementData = t.Union([
 ]);
 
 export type MeasurementData = Static<typeof measurementData>;
+
+export const insertMeasurement = t.Object({
+  hardwareId: t.String(),
+  testId: t.String(),
+  sessionId: t.String(),
+  projectId: t.String(),
+  name: t.String({ default: "Untitled measurement" }),
+  data: measurementData,
+  pass: t.Nullable(t.Boolean()),
+  createdAt: t.Date(),
+  tagNames: t.Array(t.String(), { default: [] }),
+});
+
+export type InsertMeasurement = Static<typeof insertMeasurement>;
 
 // const booleanExplorerSchema = z.object({
 //   xAxis: z.union([z.literal("timestamp"), z.literal("device_id")]),

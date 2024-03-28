@@ -1,7 +1,7 @@
 import { db } from "../db/kysely";
 import { createStation } from "../db/station";
 // import { ProjectMiddleware } from "../middlewares/project";
-import { InsertStation } from "../types/station";
+import { InsertStation } from "@cloud/shared";
 import { Elysia, error, t } from "elysia";
 import { DatabaseError } from "pg";
 

@@ -1,5 +1,5 @@
 import { AuthMiddleware } from "../middlewares/auth";
-import { createWorkspace } from "../types/workspace";
+import { createWorkspace } from "@cloud/shared";
 import { Elysia, NotFoundError, t } from "elysia";
 import { db } from "../db/kysely";
 import { DatabaseError } from "pg";

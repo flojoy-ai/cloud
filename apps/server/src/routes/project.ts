@@ -2,7 +2,7 @@ import { db } from "../db/kysely";
 import { createProject } from "../db/project";
 import { ProjectMiddleware } from "../middlewares/project";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
-import { CreateProjectSchema } from "../types/project";
+import { CreateProjectSchema } from "@cloud/shared";
 import { Elysia, error } from "elysia";
 import { DatabaseError } from "pg";
 

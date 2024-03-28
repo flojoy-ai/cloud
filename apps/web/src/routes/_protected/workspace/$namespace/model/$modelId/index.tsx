@@ -18,7 +18,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ModelTreeVisualization } from "@/components/visualization/tree-visualization";
 import { getFamilyQueryOpts } from "@/lib/queries/family";
 import { getModelHardwareQueryOpts } from "@/lib/queries/hardware";
-import { HardwareWithParent } from "@cloud/server/src/types/hardware";
+import { HardwareWithParent } from "@cloud/shared";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute, useRouter } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";

@@ -6,15 +6,15 @@ import {
   InternalServerError,
   NotFoundError,
 } from "../lib/error";
-import DB from "../schemas/Database";
-import { WorkspaceUser } from "../schemas/public/WorkspaceUser";
 import {
+  DB,
+  WorkspaceUser,
   Hardware,
   HardwareTreeNode,
   HardwareTreeRoot,
   InsertHardware,
   SwapHardwareComponent,
-} from "../types/hardware";
+} from "@cloud/shared";
 import { ExpressionBuilder, Kysely } from "kysely";
 import { jsonObjectFrom } from "kysely/helpers/postgres";
 import _ from "lodash";

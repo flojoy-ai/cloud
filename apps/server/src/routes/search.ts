@@ -1,9 +1,8 @@
 import { db } from "../db/kysely";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
-import { SearchResult, searchInput, searchResultTypes } from "../types/search";
+import { DB, SearchResult, searchInput, searchResultTypes } from "@cloud/shared";
 import Elysia from "elysia";
 import { Kysely, sql, SqlBool } from "kysely";
-import DB from "../schemas/Database";
 
 function nameSearch(
   db: Kysely<DB>,

@@ -8,10 +8,7 @@ import { useForm } from "react-hook-form";
 import { handleError } from "@/lib/utils";
 import { toast } from "sonner";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
-import {
-  CreateWorkspace,
-  createWorkspace,
-} from "@cloud/server/src/types/workspace";
+import { CreateWorkspace, createWorkspace } from "@cloud/shared";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Form,

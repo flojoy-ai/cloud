@@ -1,9 +1,7 @@
-import type DB from "../schemas/Database";
 import { Kysely } from "kysely";
 import { generateDatabaseId } from "../lib/db-utils";
 import { Result, err, ok } from "neverthrow";
-import { Station } from "../schemas/public/Station";
-import { InsertStation } from "../types/station";
+import { DB, Station, InsertStation } from "@cloud/shared";
 
 export async function createStation(
   db: Kysely<DB>,

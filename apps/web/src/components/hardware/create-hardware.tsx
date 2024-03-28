@@ -42,9 +42,7 @@ import {
 } from "@/lib/queries/hardware";
 import { getModelQueryOpts, getModelsQueryOpts } from "@/lib/queries/model";
 import { handleError } from "@/lib/utils";
-import { Workspace } from "@cloud/server/src/schemas/public/Workspace";
-import { insertHardware } from "@cloud/server/src/types/hardware";
-import { ModelTreeRoot } from "@cloud/server/src/types/model";
+import { Workspace, ModelTreeRoot, insertHardware } from "@cloud/shared";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
 import { Static, Type as t } from "@sinclair/typebox";
 import {

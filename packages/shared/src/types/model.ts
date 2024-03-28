@@ -1,7 +1,7 @@
-import { Model } from "../schemas/public/Model";
 import { t, Static } from "elysia";
 
-export type { Model };
+import { Model } from "../schemas/public/Model";
+export type { Model }
 
 export const modelComponent = t.Object({
   modelId: t.String(),
@@ -13,7 +13,7 @@ export const insertModel = t.Object({
   workspaceId: t.String(),
   familyId: t.String(),
   name: t.String({ minLength: 1 }),
-  description: t.Nullable(t.String()),
+  description: t.Optional(t.String()),
   components: t.Array(t.Omit(modelComponent, ["name"]), { default: [] }),
 });
 

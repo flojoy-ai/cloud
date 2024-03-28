@@ -1,4 +1,4 @@
-import { Workspace } from "@cloud/server/src/schemas/public/Workspace";
+import { Workspace } from "@cloud/shared";
 
 type Props = {
   workspace: Workspace;

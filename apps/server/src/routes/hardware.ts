@@ -9,9 +9,9 @@ import {
 import { db } from "../db/kysely";
 import { HardwareMiddleware } from "../middlewares/hardware";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
-import { insertHardware, swapHardwareComponent } from "../types/hardware";
-import { Model } from "../types/model";
-import { queryBool } from "../types/utils";
+import { insertHardware, swapHardwareComponent } from "@cloud/shared";
+import { Model } from "@cloud/shared";
+import { queryBool } from "@cloud/shared";
 import Elysia, { t } from "elysia";
 import { jsonObjectFrom } from "kysely/helpers/postgres";
 

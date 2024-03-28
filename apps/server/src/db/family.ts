@@ -1,6 +1,6 @@
 import { generateDatabaseId, tryQuery } from "../lib/db-utils";
-import type DB from "../schemas/Database";
-import { InsertFamily } from "../types/family";
+import type { DB } from "@cloud/shared";
+import { InsertFamily } from "@cloud/shared";
 import { Kysely } from "kysely";
 import { err, ok, safeTry } from "neverthrow";
 import { createProduct } from "./product";
@@ -8,7 +8,7 @@ import { createProduct } from "./product";
 export async function createFamily(db: Kysely<DB>, family: InsertFamily) {
   const { productName, ...rest } = family;
 
-  return safeTry(async function* () {
+  return safeTry(async function*() {
     let product = await db
       .selectFrom("product")
       .selectAll()

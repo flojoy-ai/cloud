@@ -1,5 +1,8 @@
 import { t, Static } from "elysia";
 
+export type { Workspace } from "../schemas/public/Workspace";
+export type { WorkspaceUser } from "../schemas/public/WorkspaceUser";
+
 export const createWorkspace = t.Object({
   name: t.String({ minLength: 1 }),
   namespace: t.String({ minLength: 1 }),

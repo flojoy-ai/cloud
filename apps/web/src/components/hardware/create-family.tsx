@@ -21,7 +21,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { client } from "@/lib/client";
 import { handleError } from "@/lib/utils";
-import { insertFamily } from "@cloud/server/src/types/family";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Static } from "elysia";
@@ -31,7 +30,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Textarea } from "../ui/textarea";
 import { Autocomplete } from "../ui/autocomplete";
-import { Product } from "@cloud/server/src/schemas/public/Product";
+import { insertFamily, Product } from "@cloud/shared";
 import { getProductsQueryKey } from "@/lib/queries/product";
 import { getFamiliesQueryKey } from "@/lib/queries/family";
 

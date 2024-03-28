@@ -56,3 +56,4 @@ export const hardwareRevision = t.Object({
 });
 
 export type HardwareRevision = Static<typeof hardwareRevision>;
+export type RevisionType = Static<typeof hardwareRevisionType>;

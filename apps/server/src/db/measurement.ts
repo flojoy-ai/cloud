@@ -1,6 +1,5 @@
-import type DB from "../schemas/Database";
 import { type Kysely } from "kysely";
-import { InsertMeasurement } from "../types/measurement";
+import { DB, InsertMeasurement } from "@cloud/shared";
 import { generateDatabaseId } from "../lib/db-utils";
 import { getTagsByNames, markUpdatedAt } from "../db/query";
 import { err } from "neverthrow";

@@ -1,7 +1,3 @@
-import {
-  searchResultTypes,
-  type SearchResult,
-} from "@cloud/server/src/types/search";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import {
   Cpu,
@@ -23,7 +19,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { client } from "@/lib/client";
 import { typedObjectEntries, typedObjectFromEntries } from "@/lib/typed";
 import { cn } from "@/lib/utils";
-import { Workspace } from "@cloud/server/src/schemas/public/Workspace";
+import { Workspace, searchResultTypes, type SearchResult } from "@cloud/shared";
 import { useRouter } from "@tanstack/react-router";
 
 type HighlightProps = {

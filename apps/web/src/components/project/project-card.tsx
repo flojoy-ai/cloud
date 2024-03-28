@@ -12,9 +12,7 @@ import {
   ContextMenuTrigger,
   ContextMenuContent,
 } from "@/components/ui/context-menu";
-import { Model } from "@cloud/server/src/schemas/public/Model";
-import { Project } from "@cloud/server/src/schemas/public/Project";
-import { Workspace } from "@cloud/server/src/schemas/public/Workspace";
+import { Model, Project, Workspace } from "@cloud/shared";
 import { Link } from "@tanstack/react-router";
 
 type Props = {

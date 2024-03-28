@@ -1,6 +1,5 @@
 import { generateDatabaseId } from "../lib/db-utils";
-import type DB from "../schemas/Database";
-import { Tag } from "../schemas/public/Tag";
+import { DB, Tag } from "@cloud/shared";
 import { Kysely } from "kysely";
 import _ from "lodash";
 import { Result, errAsync, ok } from "neverthrow";

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { HardwareRevision } from "@cloud/server/src/types/hardware";
 
 import {
   Dialog,
@@ -14,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Cpu, History, MinusCircle, PlusCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import RevisionType from "@cloud/server/src/schemas/public/RevisionType";
+import { HardwareRevision, RevisionType } from "@cloud/shared";
 
 const iconMap: Record<RevisionType, JSX.Element> = {
   add: <PlusCircle size={20} className="stroke-green-500/60" />,

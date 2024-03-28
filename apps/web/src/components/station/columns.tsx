@@ -1,4 +1,4 @@
-import { Station } from "@cloud/server/src/schemas/public/Station";
+import { Station } from "@cloud/shared";
 import { Link } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowRight } from "lucide-react";

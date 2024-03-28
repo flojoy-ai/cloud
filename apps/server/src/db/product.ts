@@ -1,6 +1,5 @@
 import { generateDatabaseId, tryQuery } from "../lib/db-utils";
-import type DB from "../schemas/Database";
-import { InsertProduct } from "../types/product";
+import { DB, InsertProduct } from "@cloud/shared";
 import { Kysely } from "kysely";
 import { errAsync, okAsync } from "neverthrow";
 

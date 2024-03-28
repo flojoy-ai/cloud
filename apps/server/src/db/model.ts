@@ -1,11 +1,9 @@
-import type DB from "../schemas/Database";
-import { Kysely } from "kysely";
 import { generateDatabaseId } from "../lib/db-utils";
 import { markUpdatedAt } from "../db/query";
-import { InsertModel, ModelTreeNode, ModelTreeRoot } from "../types/model";
 import { Result, err, ok } from "neverthrow";
-import { Model } from "../schemas/public/Model";
+import { DB, Model, InsertModel, ModelTreeNode, ModelTreeRoot } from "@cloud/shared";
 import { db } from "./kysely";
+import { Kysely } from "kysely";
 
 export async function createModel(
   db: Kysely<DB>,

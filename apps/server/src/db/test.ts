@@ -1,7 +1,6 @@
-import type DB from "../schemas/Database";
 import { Kysely } from "kysely";
 import { generateDatabaseId } from "../lib/db-utils";
-import { InsertTest } from "../types/test";
+import { DB, InsertTest } from "@cloud/shared";
 import { err, ok } from "neverthrow";
 
 export async function createTest(db: Kysely<DB>, input: InsertTest) {

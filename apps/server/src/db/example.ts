@@ -1,8 +1,8 @@
-import type DB from "../schemas/Database";
 import _ from "lodash";
 
 import { generateDatabaseId } from "../lib/db-utils";
 import { Kysely } from "kysely";
+import { DB } from "@cloud/shared";
 import { err, ok, safeTry } from "neverthrow";
 import { createFamily } from "./family";
 import { createMeasurement } from "./measurement";
@@ -12,6 +12,7 @@ import { createProject } from "./project";
 import { createSession } from "./session";
 import { createStation } from "./station";
 import { createTest } from "./test";
+
 
 const generateRandomNumbers = () => {
   const randomNumbers = [];
@@ -25,7 +26,7 @@ const generateRandomNumbers = () => {
 };
 
 export async function populateExample(db: Kysely<DB>, workspaceId: string) {
-  return safeTry(async function* () {
+  return safeTry(async function*() {
     const product = yield* (
       await createProduct(db, {
         name: "iPhone 13 mini",

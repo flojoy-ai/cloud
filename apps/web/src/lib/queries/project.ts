@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { client } from "../client";
-import { Workspace } from "@cloud/server/src/schemas/public/Workspace";
+import { Workspace } from "@cloud/shared";
 
 type getProjectsProps = {
   context: {

@@ -29,9 +29,7 @@ import {
 import { client } from "@/lib/client";
 import { getModelsQueryKey } from "@/lib/queries/model";
 import { handleError } from "@/lib/utils";
-import { Family } from "@cloud/server/src/schemas/public/Family";
-import { Model } from "@cloud/server/src/schemas/public/Model";
-import { insertModel } from "@cloud/server/src/types/model";
+import { Family, Model, insertModel } from "@cloud/shared";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
 import { Static, Type as t } from "@sinclair/typebox";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -167,7 +165,21 @@ const CreateModel = ({ workspaceId, models, family }: Props) => {
                   <FormControl>
                     <Input placeholder="M1234" {...field} data-1p-ignore />
                   </FormControl>
-                  <FormDescription></FormDescription>
+                  <FormDescription>An identifier for this model.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Input {...field} data-1p-ignore />
+                  </FormControl>
+                  <FormDescription>(Optional) A human readable description of what the part is.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

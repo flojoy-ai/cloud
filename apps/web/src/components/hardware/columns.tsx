@@ -23,10 +23,7 @@ import { type ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 // import { useState } from "react";
 // import { handleError } from "@/lib/utils";
-import { Project } from "@cloud/server/src/schemas/public/Project";
-import { Model } from "@cloud/server/src/schemas/public/Model";
-import { Hardware } from "@cloud/server/src/schemas/public/Hardware";
-import { Family } from "@cloud/server/src/schemas/public/Family";
+import { Project, Model, Hardware, Family } from "@cloud/shared";
 
 // type ActionsProps = {
 //   elem: { id: string };
@@ -63,68 +60,68 @@ import { Family } from "@cloud/server/src/schemas/public/Family";
 export const hardwareColumns: ColumnDef<
   Hardware & { projects: Project[]; model: Model }
 >[] = [
-  {
-    accessorKey: "name",
-    header: "Instance SN",
-    cell: ({ row }) => {
-      return <Badge variant="secondary">{row.original.name}</Badge>;
+    {
+      accessorKey: "name",
+      header: "Instance SN",
+      cell: ({ row }) => {
+        return <Badge variant="secondary">{row.original.name}</Badge>;
+      },
     },
-  },
-  {
-    accessorKey: "model",
-    header: "Model",
-    cell: ({ row }) => {
-      return <Badge>{row.original.model.name}</Badge>;
+    {
+      accessorKey: "model",
+      header: "Model",
+      cell: ({ row }) => {
+        return <Badge>{row.original.model.name}</Badge>;
+      },
     },
-  },
-  {
-    accessorKey: "project",
-    header: "Project",
-    cell: ({ row }) => {
-      const projects = row.original.projects;
+    {
+      accessorKey: "project",
+      header: "Project",
+      cell: ({ row }) => {
+        const projects = row.original.projects;
 
-      return (
-        <div>
-          {projects.map((p) => (
-            <Badge key={p.id} variant="outline">
-              {p.name}
-            </Badge>
-          ))}
-        </div>
-      );
+        return (
+          <div>
+            {projects.map((p) => (
+              <Badge key={p.id} variant="outline">
+                {p.name}
+              </Badge>
+            ))}
+          </div>
+        );
+      },
     },
-  },
-  // TODO: Finish display of components
-  // {
-  //   accessorKey: "parts",
-  //   header: "Components",
-  //   cell: ({ row }) => {
-  //     const byModel = _.groupBy(row.original.parts, (p) => p.model.name);
-  //
-  //     return (
-  //       <div className="flex flex-col gap-2">
-  //         {Object.entries(byModel).map(([modelName, devices], idx) => (
-  //           <div className="flex items-start gap-1" key={idx}>
-  //             <Badge className="">{modelName}</Badge>
-  //             <div className="flex flex-col gap-1">
-  //               {devices.map((d) => (
-  //                 <Badge variant="secondary" key={d.id}>
-  //                   {d.name}
-  //                 </Badge>
-  //               ))}
-  //             </div>
-  //           </div>
-  //         ))}
-  //       </div>
-  //     );
-  //   },
-  // },
-  {
-    id: "actions",
-    header: "Actions",
-    // cell: HardwareActions,
-  },
-];
+    // TODO: Finish display of components
+    // {
+    //   accessorKey: "parts",
+    //   header: "Components",
+    //   cell: ({ row }) => {
+    //     const byModel = _.groupBy(row.original.parts, (p) => p.model.name);
+    //
+    //     return (
+    //       <div className="flex flex-col gap-2">
+    //         {Object.entries(byModel).map(([modelName, devices], idx) => (
+    //           <div className="flex items-start gap-1" key={idx}>
+    //             <Badge className="">{modelName}</Badge>
+    //             <div className="flex flex-col gap-1">
+    //               {devices.map((d) => (
+    //                 <Badge variant="secondary" key={d.id}>
+    //                   {d.name}
+    //                 </Badge>
+    //               ))}
+    //             </div>
+    //           </div>
+    //         ))}
+    //       </div>
+    //     );
+    //   },
+    // },
+    {
+      id: "actions",
+      header: "Actions",
+      // cell: HardwareActions,
+    },
+  ];
 
 // function HardwareActions({
 //   row,

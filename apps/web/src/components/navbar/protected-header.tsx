@@ -21,7 +21,7 @@ import {
 import { siteConfig } from "@/config/site";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
-import { Workspace } from "@cloud/server/src/schemas/public/Workspace";
+import { Workspace } from "@cloud/shared";
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { CheckIcon, ChevronsUpDown, PlusCircleIcon } from "lucide-react";
 import { useState } from "react";
