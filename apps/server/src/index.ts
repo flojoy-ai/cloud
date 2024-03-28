@@ -43,8 +43,7 @@ const app = new Elysia()
 
     return new Response(Bun.gzipSync(encoder.encode(text)), {
       headers: {
-        "Content-Type": `${isJson ? "application/json" : "text/plain"
-          }; charset=utf-8`,
+        "Content-Type": "application/json; charset=utf-8",
         "Content-Encoding": "gzip",
       },
     });
