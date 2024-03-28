@@ -11,8 +11,8 @@ import { logger } from "@bogeychan/elysia-logger";
 import { env } from "./env";
 import { ProjectRoute } from "./routes/project";
 import { FamilyRoute } from "./routes/family";
-import SuperJSON from "superjson";
-import { ELYSIA_RESPONSE } from "elysia";
+// import SuperJSON from "superjson";
+// import { ELYSIA_RESPONSE } from "elysia";
 import { ProductRoute } from "./routes/product";
 import { ModelRoute } from "./routes/model";
 import { HardwareRoute } from "./routes/hardware";
@@ -22,28 +22,28 @@ import { SessionRoute } from "./routes/session";
 
 const app = new Elysia()
   .derive((ctx) => fixCtxRequest(ctx.request))
-  .mapResponse(({ response, set }) => {
-    // FIXME: this disgusting mess
-    // this exists so that we get superjson but also the proper status code
-    // when using the error() function in the routes
-    // console.log("response", response);
-    if (
-      typeof response === "object" &&
-      response !== null &&
-      ELYSIA_RESPONSE in response
-    ) {
-      return response as unknown as Response;
-    }
-    if (response)
-      return new Response(SuperJSON.stringify(response), {
-        status:
-          typeof response === "object" &&
-          response !== null &&
-          "status" in response
-            ? (response.status as number)
-            : (set.status as number),
-      });
-  })
+  // .mapResponse(({ response, set }) => {
+  //   // FIXME: this disgusting mess
+  //   // this exists so that we get superjson but also the proper status code
+  //   // when using the error() function in the routes
+  //   // console.log("response", response);
+  //   if (
+  //     typeof response === "object" &&
+  //     response !== null &&
+  //     ELYSIA_RESPONSE in response
+  //   ) {
+  //     return response as unknown as Response;
+  //   }
+  //   if (response)
+  //     return new Response(SuperJSON.stringify(response), {
+  //       status:
+  //         typeof response === "object" &&
+  //         response !== null &&
+  //         "status" in response
+  //           ? (response.status as number)
+  //           : (set.status as number),
+  //     });
+  // })
   .use(
     logger({
       level: env.NODE_ENV === "production" ? "trace" : "info",
