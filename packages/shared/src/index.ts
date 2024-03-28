@@ -19,7 +19,7 @@ export type * as Project from "./schemas/public/Project";
 export type * as ProjectHardware from "./schemas/public/ProjectHardware";
 export type * as RevisionType from "./schemas/public/RevisionType";
 export type * as Secret from "./schemas/public/Secret";
-export type * from "./schemas/public/Session";
+export type * as Session from "./schemas/public/Session";
 export type * as Station from "./schemas/public/Station";
 export type * as StorageProvider from "./schemas/public/StorageProvider";
 export type * as Tag from "./schemas/public/Tag";
