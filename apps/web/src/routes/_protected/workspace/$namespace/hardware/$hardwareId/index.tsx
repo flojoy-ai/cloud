@@ -29,6 +29,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
 import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
 import { useRouter } from "@tanstack/react-router";
+import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/hardware/$hardwareId/",
@@ -56,7 +57,7 @@ export const Route = createFileRoute(
   },
 });
 
-const columns: ColumnDef<Session.Session>[] = [
+const columns: ColumnDef<Session & { status: boolean | null }>[] = [
   {
     accessorKey: "createdAt",
     header: "Date",
@@ -64,6 +65,15 @@ const columns: ColumnDef<Session.Session>[] = [
   {
     accessorKey: "userId",
     header: "User",
+  },
+  {
+    header: "Status",
+    accessorKey: "pass",
+    cell: ({ row }) => {
+      if (row.original.status === true) return <Badge variant={null} className="bg-green-300 text-green-900">Pass</Badge>
+      else if (row.original.status === false) return <Badge variant={null} className="bg-red-300 text-red-900">Fail</Badge>
+      else return <Badge variant={null} className="bg-gray-300 text-gray-600">Unevaluated</Badge>
+    }
   },
   {
     accessorKey: "notes",
@@ -84,6 +94,7 @@ function HardwarePage() {
     getFamilyQueryOpts({ familyId: model.familyId, context }),
   );
   const router = useRouter();
+
 
   return (
     <div className="container max-w-screen-2xl">
