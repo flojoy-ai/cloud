@@ -12,6 +12,7 @@ export function createClient(serverUrl: string) {
     },
     headers: {
       Origin: serverUrl,
+      "use-superjson": "true",
     },
     fetch: {
       credentials: "include",

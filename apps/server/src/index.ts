@@ -11,8 +11,7 @@ import { logger } from "@bogeychan/elysia-logger";
 import { env } from "./env";
 import { ProjectRoute } from "./routes/project";
 import { FamilyRoute } from "./routes/family";
-// import SuperJSON from "superjson";
-// import { ELYSIA_RESPONSE } from "elysia";
+import SuperJSON from "superjson";
 import { ProductRoute } from "./routes/product";
 import { ModelRoute } from "./routes/model";
 import { HardwareRoute } from "./routes/hardware";
@@ -21,30 +20,29 @@ import { AuthEntraRoute } from "./routes/auth/entra";
 import { SessionRoute } from "./routes/session";
 import { getUrlFromUri } from "./lib/url";
 
+const encoder = new TextEncoder();
+
 const app = new Elysia()
   .derive((ctx) => fixCtxRequest(ctx.request))
-  // .mapResponse(({ response, set }) => {
-  //   // FIXME: this disgusting mess
-  //   // this exists so that we get superjson but also the proper status code
-  //   // when using the error() function in the routes
-  //   // console.log("response", response);
-  //   if (
-  //     typeof response === "object" &&
-  //     response !== null &&
-  //     ELYSIA_RESPONSE in response
-  //   ) {
-  //     return response as unknown as Response;
-  //   }
-  //   if (response)
-  //     return new Response(SuperJSON.stringify(response), {
-  //       status:
-  //         typeof response === "object" &&
-  //         response !== null &&
-  //         "status" in response
-  //           ? (response.status as number)
-  //           : (set.status as number),
-  //     });
-  // })
+  .mapResponse(({ request, response, set }) => {
+    const isJson = typeof response === "object";
+
+    const text = isJson
+      ? request.headers.get("use-superjson") === "true"
+        ? SuperJSON.stringify(response)
+        : JSON.stringify(response)
+      : response?.toString() ?? "";
+
+    set.headers["Content-Encoding"] = "gzip";
+
+    return new Response(Bun.gzipSync(encoder.encode(text)), {
+      headers: {
+        "Content-Type": `${
+          isJson ? "application/json" : "text/plain"
+        }; charset=utf-8`,
+      },
+    });
+  })
   .use(
     logger({
       level: env.NODE_ENV === "production" ? "error" : "info",
@@ -57,7 +55,7 @@ const app = new Elysia()
     cors({
       credentials: true,
       origin: [getUrlFromUri(env.WEB_URI)],
-      allowedHeaders: ["content-type", "flojoy-workspace-id"],
+      allowedHeaders: ["content-type", "flojoy-workspace-id", "use-superjson"],
     }),
   )
   .use(UserRoute)
