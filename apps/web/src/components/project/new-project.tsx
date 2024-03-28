@@ -176,18 +176,19 @@ export default function NewProjectButton({ workspace, models }: Props) {
                     </FormControl>
                     <FormDescription>
                       Which hardware model is this production line testing?{" "}
-                      <br /> Don&apos;t have a hardware model yet?{" "}
+                      <br /> Don&apos;t see your hardware model?{" "}
                       <Link
                         to="/workspace"
                         className="underline hover:text-primary"
                       >
-                        Register one here.
+                        Register it here.
                       </Link>
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+              <div className="py-1" />
               <DialogFooter className="">
                 <DialogClose asChild>
                   <Button type="button" variant="secondary">

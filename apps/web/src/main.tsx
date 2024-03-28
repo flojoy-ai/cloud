@@ -10,6 +10,32 @@ import { ThemeProvider } from "./components/theme-provider";
 import { queryClient } from "./lib/client";
 import { App } from "./app";
 import { Toaster } from "./components/ui/sonner";
+import {
+  DefaultErrorFunction,
+  SetErrorFunction,
+  ValueErrorType,
+} from "@sinclair/typebox/errors";
+import { TString } from "@sinclair/typebox";
+
+// this should be declared only once
+SetErrorFunction((error) => {
+  const errorOverride = error?.schema.error;
+  if (typeof errorOverride === "string") {
+    return errorOverride;
+  }
+
+  if (error.value === undefined || error.value === null) return "Required";
+
+  switch (error.errorType) {
+    case ValueErrorType.StringMinLength: {
+      const schema = error.schema as TString;
+      if (schema.minLength === 1) {
+        return "Required";
+      }
+    }
+  }
+  return DefaultErrorFunction(error);
+});
 
 // Render the app
 const rootElement = document.getElementById("root")!;
