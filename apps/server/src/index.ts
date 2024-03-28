@@ -52,14 +52,7 @@ const app = new Elysia()
   .use(
     // NOTE: https://github.com/elysiajs/elysia-cors/issues/41
     cors({
-      // FIXME: Switch this in .env
-      credentials: true,
-      origin: ({ headers }) => {
-        console.log(headers);
-        return true;
-      },
-      allowedHeaders: ["content-type", "flojoy-workspace-id"],
-      methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+      origin: /.*\.railway\.app/,
     }),
   )
   .use(UserRoute)
