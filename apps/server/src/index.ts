@@ -54,7 +54,9 @@ const app = new Elysia()
     cors({
       // FIXME: Switch this in .env
       credentials: true,
-      origin: env.WEB_URL.substring(env.NODE_ENV === "production" ? 0 : 7),
+      origin: ({ headers }) => {
+        return headers.get("origin") === env.WEB_URL;
+      },
       allowedHeaders: ["content-type", "flojoy-workspace-id"],
       methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     }),
@@ -77,10 +79,6 @@ const app = new Elysia()
 
 console.log(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
-);
-console.log(
-  "CORS: ",
-  env.WEB_URL.substring(env.NODE_ENV === "production" ? 0 : 7),
 );
 
 export type App = typeof app;
