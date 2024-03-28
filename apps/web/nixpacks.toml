@@ -7,7 +7,7 @@ nixPkgs = ['bun']
 cmds = ['bun install']
 
 [phases.build]
-cmds = ['bun run build']
+cmds = ['ls && bun run build']
 
 [start]
 cmd = 'bun start'
