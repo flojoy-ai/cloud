@@ -56,7 +56,7 @@ const app = new Elysia()
       credentials: true,
       origin: ({ headers }) => {
         console.log(headers);
-        return headers.get("origin") === env.WEB_URL;
+        return true;
       },
       allowedHeaders: ["content-type", "flojoy-workspace-id"],
       methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
