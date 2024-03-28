@@ -78,5 +78,9 @@ const app = new Elysia()
 console.log(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
 );
+console.log(
+  "CORS: ",
+  env.WEB_URL.substring(env.NODE_ENV === "production" ? 0 : 7),
+);
 
 export type App = typeof app;
