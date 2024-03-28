@@ -7,7 +7,7 @@ export const env = createEnv({
    * a type-level and at runtime.
    */
   server: {
-    WEB_URL: z.string().url().default("http://localhost:5173"),
+    WEB_URI: z.string().default("localhost:5173"),
     PORT: z.string().default("3000"),
     DATABASE_URL: z
       .string()

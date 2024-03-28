@@ -8,6 +8,7 @@ import { google, lucia } from "../../auth/lucia";
 import { env } from "../../env";
 import { generateDatabaseId } from "../../lib/db-utils";
 import { db } from "../../db/kysely";
+import { getUrlFromUri } from "../../lib/url";
 
 export const AuthGoogleRoute = new Elysia({ prefix: "/auth/google" })
   .get(
@@ -63,7 +64,7 @@ export const AuthGoogleRoute = new Elysia({ prefix: "/auth/google" })
       }
 
       try {
-        const redirectUrl = env.WEB_URL + "/setup";
+        const redirectUrl = getUrlFromUri(env.WEB_URI) + "/setup";
         const tokens = await google.validateAuthorizationCode(
           code,
           storedCodeVerifier,

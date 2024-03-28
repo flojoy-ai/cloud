@@ -4,6 +4,7 @@ import { Elysia } from "elysia";
 import { verifyRequestOrigin } from "lucia";
 
 import type { User, Session } from "lucia";
+import { getUrlFromUri } from "../lib/url";
 
 export const AuthMiddleware = new Elysia()
   .derive(
@@ -21,7 +22,10 @@ export const AuthMiddleware = new Elysia()
         if (
           !originHeader ||
           !hostHeader ||
-          !verifyRequestOrigin(originHeader, [hostHeader, env.WEB_URL])
+          !verifyRequestOrigin(originHeader, [
+            hostHeader,
+            getUrlFromUri(env.WEB_URI),
+          ])
         ) {
           return {
             user: null,

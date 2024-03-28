@@ -1,5 +1,6 @@
 import { lucia } from "../auth/lucia";
 import { env } from "../env";
+import { getUrlFromUri } from "../lib/url";
 import { AuthMiddleware } from "../middlewares/auth";
 import { AuthMethod } from "../types/auth";
 import { Elysia } from "elysia";
@@ -27,6 +28,6 @@ export const AuthRoute = new Elysia({ prefix: "/auth" })
       ...sessionCookie.attributes,
     });
 
-    set.redirect = env.WEB_URL;
+    set.redirect = getUrlFromUri(env.WEB_URI);
     return;
   });

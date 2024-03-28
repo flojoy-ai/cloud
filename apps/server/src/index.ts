@@ -19,6 +19,7 @@ import { HardwareRoute } from "./routes/hardware";
 import { StationRoute } from "./routes/station";
 import { AuthEntraRoute } from "./routes/auth/entra";
 import { SessionRoute } from "./routes/session";
+import { getUrlFromUri } from "./lib/url";
 
 const app = new Elysia()
   .derive((ctx) => fixCtxRequest(ctx.request))
@@ -54,9 +55,8 @@ const app = new Elysia()
   .use(
     // NOTE: https://github.com/elysiajs/elysia-cors/issues/41
     cors({
-      // FIXME: im losing my mind, still does not work on railway
       credentials: true,
-      origin: [env.WEB_URL.substring(7), env.WEB_URL.substring(8)],
+      origin: [getUrlFromUri(env.WEB_URI)],
       allowedHeaders: ["content-type", "flojoy-workspace-id"],
     }),
   )

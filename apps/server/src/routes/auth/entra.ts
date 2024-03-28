@@ -8,6 +8,7 @@ import { entra, lucia } from "../../auth/lucia";
 import { env } from "../../env";
 import { generateDatabaseId } from "../../lib/db-utils";
 import { db } from "../../db/kysely";
+import { getUrlFromUri } from "../../lib/url";
 
 export const AuthEntraRoute = new Elysia({ prefix: "/auth/entra" })
   .get(
@@ -63,7 +64,7 @@ export const AuthEntraRoute = new Elysia({ prefix: "/auth/entra" })
       }
 
       try {
-        const redirectUrl = env.WEB_URL + "/setup";
+        const redirectUrl = getUrlFromUri(env.WEB_URI) + "/setup";
         const tokens = await entra.validateAuthorizationCode(
           code,
           storedCodeVerifier,
