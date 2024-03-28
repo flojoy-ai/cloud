@@ -71,7 +71,7 @@ const app = new Elysia()
   .use(StationRoute)
   .use(HardwareRoute)
   .use(SessionRoute)
-  .get("/health", () => "ok")
+  .get("/health", () => ({ status: "200" }))
   .listen(env.PORT);
 
 console.log(
