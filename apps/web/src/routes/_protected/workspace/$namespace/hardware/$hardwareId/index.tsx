@@ -23,13 +23,13 @@ import {
 } from "@/lib/queries/hardware";
 import { getModelQueryOpts } from "@/lib/queries/model";
 import { getSessionsQueryOpts } from "@/lib/queries/session";
-import { Session } from "@cloud/shared";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
 import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
 import { useRouter } from "@tanstack/react-router";
 import { Badge } from "@/components/ui/badge";
+import { Session } from "@cloud/shared/src/schemas/public/Session";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/hardware/$hardwareId/",
@@ -70,10 +70,25 @@ const columns: ColumnDef<Session & { status: boolean | null }>[] = [
     header: "Status",
     accessorKey: "pass",
     cell: ({ row }) => {
-      if (row.original.status === true) return <Badge variant={null} className="bg-green-300 text-green-900">Pass</Badge>
-      else if (row.original.status === false) return <Badge variant={null} className="bg-red-300 text-red-900">Fail</Badge>
-      else return <Badge variant={null} className="bg-gray-300 text-gray-600">Unevaluated</Badge>
-    }
+      if (row.original.status === true)
+        return (
+          <Badge variant={null} className="bg-green-300 text-green-900">
+            Pass
+          </Badge>
+        );
+      else if (row.original.status === false)
+        return (
+          <Badge variant={null} className="bg-red-300 text-red-900">
+            Fail
+          </Badge>
+        );
+      else
+        return (
+          <Badge variant={null} className="bg-gray-300 text-gray-600">
+            Unevaluated
+          </Badge>
+        );
+    },
   },
   {
     accessorKey: "notes",
@@ -94,7 +109,6 @@ function HardwarePage() {
     getFamilyQueryOpts({ familyId: model.familyId, context }),
   );
   const router = useRouter();
-
 
   return (
     <div className="container max-w-screen-2xl">
