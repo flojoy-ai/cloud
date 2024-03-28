@@ -31,7 +31,7 @@ const app = new Elysia()
       allowedHeaders: ["content-type", "flojoy-workspace-id", "use-superjson"],
     }),
   )
-  .mapResponse(({ request, response, set }) => {
+  .mapResponse(({ request, response }) => {
     const isJson = typeof response === "object";
 
     const text = isJson
@@ -40,13 +40,12 @@ const app = new Elysia()
         : JSON.stringify(response)
       : response?.toString() ?? "";
 
-    set.headers["Content-Encoding"] = "gzip";
-
     return new Response(Bun.gzipSync(encoder.encode(text)), {
       headers: {
         "Content-Type": `${
           isJson ? "application/json" : "text/plain"
         }; charset=utf-8`,
+        "Content-Encoding": "gzip",
       },
     });
   })
