@@ -2,7 +2,7 @@ import {
   PageHeader,
   PageHeaderDescription,
   PageHeaderHeading,
-} from "~/components/small-header";
+} from "@/components/ui/small-header";
 
 import { api } from "~/trpc/server";
 import HardwareMeasurements from "./_components/hardware-measurements";

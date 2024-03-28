@@ -10,8 +10,7 @@ import { ModelTreeVisualization } from "~/components/visualization/tree-visualiz
 
 type Props = {
   workspaceId: string;
-  namespace: string;
-  models: Model[];
+  namespace: string; models: Model[];
 };
 
 export default function HardwareModels({
