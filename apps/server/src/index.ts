@@ -11,7 +11,7 @@ import { logger } from "@bogeychan/elysia-logger";
 import { env } from "./env";
 import { ProjectRoute } from "./routes/project";
 import { FamilyRoute } from "./routes/family";
-import SuperJSON from "superjson";
+// import SuperJSON from "superjson";
 import { ProductRoute } from "./routes/product";
 import { ModelRoute } from "./routes/model";
 import { HardwareRoute } from "./routes/hardware";
@@ -37,7 +37,7 @@ const app = new Elysia()
 
     const text = isJson
       ? request.headers.get("use-superjson") === "true"
-        ? SuperJSON.stringify(response)
+        ? JSON.stringify(response)
         : JSON.stringify(response)
       : response?.toString() ?? "";
 
