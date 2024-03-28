@@ -24,6 +24,14 @@ const encoder = new TextEncoder();
 
 const app = new Elysia()
   .derive((ctx) => fixCtxRequest(ctx.request))
+  .use(
+    // NOTE: https://github.com/elysiajs/elysia-cors/issues/41
+    cors({
+      credentials: true,
+      origin: [getUrlFromUri(env.WEB_URI)],
+      allowedHeaders: ["content-type", "flojoy-workspace-id", "use-superjson"],
+    }),
+  )
   .mapResponse(({ request, response, set }) => {
     const isJson = typeof response === "object";
 
@@ -50,14 +58,6 @@ const app = new Elysia()
     }),
   )
   .use(swagger())
-  .use(
-    // NOTE: https://github.com/elysiajs/elysia-cors/issues/41
-    cors({
-      credentials: true,
-      origin: [getUrlFromUri(env.WEB_URI)],
-      allowedHeaders: ["content-type", "flojoy-workspace-id", "use-superjson"],
-    }),
-  )
   .use(UserRoute)
   .use(AuthRoute)
   .use(AuthGoogleRoute)
