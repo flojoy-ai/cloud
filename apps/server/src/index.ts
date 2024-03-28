@@ -2,7 +2,7 @@ import swagger from "@elysiajs/swagger";
 import { Elysia } from "elysia";
 import { UserRoute } from "./routes/user";
 import { AuthRoute } from "./routes/auth";
-import { workspaceRoute as WorkspaceRoute } from "./routes/workspace";
+import { WorkspaceRoute } from "./routes/workspace";
 import { AuthGoogleRoute } from "./routes/auth/google";
 import { cors } from "@elysiajs/cors";
 import { SearchRoute } from "./routes/search";
