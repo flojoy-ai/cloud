@@ -20,6 +20,7 @@ import { AuthEntraRoute } from "./routes/auth/entra";
 import { SessionRoute } from "./routes/session";
 
 const app = new Elysia()
+  .get("/health", () => ({ status: "ok" }))
   .mapResponse(({ response, set }) => {
     // FIXME: this disgusting mess
     // this exists so that we get superjson but also the proper status code
@@ -51,9 +52,7 @@ const app = new Elysia()
   .use(swagger())
   .use(
     // NOTE: https://github.com/elysiajs/elysia-cors/issues/41
-    cors({
-      origin: /.*\.railway\.app/,
-    }),
+    cors(),
   )
   .use(UserRoute)
   .use(AuthRoute)
@@ -68,8 +67,7 @@ const app = new Elysia()
   .use(StationRoute)
   .use(HardwareRoute)
   .use(SessionRoute)
-  .get("/health", () => ({ status: "ok" }))
-  .listen({ hostname: "0.0.0.0", port: env.PORT });
+  .listen(env.PORT);
 
 console.log(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
