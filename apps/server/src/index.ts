@@ -44,7 +44,7 @@ const app = new Elysia()
   })
   .use(
     logger({
-      level: env.NODE_ENV === "production" ? "info" : "info",
+      level: env.NODE_ENV === "production" ? "trace" : "info",
       autoLogging: true,
     }),
   )
