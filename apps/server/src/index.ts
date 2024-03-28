@@ -69,7 +69,7 @@ const app = new Elysia()
   .use(HardwareRoute)
   .use(SessionRoute)
   .get("/health", () => ({ status: "ok" }))
-  .listen(env.PORT);
+  .listen({ hostname: "0.0.0.0", port: env.PORT });
 
 console.log(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
