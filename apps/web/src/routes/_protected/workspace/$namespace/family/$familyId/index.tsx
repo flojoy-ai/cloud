@@ -94,7 +94,6 @@ function FamilyPage() {
   const { data: models } = useSuspenseQuery(
     getFamilyModelsQueryOpts({ familyId, context: { workspace } }),
   );
-  console.log(models);
 
   const { data: family } = useSuspenseQuery(
     getFamilyQueryOpts({ familyId, context: { workspace } }),
