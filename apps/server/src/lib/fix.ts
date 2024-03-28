@@ -7,6 +7,7 @@ import { env } from "../env";
  * so that the redirect_uri will match during authentication. This is not
  * done on the edge since the Bun runtime is not used.
  * https://github.com/syhner/elysia-kickstart/blob/main/src/util/fixCtxRequest.ts
+ * NOTE: may need to double check this when we deploy to AWS/Azure/GCP
  */
 export const fixCtxRequest = (request: Request) => {
   if (env.NODE_ENV !== "production") {
