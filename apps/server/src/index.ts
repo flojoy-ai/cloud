@@ -11,14 +11,13 @@ import { logger } from "@bogeychan/elysia-logger";
 import { env } from "./env";
 import { ProjectRoute } from "./routes/project";
 import { FamilyRoute } from "./routes/family";
-// import SuperJSON from "superjson";
+import SuperJSON from "superjson";
 import { ProductRoute } from "./routes/product";
 import { ModelRoute } from "./routes/model";
 import { HardwareRoute } from "./routes/hardware";
 import { StationRoute } from "./routes/station";
 import { AuthEntraRoute } from "./routes/auth/entra";
 import { SessionRoute } from "./routes/session";
-import { getUrlFromUri } from "./lib/url";
 
 const encoder = new TextEncoder();
 
@@ -28,7 +27,7 @@ const app = new Elysia()
     // NOTE: https://github.com/elysiajs/elysia-cors/issues/41
     cors({
       credentials: true,
-      origin: [getUrlFromUri(env.WEB_URI)],
+      origin: [env.WEB_URI],
       allowedHeaders: ["content-type", "flojoy-workspace-id", "use-superjson"],
     }),
   )
@@ -37,7 +36,7 @@ const app = new Elysia()
 
     const text = isJson
       ? request.headers.get("use-superjson") === "true"
-        ? JSON.stringify(response)
+        ? SuperJSON.stringify(response)
         : JSON.stringify(response)
       : response?.toString() ?? "";
 
