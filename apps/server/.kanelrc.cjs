@@ -1,28 +1,13 @@
 const { makeKyselyHook } = require("kanel-kysely");
-const {
-  makeGenerateZodSchemas,
-  defaultGetZodSchemaMetadata,
-  defaultGetZodIdentifierMetadata,
-  defaultZodTypeMap,
-} = require("kanel-zod");
 const { resolveType } = require("kanel");
 
 const { recase } = require("@kristiandupont/recase");
 const { tryParse } = require("tagged-comment-parser");
 
-const generateZodSchemas = makeGenerateZodSchemas({
-  getZodSchemaMetadata: defaultGetZodSchemaMetadata,
-  getZodIdentifierMetadata: defaultGetZodIdentifierMetadata,
-  zodTypeMap: {
-    ...defaultZodTypeMap,
-    "pg_catalog.timestamptz": "z.coerce.date()",
-  },
-  castToSchema: false,
-});
 
 const toCamelCase = recase("snake", "camel");
 const toPascalCase = recase("snake", "pascal");
-const outputPath = "./src/schemas";
+const outputPath = "../../packages/shared/src/schemas";
 
 /** @type {import('kanel').Config} */
 module.exports = {
@@ -30,7 +15,7 @@ module.exports = {
 
   preDeleteOutputFolder: true,
   outputPath,
-  preRenderHooks: [makeKyselyHook(), generateZodSchemas],
+  preRenderHooks: [makeKyselyHook()],
 
   enumStyle: "type",
 

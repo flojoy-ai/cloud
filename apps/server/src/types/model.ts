@@ -13,6 +13,7 @@ export const insertModel = t.Object({
   workspaceId: t.String(),
   familyId: t.String(),
   name: t.String({ minLength: 1 }),
+  description: t.Nullable(t.String()),
   components: t.Array(t.Omit(modelComponent, ["name"]), { default: [] }),
 });
 
