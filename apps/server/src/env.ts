@@ -12,7 +12,8 @@ export const env = createEnv({
     DATABASE_URL: z
       .string()
       .url()
-      .transform((s) => (s += "?sslmode=require")),
+      // FIXME: ?sslmode=require seems to not work on railway
+      .transform((s) => (s += "")),
     // NOTE: Joey: looks like NODE_ENV is still supported for Bun
     // https://github.com/oven-sh/bun/commit/c006a7f054fdf19bad5b0783af3305e36f9e3740
     NODE_ENV: z

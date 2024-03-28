@@ -1,5 +1,5 @@
 import { type Kysely, sql } from "kysely";
-import { allMeasurementDataTypes } from "@/types/data";
+import { allMeasurementDataTypes } from "../src/types/data";
 
 export async function up(db: Kysely<unknown>): Promise<void> {
   await db.schema

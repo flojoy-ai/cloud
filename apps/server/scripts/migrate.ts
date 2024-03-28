@@ -1,11 +1,11 @@
 import * as path from "path";
 import { promises as fs } from "fs";
 import { Migrator, FileMigrationProvider } from "kysely";
-import { env } from "@/env";
+import { env } from "../src/env";
 
 import { Kysely, PostgresDialect } from "kysely";
 import pg from "pg";
-import type Database from "@/schemas/Database";
+import type Database from "../src/schemas/Database";
 
 async function migrate() {
   const pool = new pg.Pool({
