@@ -1,1 +1,7 @@
 set fallback
+
+railway:
+  railway link
+
+env:
+ railway variables --kv > .env

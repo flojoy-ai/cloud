@@ -53,3 +53,12 @@ check-prettier:
 check-ruff:
   just packages/python/check
 
+# ----- railway -----
+railway:
+  just apps/web/railway
+  just apps/server/railway
+
+# ----- env -----
+env:
+  just apps/web/railway
+  just apps/server/railway
