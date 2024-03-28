@@ -20,7 +20,6 @@ import { AuthEntraRoute } from "./routes/auth/entra";
 import { SessionRoute } from "./routes/session";
 
 const app = new Elysia()
-  .get("/health", () => ({ status: "ok" }))
   .mapResponse(({ response, set }) => {
     // FIXME: this disgusting mess
     // this exists so that we get superjson but also the proper status code
@@ -52,7 +51,12 @@ const app = new Elysia()
   .use(swagger())
   .use(
     // NOTE: https://github.com/elysiajs/elysia-cors/issues/41
-    cors(),
+    cors({
+      // FIXME: im losing my mind, still does not work on railway
+      credentials: true,
+      origin: env.WEB_URL.substring(env.NODE_ENV === "production" ? 8 : 7),
+      allowedHeaders: ["content-type", "flojoy-workspace-id"],
+    }),
   )
   .use(UserRoute)
   .use(AuthRoute)
@@ -67,6 +71,7 @@ const app = new Elysia()
   .use(StationRoute)
   .use(HardwareRoute)
   .use(SessionRoute)
+  .get("/health", () => ({ status: "ok" }))
   .listen(env.PORT);
 
 console.log(
