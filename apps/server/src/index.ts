@@ -52,7 +52,8 @@ const app = new Elysia()
   .use(
     // NOTE: https://github.com/elysiajs/elysia-cors/issues/41
     cors({
-      origin: "localhost:5173", // FIXME: Switch this in .env
+      // FIXME: Switch this in .env
+      origin: env.WEB_URL.substring(env.NODE_ENV === "production" ? 8 : 7),
       allowedHeaders: ["content-type", "flojoy-workspace-id"],
       methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     }),
@@ -70,7 +71,7 @@ const app = new Elysia()
   .use(StationRoute)
   .use(HardwareRoute)
   .use(SessionRoute)
-  .listen(3000);
+  .listen(env.PORT);
 
 console.log(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
