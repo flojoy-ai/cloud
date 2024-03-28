@@ -55,6 +55,7 @@ const app = new Elysia()
       // FIXME: Switch this in .env
       credentials: true,
       origin: ({ headers }) => {
+        console.log(headers);
         return headers.get("origin") === env.WEB_URL;
       },
       allowedHeaders: ["content-type", "flojoy-workspace-id"],
