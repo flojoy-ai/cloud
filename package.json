@@ -23,5 +23,10 @@
     "turbo": "^1.12.5",
     "eslint": "^8.56.0",
     "vercel": "^33.6.1"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
   }
 }
