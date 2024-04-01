@@ -34,3 +34,22 @@ performed on an instance of a part.
 
 A group of tests that are performed at the same time, at the same test station,
 by the same operator.
+
+## Example
+
+```txt
+Workspace: Raspberry Pi
+Product: Raspberry Pi 5
+Part: Pi-5
+Part variation of Pi-5: Pi-5-8GB
+  Sub-assembly of Pi-5-8GB
+  |_ RAM-8GB
+  |_ CPU-1234
+  |_ Memory-abcd
+Part variation of Pi-5: Pi-5-4GB
+  Sub-assembly of Pi-5-4GB
+  |_ RAM-4GB
+  |_ CPU-1234
+  |_ Memory-abcd
+Unit: Raspberry Pi Pico 8GB RSP-PI-001
+```
