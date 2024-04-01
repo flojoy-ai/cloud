@@ -1,12 +1,12 @@
 import { generateDatabaseId, tryQuery } from "../lib/db-utils";
 import type { DB } from "@cloud/shared";
-import { InsertFamily } from "@cloud/shared";
+import { InsertPart } from "@cloud/shared";
 import { Kysely } from "kysely";
 import { err, ok, safeTry } from "neverthrow";
 import { createProduct } from "./product";
 
-export async function createFamily(db: Kysely<DB>, family: InsertFamily) {
-  const { productName, ...rest } = family;
+export async function createPart(db: Kysely<DB>, part: InsertPart) {
+  const { productName, ...rest } = part;
 
   return safeTry(async function* () {
     let product = await db
@@ -18,7 +18,7 @@ export async function createFamily(db: Kysely<DB>, family: InsertFamily) {
     if (product === undefined) {
       product = yield* (
         await createProduct(db, {
-          workspaceId: family.workspaceId,
+          workspaceId: part.workspaceId,
           name: productName,
         })
       ).safeUnwrap();
@@ -26,9 +26,9 @@ export async function createFamily(db: Kysely<DB>, family: InsertFamily) {
 
     const res = yield* tryQuery(
       db
-        .insertInto("family")
+        .insertInto("part")
         .values({
-          id: generateDatabaseId("family"),
+          id: generateDatabaseId("part"),
           productId: product.id,
           ...rest,
         })
@@ -37,7 +37,7 @@ export async function createFamily(db: Kysely<DB>, family: InsertFamily) {
     ).safeUnwrap();
 
     if (res === undefined) {
-      return err("Failed to create family");
+      return err("Failed to create part");
     }
 
     return ok(res);

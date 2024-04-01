@@ -5,12 +5,12 @@ import { type WorkspaceId } from './Workspace';
 import { type ProductId } from './Product';
 import { type ColumnType, type Selectable, type Insertable, type Updateable } from 'kysely';
 
-export type FamilyId = string;
+export type PartId = string;
 
-/** Represents the table public.family */
-export default interface FamilyTable {
+/** Represents the table public.part */
+export default interface PartTable {
   /** Database type: pg_catalog.text */
-  id: ColumnType<FamilyId, FamilyId, FamilyId>;
+  id: ColumnType<PartId, PartId, PartId>;
 
   /** Database type: pg_catalog.text */
   workspaceId: ColumnType<WorkspaceId, WorkspaceId, WorkspaceId>;
@@ -28,8 +28,8 @@ export default interface FamilyTable {
   createdAt: ColumnType<Date, Date | string | undefined, Date | string>;
 }
 
-export type Family = Selectable<FamilyTable>;
+export type Part = Selectable<PartTable>;
 
-export type NewFamily = Insertable<FamilyTable>;
+export type NewPart = Insertable<PartTable>;
 
-export type FamilyUpdate = Updateable<FamilyTable>;
+export type PartUpdate = Updateable<PartTable>;

@@ -16,14 +16,14 @@ import {
 } from "@/components/ui/breadcrumb";
 import { getProjectsQueryOpts } from "@/lib/queries/project";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { getModelsQueryOpts } from "@/lib/queries/model";
+import { getPartVariationsQueryOpts } from "@/lib/queries/part-variation";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/project/",
 )({
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(getProjectsQueryOpts({ context }));
-    context.queryClient.ensureQueryData(getModelsQueryOpts({ context }));
+    context.queryClient.ensureQueryData(getPartVariationsQueryOpts({ context }));
   },
   component: Page,
 });
@@ -35,8 +35,8 @@ function Page() {
     getProjectsQueryOpts({ context: { workspace } }),
   );
 
-  const { data: models } = useSuspenseQuery(
-    getModelsQueryOpts({ context: { workspace } }),
+  const { data: partVariations } = useSuspenseQuery(
+    getPartVariationsQueryOpts({ context: { workspace } }),
   );
 
   return (
@@ -64,13 +64,13 @@ function Page() {
         <PageHeaderHeading className="">Production Lines</PageHeaderHeading>
         <PageHeaderDescription>
           A production line groups a set of test stations that run tests on a
-          specific hardware model.
+          specific hardware partVariation.
         </PageHeaderDescription>
       </PageHeader>
       <div className="py-4"></div>
 
       <div className="space-x-2">
-        <NewProject workspace={workspace} models={models} />
+        <NewProject workspace={workspace} partVariations={partVariations} />
       </div>
 
       <div className="py-2"></div>
@@ -85,7 +85,7 @@ function Page() {
             <ProjectCard
               key={project.id}
               project={project}
-              models={models}
+              partVariations={partVariations}
               workspace={workspace}
             />
           ))}

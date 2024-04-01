@@ -4,7 +4,7 @@ export type { Project } from "../schemas/public/Project";
 
 export const CreateProjectSchema = t.Object({
   name: t.String({ minLength: 1 }),
-  modelId: t.String({ minLength: 1 }),
+  partVariationId: t.String({ minLength: 1 }),
   workspaceId: t.String(),
   repoUrl: t.Optional(t.String()),
 });

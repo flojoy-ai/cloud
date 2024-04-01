@@ -1,23 +1,23 @@
 import {
-  ModelTreeRoot,
-  ModelTreeNode,
+  PartVariationTreeRoot,
+  PartVariationTreeNode,
   HardwareTreeNode,
   HardwareTreeRoot,
 } from "@cloud/shared";
 import { Node, Edge } from "reactflow";
 
-export const makeModelGraph = (root: ModelTreeRoot) => {
+export const makePartVariationGraph = (root: PartVariationTreeRoot) => {
   const nodes: Node[] = [];
   const edges: Edge[] = [];
 
-  const traverse = (node: ModelTreeNode, count?: number): string => {
+  const traverse = (node: PartVariationTreeNode, count?: number): string => {
     const duplicates = nodes.filter((n) => n.id.startsWith(node.id)).length;
     const id = duplicates === 0 ? node.id : `${node.id}_${duplicates}`;
     if (node.components.length === 0) {
       nodes.push({
         id,
         data: {
-          label: node.name + (count ? ` (x${count})` : ""),
+          label: node.partNumber + (count ? ` (x${count})` : ""),
         },
         position: { x: 0, y: 0 },
       });
@@ -26,13 +26,13 @@ export const makeModelGraph = (root: ModelTreeRoot) => {
     }
 
     const childIds = node.components.map((group) =>
-      traverse(group.model, group.count),
+      traverse(group.partVariation, group.count),
     );
 
     nodes.push({
       id,
       data: {
-        label: node.name + (count ? ` (x${count})` : ""),
+        label: node.partNumber + (count ? ` (x${count})` : ""),
       },
       position: { x: 0, y: 0 },
     });
@@ -64,7 +64,7 @@ export const makeHardwareGraph = (root: HardwareTreeRoot) => {
       nodes.push({
         id,
         data: {
-          label: `${node.name}\n(${node.modelName})`,
+          label: `${node.serialNumber}\n(${node.partNumber})`,
         },
         position: { x: 0, y: 0 },
       });
@@ -77,7 +77,7 @@ export const makeHardwareGraph = (root: HardwareTreeRoot) => {
     nodes.push({
       id,
       data: {
-        label: `${node.name}\n(${node.modelName})`,
+        label: `${node.serialNumber}\n(${node.partNumber})`,
       },
       position: { x: 0, y: 0 },
     });
@@ -93,7 +93,7 @@ export const makeHardwareGraph = (root: HardwareTreeRoot) => {
     return id;
   };
 
-  traverse({ ...root, modelName: root.model.name });
+  traverse({ ...root, partNumber: root.partVariation.partNumber });
 
   return { nodes, edges };
 };

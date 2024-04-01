@@ -16,12 +16,12 @@ import {
 import { DataTable } from "@/components/ui/data-table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { HardwareTreeVisualization } from "@/components/visualization/tree-visualization";
-import { getFamilyQueryOpts } from "@/lib/queries/family";
+import { getPartQueryOpts } from "@/lib/queries/part";
 import {
   getHardwareQueryOpts,
   getHardwareRevisionsQueryOpts,
 } from "@/lib/queries/hardware";
-import { getModelQueryOpts } from "@/lib/queries/model";
+import { getPartVariationQueryOpts } from "@/lib/queries/part-variation";
 import { getSessionsQueryOpts } from "@/lib/queries/session";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
@@ -39,10 +39,13 @@ export const Route = createFileRoute(
     const hardware = await context.queryClient.ensureQueryData(
       getHardwareQueryOpts({ hardwareId, context }),
     );
-    const model = await context.queryClient.ensureQueryData(
-      getModelQueryOpts({ modelId: hardware.modelId, context }),
+    const partVariation = await context.queryClient.ensureQueryData(
+      getPartVariationQueryOpts({
+        partVariationId: hardware.partVariationId,
+        context,
+      }),
     );
-    return { hardware, model };
+    return { hardware, partVariation };
   },
   loader: async ({ context, params: { hardwareId } }) => {
     context.queryClient.ensureQueryData(
@@ -52,7 +55,7 @@ export const Route = createFileRoute(
       getSessionsQueryOpts({ hardwareId, context }),
     );
     context.queryClient.ensureQueryData(
-      getFamilyQueryOpts({ familyId: context.model.familyId, context }),
+      getPartQueryOpts({ partId: context.partVariation.partId, context }),
     );
   },
 });
@@ -98,15 +101,15 @@ const columns: ColumnDef<Session & { status: boolean | null }>[] = [
 
 function HardwarePage() {
   const context = Route.useRouteContext();
-  const { workspace, hardware, model } = context;
+  const { workspace, hardware, partVariation } = context;
   const { data: revisions } = useSuspenseQuery(
     getHardwareRevisionsQueryOpts({ hardwareId: hardware.id, context }),
   );
   const { data: sessions } = useSuspenseQuery(
     getSessionsQueryOpts({ hardwareId: hardware.id, context }),
   );
-  const { data: family } = useSuspenseQuery(
-    getFamilyQueryOpts({ familyId: model.familyId, context }),
+  const { data: part } = useSuspenseQuery(
+    getPartQueryOpts({ partId: partVariation.partId, context }),
   );
   const router = useRouter();
 
@@ -125,7 +128,7 @@ function HardwarePage() {
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link from={WorkspaceIndexRoute.fullPath} to="family">
+              <Link from={WorkspaceIndexRoute.fullPath} to="part">
                 Inventory
               </Link>
             </BreadcrumbLink>
@@ -135,10 +138,10 @@ function HardwarePage() {
             <BreadcrumbLink asChild>
               <Link
                 from={WorkspaceIndexRoute.fullPath}
-                to="family/$familyId"
-                params={{ familyId: family.id }}
+                to="part/$partId"
+                params={{ partId: part.id }}
               >
-                {family.name}
+                {part.name}
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
@@ -147,23 +150,23 @@ function HardwarePage() {
             <BreadcrumbLink asChild>
               <Link
                 from={WorkspaceIndexRoute.fullPath}
-                to="model/$modelId"
-                params={{ modelId: model.id }}
+                to="variation/$partVariationId"
+                params={{ partVariationId: partVariation.id }}
               >
-                {model.name}
+                {partVariation.partNumber}
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>{hardware.name}</BreadcrumbPage>
+            <BreadcrumbPage>{hardware.serialNumber}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
       <PageHeader>
         <PageHeaderHeading className="">
           <div className="flex items-center gap-x-2">
-            <div>{hardware.name}</div>
+            <div>{hardware.serialNumber}</div>
             {hardware.components.length > 0 && (
               <>
                 <SwapHardware hardware={hardware} workspace={workspace} />

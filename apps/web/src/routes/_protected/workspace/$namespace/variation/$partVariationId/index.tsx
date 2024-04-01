@@ -15,9 +15,9 @@ import {
 } from "@/components/ui/breadcrumb";
 import { DataTable } from "@/components/ui/data-table";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ModelTreeVisualization } from "@/components/visualization/tree-visualization";
-import { getFamilyQueryOpts } from "@/lib/queries/family";
-import { getModelHardwareQueryOpts } from "@/lib/queries/hardware";
+import { PartVariationTreeVisualization } from "@/components/visualization/tree-visualization";
+import { getPartQueryOpts } from "@/lib/queries/part";
+import { getPartVariationHardwareQueryOpts } from "@/lib/queries/hardware";
 import { HardwareWithParent } from "@cloud/shared";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute, useRouter } from "@tanstack/react-router";
@@ -26,15 +26,15 @@ import { Plus } from "lucide-react";
 import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
 
 export const Route = createFileRoute(
-  "/_protected/workspace/$namespace/model/$modelId/",
+  "/_protected/workspace/$namespace/variation/$partVariationId/",
 )({
-  component: ModelPage,
-  loader: ({ context, params: { modelId } }) => {
+  component: PartVariationPage,
+  loader: ({ context, params: { partVariationId } }) => {
     context.queryClient.ensureQueryData(
-      getModelHardwareQueryOpts({ modelId, context }),
+      getPartVariationHardwareQueryOpts({ partVariationId, context }),
     );
     context.queryClient.ensureQueryData(
-      getFamilyQueryOpts({ familyId: context.model.familyId, context }),
+      getPartQueryOpts({ partId: context.partVariation.partId, context }),
     );
   },
 });
@@ -42,16 +42,16 @@ export const Route = createFileRoute(
 const hardwareColumns: ColumnDef<HardwareWithParent>[] = [
   {
     accessorKey: "name",
-    header: "Instance SN",
+    header: "Serial Number",
     cell: ({ row }) => {
-      return <Badge variant="secondary">{row.original.name}</Badge>;
+      return <Badge variant="secondary">{row.original.serialNumber}</Badge>;
     },
   },
   {
     accessorKey: "parent",
     header: "Parent",
     cell: ({ row }) => {
-      const parentName = row.original.parent?.name;
+      const parentName = row.original.parent?.serialNumber;
       if (!parentName) return null;
       return <Badge variant="outline">{parentName}</Badge>;
     },
@@ -63,18 +63,21 @@ const hardwareColumns: ColumnDef<HardwareWithParent>[] = [
   // },
 ];
 
-function ModelPage() {
-  const { workspace, model } = Route.useRouteContext();
-  const { modelId } = Route.useParams();
+function PartVariationPage() {
+  const { workspace, partVariation } = Route.useRouteContext();
+  const { partVariationId } = Route.useParams();
   const router = useRouter();
 
   const { data: hardware } = useSuspenseQuery(
-    getModelHardwareQueryOpts({ modelId, context: { workspace } }),
+    getPartVariationHardwareQueryOpts({
+      partVariationId,
+      context: { workspace },
+    }),
   );
 
-  const { data: family } = useSuspenseQuery(
-    getFamilyQueryOpts({
-      familyId: model.familyId,
+  const { data: part } = useSuspenseQuery(
+    getPartQueryOpts({
+      partId: partVariation.partId,
       context: { workspace },
     }),
   );
@@ -94,7 +97,7 @@ function ModelPage() {
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link from={WorkspaceIndexRoute.fullPath} to="family">
+              <Link from={WorkspaceIndexRoute.fullPath} to="part">
                 Inventory
               </Link>
             </BreadcrumbLink>
@@ -104,31 +107,31 @@ function ModelPage() {
             <BreadcrumbLink asChild>
               <Link
                 from={WorkspaceIndexRoute.fullPath}
-                to="family/$familyId"
-                params={{ familyId: family.id }}
+                to="part/$partId"
+                params={{ partId: part.id }}
               >
-                {family.name}
+                {part.name}
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>{model.name}</BreadcrumbPage>
+            <BreadcrumbPage>{partVariation.name}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
       <PageHeader>
-        <PageHeaderHeading>{model.name}</PageHeaderHeading>
+        <PageHeaderHeading>{partVariation.name}</PageHeaderHeading>
         <div className="text-muted-foreground font-bold">
-          Product: {family.productName}
+          Product: {part.productName}
         </div>
         <PageHeaderDescription>
-          Here you can find all of the parts registered under this family.
+          Here you can find all of the parts registered under this part.
           <br />
         </PageHeaderDescription>
       </PageHeader>
       <div className="py-4" />
-      <CreateHardware workspace={workspace} modelId={model.id}>
+      <CreateHardware workspace={workspace} partVariationId={partVariation.id}>
         <div className="flex items-center gap-1">
           <Plus size={20} />
           <div>Create</div>
@@ -141,7 +144,7 @@ function ModelPage() {
         <div className="w-3/5">
           {hardware.length === 0 ? (
             <div className="text-muted-foreground">
-              No hardware found for this model, go register one!
+              No hardware found for this partVariation, go register one!
             </div>
           ) : (
             <ScrollArea className="h-[379px]">
@@ -160,7 +163,7 @@ function ModelPage() {
           )}
         </div>
         <div className="w-2/5 h-[379px] border rounded-lg">
-          <ModelTreeVisualization tree={model} />
+          <PartVariationTreeVisualization tree={partVariation} />
         </div>
       </div>
       <div className="py-4" />

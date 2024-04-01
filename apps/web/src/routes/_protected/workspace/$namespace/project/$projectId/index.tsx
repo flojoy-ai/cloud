@@ -25,7 +25,7 @@ import { getStationsQueryOpts } from "@/lib/queries/station";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { DataTable } from "@/components/ui/data-table";
 import { columns } from "@/components/station/columns";
-import { getModelQueryOpts } from "@/lib/queries/model";
+import { getPartVariationQueryOpts } from "@/lib/queries/part-variation";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/project/$projectId/",
@@ -36,7 +36,10 @@ export const Route = createFileRoute(
     );
 
     context.queryClient.ensureQueryData(
-      getModelQueryOpts({ context, modelId: context.project.modelId }),
+      getPartVariationQueryOpts({
+        context,
+        partVariationId: context.project.partVariationId,
+      }),
     );
   },
   component: Page,
@@ -50,8 +53,11 @@ function Page() {
     getStationsQueryOpts({ projectId, context: { workspace } }),
   );
 
-  const { data: model } = useSuspenseQuery(
-    getModelQueryOpts({ context: { workspace }, modelId: project.modelId }),
+  const { data: partVariation } = useSuspenseQuery(
+    getPartVariationQueryOpts({
+      context: { workspace },
+      partVariationId: project.partVariationId,
+    }),
   );
 
   return (
@@ -100,9 +106,9 @@ function Page() {
         <div className="col-span-1">
           <Card>
             <CardHeader>
-              <CardTitle>{model.name}</CardTitle>
+              <CardTitle>{partVariation.partNumber}</CardTitle>
               <CardDescription>
-                This is the model being tested in this production line
+                This is the partVariation being tested in this production line
               </CardDescription>
             </CardHeader>
             {/* <CardContent> */}

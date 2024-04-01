@@ -31,7 +31,13 @@ export default interface MeasurementTable {
   testId: ColumnType<TestId, TestId, TestId>;
 
   /** Database type: pg_catalog.text */
-  sessionId: ColumnType<SessionId, SessionId, SessionId>;
+  sessionId: ColumnType<SessionId | null, SessionId | null, SessionId | null>;
+
+  /** Database type: pg_catalog.text */
+  sequenceName: ColumnType<string | null, string | null, string | null>;
+
+  /** Database type: pg_catalog.int4 */
+  cycleNumber: ColumnType<number | null, number | null, number | null>;
 
   /** Database type: pg_catalog.text */
   projectId: ColumnType<ProjectId, ProjectId, ProjectId>;

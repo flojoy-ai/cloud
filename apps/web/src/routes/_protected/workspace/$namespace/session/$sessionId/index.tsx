@@ -187,7 +187,7 @@ function Page() {
             to="hardware/$hardwareId"
             params={{ hardwareId: hardware.id }}
           >
-            {hardware.name}
+            {hardware.serialNumber}
           </Link>
         </PageHeaderHeading>
         <PageHeaderDescription>

@@ -29,6 +29,12 @@ export default interface SessionTable {
   /** Database type: pg_catalog.text */
   commitHash: ColumnType<string | null, string | null, string | null>;
 
+  /** Database type: pg_catalog.bool */
+  integrity: ColumnType<boolean, boolean, boolean>;
+
+  /** Database type: pg_catalog.bool */
+  aborted: ColumnType<boolean, boolean, boolean>;
+
   /** Database type: pg_catalog.text */
   notes: ColumnType<string | null, string | null, string | null>;
 

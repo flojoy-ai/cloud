@@ -61,7 +61,9 @@ export type MeasurementData = Static<typeof measurementData>;
 export const insertMeasurement = t.Object({
   hardwareId: t.String(),
   testId: t.String(),
-  sessionId: t.String(),
+  sessionId: t.Optional(t.String()),
+  sequenceName: t.Optional(t.String()),
+  cycleNumber: t.Optional(t.Integer()),
   projectId: t.String(),
   name: t.String({ default: "Untitled measurement" }),
   data: measurementData,

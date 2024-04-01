@@ -9,6 +9,8 @@ import {
 import Elysia from "elysia";
 import { Kysely, sql, SqlBool } from "kysely";
 
+// TODO: Fix
+
 function nameSearch(
   db: Kysely<DB>,
   query: string,
@@ -34,11 +36,53 @@ export const SearchRoute = new Elysia({ prefix: "/search" })
       }
       const { query } = queryParams;
 
-      const queries = searchResultTypes.map((table) =>
-        nameSearch(db, query, workspace.id, table),
-      );
+      const productQuery = db
+        .selectFrom("product")
+        .select(["name", "id"])
+        .select(sql<SearchResult["type"]>`'product'`.as("type"))
+        .select(sql<number>`name <-> ${query}`.as("dist"))
+        .where(sql<SqlBool>`(name <-> ${query}) < 0.85`)
+        .where("workspaceId", "=", workspace.id);
 
-      const searchQuery = queries
+      const partQuery = db
+        .selectFrom("part")
+        .select(["name", "id"])
+        .select(sql<SearchResult["type"]>`'part'`.as("type"))
+        .select(sql<number>`name <-> ${query}`.as("dist"))
+        .where(sql<SqlBool>`(name <-> ${query}) < 0.85`)
+        .where("workspaceId", "=", workspace.id);
+
+      const partVariationQuery = db
+        .selectFrom("part_variation")
+        .select(["partNumber as name", "id"])
+        .select(sql<SearchResult["type"]>`'partVariation'`.as("type"))
+        .select(sql<number>`name <-> ${query}`.as("dist"))
+        .where(sql<SqlBool>`(name <-> ${query}) < 0.85`)
+        .where("workspaceId", "=", workspace.id);
+
+      const hardwareQuery = db
+        .selectFrom("hardware")
+        .select(["serialNumber as name", "id"])
+        .select(sql<SearchResult["type"]>`'hardware'`.as("type"))
+        .select(sql<number>`name <-> ${query}`.as("dist"))
+        .where(sql<SqlBool>`(name <-> ${query}) < 0.85`)
+        .where("workspaceId", "=", workspace.id);
+
+      const projectQuery = db
+        .selectFrom("project")
+        .select(["name", "id"])
+        .select(sql<SearchResult["type"]>`'project'`.as("type"))
+        .select(sql<number>`name <-> ${query}`.as("dist"))
+        .where(sql<SqlBool>`(name <-> ${query}) < 0.85`)
+        .where("workspaceId", "=", workspace.id);
+
+      const searchQuery = [
+        productQuery,
+        partQuery,
+        partVariationQuery,
+        hardwareQuery,
+        projectQuery,
+      ]
         .reduce((q, acc) => acc.unionAll(q))
         .orderBy("dist")
         .limit(10);

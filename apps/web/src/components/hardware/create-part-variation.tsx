@@ -27,9 +27,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { client } from "@/lib/client";
-import { getModelsQueryKey } from "@/lib/queries/model";
+import { getPartVariationsQueryKey } from "@/lib/queries/part-variation";
 import { handleError } from "@/lib/utils";
-import { Family, Model, insertModel } from "@cloud/shared";
+import { Part, PartVariation, insertPartVariation } from "@cloud/shared";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
 import { Static, Type as t } from "@sinclair/typebox";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -38,49 +38,49 @@ import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-const modelFormSchema = t.Composite([
-  insertModel,
+const partVariationFormSchema = t.Composite([
+  insertPartVariation,
   t.Object({ type: t.Union([t.Literal("device"), t.Literal("system")]) }),
 ]);
-type FormSchema = Static<typeof modelFormSchema>;
+type FormSchema = Static<typeof partVariationFormSchema>;
 
 type Props = {
   workspaceId: string;
-  models: Model[];
-  family: Family;
+  partVariations: PartVariation[];
+  part: Part;
 };
 
-const CreateModel = ({ workspaceId, models, family }: Props) => {
+const CreatePartVariation = ({ workspaceId, partVariations, part }: Props) => {
   const queryClient = useQueryClient();
 
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const createModel = useMutation({
-    mutationFn: async (values: Static<typeof insertModel>) => {
-      const { error } = await client.model.index.post(values, {
+  const createPartVariation = useMutation({
+    mutationFn: async (values: Static<typeof insertPartVariation>) => {
+      const { error } = await client.partVariation.index.post(values, {
         headers: { "flojoy-workspace-id": workspaceId },
       });
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: getModelsQueryKey() });
+      queryClient.invalidateQueries({ queryKey: getPartVariationsQueryKey() });
 
       setIsDialogOpen(false);
     },
   });
 
   const form = useForm<FormSchema>({
-    resolver: typeboxResolver(modelFormSchema),
+    resolver: typeboxResolver(partVariationFormSchema),
     defaultValues: {
       workspaceId,
-      familyId: family.id,
+      partId: part.id,
       type: "device",
-      components: [{ modelId: "", count: 1 }],
+      components: [{ partVariationId: "", count: 1 }],
     },
   });
   const { fields, insert, remove } = useFieldArray({
     control: form.control,
     name: "components",
-    keyName: "modelId",
+    keyName: "partVariationId",
   });
 
   const handleRemove = (index: number) => {
@@ -94,13 +94,13 @@ const CreateModel = ({ workspaceId, models, family }: Props) => {
     const { type, ...rest } = values;
     if (type === "device") {
       toast.promise(
-        createModel.mutateAsync({
+        createPartVariation.mutateAsync({
           ...rest,
           components: [],
         }),
         {
-          loading: "Creating your model...",
-          success: "Model created.",
+          loading: "Creating your partVariation...",
+          success: "PartVariation created.",
           error: handleError,
         },
       );
@@ -109,9 +109,9 @@ const CreateModel = ({ workspaceId, models, family }: Props) => {
     if (type === "system") {
       let hasError = false;
       for (let i = 0; i < values.components.length; i++) {
-        if (values.components[i]?.modelId === "") {
-          form.setError(`components.${i}.modelId` as const, {
-            message: "Cannot have empty component model",
+        if (values.components[i]?.partVariationId === "") {
+          form.setError(`components.${i}.partVariationId` as const, {
+            message: "Cannot have empty component partVariation",
           });
           hasError = true;
         }
@@ -120,9 +120,9 @@ const CreateModel = ({ workspaceId, models, family }: Props) => {
         return;
       }
 
-      toast.promise(createModel.mutateAsync(rest), {
-        loading: "Creating your model...",
-        success: "Model created.",
+      toast.promise(createPartVariation.mutateAsync(rest), {
+        loading: "Creating your partVariation...",
+        success: "PartVariation created.",
         error: handleError,
       });
     }
@@ -146,9 +146,9 @@ const CreateModel = ({ workspaceId, models, family }: Props) => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Register a new hardware model</DialogTitle>
+          <DialogTitle>Register a new hardware partVariation</DialogTitle>
           <DialogDescription>
-            What is the hardware model you are working with?
+            What is the hardware partVariation you are working with?
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -158,15 +158,16 @@ const CreateModel = ({ workspaceId, models, family }: Props) => {
           >
             <FormField
               control={form.control}
-              name="name"
+              name="partNumber"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Hardware Model Name</FormLabel>
+                  <FormLabel>Part Number</FormLabel>
                   <FormControl>
                     <Input placeholder="M1234" {...field} data-1p-ignore />
                   </FormControl>
                   <FormDescription>
-                    An identifier for this model.
+                    An identifier for this part variation. This will always be
+                    prefixed with the part's name.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -193,7 +194,7 @@ const CreateModel = ({ workspaceId, models, family }: Props) => {
               name="type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Hardware Model Type</FormLabel>
+                  <FormLabel>Hardware PartVariation Type</FormLabel>
                   <FormControl>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger className="w-[180px]">
@@ -219,15 +220,15 @@ const CreateModel = ({ workspaceId, models, family }: Props) => {
                 <FormLabel className="">System Components</FormLabel>
                 <FormDescription>
                   You can pick the components that make up this system from
-                  existing device models. This will help you build the
+                  existing device partVariations. This will help you build the
                   &apos;blueprint&apos; of the system.
                 </FormDescription>
                 {fields.map((field, index) => (
-                  <div className="flex gap-2 " key={field.modelId}>
+                  <div className="flex gap-2 " key={field.partVariationId}>
                     <FormField
                       control={form.control}
-                      key={field.modelId}
-                      name={`components.${index}.modelId` as const}
+                      key={field.partVariationId}
+                      name={`components.${index}.partVariationId` as const}
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
@@ -239,9 +240,12 @@ const CreateModel = ({ workspaceId, models, family }: Props) => {
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                {models.map((model) => (
-                                  <SelectItem value={model.id} key={model.id}>
-                                    {model.name}
+                                {partVariations.map((partVariation) => (
+                                  <SelectItem
+                                    value={partVariation.id}
+                                    key={partVariation.id}
+                                  >
+                                    {partVariation.partNumber}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -253,7 +257,7 @@ const CreateModel = ({ workspaceId, models, family }: Props) => {
                     />
                     <FormField
                       control={form.control}
-                      key={field.modelId}
+                      key={field.partVariationId}
                       name={`components.${index}.count` as const}
                       render={({ field }) => (
                         <FormItem>
@@ -288,7 +292,7 @@ const CreateModel = ({ workspaceId, models, family }: Props) => {
                 <Button
                   type="button"
                   onClick={() =>
-                    insert(fields.length, { modelId: "", count: 1 })
+                    insert(fields.length, { partVariationId: "", count: 1 })
                   }
                   variant="secondary"
                   size="sm"
@@ -297,8 +301,8 @@ const CreateModel = ({ workspaceId, models, family }: Props) => {
                 </Button>
                 <FormDescription>
                   When you try to initialize an system instance based on this
-                  model, then you first need to make sure all its components
-                  exist.
+                  partVariation, then you first need to make sure all its
+                  components exist.
                 </FormDescription>
               </div>
             )}
@@ -317,4 +321,4 @@ const CreateModel = ({ workspaceId, models, family }: Props) => {
   );
 };
 
-export default CreateModel;
+export default CreatePartVariation;

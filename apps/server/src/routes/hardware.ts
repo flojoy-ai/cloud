@@ -4,13 +4,13 @@ import {
   getHardwareRevisions,
   getHardwareTree,
   notInUse,
-  withHardwareModel,
+  withHardwarePartVariation,
 } from "../db/hardware";
 import { db } from "../db/kysely";
 import { HardwareMiddleware } from "../middlewares/hardware";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
 import { insertHardware, swapHardwareComponent } from "@cloud/shared";
-import { Model } from "@cloud/shared";
+import { PartVariation } from "@cloud/shared";
 import { queryBool } from "@cloud/shared";
 import Elysia, { t } from "elysia";
 import { jsonObjectFrom } from "kysely/helpers/postgres";
@@ -24,8 +24,8 @@ export const HardwareRoute = new Elysia({ prefix: "/hardware" })
         .selectFrom("hardware")
         .selectAll("hardware")
         .where("hardware.workspaceId", "=", workspace.id)
-        .select((eb) => withHardwareModel(eb))
-        .$narrowType<{ model: Model }>()
+        .select((eb) => withHardwarePartVariation(eb))
+        .$narrowType<{ partVariation: PartVariation }>()
         .orderBy("createdAt");
 
       if (onlyAvailable) {
@@ -64,7 +64,7 @@ export const HardwareRoute = new Elysia({ prefix: "/hardware" })
             .selectAll("hardware")
             .where("id", "=", hardwareId)
             .where("workspaceId", "=", workspace.id)
-            .select((eb) => withHardwareModel(eb))
+            .select((eb) => withHardwarePartVariation(eb))
             .leftJoin(
               "hardware_relation",
               "hardware.id",
@@ -78,19 +78,23 @@ export const HardwareRoute = new Elysia({ prefix: "/hardware" })
                   .select((eb) =>
                     jsonObjectFrom(
                       eb
-                        .selectFrom("model")
-                        .selectAll("model")
-                        .whereRef("model.id", "=", "h.modelId"),
-                    ).as("model"),
+                        .selectFrom("part_variation")
+                        .selectAll("part_variation")
+                        .whereRef(
+                          "part_variation.id",
+                          "=",
+                          "h.partVariationId",
+                        ),
+                    ).as("partVariation"),
                   )
-                  .$narrowType<{ model: Model }>()
+                  .$narrowType<{ partVariation: PartVariation }>()
                   .whereRef("h.id", "=", "hardware_relation.parentHardwareId"),
               ).as("parent"),
             )
-            .$narrowType<{ model: Model }>()
+            .$narrowType<{ partVariation: PartVariation }>()
             .executeTakeFirst();
           if (hardware === undefined) {
-            return error(404, "Model not found");
+            return error(404, "PartVariation not found");
           }
 
           return await getHardwareTree(hardware);

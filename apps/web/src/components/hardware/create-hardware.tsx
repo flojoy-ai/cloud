@@ -38,11 +38,18 @@ import { client } from "@/lib/client";
 import {
   getHardwaresQueryKey,
   getHardwaresQueryOpts,
-  getModelHardwareQueryKey,
+  getPartVariationHardwareQueryKey,
 } from "@/lib/queries/hardware";
-import { getModelQueryOpts, getModelsQueryOpts } from "@/lib/queries/model";
+import {
+  getPartVariationQueryOpts,
+  getPartVariationsQueryOpts,
+} from "@/lib/queries/part-variation";
 import { handleError } from "@/lib/utils";
-import { Workspace, ModelTreeRoot, insertHardware } from "@cloud/shared";
+import {
+  Workspace,
+  PartVariationTreeRoot,
+  insertHardware,
+} from "@cloud/shared";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
 import { Static, Type as t } from "@sinclair/typebox";
 import {
@@ -63,23 +70,28 @@ type FormSchema = Static<typeof formSchema>;
 
 type Props = {
   workspace: Workspace;
-  modelId: string;
+  partVariationId: string;
   projectId?: string;
   children?: React.ReactNode;
 };
 
-const getComponentModelIds = (tree: ModelTreeRoot) => {
+const getComponentPartVariationIds = (tree: PartVariationTreeRoot) => {
   // TODO: Only get depth 1
   return tree.components.flatMap((m) =>
-    new Array<string>(m.count).fill(m.model.id),
+    new Array<string>(m.count).fill(m.partVariation.id),
   );
 };
 
-const CreateHardware = ({ children, workspace, modelId, projectId }: Props) => {
+const CreateHardware = ({
+  children,
+  workspace,
+  partVariationId,
+  projectId,
+}: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const [deviceModels, setDeviceModels] = useState<string[] | undefined>(
-    undefined,
-  );
+  const [devicePartVariations, setDevicePartVariations] = useState<
+    string[] | undefined
+  >(undefined);
   const queryClient = useQueryClient();
 
   const createHardware = useMutation({
@@ -92,7 +104,7 @@ const CreateHardware = ({ children, workspace, modelId, projectId }: Props) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getHardwaresQueryKey() });
       queryClient.invalidateQueries({
-        queryKey: getModelHardwareQueryKey(modelId),
+        queryKey: getPartVariationHardwareQueryKey(partVariationId),
       });
       setIsDialogOpen(false);
     },
@@ -101,33 +113,34 @@ const CreateHardware = ({ children, workspace, modelId, projectId }: Props) => {
   const { data: hardware } = useSuspenseQuery(
     getHardwaresQueryOpts({ onlyAvailable: true, context: { workspace } }),
   );
-  const { data: models } = useSuspenseQuery(
-    getModelsQueryOpts({ context: { workspace } }),
+  const { data: partVariations } = useSuspenseQuery(
+    getPartVariationsQueryOpts({ context: { workspace } }),
   );
-  const { data: modelTree, isPending: treeLoading } = useSuspenseQuery(
-    getModelQueryOpts({ context: { workspace }, modelId }),
+  const { data: partVariationTree, isPending: treeLoading } = useSuspenseQuery(
+    getPartVariationQueryOpts({ context: { workspace }, partVariationId }),
   );
 
   const form = useForm<FormSchema>({
     resolver: typeboxResolver(formSchema),
     defaultValues: {
-      modelId,
+      partVariationId,
       projectId,
       components: [],
     },
   });
 
   useEffect(() => {
-    const deviceModels = getComponentModelIds(modelTree);
+    const devicePartVariations =
+      getComponentPartVariationIds(partVariationTree);
 
     form.setValue(
       "components",
-      deviceModels.map(() => ({
+      devicePartVariations.map(() => ({
         hardwareId: "",
       })),
     );
-    setDeviceModels(deviceModels);
-  }, [modelId, form, modelTree]);
+    setDevicePartVariations(devicePartVariations);
+  }, [partVariationId, form, partVariationTree]);
 
   if (!hardware) {
     return (
@@ -177,10 +190,10 @@ const CreateHardware = ({ children, workspace, modelId, projectId }: Props) => {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
             <FormField
               control={form.control}
-              name="name"
+              name="serialNumber"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Identifier</FormLabel>
+                  <FormLabel>Serial Number</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="e.g. SN4321"
@@ -189,8 +202,7 @@ const CreateHardware = ({ children, workspace, modelId, projectId }: Props) => {
                     />
                   </FormControl>
                   <FormDescription>
-                    How do you identify this hardware instance? This is usually
-                    a serial number like SN4321.
+                    A unique identifier for this hardware instance.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -200,8 +212,8 @@ const CreateHardware = ({ children, workspace, modelId, projectId }: Props) => {
             {treeLoading ? (
               <Icons.spinner className="mx-auto animate-spin" />
             ) : (
-              deviceModels !== undefined &&
-              deviceModels.length > 0 && (
+              devicePartVariations !== undefined &&
+              devicePartVariations.length > 0 && (
                 <div>
                   <FormLabel>Parts</FormLabel>
                   <FormDescription>
@@ -210,14 +222,17 @@ const CreateHardware = ({ children, workspace, modelId, projectId }: Props) => {
                   <div>
                     <div className="mt-4 flex items-center gap-2">
                       <div className="flex w-fit flex-col gap-y-6">
-                        {deviceModels.sort().map((part, index) => (
+                        {devicePartVariations.sort().map((part, index) => (
                           <Badge key={index}>
-                            {models.find((m) => m.id === part)?.name}
+                            {
+                              partVariations.find((m) => m.id === part)
+                                ?.partNumber
+                            }
                           </Badge>
                         ))}
                       </div>
                       <div className="flex w-fit flex-col gap-y-1.5">
-                        {deviceModels.sort().map((part, index) => (
+                        {devicePartVariations.sort().map((part, index) => (
                           <FormField
                             control={form.control}
                             key={`${part}-${index}`}
@@ -234,10 +249,12 @@ const CreateHardware = ({ children, workspace, modelId, projectId }: Props) => {
                                     </SelectTrigger>
                                     <SelectContent>
                                       {hardware
-                                        .filter((hw) => hw.modelId === part)
+                                        .filter(
+                                          (hw) => hw.partVariationId === part,
+                                        )
                                         .map((hw) => (
                                           <SelectItem value={hw.id} key={hw.id}>
-                                            {hw.name}
+                                            {hw.serialNumber}
                                           </SelectItem>
                                         ))}
                                     </SelectContent>

@@ -52,7 +52,7 @@ const RevisionHistory = ({ revisions }: Props) => {
           {revisions.map((rev) => (
             <Card key={rev.createdAt.toString()} className="mt-2 p-4">
               <div className="flex items-center gap-2">
-                {iconMap[rev.revisionType]} {rev.componentName}
+                {iconMap[rev.revisionType]} {rev.componentSerialNumber}
               </div>
               <div className="py-0.5" />
               <div className="text-sm italic text-muted-foreground">

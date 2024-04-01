@@ -1,4 +1,4 @@
-import CreateModel from "@/components/hardware/create-model";
+import CreatePartVariation from "@/components/hardware/create-part-variation";
 import { Icons } from "@/components/icons";
 import {
   PageHeader,
@@ -17,31 +17,31 @@ import {
 import { DataTable } from "@/components/ui/data-table";
 import { Separator } from "@/components/ui/separator";
 import { client } from "@/lib/client";
-import { getFamilyQueryOpts } from "@/lib/queries/family";
-import { getFamilyModelsQueryOpts } from "@/lib/queries/model";
-import { Model, ModelTreeNode } from "@cloud/shared";
+import { getPartQueryOpts } from "@/lib/queries/part";
+import { getPartPartVariationsQueryOpts } from "@/lib/queries/part-variation";
+import { PartVariation, PartVariationTreeNode } from "@cloud/shared";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
 import { useState } from "react";
 import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
-import { ModelTreeVisualization } from "@/components/visualization/tree-visualization";
+import { PartVariationTreeVisualization } from "@/components/visualization/tree-visualization";
 
 export const Route = createFileRoute(
-  "/_protected/workspace/$namespace/family/$familyId/",
+  "/_protected/workspace/$namespace/part/$partId/",
 )({
-  component: FamilyPage,
-  loader: ({ context, params: { familyId } }) => {
+  component: PartPage,
+  loader: ({ context, params: { partId } }) => {
     context.queryClient.ensureQueryData(
-      getFamilyModelsQueryOpts({ familyId, context }),
+      getPartPartVariationsQueryOpts({ partId, context }),
     );
-    context.queryClient.ensureQueryData(
-      getFamilyQueryOpts({ familyId, context }),
-    );
+    context.queryClient.ensureQueryData(getPartQueryOpts({ partId, context }));
   },
 });
 
-const modelColumns: ColumnDef<Model & { hardwareCount: number }>[] = [
+const partVariationColumns: ColumnDef<
+  PartVariation & { hardwareCount: number }
+>[] = [
   {
     accessorKey: "name",
     header: "Name",
@@ -49,10 +49,10 @@ const modelColumns: ColumnDef<Model & { hardwareCount: number }>[] = [
       return (
         <Link
           from={WorkspaceIndexRoute.fullPath}
-          to="model/$modelId"
-          params={{ modelId: row.original.id }}
+          to="variation/$partVariationId"
+          params={{ partVariationId: row.original.id }}
         >
-          <Badge>{row.original.name}</Badge>
+          <Badge>{row.original.partNumber}</Badge>
         </Link>
       );
     },
@@ -70,12 +70,14 @@ const modelColumns: ColumnDef<Model & { hardwareCount: number }>[] = [
   },
 ];
 
-const modelComponentColumns: ColumnDef<ModelTreeNode & { count: number }>[] = [
+const partVariationComponentColumns: ColumnDef<
+  PartVariationTreeNode & { count: number }
+>[] = [
   {
     accessorKey: "name",
     header: "Name",
     cell: ({ row }) => {
-      return <Badge>{row.original.name}</Badge>;
+      return <Badge>{row.original.partNumber}</Badge>;
     },
   },
   {
@@ -87,35 +89,35 @@ const modelComponentColumns: ColumnDef<ModelTreeNode & { count: number }>[] = [
   },
 ];
 
-function FamilyPage() {
+function PartPage() {
   const { workspace } = Route.useRouteContext();
-  const { familyId } = Route.useParams();
+  const { partId } = Route.useParams();
 
-  const { data: models } = useSuspenseQuery(
-    getFamilyModelsQueryOpts({ familyId, context: { workspace } }),
+  const { data: partVariations } = useSuspenseQuery(
+    getPartPartVariationsQueryOpts({ partId, context: { workspace } }),
   );
 
-  const { data: family } = useSuspenseQuery(
-    getFamilyQueryOpts({ familyId, context: { workspace } }),
+  const { data: part } = useSuspenseQuery(
+    getPartQueryOpts({ partId, context: { workspace } }),
   );
 
-  const [selectedModelId, setSelectedModelId] = useState<string | undefined>(
-    models[0]?.id,
-  );
+  const [selectedPartVariationId, setSelectedPartVariationId] = useState<
+    string | undefined
+  >(partVariations[0]?.id);
 
-  const { data: modelTree, isPending } = useQuery({
+  const { data: partVariationTree, isPending } = useQuery({
     queryFn: async () => {
-      if (!selectedModelId) return undefined;
+      if (!selectedPartVariationId) return undefined;
       const { data, error } = await client
-        .model({ modelId: selectedModelId })
+        .partVariation({ partVariationId: selectedPartVariationId })
         .index.get({
           headers: { "flojoy-workspace-id": workspace.id },
         });
       if (error) throw error;
       return data;
     },
-    queryKey: ["modelTree", selectedModelId],
-    enabled: selectedModelId !== undefined,
+    queryKey: ["partVariationTree", selectedPartVariationId],
+    enabled: selectedPartVariationId !== undefined,
   });
 
   return (
@@ -135,7 +137,7 @@ function FamilyPage() {
             <BreadcrumbLink asChild>
               <Link
                 from={WorkspaceIndexRoute.fullPath}
-                to="family"
+                to="part"
                 params={{ namespace: workspace.namespace }}
               >
                 Inventory
@@ -144,61 +146,65 @@ function FamilyPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>{family.name}</BreadcrumbPage>
+            <BreadcrumbPage>{part.name}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
       <PageHeader>
-        <PageHeaderHeading>{family.name}</PageHeaderHeading>
+        <PageHeaderHeading>{part.name}</PageHeaderHeading>
         <div className="text-muted-foreground font-bold">
-          Product: {family.productName}
+          Product: {part.productName}
         </div>
         <PageHeaderDescription>
-          Here you can find all of the parts registered under this family.
+          Here you can find all of the parts registered under this part.
           <br />
         </PageHeaderDescription>
       </PageHeader>
       <div className="py-4" />
       <Separator />
       <div className="py-2" />
-      <CreateModel workspaceId={workspace.id} models={models} family={family} />
+      <CreatePartVariation
+        workspaceId={workspace.id}
+        partVariations={partVariations}
+        part={part}
+      />
       <div className="py-2" />
       <h1 className="text-xl font-bold">Part Variations</h1>
       <div className="py-2" />
 
-      {models.length === 0 ? (
+      {partVariations.length === 0 ? (
         <div className="text-muted-foreground">
-          No models found, go create one!
+          No partVariations found, go create one!
         </div>
       ) : (
         <>
           <DataTable
-            columns={modelColumns}
-            data={models}
-            onRowClick={(row) => setSelectedModelId(row.id)}
-            highlightRow={(row) => row.id === selectedModelId}
+            columns={partVariationColumns}
+            data={partVariations}
+            onRowClick={(row) => setSelectedPartVariationId(row.id)}
+            highlightRow={(row) => row.id === selectedPartVariationId}
           />
           <div className="py-4" />
-          {selectedModelId && isPending ? (
+          {selectedPartVariationId && isPending ? (
             <Icons.spinner className="mx-auto animate-spin" />
           ) : (
-            modelTree && (
+            partVariationTree && (
               <>
                 <h1 className="text-xl font-bold">Sub-assemblies</h1>
                 <div className="py-2" />
                 <div className="flex">
                   <div className="w-3/5">
                     <DataTable
-                      columns={modelComponentColumns}
-                      data={modelTree.components.map((child) => ({
+                      columns={partVariationComponentColumns}
+                      data={partVariationTree.components.map((child) => ({
                         count: child.count,
-                        ...child.model,
+                        ...child.partVariation,
                       }))}
-                      onRowClick={(row) => setSelectedModelId(row.id)}
+                      onRowClick={(row) => setSelectedPartVariationId(row.id)}
                     />
                   </div>
                   <div className="w-2/5">
-                    <ModelTreeVisualization tree={modelTree} />
+                    <PartVariationTreeVisualization tree={partVariationTree} />
                   </div>
                 </div>
               </>

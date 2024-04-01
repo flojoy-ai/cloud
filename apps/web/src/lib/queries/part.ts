@@ -2,30 +2,30 @@ import { queryOptions } from "@tanstack/react-query";
 import { client } from "../client";
 import { Workspace } from "@cloud/shared";
 
-type GetFamilyParams = {
-  familyId: string;
+type GetPartParams = {
+  partId: string;
   context: {
     workspace: Workspace;
   };
 };
 
-export function getFamilyQueryKey(familyId: string) {
-  return ["family", familyId];
+export function getPartQueryKey(partId: string) {
+  return ["part", partId];
 }
 
-export function getFamilyQueryOpts({ familyId, context }: GetFamilyParams) {
+export function getPartQueryOpts({ partId, context }: GetPartParams) {
   return queryOptions({
     queryFn: async () => {
-      const { data: family, error: familyError } = await client
-        .family({ familyId })
+      const { data: part, error: partError } = await client
+        .part({ partId })
         .index.get({
           headers: { "flojoy-workspace-id": context.workspace.id },
         });
 
-      if (familyError) throw familyError;
-      return family;
+      if (partError) throw partError;
+      return part;
     },
-    queryKey: getFamilyQueryKey(familyId),
+    queryKey: getPartQueryKey(partId),
   });
 }
 
@@ -42,12 +42,12 @@ export function getFamiliesQueryKey() {
 export function getFamiliesQueryOpts({ context }: GetFamiliesParams) {
   return queryOptions({
     queryFn: async () => {
-      const { data: families, error: familyError } =
-        await client.family.index.get({
+      const { data: families, error: partError } =
+        await client.part.index.get({
           headers: { "flojoy-workspace-id": context.workspace.id },
         });
 
-      if (familyError) throw familyError;
+      if (partError) throw partError;
       return families;
     },
     queryKey: getFamiliesQueryKey(),

@@ -35,7 +35,7 @@ import {
 } from "@/components/ui/select";
 import { handleError } from "@/lib/utils";
 
-import { Workspace, CreateProjectSchema, Model } from "@cloud/shared";
+import { Workspace, CreateProjectSchema, PartVariation } from "@cloud/shared";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
 import { Link, useRouter } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
@@ -43,10 +43,10 @@ import { client } from "@/lib/client";
 
 type Props = {
   workspace: Workspace;
-  models: Model[];
+  partVariations: PartVariation[];
 };
 
-export default function NewProjectButton({ workspace, models }: Props) {
+export default function NewProjectButton({ workspace, partVariations }: Props) {
   const router = useRouter();
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
@@ -109,7 +109,7 @@ export default function NewProjectButton({ workspace, models }: Props) {
             <DialogTitle>Create your new production line</DialogTitle>
             <DialogDescription>
               A production line groups a set of test stations that run tests on
-              a specific hardware model.
+              a specific hardware partVariation.
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
@@ -136,12 +136,12 @@ export default function NewProjectButton({ workspace, models }: Props) {
               />
               <FormField
                 control={form.control}
-                name="modelId"
+                name="partVariationId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Model</FormLabel>
+                    <FormLabel>PartVariation</FormLabel>
                     <FormControl>
-                      {models.length > 0 ? (
+                      {partVariations.length > 0 ? (
                         <Select
                           value={field.value}
                           onValueChange={field.onChange}
@@ -150,12 +150,15 @@ export default function NewProjectButton({ workspace, models }: Props) {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            {models.map((model) => (
-                              <SelectItem value={model.id} key={model.id}>
-                                {model.name}
-                                {/* TODO: display model type */}
+                            {partVariations.map((partVariation) => (
+                              <SelectItem
+                                value={partVariation.id}
+                                key={partVariation.id}
+                              >
+                                {partVariation.partNumber}
+                                {/* TODO: display partVariation type */}
                                 {/* <Badge className="ml-2" variant="outline"> */}
-                                {/*   {model.type} */}
+                                {/*   {partVariation.type} */}
                                 {/* </Badge> */}
                               </SelectItem>
                             ))}
@@ -163,9 +166,9 @@ export default function NewProjectButton({ workspace, models }: Props) {
                         </Select>
                       ) : (
                         <div className="text-sm">
-                          No models found, go{" "}
+                          No partVariations found, go{" "}
                           <Link
-                            to={"/workspace/$namespace/family"}
+                            to={"/workspace/$namespace/part"}
                             params={{ namespace: workspace.namespace }}
                             className="underline"
                           >
@@ -175,8 +178,9 @@ export default function NewProjectButton({ workspace, models }: Props) {
                       )}
                     </FormControl>
                     <FormDescription>
-                      Which hardware model is this production line testing?{" "}
-                      <br /> Don&apos;t see your hardware model?{" "}
+                      Which hardware partVariation is this production line
+                      testing? <br /> Don&apos;t see your hardware
+                      partVariation?{" "}
                       <Link
                         to="/workspace"
                         className="underline hover:text-primary"

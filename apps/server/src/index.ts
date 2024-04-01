@@ -10,10 +10,10 @@ import { SearchRoute } from "./routes/search";
 import { logger } from "@bogeychan/elysia-logger";
 import { env } from "./env";
 import { ProjectRoute } from "./routes/project";
-import { FamilyRoute } from "./routes/family";
+import { PartRoute } from "./routes/part";
 import SuperJSON from "superjson";
 import { ProductRoute } from "./routes/product";
-import { ModelRoute } from "./routes/model";
+import { PartVariationRoute } from "./routes/part-variation";
 import { HardwareRoute } from "./routes/hardware";
 import { StationRoute } from "./routes/station";
 import { AuthEntraRoute } from "./routes/auth/entra";
@@ -63,8 +63,8 @@ const app = new Elysia()
   .use(ProjectRoute)
   .use(SearchRoute)
   .use(ProductRoute)
-  .use(FamilyRoute)
-  .use(ModelRoute)
+  .use(PartRoute)
+  .use(PartVariationRoute)
   .use(StationRoute)
   .use(HardwareRoute)
   .use(SessionRoute)

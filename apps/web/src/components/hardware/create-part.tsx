@@ -30,24 +30,24 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Textarea } from "../ui/textarea";
 import { Autocomplete } from "../ui/autocomplete";
-import { insertFamily, Product } from "@cloud/shared";
+import { insertPart, Product } from "@cloud/shared";
 import { getProductsQueryKey } from "@/lib/queries/product";
-import { getFamiliesQueryKey } from "@/lib/queries/family";
+import { getFamiliesQueryKey } from "@/lib/queries/part";
 
-type FormSchema = Static<typeof insertFamily>;
+type FormSchema = Static<typeof insertPart>;
 
 type Props = {
   workspaceId: string;
   products: Product[];
 };
 
-const CreateFamily = ({ workspaceId, products }: Props) => {
+const CreatePart = ({ workspaceId, products }: Props) => {
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
-  const createFamily = useMutation({
+  const createPart = useMutation({
     mutationFn: async (vals: FormSchema) => {
-      const { error } = await client.family.index.post(vals, {
+      const { error } = await client.part.index.post(vals, {
         headers: { "flojoy-workspace-id": workspaceId },
       });
       if (error) {
@@ -66,16 +66,16 @@ const CreateFamily = ({ workspaceId, products }: Props) => {
   });
 
   const form = useForm<FormSchema>({
-    resolver: typeboxResolver(insertFamily),
+    resolver: typeboxResolver(insertPart),
     defaultValues: {
       workspaceId,
     },
   });
 
   function onSubmit(values: FormSchema) {
-    toast.promise(createFamily.mutateAsync(values), {
-      loading: "Creating your part family...",
-      success: "Part family created.",
+    toast.promise(createPart.mutateAsync(values), {
+      loading: "Creating your part part...",
+      success: "Part part created.",
       error: handleError,
     });
   }
@@ -98,9 +98,9 @@ const CreateFamily = ({ workspaceId, products }: Props) => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Register a new hardware family</DialogTitle>
+          <DialogTitle>Register a new hardware part</DialogTitle>
           <DialogDescription>
-            What family of hardware models are you working on?
+            What part of hardware partVariations are you working on?
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -115,7 +115,7 @@ const CreateFamily = ({ workspaceId, products }: Props) => {
                     <Input placeholder="M1234" {...field} data-1p-ignore />
                   </FormControl>
                   <FormDescription>
-                    What are you calling this family of parts?
+                    What are you calling this part of parts?
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -173,4 +173,4 @@ const CreateFamily = ({ workspaceId, products }: Props) => {
   );
 };
 
-export default CreateFamily;
+export default CreatePart;

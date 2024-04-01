@@ -12,9 +12,9 @@ import { type default as EmailVerificationTable } from './EmailVerification';
 import { type default as UserInviteTable } from './UserInvite';
 import { type default as WorkspaceUserTable } from './WorkspaceUser';
 import { type default as ProductTable } from './Product';
-import { type default as FamilyTable } from './Family';
-import { type default as ModelTable } from './Model';
-import { type default as ModelRelationTable } from './ModelRelation';
+import { type default as PartTable } from './Part';
+import { type default as PartVariationTable } from './PartVariation';
+import { type default as PartVariationRelationTable } from './PartVariationRelation';
 import { type default as ProjectTable } from './Project';
 import { type default as HardwareTable } from './Hardware';
 import { type default as HardwareRelationTable } from './HardwareRelation';
@@ -51,11 +51,11 @@ export default interface PublicSchema {
 
   product: ProductTable;
 
-  family: FamilyTable;
+  part: PartTable;
 
-  model: ModelTable;
+  part_variation: PartVariationTable;
 
-  model_relation: ModelRelationTable;
+  part_variation_relation: PartVariationRelationTable;
 
   project: ProjectTable;
 

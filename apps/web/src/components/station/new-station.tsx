@@ -96,7 +96,7 @@ export default function NewStationButton({ project }: Props) {
           <DialogHeader>
             <DialogTitle>Create your new test station</DialogTitle>
             <DialogDescription>
-              A test station runs a series of tests on a given hardware model.
+              A test station runs a series of tests on a given hardware partVariation.
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>

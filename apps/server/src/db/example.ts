@@ -4,9 +4,9 @@ import { generateDatabaseId } from "../lib/db-utils";
 import { Kysely } from "kysely";
 import { DB } from "@cloud/shared";
 import { err, ok, safeTry } from "neverthrow";
-import { createFamily } from "./family";
+import { createPart } from "./part";
 import { createMeasurement } from "./measurement";
-import { createModel } from "./model";
+import { createPartVariation } from "./part-variation";
 import { createProduct } from "./product";
 import { createProject } from "./project";
 import { createSession } from "./session";
@@ -34,8 +34,8 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
       })
     ).safeUnwrap();
 
-    const family = yield* (
-      await createFamily(db, {
+    const part = yield* (
+      await createPart(db, {
         name: "iPhone",
         workspaceId,
         productName: product.name,
@@ -43,35 +43,35 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
       })
     ).safeUnwrap();
 
-    const deviceModel1 = yield* (
-      await createModel(db, {
-        name: "DISPLAY0001",
+    const devicePartVariation1 = yield* (
+      await createPartVariation(db, {
+        partNumber: "DISPLAY0001",
         description: "iPhone 13 mini display",
         workspaceId,
-        familyId: family.id,
+        partId: part.id,
         components: [],
       })
     ).safeUnwrap();
 
-    const deviceModel2 = yield* (
-      await createModel(db, {
-        name: "SPEAKER0001",
+    const devicePartVariation2 = yield* (
+      await createPartVariation(db, {
+        partNumber: "SPEAKER0001",
         description: "iPhone 13 mini speaker",
         workspaceId,
-        familyId: family.id,
+        partId: part.id,
         components: [],
       })
     ).safeUnwrap();
 
     yield* (
-      await createModel(db, {
-        name: "IP13MINI",
+      await createPartVariation(db, {
+        partNumber: "IP13MINI",
         description: "iPhone 13 mini",
         workspaceId,
-        familyId: family.id,
+        partId: part.id,
         components: [
-          { modelId: deviceModel1.id, count: 2 },
-          { modelId: deviceModel2.id, count: 2 },
+          { partVariationId: devicePartVariation1.id, count: 2 },
+          { partVariationId: devicePartVariation2.id, count: 2 },
         ],
       })
     ).safeUnwrap();
@@ -79,7 +79,7 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
     const deviceProject = yield* (
       await createProject(db, {
         name: "DISPLAY0001 Production Line",
-        modelId: deviceModel1.id,
+        partVariationId: devicePartVariation1.id,
         workspaceId,
       })
     ).safeUnwrap();
@@ -102,8 +102,8 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
 
     const insertDevices = _.times(9, (i) => ({
       id: generateDatabaseId("hardware"),
-      name: `SN000${i + 1}`,
-      modelId: deviceModel1.id,
+      serialNumber: `SN000${i + 1}`,
+      partVariationId: devicePartVariation1.id,
       workspaceId,
     }));
 
@@ -143,6 +143,8 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
           projectId: deviceProject.id,
           stationId: station.id,
           notes: "This is a test session",
+          integrity: true,
+          aborted: false,
         })
       ).safeUnwrap();
 

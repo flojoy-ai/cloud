@@ -43,7 +43,7 @@ function Page() {
           </Link>
           <Link
             from={Route.fullPath}
-            to="family"
+            to="part"
             className={cn(
               "text-foreground/60 transition-colors hover:text-foreground/80",
             )}

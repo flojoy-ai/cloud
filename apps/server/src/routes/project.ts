@@ -34,15 +34,15 @@ export const ProjectRoute = new Elysia({
   .post(
     "/",
     async ({ body, workspace }) => {
-      const model = await db
-        .selectFrom("model as m")
-        .where("m.id", "=", body.modelId)
+      const partVariation = await db
+        .selectFrom("part_variation as p")
+        .where("p.id", "=", body.partVariationId)
         .selectAll()
         .executeTakeFirstOrThrow();
 
       const project = await createProject(db, {
         ...body,
-        modelId: model.id,
+        partVariationId: partVariation.id,
         workspaceId: workspace.id,
       });
 

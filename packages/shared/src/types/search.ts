@@ -8,8 +8,8 @@ export type SearchInput = Static<typeof searchInput>;
 
 export const searchResultTypes = [
   "product",
-  "family",
-  "model",
+  "part",
+  "partVariation",
   "hardware",
   "project",
 ] as const;

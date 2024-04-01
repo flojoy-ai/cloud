@@ -17,18 +17,16 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useSuspenseQuery } from "@tanstack/react-query";
 // import { Icons } from "@/components/icons";
-import { Family } from "@cloud/shared";
+import { Part } from "@cloud/shared";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
-import CreateFamily from "@/components/hardware/create-family";
+import CreatePart from "@/components/hardware/create-part";
 import { DataTable } from "@/components/ui/data-table";
-import { getFamiliesQueryOpts } from "@/lib/queries/family";
+import { getFamiliesQueryOpts } from "@/lib/queries/part";
 import { getProductsQueryOpts } from "@/lib/queries/product";
 import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
 
-export const Route = createFileRoute(
-  "/_protected/workspace/$namespace/family/",
-)({
+export const Route = createFileRoute("/_protected/workspace/$namespace/part/")({
   component: HardwareInventory,
   loader: async ({ context }) => {
     context.queryClient.ensureQueryData(getFamiliesQueryOpts({ context }));
@@ -36,9 +34,9 @@ export const Route = createFileRoute(
   },
 });
 
-type FamilyEntry = Family & { modelCount: number; hardwareCount: number };
+type PartEntry = Part & { partVariationCount: number; hardwareCount: number };
 
-const familyColumns: ColumnDef<FamilyEntry>[] = [
+const partColumns: ColumnDef<PartEntry>[] = [
   {
     accessorKey: "name",
     header: "Name",
@@ -47,10 +45,10 @@ const familyColumns: ColumnDef<FamilyEntry>[] = [
     },
   },
   {
-    accessorKey: "modelCount",
+    accessorKey: "partVariationCount",
     header: "Variants",
     cell: ({ row }) => {
-      return <div className="font-bold">{row.original.modelCount}</div>;
+      return <div className="font-bold">{row.original.partVariationCount}</div>;
     },
   },
   {
@@ -108,7 +106,7 @@ function HardwareInventory() {
 
         <h1 className="text-xl font-bold">Part Families</h1>
         <div className="py-1" />
-        <CreateFamily workspaceId={workspace.id} products={products} />
+        <CreatePart workspaceId={workspace.id} products={products} />
         <div className="py-4" />
 
         {families.length === 0 ? (
@@ -117,13 +115,13 @@ function HardwareInventory() {
           </div>
         ) : (
           <DataTable
-            columns={familyColumns}
+            columns={partColumns}
             data={families}
             onRowClick={(row) => {
               router.navigate({
                 from: Route.fullPath,
-                to: "$familyId",
-                params: { familyId: row.id },
+                to: "$partId",
+                params: { partId: row.id },
               });
             }}
           />

@@ -86,29 +86,29 @@ export function getHardwaresQueryOpts({
   });
 }
 
-type GetModelHardwareParams = {
-  modelId: string;
+type GetPartVariationHardwareParams = {
+  partVariationId: string;
   context: {
     workspace: Workspace;
   };
 };
 
-export function getModelHardwareQueryKey(modelId: string) {
-  return ["hardware", modelId];
+export function getPartVariationHardwareQueryKey(partVariationId: string) {
+  return ["hardware", partVariationId];
 }
 
-export function getModelHardwareQueryOpts({
-  modelId,
+export function getPartVariationHardwareQueryOpts({
+  partVariationId,
   context,
-}: GetModelHardwareParams) {
+}: GetPartVariationHardwareParams) {
   return queryOptions({
     queryFn: async () => {
-      const hardwareQuery = await client.model({ modelId }).hardware.get({
+      const hardwareQuery = await client.partVariation({ partVariationId }).hardware.get({
         headers: { "flojoy-workspace-id": context.workspace.id },
       });
       if (hardwareQuery.error) throw hardwareQuery.error;
       return hardwareQuery.data;
     },
-    queryKey: getModelHardwareQueryKey(modelId),
+    queryKey: getPartVariationHardwareQueryKey(partVariationId),
   });
 }

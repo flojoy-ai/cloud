@@ -1,31 +1,36 @@
 import { Hardware } from "../schemas/public/Hardware";
 import { Static, t } from "elysia";
-import { Model } from "./model";
+import { PartVariation } from "./part-variation";
 
 export type { Hardware };
 
-export type HardwareWithModel = Hardware & { model: Model };
+export type HardwareWithPartVariation = Hardware & {
+  partVariation: PartVariation;
+};
 
 export type HardwareWithParent = Hardware & {
-  parent: HardwareWithModel | null;
+  parent: HardwareWithPartVariation | null;
 };
 
 export const insertHardware = t.Object({
   projectId: t.Optional(t.String()),
-  modelId: t.String(),
-  name: t.String({ minLength: 1 }),
+  partVariationId: t.String(),
+  serialNumber: t.String({ minLength: 1 }),
   components: t.Array(t.String(), { default: [] }),
 });
 
 export type InsertHardware = Static<typeof insertHardware>;
 
-export type HardwareTreeRoot = HardwareWithModel &
+export type HardwareTreeRoot = HardwareWithPartVariation &
   HardwareWithParent & {
     components: HardwareTreeNode[];
   };
 
-export type HardwareTreeNode = Pick<Hardware, "name" | "id" | "modelId"> & {
-  modelName: string;
+export type HardwareTreeNode = Pick<
+  Hardware,
+  "serialNumber" | "id" | "partVariationId"
+> & {
+  partNumber: string;
   components: HardwareTreeNode[];
 };
 
@@ -49,7 +54,7 @@ export const hardwareRevision = t.Object({
   revisionType: hardwareRevisionType,
   createdAt: t.Date(),
   componentId: t.String(),
-  componentName: t.String(),
+  componentSerialNumber: t.String(),
   reason: t.Nullable(t.String()),
   userId: t.String(),
   userEmail: t.String(),

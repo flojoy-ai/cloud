@@ -48,19 +48,19 @@ const Highlight = ({ text, pattern }: HighlightProps) => {
 };
 
 const typeIcons = {
-  model: Route,
+  partVariation: Route,
   hardware: Cpu,
   project: FolderKanban,
   product: ShoppingCart,
-  family: FolderTree,
+  part: FolderTree,
 };
 
 const nameLookup = {
-  model: "Model",
+  partVariation: "PartVariation",
   hardware: "Part Instance",
   project: "Test Project",
   product: "Product",
-  family: "Part Family",
+  part: "Part Part",
 };
 
 type SearchResultProps = {
@@ -81,17 +81,17 @@ const SearchResultItem = ({ result, query, workspace }: SearchResultProps) => {
         switch (result.type) {
           case "product":
             throw new Error("not implemented");
-          case "family":
+          case "part":
             return router.navigate({
-              to: `/workspace/$namespace/family/$familyId`,
-              params: { namespace: workspace.namespace, familyId: result.id },
+              to: `/workspace/$namespace/part/$partId`,
+              params: { namespace: workspace.namespace, partId: result.id },
             });
-          case "model":
+          case "partVariation":
             return router.navigate({
-              to: `/workspace/$namespace/model/$modelId`,
+              to: `/workspace/$namespace/partVariation/$partVariationId`,
               params: {
                 namespace: workspace.namespace,
-                modelId: result.id,
+                partVariationId: result.id,
               },
             });
           case "project":

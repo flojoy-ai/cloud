@@ -23,7 +23,7 @@ import { type ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 // import { useState } from "react";
 // import { handleError } from "@/lib/utils";
-import { Project, Model, Hardware, Family } from "@cloud/shared";
+import { Project, PartVariation, Hardware, Part } from "@cloud/shared";
 
 // type ActionsProps = {
 //   elem: { id: string };
@@ -58,20 +58,20 @@ import { Project, Model, Hardware, Family } from "@cloud/shared";
 // };
 
 export const hardwareColumns: ColumnDef<
-  Hardware & { projects: Project[]; model: Model }
+  Hardware & { projects: Project[]; partVariation: PartVariation }
 >[] = [
   {
     accessorKey: "name",
     header: "Instance SN",
     cell: ({ row }) => {
-      return <Badge variant="secondary">{row.original.name}</Badge>;
+      return <Badge variant="secondary">{row.original.serialNumber}</Badge>;
     },
   },
   {
-    accessorKey: "model",
-    header: "Model",
+    accessorKey: "partVariation",
+    header: "Part Variation",
     cell: ({ row }) => {
-      return <Badge>{row.original.model.name}</Badge>;
+      return <Badge>{row.original.partVariation.partNumber}</Badge>;
     },
   },
   {
@@ -96,13 +96,13 @@ export const hardwareColumns: ColumnDef<
   //   accessorKey: "parts",
   //   header: "Components",
   //   cell: ({ row }) => {
-  //     const byModel = _.groupBy(row.original.parts, (p) => p.model.name);
+  //     const byPartVariation = _.groupBy(row.original.parts, (p) => p.partVariation.name);
   //
   //     return (
   //       <div className="flex flex-col gap-2">
-  //         {Object.entries(byModel).map(([modelName, devices], idx) => (
+  //         {Object.entries(byPartVariation).map(([partVariationName, devices], idx) => (
   //           <div className="flex items-start gap-1" key={idx}>
-  //             <Badge className="">{modelName}</Badge>
+  //             <Badge className="">{partVariationName}</Badge>
   //             <div className="flex flex-col gap-1">
   //               {devices.map((d) => (
   //                 <Badge variant="secondary" key={d.id}>
@@ -126,7 +126,7 @@ export const hardwareColumns: ColumnDef<
 // function HardwareActions({
 //   row,
 // }: {
-//   row: Row<Hardware & { projects: Project[]; model: Model }>;
+//   row: Row<Hardware & { projects: Project[]; partVariation: PartVariation }>;
 // }) {
 //   const [isOpen, setIsOpen] = useState(false);
 //   const deleteHardware = api.hardware.deleteHardware.useMutation();
@@ -185,17 +185,17 @@ export const hardwareColumns: ColumnDef<
 // type DeleteDialogProps = {
 //   isOpen: boolean;
 //   setIsOpen: (open: boolean) => void;
-//   model: Model;
+//   partVariation: PartVariation;
 //   onSuccess: () => void;
 // };
 
 // const DeleteDialog = ({
 //   isOpen,
 //   setIsOpen,
-//   model,
+//   partVariation,
 //   onSuccess,
 // }: DeleteDialogProps) => {
-//   const deleteModel = api.model.deleteModel.useMutation();
+//   const deletePartVariation = api.partVariation.deletePartVariation.useMutation();
 //   return (
 //     <AlertDialog open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
 //       <AlertDialogContent onClick={(e) => e.stopPropagation()}>
@@ -203,34 +203,34 @@ export const hardwareColumns: ColumnDef<
 //           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
 //           <AlertDialogDescription>
 //             This action cannot be undone. This will permanently delete your
-//             model and remove your data from our servers. <br /> This model can
+//             partVariation and remove your data from our servers. <br /> This partVariation can
 //             only be deleted if there are:
 //             <ul className="list-inside list-disc">
-//               <li>no hardware instances of this model. </li>
-//               <li>no projects using this model.</li>
-//               <li>no system models using this device model. </li>
+//               <li>no hardware instances of this partVariation. </li>
+//               <li>no projects using this partVariation.</li>
+//               <li>no system partVariations using this device partVariation. </li>
 //             </ul>
 //           </AlertDialogDescription>
 //         </AlertDialogHeader>
 //         <AlertDialogContent>
-//           {/* TODO: Show a list of devices or systems that use this model */}
+//           {/* TODO: Show a list of devices or systems that use this partVariation */}
 //         </AlertDialogContent>
 //         <AlertDialogFooter>
 //           <AlertDialogCancel>Cancel</AlertDialogCancel>
 //           <AlertDialogAction
 //             onClick={() =>
 //               toast.promise(
-//                 deleteModel.mutateAsync(
+//                 deletePartVariation.mutateAsync(
 //                   {
-//                     modelId: model.id,
+//                     partVariationId: partVariation.id,
 //                   },
 //                   {
 //                     onSuccess,
 //                   },
 //                 ),
 //                 {
-//                   loading: "Deleting your model...",
-//                   success: "Your model has been deleted.",
+//                   loading: "Deleting your partVariation...",
+//                   success: "Your partVariation has been deleted.",
 //                   error: handleError,
 //                 },
 //               )
@@ -244,7 +244,7 @@ export const hardwareColumns: ColumnDef<
 //   );
 // };
 
-export const familyColumns: ColumnDef<Family>[] = [
+export const partColumns: ColumnDef<Part>[] = [
   {
     accessorKey: "name",
     header: "PIN",
@@ -255,8 +255,8 @@ export const familyColumns: ColumnDef<Family>[] = [
   // {
   //   id: "actions",
   //   header: "Actions",
-  //   cell: ModelActions,
+  //   cell: PartVariationActions,
   // },
 ];
 
-// function ModelActions({ row }: { row: Row<Model> }
+// function PartVariationActions({ row }: { row: Row<PartVariation> }

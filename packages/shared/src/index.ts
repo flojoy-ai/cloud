@@ -2,10 +2,10 @@ export { createClient } from "./eden";
 
 // TODO: find a way to automate this
 export * from "./types/auth";
-export * from "./types/family";
+export * from "./types/part";
 export * from "./types/hardware";
 export * from "./types/measurement";
-export * from "./types/model";
+export * from "./types/part-variation";
 export * from "./types/product";
 export * from "./types/project";
 export * from "./types/search";

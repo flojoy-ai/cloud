@@ -21,7 +21,7 @@ import _ from "lodash";
 import { User } from "lucia";
 import { fromPromise } from "neverthrow";
 import { db } from "./kysely";
-import { getModel, getModelComponents } from "./model";
+import { getPartVariation, getPartVariationComponents } from "./part-variation";
 import { markUpdatedAt } from "./query";
 
 export async function getHardware(id: string) {
@@ -38,14 +38,13 @@ export async function createHardware(
   user: User,
   hardware: InsertHardware,
 ) {
-  // TODO: Not working for now
   return fromPromise(
     db.transaction().execute(async (tx) => {
       const { components, projectId, ...newHardware } = hardware;
 
-      const model = await getModel(hardware.modelId);
-      if (!model) {
-        throw new NotFoundError("Model not found");
+      const partVariation = await getPartVariation(hardware.partVariationId);
+      if (!partVariation) {
+        throw new NotFoundError("PartVariation not found");
       }
 
       const created = await tx
@@ -61,9 +60,11 @@ export async function createHardware(
         throw new InternalServerError("Failed to create hardware");
       }
 
-      const modelComponents = await getModelComponents(model.id);
+      const partVariationComponents = await getPartVariationComponents(
+        partVariation.id,
+      );
 
-      if (modelComponents.length > 0) {
+      if (partVariationComponents.length > 0) {
         const ids = components;
         if (_.uniq(ids).length !== ids.length) {
           throw new BadRequestError("Duplicate hardware devices");
@@ -80,15 +81,18 @@ export async function createHardware(
           throw new DuplicateError("Some hardware devices are already in use!");
         }
 
-        const modelCount = _.countBy(hardwares, (h) => h.modelId);
+        const partVariationCount = _.countBy(
+          hardwares,
+          (h) => h.partVariationId,
+        );
         const matches = _.every(
-          modelComponents,
-          (c) => modelCount[c.modelId] === c.count,
+          partVariationComponents,
+          (c) => partVariationCount[c.partVariationId] === c.count,
         );
 
         if (!matches) {
           throw new BadRequestError(
-            "Components do not satisfy model requirements",
+            "Components do not satisfy partVariation requirements",
           );
         }
 
@@ -140,7 +144,7 @@ export async function getHardwareRevisions(hardwareId: string) {
     .selectAll("hr")
     .innerJoin("hardware", "hardware.id", "hr.componentId")
     .innerJoin("user", "user.id", "hr.userId")
-    .select("hardware.name as componentName")
+    .select("hardware.serialNumber as componentSerialNumber")
     .select("user.email as userEmail")
     .where("hr.hardwareId", "=", hardwareId)
     .orderBy("hr.createdAt", "desc")
@@ -152,7 +156,9 @@ export async function doHardwareComponentSwap(
   user: WorkspaceUser,
   input: SwapHardwareComponent,
 ) {
-  const hardwareComponents = await getHardwareComponentsWithModel(hardware.id);
+  const hardwareComponents = await getHardwareComponentsWithPartVariation(
+    hardware.id,
+  );
 
   return fromPromise(
     db.transaction().execute(async (tx) => {
@@ -174,8 +180,11 @@ export async function doHardwareComponentSwap(
           () => new NotFoundError("New component not found"),
         );
 
-      if (oldHardwareComponent.modelId !== newHardwareComponent.modelId) {
-        throw new BadRequestError("Model mismatch");
+      if (
+        oldHardwareComponent.partVariationId !==
+        newHardwareComponent.partVariationId
+      ) {
+        throw new BadRequestError("PartVariation mismatch");
       }
 
       if (
@@ -240,13 +249,15 @@ export const notInUse = ({
   );
 };
 
-export function withHardwareModel(eb: ExpressionBuilder<DB, "hardware">) {
+export function withHardwarePartVariation(
+  eb: ExpressionBuilder<DB, "hardware">,
+) {
   return jsonObjectFrom(
     eb
-      .selectFrom("model")
-      .selectAll("model")
-      .whereRef("model.id", "=", "hardware.modelId"),
-  ).as("model");
+      .selectFrom("part_variation")
+      .selectAll("part_variation")
+      .whereRef("part_variation.id", "=", "hardware.partVariationId"),
+  ).as("partVariation");
 }
 
 export async function getHardwareTree(
@@ -257,13 +268,17 @@ export async function getHardwareTree(
       qb
         .selectFrom("hardware_relation as hr")
         .innerJoin("hardware", "hr.childHardwareId", "hardware.id")
-        .innerJoin("model", "hardware.modelId", "model.id")
+        .innerJoin(
+          "part_variation",
+          "hardware.partVariationId",
+          "part_variation.id",
+        )
         .select([
           "parentHardwareId",
           "childHardwareId as hardwareId",
-          "hardware.name as name",
-          "hardware.modelId as modelId",
-          "model.name as modelName",
+          "hardware.serialNumber as serialNumber",
+          "hardware.partVariationId as partVariationId",
+          "part_variation.partNumber as partNumber",
         ])
         .where("parentHardwareId", "=", hardware.id)
         .unionAll((eb) =>
@@ -275,13 +290,17 @@ export async function getHardwareTree(
               "hardware_tree.hardwareId",
               "hr.parentHardwareId",
             )
-            .innerJoin("model", "hardware.modelId", "model.id")
+            .innerJoin(
+              "part_variation",
+              "hardware.partVariationId",
+              "part_variation.id",
+            )
             .select([
               "hr.parentHardwareId",
               "hr.childHardwareId as hardwareId",
-              "hardware.name as name",
-              "hardware.modelId as modelId",
-              "model.name as modelName",
+              "hardware.serialNumber as serialNumber",
+              "hardware.partVariationId as partVariationId",
+              "part_variation.partNumber as partNumber",
             ]),
         ),
     )
@@ -293,11 +312,11 @@ export async function getHardwareTree(
 }
 
 type HardwareEdge = {
-  name: string;
   hardwareId: string;
+  serialNumber: string;
   parentHardwareId: string;
-  modelId: string;
-  modelName: string;
+  partVariationId: string;
+  partNumber: string;
 };
 
 export function buildHardwareTree(
@@ -314,9 +333,9 @@ export function buildHardwareTree(
     if (!cur) {
       cur = {
         id: edge.hardwareId,
-        name: edge.name,
-        modelId: edge.modelId,
-        modelName: edge.modelName,
+        serialNumber: edge.serialNumber,
+        partVariationId: edge.partVariationId,
+        partNumber: edge.partNumber,
         components: [],
       };
       nodes.set(edge.hardwareId, cur);
@@ -328,12 +347,19 @@ export function buildHardwareTree(
   return root;
 }
 
-export async function getHardwareComponentsWithModel(id: string) {
+export async function getHardwareComponentsWithPartVariation(id: string) {
   return await db
     .selectFrom("hardware_relation as hr")
     .innerJoin("hardware", "hardware.id", "hr.childHardwareId")
-    .innerJoin("model", "model.id", "hardware.modelId")
-    .select(["hr.childHardwareId as hardwareId", "model.id as modelId"])
+    .innerJoin(
+      "part_variation",
+      "part_variation.id",
+      "hardware.partVariationId",
+    )
+    .select([
+      "hr.childHardwareId as hardwareId",
+      "part_variation.id as partVariationId",
+    ])
     .where("hr.parentHardwareId", "=", id)
     .execute();
 }

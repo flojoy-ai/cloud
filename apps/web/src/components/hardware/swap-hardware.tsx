@@ -100,11 +100,13 @@ const SwapHardware = ({ workspace, hardware }: Props) => {
   }
 
   const selectedComponent = form.watch("oldHardwareComponentId");
-  const selectedModel = hardware.components.find(
+  const selectedPartVariation = hardware.components.find(
     (c) => c.id === selectedComponent,
-  )?.modelId;
-  const swappable = selectedModel
-    ? availableHardware?.filter((h) => h.modelId === selectedModel)
+  )?.partVariationId;
+  const swappable = selectedPartVariation
+    ? availableHardware?.filter(
+        (h) => h.partVariationId === selectedPartVariation,
+      )
     : availableHardware;
 
   return (
@@ -143,7 +145,7 @@ const SwapHardware = ({ workspace, hardware }: Props) => {
                       <SelectContent>
                         {hardware.components.map((child) => (
                           <SelectItem value={child.id} key={child.id}>
-                            {child.name}
+                            {child.serialNumber}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -167,7 +169,7 @@ const SwapHardware = ({ workspace, hardware }: Props) => {
                     <Select
                       value={field.value}
                       onValueChange={field.onChange}
-                      disabled={selectedModel === undefined}
+                      disabled={selectedPartVariation === undefined}
                     >
                       <SelectTrigger className="w-[180px]">
                         <SelectValue />
@@ -175,7 +177,7 @@ const SwapHardware = ({ workspace, hardware }: Props) => {
                       <SelectContent>
                         {(swappable ?? []).map((h) => (
                           <SelectItem value={h.id} key={h.id}>
-                            {h.name}
+                            {h.serialNumber}
                           </SelectItem>
                         ))}
                       </SelectContent>

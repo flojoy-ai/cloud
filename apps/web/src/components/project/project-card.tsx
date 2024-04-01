@@ -12,17 +12,19 @@ import {
   ContextMenuTrigger,
   ContextMenuContent,
 } from "@/components/ui/context-menu";
-import { Model, Project, Workspace } from "@cloud/shared";
+import { PartVariation, Project, Workspace } from "@cloud/shared";
 import { Link } from "@tanstack/react-router";
 
 type Props = {
   project: Project;
   workspace: Workspace;
-  models: Model[];
+  partVariations: PartVariation[];
 };
 
-export function ProjectCard({ project, workspace, models }: Props) {
-  const model = models.find((model) => model.id === project.modelId);
+export function ProjectCard({ project, workspace, partVariations }: Props) {
+  const partVariation = partVariations.find(
+    (partVariation) => partVariation.id === project.partVariationId,
+  );
   return (
     <ContextMenu>
       <ContextMenuTrigger>
@@ -37,9 +39,7 @@ export function ProjectCard({ project, workspace, models }: Props) {
             </CardHeader>
             <CardContent>
               <div className="flex gap-2">
-                {/* TODO: model type? */}
-                {/* <Badge variant="outline">{model?.type}</Badge> */}
-                <Badge>{model?.name}</Badge>
+                <Badge>{partVariation?.partNumber}</Badge>
               </div>
             </CardContent>
           </Card>
