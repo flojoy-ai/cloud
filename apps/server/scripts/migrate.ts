@@ -5,14 +5,14 @@ import { env } from "../src/env";
 
 import { Kysely, PostgresDialect } from "kysely";
 import pg from "pg";
-import type Database from "../src/schemas/Database";
+import { type DB } from "@cloud/shared";
 
 async function migrate() {
   const pool = new pg.Pool({
     connectionString: env.DATABASE_URL,
   });
 
-  const db = new Kysely<Database>({
+  const db = new Kysely<DB>({
     dialect: new PostgresDialect({
       pool,
     }),
