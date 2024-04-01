@@ -1,5 +1,3 @@
-export { createClient } from "./eden";
-
 // TODO: find a way to automate this
 export * from "./types/auth";
 export * from "./types/part";
