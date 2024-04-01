@@ -16,7 +16,7 @@ A part is hardware component that is tested. (e.g. "Pi-5")
   (e.g. The "Pi-5-8GB"'s sub-assembly can include,
   "RAM-8GB", "CPU-1234", "Memory-abcd", etc.)
 
-#### Hardware
+#### Unit
 
 This is a concrete instance of a part variation (including assembly which is basically
 a part variation). (e.g. "Raspberry Pi 5 8GB RSP-PI-001")
