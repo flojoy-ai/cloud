@@ -176,8 +176,8 @@ function HardwarePage() {
           </div>
         </PageHeaderHeading>
         <PageHeaderDescription>
-          All tests that have been performed on &quot;{hardware.name}&quot; are
-          listed here.
+          All tests that have been performed on &quot;{hardware.serialNumber}
+          &quot; are listed here.
         </PageHeaderDescription>
       </PageHeader>
       <div className="py-2" />
@@ -191,7 +191,7 @@ function HardwarePage() {
               hardwareId: hardware.parent.id,
             }}
           >
-            {hardware.parent.name}
+            {hardware.parent.serialNumber}
           </Link>
         </div>
       )}

@@ -28,16 +28,16 @@ import { Route as ProtectedWorkspaceNamespaceProjectRouteImport } from './routes
 import { Route as ProtectedWorkspaceNamespaceSettingsIndexImport } from './routes/_protected/workspace/$namespace/settings/index'
 import { Route as ProtectedWorkspaceNamespaceProjectIndexImport } from './routes/_protected/workspace/$namespace/project/index'
 import { Route as ProtectedWorkspaceNamespacePartIndexImport } from './routes/_protected/workspace/$namespace/part/index'
+import { Route as ProtectedWorkspaceNamespaceVariationPartVariationIdRouteImport } from './routes/_protected/workspace/$namespace/variation/$partVariationId/route'
 import { Route as ProtectedWorkspaceNamespaceStationStationIdRouteImport } from './routes/_protected/workspace/$namespace/station/$stationId/route'
 import { Route as ProtectedWorkspaceNamespaceProjectProjectIdRouteImport } from './routes/_protected/workspace/$namespace/project/$projectId/route'
-import { Route as ProtectedWorkspaceNamespacePartVariationPartVariationIdRouteImport } from './routes/_protected/workspace/$namespace/partVariation/$partVariationId/route'
 import { Route as ProtectedWorkspaceNamespacePartPartIdRouteImport } from './routes/_protected/workspace/$namespace/part/$partId/route'
+import { Route as ProtectedWorkspaceNamespaceVariationPartVariationIdIndexImport } from './routes/_protected/workspace/$namespace/variation/$partVariationId/index'
 import { Route as ProtectedWorkspaceNamespaceStationStationIdIndexImport } from './routes/_protected/workspace/$namespace/station/$stationId/index'
 import { Route as ProtectedWorkspaceNamespaceSessionSessionIdIndexImport } from './routes/_protected/workspace/$namespace/session/$sessionId/index'
 import { Route as ProtectedWorkspaceNamespaceProjectProjectIdIndexImport } from './routes/_protected/workspace/$namespace/project/$projectId/index'
-import { Route as ProtectedWorkspaceNamespacePartVariationPartVariationIdIndexImport } from './routes/_protected/workspace/$namespace/partVariation/$partVariationId/index'
-import { Route as ProtectedWorkspaceNamespaceHardwareHardwareIdIndexImport } from './routes/_protected/workspace/$namespace/hardware/$hardwareId/index'
 import { Route as ProtectedWorkspaceNamespacePartPartIdIndexImport } from './routes/_protected/workspace/$namespace/part/$partId/index'
+import { Route as ProtectedWorkspaceNamespaceHardwareHardwareIdIndexImport } from './routes/_protected/workspace/$namespace/hardware/$hardwareId/index'
 
 // Create Virtual Routes
 
@@ -133,6 +133,12 @@ const ProtectedWorkspaceNamespacePartIndexRoute =
     getParentRoute: () => ProtectedWorkspaceNamespaceRouteRoute,
   } as any)
 
+const ProtectedWorkspaceNamespaceVariationPartVariationIdRouteRoute =
+  ProtectedWorkspaceNamespaceVariationPartVariationIdRouteImport.update({
+    path: '/variation/$partVariationId',
+    getParentRoute: () => ProtectedWorkspaceNamespaceRouteRoute,
+  } as any)
+
 const ProtectedWorkspaceNamespaceStationStationIdRouteRoute =
   ProtectedWorkspaceNamespaceStationStationIdRouteImport.update({
     path: '/$stationId',
@@ -145,16 +151,17 @@ const ProtectedWorkspaceNamespaceProjectProjectIdRouteRoute =
     getParentRoute: () => ProtectedWorkspaceNamespaceProjectRouteRoute,
   } as any)
 
-const ProtectedWorkspaceNamespacePartVariationPartVariationIdRouteRoute =
-  ProtectedWorkspaceNamespacePartVariationPartVariationIdRouteImport.update({
-    path: '/partVariation/$partVariationId',
-    getParentRoute: () => ProtectedWorkspaceNamespaceRouteRoute,
-  } as any)
-
 const ProtectedWorkspaceNamespacePartPartIdRouteRoute =
   ProtectedWorkspaceNamespacePartPartIdRouteImport.update({
     path: '/part/$partId',
     getParentRoute: () => ProtectedWorkspaceNamespaceRouteRoute,
+  } as any)
+
+const ProtectedWorkspaceNamespaceVariationPartVariationIdIndexRoute =
+  ProtectedWorkspaceNamespaceVariationPartVariationIdIndexImport.update({
+    path: '/',
+    getParentRoute: () =>
+      ProtectedWorkspaceNamespaceVariationPartVariationIdRouteRoute,
   } as any)
 
 const ProtectedWorkspaceNamespaceStationStationIdIndexRoute =
@@ -175,22 +182,16 @@ const ProtectedWorkspaceNamespaceProjectProjectIdIndexRoute =
     getParentRoute: () => ProtectedWorkspaceNamespaceProjectProjectIdRouteRoute,
   } as any)
 
-const ProtectedWorkspaceNamespacePartVariationPartVariationIdIndexRoute =
-  ProtectedWorkspaceNamespacePartVariationPartVariationIdIndexImport.update({
+const ProtectedWorkspaceNamespacePartPartIdIndexRoute =
+  ProtectedWorkspaceNamespacePartPartIdIndexImport.update({
     path: '/',
-    getParentRoute: () => ProtectedWorkspaceNamespacePartVariationPartVariationIdRouteRoute,
+    getParentRoute: () => ProtectedWorkspaceNamespacePartPartIdRouteRoute,
   } as any)
 
 const ProtectedWorkspaceNamespaceHardwareHardwareIdIndexRoute =
   ProtectedWorkspaceNamespaceHardwareHardwareIdIndexImport.update({
     path: '/hardware/$hardwareId/',
     getParentRoute: () => ProtectedWorkspaceNamespaceRouteRoute,
-  } as any)
-
-const ProtectedWorkspaceNamespacePartPartIdIndexRoute =
-  ProtectedWorkspaceNamespacePartPartIdIndexImport.update({
-    path: '/',
-    getParentRoute: () => ProtectedWorkspaceNamespacePartPartIdRouteRoute,
   } as any)
 
 // Populate the FileRoutesByPath interface
@@ -253,10 +254,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedWorkspaceNamespacePartPartIdRouteImport
       parentRoute: typeof ProtectedWorkspaceNamespaceRouteImport
     }
-    '/_protected/workspace/$namespace/partVariation/$partVariationId': {
-      preLoaderRoute: typeof ProtectedWorkspaceNamespacePartVariationPartVariationIdRouteImport
-      parentRoute: typeof ProtectedWorkspaceNamespaceRouteImport
-    }
     '/_protected/workspace/$namespace/project/$projectId': {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceProjectProjectIdRouteImport
       parentRoute: typeof ProtectedWorkspaceNamespaceProjectRouteImport
@@ -264,6 +261,10 @@ declare module '@tanstack/react-router' {
     '/_protected/workspace/$namespace/station/$stationId': {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceStationStationIdRouteImport
       parentRoute: typeof ProtectedWorkspaceNamespaceStationRouteImport
+    }
+    '/_protected/workspace/$namespace/variation/$partVariationId': {
+      preLoaderRoute: typeof ProtectedWorkspaceNamespaceVariationPartVariationIdRouteImport
+      parentRoute: typeof ProtectedWorkspaceNamespaceRouteImport
     }
     '/_protected/workspace/$namespace/part/': {
       preLoaderRoute: typeof ProtectedWorkspaceNamespacePartIndexImport
@@ -277,17 +278,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceSettingsIndexImport
       parentRoute: typeof ProtectedWorkspaceNamespaceSettingsRouteImport
     }
-    '/_protected/workspace/$namespace/part/$partId/': {
-      preLoaderRoute: typeof ProtectedWorkspaceNamespacePartPartIdIndexImport
-      parentRoute: typeof ProtectedWorkspaceNamespacePartPartIdRouteImport
-    }
     '/_protected/workspace/$namespace/hardware/$hardwareId/': {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceHardwareHardwareIdIndexImport
       parentRoute: typeof ProtectedWorkspaceNamespaceRouteImport
     }
-    '/_protected/workspace/$namespace/partVariation/$partVariationId/': {
-      preLoaderRoute: typeof ProtectedWorkspaceNamespacePartVariationPartVariationIdIndexImport
-      parentRoute: typeof ProtectedWorkspaceNamespacePartVariationPartVariationIdRouteImport
+    '/_protected/workspace/$namespace/part/$partId/': {
+      preLoaderRoute: typeof ProtectedWorkspaceNamespacePartPartIdIndexImport
+      parentRoute: typeof ProtectedWorkspaceNamespacePartPartIdRouteImport
     }
     '/_protected/workspace/$namespace/project/$projectId/': {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceProjectProjectIdIndexImport
@@ -300,6 +297,10 @@ declare module '@tanstack/react-router' {
     '/_protected/workspace/$namespace/station/$stationId/': {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceStationStationIdIndexImport
       parentRoute: typeof ProtectedWorkspaceNamespaceStationStationIdRouteImport
+    }
+    '/_protected/workspace/$namespace/variation/$partVariationId/': {
+      preLoaderRoute: typeof ProtectedWorkspaceNamespaceVariationPartVariationIdIndexImport
+      parentRoute: typeof ProtectedWorkspaceNamespaceVariationPartVariationIdRouteImport
     }
   }
 }
@@ -328,9 +329,9 @@ export const routeTree = rootRoute.addChildren([
       ProtectedWorkspaceNamespacePartPartIdRouteRoute.addChildren([
         ProtectedWorkspaceNamespacePartPartIdIndexRoute,
       ]),
-      ProtectedWorkspaceNamespacePartVariationPartVariationIdRouteRoute.addChildren([
-        ProtectedWorkspaceNamespacePartVariationPartVariationIdIndexRoute,
-      ]),
+      ProtectedWorkspaceNamespaceVariationPartVariationIdRouteRoute.addChildren(
+        [ProtectedWorkspaceNamespaceVariationPartVariationIdIndexRoute],
+      ),
       ProtectedWorkspaceNamespacePartIndexRoute,
       ProtectedWorkspaceNamespaceHardwareHardwareIdIndexRoute,
       ProtectedWorkspaceNamespaceSessionSessionIdIndexRoute,

@@ -116,12 +116,12 @@ function PartVariationPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>{partVariation.name}</BreadcrumbPage>
+            <BreadcrumbPage>{partVariation.partNumber}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
       <PageHeader>
-        <PageHeaderHeading>{partVariation.name}</PageHeaderHeading>
+        <PageHeaderHeading>{partVariation.partNumber}</PageHeaderHeading>
         <div className="text-muted-foreground font-bold">
           Product: {part.productName}
         </div>

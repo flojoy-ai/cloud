@@ -14,9 +14,9 @@ export default {
       },
     },
     extend: {
-      fontPart: {
-        sans: ["Geist", ...defaultTheme.fontPart.sans],
-        mono: ["GeistMono", ...defaultTheme.fontPart.mono],
+      fontFamily: {
+        sans: ["Geist", ...defaultTheme.fontFamily.sans],
+        mono: ["GeistMono", ...defaultTheme.fontFamily.mono],
       },
       colors: {
         border: "hsl(var(--border))",

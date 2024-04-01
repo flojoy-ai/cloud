@@ -88,7 +88,7 @@ const SearchResultItem = ({ result, query, workspace }: SearchResultProps) => {
             });
           case "partVariation":
             return router.navigate({
-              to: `/workspace/$namespace/partVariation/$partVariationId`,
+              to: `/workspace/$namespace/variation/$partVariationId`,
               params: {
                 namespace: workspace.namespace,
                 partVariationId: result.id,
