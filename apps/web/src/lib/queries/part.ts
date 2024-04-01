@@ -42,10 +42,9 @@ export function getFamiliesQueryKey() {
 export function getFamiliesQueryOpts({ context }: GetFamiliesParams) {
   return queryOptions({
     queryFn: async () => {
-      const { data: families, error: partError } =
-        await client.part.index.get({
-          headers: { "flojoy-workspace-id": context.workspace.id },
-        });
+      const { data: families, error: partError } = await client.part.index.get({
+        headers: { "flojoy-workspace-id": context.workspace.id },
+      });
 
       if (partError) throw partError;
       return families;

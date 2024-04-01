@@ -23,7 +23,9 @@ export const Route = createFileRoute(
 )({
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(getProjectsQueryOpts({ context }));
-    context.queryClient.ensureQueryData(getPartVariationsQueryOpts({ context }));
+    context.queryClient.ensureQueryData(
+      getPartVariationsQueryOpts({ context }),
+    );
   },
   component: Page,
 });

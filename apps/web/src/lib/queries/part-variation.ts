@@ -12,7 +12,9 @@ export function getPartVariationsQueryKey() {
   return ["partVariations"];
 }
 
-export function getPartVariationsQueryOpts({ context }: GetPartVariationsParams) {
+export function getPartVariationsQueryOpts({
+  context,
+}: GetPartVariationsParams) {
   return queryOptions({
     queryFn: async () => {
       const partVariationsQuery = await client.partVariation.index.get({
@@ -36,12 +38,17 @@ export function getPartVariationQueryKey(partVariationId: string) {
   return ["partVariation", partVariationId];
 }
 
-export function getPartVariationQueryOpts({ context, partVariationId }: GetPartVariationParams) {
+export function getPartVariationQueryOpts({
+  context,
+  partVariationId,
+}: GetPartVariationParams) {
   return queryOptions({
     queryFn: async () => {
-      const partVariationsQuery = await client.partVariation({ partVariationId }).index.get({
-        headers: { "flojoy-workspace-id": context.workspace.id },
-      });
+      const partVariationsQuery = await client
+        .partVariation({ partVariationId })
+        .index.get({
+          headers: { "flojoy-workspace-id": context.workspace.id },
+        });
       if (partVariationsQuery.error) throw partVariationsQuery.error;
       return partVariationsQuery.data;
     },
@@ -66,9 +73,11 @@ export function getPartPartVariationsQueryOpts({
 }: GetPartPartVariationsParams) {
   return queryOptions({
     queryFn: async () => {
-      const partVariationsQuery = await client.part({ partId }).partVariations.get({
-        headers: { "flojoy-workspace-id": context.workspace.id },
-      });
+      const partVariationsQuery = await client
+        .part({ partId })
+        .partVariations.get({
+          headers: { "flojoy-workspace-id": context.workspace.id },
+        });
       if (partVariationsQuery.error) throw partVariationsQuery.error;
       return partVariationsQuery.data;
     },

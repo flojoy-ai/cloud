@@ -103,9 +103,11 @@ export function getPartVariationHardwareQueryOpts({
 }: GetPartVariationHardwareParams) {
   return queryOptions({
     queryFn: async () => {
-      const hardwareQuery = await client.partVariation({ partVariationId }).hardware.get({
-        headers: { "flojoy-workspace-id": context.workspace.id },
-      });
+      const hardwareQuery = await client
+        .partVariation({ partVariationId })
+        .hardware.get({
+          headers: { "flojoy-workspace-id": context.workspace.id },
+        });
       if (hardwareQuery.error) throw hardwareQuery.error;
       return hardwareQuery.data;
     },

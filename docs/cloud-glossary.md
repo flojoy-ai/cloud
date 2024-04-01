@@ -14,12 +14,12 @@ A part is hardware component that is tested. (e.g. "Raspberry Pi 5")
 - Part variation: a specific version of a part. (e.g. "Raspberry Pi RAM module 8GB")
 
 - Assembly: essentially a part variation made up of other part variations.
-(e.g. "Raspberry Pi 5 8GB")
+  (e.g. "Raspberry Pi 5 8GB")
 
 #### Hardware
 
 This is a concrete instance of a part variation (including assembly which is basically
-a part variation). 
+a part variation).
 
 ## Production Line
 
