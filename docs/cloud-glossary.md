@@ -11,21 +11,17 @@ can be "Raspberry Pi", and parts can be "Raspberry Pi Pico", "Raspberry Pi 5", e
 
 A part is hardware component that is tested. (e.g. "Raspberry Pi 5")
 
-##### Part Variation
+- Part variation: a specific version of a part. (e.g. "Raspberry Pi RAM module 8GB")
 
-A part variation is a specific version of a part. For example, this can be
-"Raspberry Pi RAM module 8GB", etc.
-
-##### Assembly
-
-This is essentially a part variation made up of other part variations.
-"Raspberry Pi 5 8GB"
+- Assembly: essentially a part variation made up of other part variations.
+(e.g. "Raspberry Pi 5 8GB")
 
 #### Hardware
 
-This is a concrete instance of a part variation.
+This is a concrete instance of a part variation (including assembly which is basically
+a part variation). 
 
-## Production Lines
+## Production Line
 
 Where your product is being assembled and your part test stations are located.
 
