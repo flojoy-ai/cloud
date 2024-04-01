@@ -8,7 +8,7 @@
     "start": "bun run dist/index.js",
     "test": "bun test",
     "dev": "bun run --watch src/index.ts",
-    "kanel": "bunx kanel",
+    "kanel": "NODE_TLS_REJECT_UNAUTHORIZED=0 bunx kanel",
     "migrate:up": "bun run ./scripts/migrate.ts --up",
     "migrate:down": "bun run ./scripts/migrate.ts --down",
     "migrate:to-latest": "bun run ./scripts/migrate.ts --to-latest",
