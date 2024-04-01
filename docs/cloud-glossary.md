@@ -4,22 +4,22 @@
 
 ### Product
 
-A grouping of completed parts that are the final products. For example, a product
-can be "Raspberry Pi", and parts can be "Raspberry Pi Pico", "Raspberry Pi 5", etc.
+A completed item to be manufactured. (e.g. "Raspberry Pi 5")
 
 #### Part
 
-A part is hardware component that is tested. (e.g. "Raspberry Pi 5")
+A part is hardware component that is tested. (e.g. "Pi-5")
 
-- Part variation: a specific version of a part. (e.g. "Raspberry Pi RAM module 8GB")
+- Part variation: a specific version of a part. (e.g. "Pi-5-8GB")
 
-- Assembly: essentially a part variation made up of other part variations.
-  (e.g. "Raspberry Pi 5 8GB")
+- Sub-assembly: essentially a part variation made up of other part variations.
+  (e.g. The "Pi-5-8GB"'s sub-assembly can include,
+  "RAM-8GB", "CPU-1234", "Memory-abcd", etc.)
 
 #### Hardware
 
 This is a concrete instance of a part variation (including assembly which is basically
-a part variation).
+a part variation). (e.g. "Raspberry Pi 5 8GB RSP-PI-001")
 
 ## Production Line
 
