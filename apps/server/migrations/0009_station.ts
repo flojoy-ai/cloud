@@ -19,7 +19,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
 
   await db.schema
     .createIndex("station_name_index")
-    .on("model")
+    .on("station")
     .column("name")
     .execute();
 }
