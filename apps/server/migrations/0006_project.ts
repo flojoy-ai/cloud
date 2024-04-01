@@ -8,8 +8,8 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .addColumn("workspace_id", "text", (col) =>
       col.notNull().references("workspace.id").onDelete("cascade"),
     )
-    .addColumn("model_id", "text", (col) =>
-      col.notNull().references("model.id").onDelete("restrict"),
+    .addColumn("part_variation_id", "text", (col) =>
+      col.notNull().references("part_variation.id").onDelete("restrict"),
     )
     .addColumn("created_at", "timestamptz", (col) =>
       col.defaultTo(sql`now()`).notNull(),

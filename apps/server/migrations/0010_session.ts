@@ -10,7 +10,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .addColumn(
       "user_id",
       "text",
-      // TODO: Should this be nullable or not?
+      // NOTE: Keeping as nullable for the sake of being able to generate example data
       (col) => col.references("user.id").onDelete("cascade"),
     )
     .addColumn("project_id", "text", (col) =>
@@ -20,6 +20,8 @@ export async function up(db: Kysely<unknown>): Promise<void> {
       col.notNull().references("station.id").onDelete("cascade"),
     )
     .addColumn("commit_hash", "text")
+    .addColumn("integrity", "boolean", (col) => col.notNull())
+    .addColumn("aborted", "boolean", (col) => col.notNull())
     .addColumn("notes", "text", (col) => col)
     .addColumn("created_at", "timestamptz", (col) =>
       col.defaultTo(sql`now()`).notNull(),

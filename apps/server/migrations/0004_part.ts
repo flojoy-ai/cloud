@@ -2,7 +2,7 @@ import { type Kysely, sql } from "kysely";
 
 export async function up(db: Kysely<unknown>): Promise<void> {
   await db.schema
-    .createTable("family")
+    .createTable("part")
     .addColumn("id", "text", (col) => col.primaryKey())
     .addColumn("workspace_id", "text", (col) =>
       col.notNull().references("workspace.id").onDelete("cascade"),
@@ -15,19 +15,19 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .addColumn("created_at", "timestamptz", (col) =>
       col.defaultTo(sql`now()`).notNull(),
     )
-    .addUniqueConstraint("family_workspace_id_name_unique", [
+    .addUniqueConstraint("part_workspace_id_name_unique", [
       "workspace_id",
       "name",
     ])
     .execute();
 
   await db.schema
-    .createIndex("family_name_index")
-    .on("family")
+    .createIndex("part_name_index")
+    .on("part")
     .column("name")
     .execute();
 }
 
 export async function down(db: Kysely<unknown>): Promise<void> {
-  await db.schema.dropTable("family").execute();
+  await db.schema.dropTable("part").execute();
 }

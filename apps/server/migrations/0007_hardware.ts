@@ -7,10 +7,10 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .addColumn("workspace_id", "text", (col) =>
       col.notNull().references("workspace.id").onDelete("cascade"),
     )
-    .addColumn("model_id", "text", (col) =>
-      col.notNull().references("model.id").onDelete("restrict"),
+    .addColumn("part_variation_id", "text", (col) =>
+      col.notNull().references("part_variation.id").onDelete("restrict"),
     )
-    .addColumn("name", "text", (col) => col.notNull())
+    .addColumn("serial_number", "text", (col) => col.notNull())
     .addColumn("lot_number", "text")
     .addColumn("created_at", "timestamptz", (col) =>
       col.defaultTo(sql`now()`).notNull(),
@@ -18,13 +18,16 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .addColumn("updated_at", "timestamptz", (col) =>
       col.defaultTo(sql`now()`).notNull(),
     )
-    .addUniqueConstraint("hardware_name_model_id_unique", ["name", "model_id"])
+    .addUniqueConstraint("hardware_serial_number_part_variation_id_unique", [
+      "serial_number",
+      "part_variation_id",
+    ])
     .execute();
 
   await db.schema
-    .createIndex("hardware_name_index")
+    .createIndex("hardware_serial_number_index")
     .on("hardware")
-    .column("name")
+    .column("serial_number")
     .execute();
 
   await db.schema

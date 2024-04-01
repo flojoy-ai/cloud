@@ -19,8 +19,10 @@ export async function up(db: Kysely<unknown>): Promise<void> {
       col.notNull().references("test.id").onDelete("cascade"),
     )
     .addColumn("session_id", "text", (col) =>
-      col.notNull().references("session.id").onDelete("cascade"),
+      col.references("session.id").onDelete("cascade"),
     )
+    .addColumn("sequence_name", "text")
+    .addColumn("cycle_number", "integer")
     .addColumn("project_id", "text", (col) =>
       col.notNull().references("project.id").onDelete("cascade"),
     )
