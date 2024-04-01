@@ -9,15 +9,16 @@
     "test": "bun test",
     "dev": "bun run --watch src/index.ts",
     "kanel": "bunx kanel",
-    "migrate:up": "dotenv -c -- tsx ./scripts/migrate.ts --up",
-    "migrate:down": "dotenv -c -- tsx ./scripts/migrate.ts --down",
-    "migrate:to-latest": "dotenv -c -- tsx ./scripts/migrate.ts --to-latest",
-    "migrate:to": "dotenv -c -- tsx ./scripts/migrate.ts --to"
+    "migrate:up": "bun run ./scripts/migrate.ts --up",
+    "migrate:down": "bun run ./scripts/migrate.ts --down",
+    "migrate:to-latest": "bun run ./scripts/migrate.ts --to-latest",
+    "migrate:to": "bun run ./scripts/migrate.ts --to"
   },
   "dependencies": {
     "@bogeychan/elysia-logger": "^0.0.20",
     "@cloud/eslint-config": "workspace:*",
     "@cloud/tsconfig": "workspace:*",
+    "@cloud/shared": "workspace:*",
     "@elysiajs/cors": "^1.0.2",
     "@elysiajs/swagger": "^1.0.3",
     "@lucia-auth/adapter-postgresql": "^3.1.2",
@@ -36,9 +37,7 @@
   },
   "devDependencies": {
     "@total-typescript/ts-reset": "^0.5.1",
-    "bun-types": "^1.0.36",
-    "dotenv-cli": "^7.4.1",
-    "tsx": "^4.7.1"
+    "bun-types": "^1.0.36"
   },
   "module": "src/index.ts",
   "main": "src/index.ts"
