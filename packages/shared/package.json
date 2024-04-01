@@ -3,11 +3,8 @@
   "version": "0.0.1",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
-  "dependencies": {
-    "@elysiajs/eden": "^1.0.8"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "@cloud/server": "workspace:*",
     "@cloud/tsconfig": "workspace:*",
     "@types/react": "^18.2.73",
     "@types/react-dom": "^18.2.23",
