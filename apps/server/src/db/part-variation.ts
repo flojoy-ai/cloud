@@ -106,7 +106,7 @@ export async function getPartVariationTree(
               "mr.parentPartVariationId",
               "mr.count",
               "mr.childPartVariationId as partVariationId",
-              "part_variation.name as partNumber",
+              "part_variation.partNumber as partNumber",
             ]),
         ),
     )
