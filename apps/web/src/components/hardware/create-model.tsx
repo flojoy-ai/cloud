@@ -165,7 +165,9 @@ const CreateModel = ({ workspaceId, models, family }: Props) => {
                   <FormControl>
                     <Input placeholder="M1234" {...field} data-1p-ignore />
                   </FormControl>
-                  <FormDescription>An identifier for this model.</FormDescription>
+                  <FormDescription>
+                    An identifier for this model.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -179,7 +181,9 @@ const CreateModel = ({ workspaceId, models, family }: Props) => {
                   <FormControl>
                     <Input {...field} data-1p-ignore />
                   </FormControl>
-                  <FormDescription>(Optional) A human readable description of what the part is.</FormDescription>
+                  <FormDescription>
+                    (Optional) A human readable description of what the part is.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

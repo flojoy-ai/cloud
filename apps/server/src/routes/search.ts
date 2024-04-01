@@ -1,6 +1,11 @@
 import { db } from "../db/kysely";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
-import { DB, SearchResult, searchInput, searchResultTypes } from "@cloud/shared";
+import {
+  DB,
+  SearchResult,
+  searchInput,
+  searchResultTypes,
+} from "@cloud/shared";
 import Elysia from "elysia";
 import { Kysely, sql, SqlBool } from "kysely";
 

@@ -54,7 +54,8 @@ function SignUp() {
                       Continue with Entra ID
                     </a>
                   </Button>
-                )).exhaustive()
+                ))
+                .exhaustive(),
             )}
           </div>
 

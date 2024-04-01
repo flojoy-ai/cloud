@@ -13,7 +13,6 @@ import { createSession } from "./session";
 import { createStation } from "./station";
 import { createTest } from "./test";
 
-
 const generateRandomNumbers = () => {
   const randomNumbers = [];
 
@@ -26,7 +25,7 @@ const generateRandomNumbers = () => {
 };
 
 export async function populateExample(db: Kysely<DB>, workspaceId: string) {
-  return safeTry(async function*() {
+  return safeTry(async function* () {
     const product = yield* (
       await createProduct(db, {
         name: "iPhone 13 mini",

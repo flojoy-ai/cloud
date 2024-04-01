@@ -16,6 +16,5 @@ export * from "./types/test";
 export * from "./types/utils";
 export * from "./types/workspace";
 
-
 import DB from "./schemas/Database";
-export type { DB }
+export type { DB };

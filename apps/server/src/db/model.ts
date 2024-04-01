@@ -1,7 +1,13 @@
 import { generateDatabaseId } from "../lib/db-utils";
 import { markUpdatedAt } from "../db/query";
 import { Result, err, ok } from "neverthrow";
-import { DB, Model, InsertModel, ModelTreeNode, ModelTreeRoot } from "@cloud/shared";
+import {
+  DB,
+  Model,
+  InsertModel,
+  ModelTreeNode,
+  ModelTreeRoot,
+} from "@cloud/shared";
 import { db } from "./kysely";
 import { Kysely } from "kysely";
 

@@ -8,7 +8,7 @@ import { createProduct } from "./product";
 export async function createFamily(db: Kysely<DB>, family: InsertFamily) {
   const { productName, ...rest } = family;
 
-  return safeTry(async function*() {
+  return safeTry(async function* () {
     let product = await db
       .selectFrom("product")
       .selectAll()

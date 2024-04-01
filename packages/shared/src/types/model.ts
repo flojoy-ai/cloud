@@ -1,7 +1,7 @@
 import { t, Static } from "elysia";
 
 import { Model } from "../schemas/public/Model";
-export type { Model }
+export type { Model };
 
 export const modelComponent = t.Object({
   modelId: t.String(),
