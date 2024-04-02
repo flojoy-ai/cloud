@@ -1,4 +1,4 @@
-import CreateUnit from "@/components/unit/create-unit";
+import CenterLoadingSpinner from "@/components/center-loading-spinner";
 import {
   PageHeader,
   PageHeaderDescription,
@@ -15,16 +15,16 @@ import {
 } from "@/components/ui/breadcrumb";
 import { DataTable } from "@/components/ui/data-table";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import CreateUnit from "@/components/unit/create-unit";
 import { PartVariationTreeVisualization } from "@/components/visualization/tree-visualization";
 import { getPartQueryOpts } from "@/lib/queries/part";
 import { getPartVariationUnitQueryOpts } from "@/lib/queries/unit";
+import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
 import { UnitWithParent } from "@cloud/shared";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link, createFileRoute, useRouter } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowRight, Plus } from "lucide-react";
-import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
-import CenterLoadingSpinner from "@/components/center-loading-spinner";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/variation/$partVariationId/",
@@ -73,17 +73,11 @@ const unitColumns: ColumnDef<UnitWithParent>[] = [
       );
     },
   },
-  // {
-  //   id: "actions",
-  //   header: "Actions",
-  //   cell: UnitActions,
-  // },
 ];
 
 function PartVariationPage() {
   const { workspace, partVariation } = Route.useRouteContext();
   const { partVariationId } = Route.useParams();
-  const router = useRouter();
 
   const { data: unit } = useSuspenseQuery(
     getPartVariationUnitQueryOpts({

@@ -1,29 +1,43 @@
+import { SearchResult, searchInput } from "@cloud/shared";
+import Elysia from "elysia";
+import { SqlBool, sql } from "kysely";
 import { db } from "../db/kysely";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
-import {
-  DB,
-  SearchResult,
-  searchInput,
-  searchResultTypes,
-} from "@cloud/shared";
-import Elysia from "elysia";
-import { Kysely, sql, SqlBool } from "kysely";
+import { SearchResultType } from "@cloud/shared";
 
-// TODO: Fix
-
-function nameSearch(
-  db: Kysely<DB>,
+function makeQuery(
+  tableName: SearchResultType,
   query: string,
   workspaceId: string,
-  type: SearchResult["type"],
 ) {
-  return db
-    .selectFrom(type)
-    .select(["name", "id"])
-    .select(sql<SearchResult["type"]>`${type}`.as("type"))
-    .select(sql`name <-> ${query}`.as("dist"))
-    .where(sql<SqlBool>`(name <-> ${query}) < 0.85`)
-    .where("workspaceId", "=", workspaceId);
+  switch (tableName) {
+    case "product":
+    case "part":
+    case "project":
+      return db
+        .selectFrom(tableName)
+        .select(["name", "id"])
+        .select(sql<SearchResult["type"]>`${tableName}`.as("type"))
+        .select(sql<number>`name <-> ${query}`.as("dist"))
+        .where(sql<SqlBool>`(name <-> ${query}) < 0.85`)
+        .where("workspaceId", "=", workspaceId);
+    case "partVariation":
+      return db
+        .selectFrom("part_variation")
+        .select(["partNumber as name", "id"])
+        .select(sql<SearchResult["type"]>`'partVariation'`.as("type"))
+        .select(sql<number>`name <-> ${query}`.as("dist"))
+        .where(sql<SqlBool>`(name <-> ${query}) < 0.85`)
+        .where("workspaceId", "=", workspaceId);
+    case "unit":
+      return db
+        .selectFrom("unit")
+        .select(["serialNumber as name", "id"])
+        .select(sql<SearchResult["type"]>`'unit'`.as("type"))
+        .select(sql<number>`name <-> ${query}`.as("dist"))
+        .where(sql<SqlBool>`(name <-> ${query}) < 0.85`)
+        .where("workspaceId", "=", workspaceId);
+  }
 }
 
 export const SearchRoute = new Elysia({ prefix: "/search" })
@@ -36,45 +50,15 @@ export const SearchRoute = new Elysia({ prefix: "/search" })
       }
       const { query } = queryParams;
 
-      const productQuery = db
-        .selectFrom("product")
-        .select(["name", "id"])
-        .select(sql<SearchResult["type"]>`'product'`.as("type"))
-        .select(sql<number>`name <-> ${query}`.as("dist"))
-        .where(sql<SqlBool>`(name <-> ${query}) < 0.85`)
-        .where("workspaceId", "=", workspace.id);
-
-      const partQuery = db
-        .selectFrom("part")
-        .select(["name", "id"])
-        .select(sql<SearchResult["type"]>`'part'`.as("type"))
-        .select(sql<number>`name <-> ${query}`.as("dist"))
-        .where(sql<SqlBool>`(name <-> ${query}) < 0.85`)
-        .where("workspaceId", "=", workspace.id);
-
-      const partVariationQuery = db
-        .selectFrom("part_variation")
-        .select(["partNumber as name", "id"])
-        .select(sql<SearchResult["type"]>`'partVariation'`.as("type"))
-        .select(sql<number>`name <-> ${query}`.as("dist"))
-        .where(sql<SqlBool>`(name <-> ${query}) < 0.85`)
-        .where("workspaceId", "=", workspace.id);
-
-      const unitQuery = db
-        .selectFrom("unit")
-        .select(["serialNumber as name", "id"])
-        .select(sql<SearchResult["type"]>`'unit'`.as("type"))
-        .select(sql<number>`name <-> ${query}`.as("dist"))
-        .where(sql<SqlBool>`(name <-> ${query}) < 0.85`)
-        .where("workspaceId", "=", workspace.id);
-
-      const projectQuery = db
-        .selectFrom("project")
-        .select(["name", "id"])
-        .select(sql<SearchResult["type"]>`'project'`.as("type"))
-        .select(sql<number>`name <-> ${query}`.as("dist"))
-        .where(sql<SqlBool>`(name <-> ${query}) < 0.85`)
-        .where("workspaceId", "=", workspace.id);
+      const productQuery = makeQuery("product", query, workspace.id);
+      const partQuery = makeQuery("part", query, workspace.id);
+      const partVariationQuery = makeQuery(
+        "partVariation",
+        query,
+        workspace.id,
+      );
+      const unitQuery = makeQuery("unit", query, workspace.id);
+      const projectQuery = makeQuery("project", query, workspace.id);
 
       const searchQuery = [
         productQuery,

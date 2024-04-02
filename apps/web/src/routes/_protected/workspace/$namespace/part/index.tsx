@@ -1,4 +1,4 @@
-import { Link, createFileRoute, useRouter } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 
 import {
   Breadcrumb,
@@ -17,15 +17,15 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useSuspenseQuery } from "@tanstack/react-query";
 // import { Icons } from "@/components/icons";
-import { Part } from "@cloud/shared";
-import { ColumnDef } from "@tanstack/react-table";
+import CenterLoadingSpinner from "@/components/center-loading-spinner";
 import { Badge } from "@/components/ui/badge";
-import CreatePart from "@/components/unit/create-part";
 import { DataTable } from "@/components/ui/data-table";
+import CreatePart from "@/components/unit/create-part";
 import { getPartsQueryOpts } from "@/lib/queries/part";
 import { getProductsQueryOpts } from "@/lib/queries/product";
 import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
-import CenterLoadingSpinner from "@/components/center-loading-spinner";
+import { Part } from "@cloud/shared";
+import { ColumnDef } from "@tanstack/react-table";
 import { ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/_protected/workspace/$namespace/part/")({
