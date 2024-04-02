@@ -6,7 +6,7 @@ import { Outlet, createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_protected")({
   component: Protected,
-  loader: async ({ context }) => {
+  loader: ({ context }) => {
     context.queryClient.ensureQueryData(getWorkspacesQueryOpts());
   },
   pendingComponent: CenterLoadingSpinner,

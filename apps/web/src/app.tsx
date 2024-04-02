@@ -2,6 +2,7 @@ import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { useAuth } from "./hooks/use-auth";
 import { routeTree } from "./routeTree.gen";
 import { queryClient } from "./lib/client";
+// import CenterLoadingSpinner from "./components/center-loading-spinner";
 
 // Create a new router instance
 const router = createRouter({
@@ -10,6 +11,7 @@ const router = createRouter({
     queryClient,
     auth: undefined!,
   },
+  // defaultPendingComponent: CenterLoadingSpinner,
 
   // FIXME: Joey: comment this out for now, since this is a router bug
   // https://github.com/TanStack/router/issues/1201

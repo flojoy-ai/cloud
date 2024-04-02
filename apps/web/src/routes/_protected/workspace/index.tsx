@@ -13,7 +13,7 @@ import CenterLoadingSpinner from "@/components/center-loading-spinner";
 
 export const Route = createFileRoute("/_protected/workspace/")({
   component: Workspaces,
-  loader: async ({ context }) => {
+  loader: ({ context }) => {
     context.queryClient.ensureQueryData(getWorkspacesQueryOpts());
   },
   pendingComponent: CenterLoadingSpinner,

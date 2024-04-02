@@ -17,37 +17,20 @@ import { DataTable } from "@/components/ui/data-table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { UnitTreeVisualization } from "@/components/visualization/tree-visualization";
 import { getPartQueryOpts } from "@/lib/queries/part";
-import {
-  getUnitQueryOpts,
-  getUnitRevisionsQueryOpts,
-} from "@/lib/queries/unit";
-import { getPartVariationQueryOpts } from "@/lib/queries/part-variation";
-import { getSessionsByUnitIdQueryOpts } from "@/lib/queries/session";
+import { getUnitRevisionsQueryOpts } from "@/lib/queries/unit";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
-import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
 import { useRouter } from "@tanstack/react-router";
 import { Badge } from "@/components/ui/badge";
 import { Session } from "@cloud/shared/src/schemas/public/Session";
 import CenterLoadingSpinner from "@/components/center-loading-spinner";
+import { getSessionsByUnitIdQueryOpts } from "@/lib/queries/session";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/unit/$unitId/",
 )({
-  component: () => <div>LMAO</div>,
-  beforeLoad: async ({ context, params: { unitId } }) => {
-    const unit = await context.queryClient.ensureQueryData(
-      getUnitQueryOpts({ unitId, context }),
-    );
-    const partVariation = await context.queryClient.ensureQueryData(
-      getPartVariationQueryOpts({
-        partVariationId: unit.partVariationId,
-        context,
-      }),
-    );
-    return { unit, partVariation };
-  },
+  component: UnitPage,
   loader: ({ context, params: { unitId } }) => {
     context.queryClient.ensureQueryData(
       getUnitRevisionsQueryOpts({ unitId, context }),
@@ -124,7 +107,10 @@ function UnitPage() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link from={WorkspaceIndexRoute.to} to=".">
+              <Link
+                from={"/workspace/$namespace/unit/$unitId"}
+                to="/workspace/$namespace"
+              >
                 {workspace.name}
               </Link>
             </BreadcrumbLink>
@@ -132,7 +118,10 @@ function UnitPage() {
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link from={WorkspaceIndexRoute.fullPath} to="part">
+              <Link
+                from={"/workspace/$namespace/unit/$unitId"}
+                to="/workspace/$namespace/part"
+              >
                 Inventory
               </Link>
             </BreadcrumbLink>
@@ -141,8 +130,8 @@ function UnitPage() {
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
               <Link
-                from={WorkspaceIndexRoute.fullPath}
-                to="part/$partId"
+                from={"/workspace/$namespace/unit/$unitId"}
+                to="/workspace/$namespace/part/$partId/"
                 params={{ partId: part.id }}
               >
                 {part.name}
@@ -153,8 +142,8 @@ function UnitPage() {
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
               <Link
-                from={WorkspaceIndexRoute.fullPath}
-                to="variation/$partVariationId"
+                from={"/workspace/$namespace/unit/$unitId"}
+                to="/workspace/$namespace/variation/$partVariationId/"
                 params={{ partVariationId: partVariation.id }}
               >
                 {partVariation.partNumber}
@@ -189,8 +178,8 @@ function UnitPage() {
         <div>
           <span className="font-medium text-muted-foreground">In use: </span>
           <Link
-            from={WorkspaceIndexRoute.fullPath}
-            to="unit/$unitId"
+            from={"/workspace/$namespace/unit/$unitId"}
+            to={"/workspace/$namespace/unit/$unitId"}
             params={{
               unitId: unit.parent.id,
             }}
@@ -214,8 +203,8 @@ function UnitPage() {
                 data={sessions}
                 onRowClick={(row) =>
                   router.navigate({
-                    from: WorkspaceIndexRoute.fullPath,
-                    to: "session/$sessionId",
+                    from: "/workspace/$namespace/unit/$unitId",
+                    to: "/workspace/$namespace/session/$sessionId",
                     params: { sessionId: row.id },
                   })
                 }

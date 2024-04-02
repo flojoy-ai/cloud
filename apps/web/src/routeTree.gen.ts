@@ -22,6 +22,7 @@ import { Route as ProtectedWorkspaceIndexImport } from './routes/_protected/work
 import { Route as ProtectedProfileIndexImport } from './routes/_protected/profile/index'
 import { Route as ProtectedWorkspaceNamespaceRouteImport } from './routes/_protected/workspace/$namespace/route'
 import { Route as ProtectedWorkspaceNamespaceIndexImport } from './routes/_protected/workspace/$namespace/index'
+import { Route as ProtectedWorkspaceNamespaceUnitRouteImport } from './routes/_protected/workspace/$namespace/unit/route'
 import { Route as ProtectedWorkspaceNamespaceStationRouteImport } from './routes/_protected/workspace/$namespace/station/route'
 import { Route as ProtectedWorkspaceNamespaceSettingsRouteImport } from './routes/_protected/workspace/$namespace/settings/route'
 import { Route as ProtectedWorkspaceNamespaceProjectRouteImport } from './routes/_protected/workspace/$namespace/project/route'
@@ -29,6 +30,7 @@ import { Route as ProtectedWorkspaceNamespaceSettingsIndexImport } from './route
 import { Route as ProtectedWorkspaceNamespaceProjectIndexImport } from './routes/_protected/workspace/$namespace/project/index'
 import { Route as ProtectedWorkspaceNamespacePartIndexImport } from './routes/_protected/workspace/$namespace/part/index'
 import { Route as ProtectedWorkspaceNamespaceVariationPartVariationIdRouteImport } from './routes/_protected/workspace/$namespace/variation/$partVariationId/route'
+import { Route as ProtectedWorkspaceNamespaceUnitUnitIdRouteImport } from './routes/_protected/workspace/$namespace/unit/$unitId/route'
 import { Route as ProtectedWorkspaceNamespaceStationStationIdRouteImport } from './routes/_protected/workspace/$namespace/station/$stationId/route'
 import { Route as ProtectedWorkspaceNamespaceProjectProjectIdRouteImport } from './routes/_protected/workspace/$namespace/project/$projectId/route'
 import { Route as ProtectedWorkspaceNamespacePartPartIdRouteImport } from './routes/_protected/workspace/$namespace/part/$partId/route'
@@ -97,6 +99,12 @@ const ProtectedWorkspaceNamespaceIndexRoute =
     getParentRoute: () => ProtectedWorkspaceNamespaceRouteRoute,
   } as any)
 
+const ProtectedWorkspaceNamespaceUnitRouteRoute =
+  ProtectedWorkspaceNamespaceUnitRouteImport.update({
+    path: '/unit',
+    getParentRoute: () => ProtectedWorkspaceNamespaceRouteRoute,
+  } as any)
+
 const ProtectedWorkspaceNamespaceStationRouteRoute =
   ProtectedWorkspaceNamespaceStationRouteImport.update({
     path: '/station',
@@ -139,6 +147,12 @@ const ProtectedWorkspaceNamespaceVariationPartVariationIdRouteRoute =
     getParentRoute: () => ProtectedWorkspaceNamespaceRouteRoute,
   } as any)
 
+const ProtectedWorkspaceNamespaceUnitUnitIdRouteRoute =
+  ProtectedWorkspaceNamespaceUnitUnitIdRouteImport.update({
+    path: '/$unitId',
+    getParentRoute: () => ProtectedWorkspaceNamespaceUnitRouteRoute,
+  } as any)
+
 const ProtectedWorkspaceNamespaceStationStationIdRouteRoute =
   ProtectedWorkspaceNamespaceStationStationIdRouteImport.update({
     path: '/$stationId',
@@ -166,8 +180,8 @@ const ProtectedWorkspaceNamespaceVariationPartVariationIdIndexRoute =
 
 const ProtectedWorkspaceNamespaceUnitUnitIdIndexRoute =
   ProtectedWorkspaceNamespaceUnitUnitIdIndexImport.update({
-    path: '/unit/$unitId/',
-    getParentRoute: () => ProtectedWorkspaceNamespaceRouteRoute,
+    path: '/',
+    getParentRoute: () => ProtectedWorkspaceNamespaceUnitUnitIdRouteRoute,
   } as any)
 
 const ProtectedWorkspaceNamespaceStationStationIdIndexRoute =
@@ -246,6 +260,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceStationRouteImport
       parentRoute: typeof ProtectedWorkspaceNamespaceRouteImport
     }
+    '/_protected/workspace/$namespace/unit': {
+      preLoaderRoute: typeof ProtectedWorkspaceNamespaceUnitRouteImport
+      parentRoute: typeof ProtectedWorkspaceNamespaceRouteImport
+    }
     '/_protected/workspace/$namespace/': {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceIndexImport
       parentRoute: typeof ProtectedWorkspaceNamespaceRouteImport
@@ -261,6 +279,10 @@ declare module '@tanstack/react-router' {
     '/_protected/workspace/$namespace/station/$stationId': {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceStationStationIdRouteImport
       parentRoute: typeof ProtectedWorkspaceNamespaceStationRouteImport
+    }
+    '/_protected/workspace/$namespace/unit/$unitId': {
+      preLoaderRoute: typeof ProtectedWorkspaceNamespaceUnitUnitIdRouteImport
+      parentRoute: typeof ProtectedWorkspaceNamespaceUnitRouteImport
     }
     '/_protected/workspace/$namespace/variation/$partVariationId': {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceVariationPartVariationIdRouteImport
@@ -296,7 +318,7 @@ declare module '@tanstack/react-router' {
     }
     '/_protected/workspace/$namespace/unit/$unitId/': {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceUnitUnitIdIndexImport
-      parentRoute: typeof ProtectedWorkspaceNamespaceRouteImport
+      parentRoute: typeof ProtectedWorkspaceNamespaceUnitUnitIdRouteImport
     }
     '/_protected/workspace/$namespace/variation/$partVariationId/': {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceVariationPartVariationIdIndexImport
@@ -325,6 +347,11 @@ export const routeTree = rootRoute.addChildren([
           ProtectedWorkspaceNamespaceStationStationIdIndexRoute,
         ]),
       ]),
+      ProtectedWorkspaceNamespaceUnitRouteRoute.addChildren([
+        ProtectedWorkspaceNamespaceUnitUnitIdRouteRoute.addChildren([
+          ProtectedWorkspaceNamespaceUnitUnitIdIndexRoute,
+        ]),
+      ]),
       ProtectedWorkspaceNamespaceIndexRoute,
       ProtectedWorkspaceNamespacePartPartIdRouteRoute.addChildren([
         ProtectedWorkspaceNamespacePartPartIdIndexRoute,
@@ -334,7 +361,6 @@ export const routeTree = rootRoute.addChildren([
       ),
       ProtectedWorkspaceNamespacePartIndexRoute,
       ProtectedWorkspaceNamespaceSessionSessionIdIndexRoute,
-      ProtectedWorkspaceNamespaceUnitUnitIdIndexRoute,
     ]),
     ProtectedProfileIndexRoute,
     ProtectedWorkspaceIndexRoute,

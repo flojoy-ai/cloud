@@ -49,7 +49,9 @@ export function getPartVariationQueryOpts({
         .index.get({
           headers: { "flojoy-workspace-id": context.workspace.id },
         });
-      if (partVariationsQuery.error) throw partVariationsQuery.error;
+      if (partVariationsQuery.error) {
+        throw partVariationsQuery.error;
+      }
       return partVariationsQuery.data;
     },
     queryKey: getPartVariationQueryKey(partVariationId),
@@ -64,7 +66,7 @@ type GetPartPartVariationsParams = {
 };
 
 export function getPartPartVariationsQueryKey(partId: string) {
-  return ["partVariations", partId];
+  return ["part", "partVariations", partId];
 }
 
 export function getPartPartVariationsQueryOpts({

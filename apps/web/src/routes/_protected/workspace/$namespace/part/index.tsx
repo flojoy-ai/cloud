@@ -32,7 +32,7 @@ export const Route = createFileRoute("/_protected/workspace/$namespace/part/")({
   component: UnitInventory,
 
   pendingComponent: CenterLoadingSpinner,
-  loader: async ({ context }) => {
+  loader: ({ context }) => {
     context.queryClient.ensureQueryData(getPartsQueryOpts({ context }));
     context.queryClient.ensureQueryData(getProductsQueryOpts({ context }));
   },

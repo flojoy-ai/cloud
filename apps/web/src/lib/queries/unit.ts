@@ -13,16 +13,16 @@ export function getUnitQueryKey(unitId: string) {
   return ["unit", unitId];
 }
 
-export function getUnitQueryOpts({
-  unitId,
-  context,
-}: GetUnitParams) {
+export function getUnitQueryOpts({ unitId, context }: GetUnitParams) {
   return queryOptions({
     queryFn: async () => {
       const unitQuery = await client.unit({ unitId }).index.get({
         headers: { "flojoy-workspace-id": context.workspace.id },
       });
-      if (unitQuery.error) throw unitQuery.error;
+      if (unitQuery.error) {
+        console.log(unitQuery.error);
+        throw unitQuery.error;
+      }
       return unitQuery.data;
     },
     queryKey: getUnitQueryKey(unitId),
@@ -46,11 +46,9 @@ export function getUnitRevisionsQueryOpts({
 }: GetUnitRevisionsParams) {
   return queryOptions({
     queryFn: async () => {
-      const unitQuery = await client
-        .unit({ unitId })
-        .revisions.get({
-          headers: { "flojoy-workspace-id": context.workspace.id },
-        });
+      const unitQuery = await client.unit({ unitId }).revisions.get({
+        headers: { "flojoy-workspace-id": context.workspace.id },
+      });
       if (unitQuery.error) throw unitQuery.error;
       return unitQuery.data;
     },
