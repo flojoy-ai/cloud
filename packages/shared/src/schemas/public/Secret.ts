@@ -8,16 +8,13 @@ import { type ColumnType, type Selectable, type Insertable, type Updateable } fr
 /** Represents the table public.secret */
 export default interface SecretTable {
   /** Database type: pg_catalog.text */
-  id: ColumnType<string, string, string>;
-
-  /** Database type: pg_catalog.text */
   userId: ColumnType<UserId, UserId, UserId>;
 
   /** Database type: pg_catalog.text */
-  value: ColumnType<string, string, string>;
+  workspaceId: ColumnType<WorkspaceId, WorkspaceId, WorkspaceId>;
 
   /** Database type: pg_catalog.text */
-  workspaceId: ColumnType<WorkspaceId, WorkspaceId, WorkspaceId>;
+  value: ColumnType<string, string, string>;
 
   /** Database type: pg_catalog.timestamp */
   createdAt: ColumnType<Date, Date | string | undefined, Date | string>;

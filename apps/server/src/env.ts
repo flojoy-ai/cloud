@@ -8,6 +8,7 @@ export const env = createEnv({
    */
   server: {
     WEB_URI: z.string().default("localhost:5173"),
+    JWT_SECRET: z.string(),
     PORT: z.string().default("3000"),
     DATABASE_URL: z
       .string()

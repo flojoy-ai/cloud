@@ -3,7 +3,6 @@ import { type Kysely, sql } from "kysely";
 export async function up(db: Kysely<unknown>): Promise<void> {
   await db.schema
     .createTable("secret")
-    .addColumn("id", "text", (col) => col.notNull())
     .addColumn("user_id", "text", (col) =>
       col.references("user.id").onDelete("cascade").notNull(),
     )
@@ -15,10 +14,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
       col.defaultTo(sql`now()`).notNull(),
     )
     .addColumn("last_used_at", "timestamp")
-    .addUniqueConstraint("secret_workspace_id_user_id_unique", [
-      "workspace_id",
-      "user_id",
-    ])
+    .addPrimaryKeyConstraint("secret_pk", ["user_id", "workspace_id"])
     .execute();
 }
 

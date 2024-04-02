@@ -18,6 +18,7 @@ import { HardwareRoute } from "./routes/hardware";
 import { StationRoute } from "./routes/station";
 import { AuthEntraRoute } from "./routes/auth/entra";
 import { SessionRoute } from "./routes/session";
+import { SecretRoute } from "./routes/secret";
 
 const encoder = new TextEncoder();
 
@@ -28,7 +29,12 @@ const app = new Elysia()
     cors({
       credentials: true,
       origin: [env.WEB_URI],
-      allowedHeaders: ["content-type", "flojoy-workspace-id", "use-superjson"],
+      allowedHeaders: [
+        "content-type",
+        "flojoy-workspace-id",
+        "use-superjson",
+        "flojoy-workspace-personal-access-token",
+      ],
     }),
   )
   .mapResponse(({ request, response }) => {
@@ -60,6 +66,7 @@ const app = new Elysia()
   .use(AuthGoogleRoute)
   .use(AuthEntraRoute)
   .use(WorkspaceRoute)
+  .use(SecretRoute)
   .use(ProjectRoute)
   .use(SearchRoute)
   .use(ProductRoute)

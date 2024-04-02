@@ -1,10 +1,12 @@
 import { lucia } from "../auth/lucia";
 import { env } from "../env";
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 import { verifyRequestOrigin } from "lucia";
 
 import type { User, Session } from "lucia";
 import { getUrlFromUri } from "../lib/url";
+import { decryptWorkspacePersonalAccessToken } from "../lib/secret";
+import { db } from "../db/kysely";
 
 export const AuthMiddleware = new Elysia()
   .derive(
@@ -66,18 +68,37 @@ export const AuthMiddleware = new Elysia()
     },
   )
   .propagate()
+  .guard({
+    headers: t.Object({
+      "flojoy-workspace-personal-access-token": t.Optional(t.String()),
+      "flojoy-workspace-id": t.Optional(t.String()),
+    }),
+  })
   .derive(
     async ({
+      headers,
       user,
       session,
     }): Promise<{
       user: User;
-      session: Session;
     }> => {
       if (!user || !session) {
+        const personalAccessToken =
+          headers["flojoy-workspace-personal-access-token"];
+        const workspaceId = headers["flojoy-workspace-id"];
+        if (personalAccessToken && workspaceId) {
+          const value =
+            await decryptWorkspacePersonalAccessToken(personalAccessToken);
+          const user = await db
+            .selectFrom("user as u")
+            .where("u.id", "=", value.userId)
+            .selectAll()
+            .executeTakeFirstOrThrow();
+          return { user };
+        }
         throw new Error("Unauthorized");
       }
-      return { user, session };
+      return { user };
     },
   )
   .propagate();
