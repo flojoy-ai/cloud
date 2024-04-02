@@ -28,58 +28,120 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
   return safeTry(async function* () {
     const product = yield* (
       await createProduct(db, {
-        name: "iPhone 13 mini",
+        name: "Raspberry Pi 5",
         workspaceId,
-        description: "iPhone 13 mini",
+        description: "Raspberry Pi 5",
       })
     ).safeUnwrap();
 
-    const part = yield* (
+    const piPart = yield* (
       await createPart(db, {
-        name: "iPhone",
+        name: "Pi-5",
         workspaceId,
         productName: product.name,
-        description: "The iPhone lineup from Apple",
+        description: "The Raspberry Pi 5",
       })
     ).safeUnwrap();
 
-    const devicePartVariation1 = yield* (
-      await createPartVariation(db, {
-        partNumber: "DISPLAY0001",
-        description: "iPhone 13 mini display",
+    const cpuPart = yield* (
+      await createPart(db, {
+        name: "CPU",
         workspaceId,
-        partId: part.id,
+        productName: product.name,
+        description: "CPU",
+      })
+    ).safeUnwrap();
+
+    const ramPart = yield* (
+      await createPart(db, {
+        name: "RAM",
+        workspaceId,
+        productName: product.name,
+        description: "RAM module",
+      })
+    ).safeUnwrap();
+
+    const diskPart = yield* (
+      await createPart(db, {
+        name: "Disk",
+        workspaceId,
+        productName: product.name,
+        description: "Disk space",
+      })
+    ).safeUnwrap();
+
+    const ram8GB = yield* (
+      await createPartVariation(db, {
+        partNumber: "RAM-8GB",
+        description: "8GB RAM",
+        workspaceId,
+        partId: ramPart.id,
         components: [],
       })
     ).safeUnwrap();
 
-    const devicePartVariation2 = yield* (
+    const ram4GB = yield* (
       await createPartVariation(db, {
-        partNumber: "SPEAKER0001",
-        description: "iPhone 13 mini speaker",
+        partNumber: "RAM-4GB",
+        description: "4GB RAM",
         workspaceId,
-        partId: part.id,
+        partId: ramPart.id,
         components: [],
+      })
+    ).safeUnwrap();
+
+    const cpu1234 = yield* (
+      await createPartVariation(db, {
+        partNumber: "CPU-1234",
+        description: "CPU 1234",
+        workspaceId,
+        partId: cpuPart.id,
+        components: [],
+      })
+    ).safeUnwrap();
+
+    const diskABCD = yield* (
+      await createPartVariation(db, {
+        partNumber: "Disk-ABCD",
+        description: "Disk ABCD",
+        workspaceId,
+        partId: diskPart.id,
+        components: [],
+      })
+    ).safeUnwrap();
+
+    const pi58GB = yield* (
+      await createPartVariation(db, {
+        partNumber: "PI-5-8GB",
+        description: "Pi 5 with 8GB RAM",
+        workspaceId,
+        partId: piPart.id,
+        components: [
+          { partVariationId: ram8GB.id, count: 1 },
+          { partVariationId: cpu1234.id, count: 1 },
+          { partVariationId: diskABCD.id, count: 1 },
+        ],
       })
     ).safeUnwrap();
 
     yield* (
       await createPartVariation(db, {
-        partNumber: "IP13MINI",
-        description: "iPhone 13 mini",
+        partNumber: "PI-5-4GB",
+        description: "Pi 5 with 4GB RAM",
         workspaceId,
-        partId: part.id,
+        partId: piPart.id,
         components: [
-          { partVariationId: devicePartVariation1.id, count: 2 },
-          { partVariationId: devicePartVariation2.id, count: 2 },
+          { partVariationId: ram4GB.id, count: 1 },
+          { partVariationId: cpu1234.id, count: 1 },
+          { partVariationId: diskABCD.id, count: 1 },
         ],
       })
     ).safeUnwrap();
 
-    const deviceProject = yield* (
+    const pi5Project = yield* (
       await createProject(db, {
-        name: "DISPLAY0001 Production Line",
-        partVariationId: devicePartVariation1.id,
+        name: "Pi-5 Production Line",
+        partVariationId: pi58GB.id,
         workspaceId,
       })
     ).safeUnwrap();
@@ -87,7 +149,7 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
     const booleanTest = yield* (
       await createTest(db, {
         name: "Pass/Fail Test",
-        projectId: deviceProject.id,
+        projectId: pi5Project.id,
         measurementType: "boolean",
       })
     ).safeUnwrap();
@@ -95,34 +157,103 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
     const dataframeTest = yield* (
       await createTest(db, {
         name: "Expected vs Measured",
-        projectId: deviceProject.id,
+        projectId: pi5Project.id,
         measurementType: "dataframe",
       })
     ).safeUnwrap();
 
-    const insertDevices = _.times(9, (i) => ({
+    const ram8GBUnits = _.times(9, (i) => ({
       id: generateDatabaseId("unit"),
-      serialNumber: `SN000${i + 1}`,
-      partVariationId: devicePartVariation1.id,
+      serialNumber: `RAM-8GB-00${i + 1}`,
+      partVariationId: ram8GB.id,
       workspaceId,
     }));
 
-    const units = await db
+    const cpuUnits = _.times(9, (i) => ({
+      id: generateDatabaseId("unit"),
+      serialNumber: `CPU-1234-00${i + 1}`,
+      partVariationId: cpu1234.id,
+      workspaceId,
+    }));
+
+    const diskUnits = _.times(9, (i) => ({
+      id: generateDatabaseId("unit"),
+      serialNumber: `DISK-ABCD-00${i + 1}`,
+      partVariationId: diskABCD.id,
+      workspaceId,
+    }));
+
+    const rams = await db
       .insertInto("unit")
-      .values([...insertDevices])
+      .values([...ram8GBUnits])
       .returningAll()
       .execute();
 
-    if (!units) {
+    const cpus = await db
+      .insertInto("unit")
+      .values([...cpuUnits])
+      .returningAll()
+      .execute();
+
+    const disks = await db
+      .insertInto("unit")
+      .values([...diskUnits])
+      .returningAll()
+      .execute();
+
+    if (!rams || !cpus || !disks) {
       return err("Failed to create unit devices");
     }
+
+    const piUnits = _.times(9, (i) => ({
+      id: generateDatabaseId("unit"),
+      serialNumber: `RSP-PI-8GB-00${i + 1}`,
+      partVariationId: pi58GB.id,
+      workspaceId,
+    }));
+
+    const pis = await db
+      .insertInto("unit")
+      .values([...piUnits])
+      .returningAll()
+      .execute();
+
+    await db
+      .insertInto("unit_relation")
+      .values(
+        pis.map((pi, i) => ({
+          parentUnitId: pi.id,
+          childUnitId: cpus[i].id,
+        })),
+      )
+      .execute();
+
+    await db
+      .insertInto("unit_relation")
+      .values(
+        pis.map((pi, i) => ({
+          parentUnitId: pi.id,
+          childUnitId: rams[i].id,
+        })),
+      )
+      .execute();
+
+    await db
+      .insertInto("unit_relation")
+      .values(
+        pis.map((pi, i) => ({
+          parentUnitId: pi.id,
+          childUnitId: disks[i].id,
+        })),
+      )
+      .execute();
 
     await db
       .insertInto("project_unit")
       .values(
-        units.map((hw) => ({
+        pis.map((hw) => ({
           unitId: hw.id,
-          projectId: deviceProject.id,
+          projectId: pi5Project.id,
         })),
       )
       .execute();
@@ -130,17 +261,17 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
     const station = yield* (
       await createStation(db, {
         name: "Station 1",
-        projectId: deviceProject.id,
+        projectId: pi5Project.id,
       })
     ).safeUnwrap();
 
-    for (let i = 0; i < units.length; i++) {
-      const unit = units[i]!;
+    for (let i = 0; i < pis.length; i++) {
+      const unit = pis[i]!;
 
       const session = yield* (
         await createSession(db, {
           unitId: unit.id,
-          projectId: deviceProject.id,
+          projectId: pi5Project.id,
           stationId: station.id,
           notes: "This is a test session",
           integrity: true,
@@ -154,7 +285,7 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
           name: "Did Light Up",
           unitId: unit.id,
           testId: booleanTest.id,
-          projectId: deviceProject.id,
+          projectId: pi5Project.id,
           sessionId: session.id,
           createdAt: new Date(new Date().getTime() + i * 20000),
           data: { type: "boolean" as const, value: val },
@@ -167,7 +298,7 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
           name: "Data Point",
           unitId: unit.id,
           testId: dataframeTest.id,
-          projectId: deviceProject.id,
+          projectId: pi5Project.id,
           sessionId: session.id,
           createdAt: new Date(new Date().getTime() + i * 20000),
           data: {
