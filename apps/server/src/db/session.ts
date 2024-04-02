@@ -4,12 +4,30 @@ import { Result, err, ok } from "neverthrow";
 import { DB, InsertSession, Session } from "@cloud/shared";
 import { jsonArrayFrom } from "kysely/helpers/postgres";
 
-export async function getSessions(db: Kysely<DB>, unitId: string) {
+export async function getSessionsByUnit(db: Kysely<DB>, unitId: string) {
   return await db
     .selectFrom("session")
     .selectAll()
     .select((eb) => withStatus(eb))
     .where("unitId", "=", unitId)
+    .execute();
+}
+
+export async function getSessionsByStation(db: Kysely<DB>, stationId: string) {
+  return await db
+    .selectFrom("session")
+    .selectAll()
+    .select((eb) => withStatus(eb))
+    .where("stationId", "=", stationId)
+    .execute();
+}
+
+export async function getSessionsByProject(db: Kysely<DB>, projectId: string) {
+  return await db
+    .selectFrom("session")
+    .selectAll()
+    .select((eb) => withStatus(eb))
+    .where("projectId", "=", projectId)
     .execute();
 }
 
@@ -70,3 +88,4 @@ export async function createSession(
 
   return ok(session);
 }
+

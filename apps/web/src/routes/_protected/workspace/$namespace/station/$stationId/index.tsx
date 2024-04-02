@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import CenterLoadingSpinner from "@/components/center-loading-spinner";
+=======
+import { columns } from "@/components/session/columns";
+>>>>>>> 3587a306 (chore: station page & upload session (wip))
 import {
   PageHeader,
   PageHeaderDescription,
@@ -12,7 +16,10 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { DataTable } from "@/components/ui/data-table";
 import { getProjectQueryOpts } from "@/lib/queries/project";
+import { getSessionsByStationQueryOpts } from "@/lib/queries/session";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 
@@ -35,6 +42,12 @@ function Page() {
   const { data: project } = useSuspenseQuery(
     getProjectQueryOpts({ projectId: station.projectId, context }),
   );
+
+  const { data: sessions } = useSuspenseQuery(
+    getSessionsByStationQueryOpts({ stationId: station.id, context }),
+  );
+
+  console.log(sessions);
 
   return (
     <div className="container max-w-screen-2xl">
@@ -87,8 +100,23 @@ function Page() {
       </Breadcrumb>
       <PageHeader>
         <PageHeaderHeading className="">{station.name}</PageHeaderHeading>
-        <PageHeaderDescription></PageHeaderDescription>
+        <PageHeaderDescription>Here you can consult all the session that have been executed at this station</PageHeaderDescription>
       </PageHeader>
+      <div className="grid grid-cols-4 gap-4">
+        <div className="col-span-3">
+          <DataTable columns={columns} data={sessions} />
+        </div>
+        <div className="col-span-1">
+          <Card>
+            <CardHeader>
+              <CardTitle>Pass</CardTitle>
+              <CardDescription>
+                Global Statistics
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }

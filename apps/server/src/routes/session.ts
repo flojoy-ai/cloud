@@ -1,7 +1,11 @@
 import { db } from "../db/kysely";
 import Elysia, { t } from "elysia";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
-import { getSession, getSessions } from "../db/session";
+import { createSession, getSession, getSessionsByUnit, getSessionsByProject, getSessionsByStation } from "../db/session";
+import { insertMeasurement, insertSession, sessionMeasurement } from "@cloud/shared";
+import { AuthMiddleware } from "../middlewares/auth";
+import { createMeasurement } from "../db/measurement";
+import { getStation } from "../db/station";
 
 export const SessionRoute = new Elysia({ prefix: "/session" })
   .use(WorkspaceMiddleware)
@@ -9,9 +13,23 @@ export const SessionRoute = new Elysia({ prefix: "/session" })
   .get(
     "/unit/:unitId",
     async ({ params: { unitId } }) => {
-      return await getSessions(db, unitId);
+      return await getSessionsByUnit(db, unitId);
     },
     { params: t.Object({ unitId: t.String() }) },
+  )
+  .get(
+    "/project/:projectId",
+    async ({ params: { projectId } }) => {
+      return await getSessionsByProject(db, projectId);
+    },
+    { params: t.Object({ projectId: t.String() }) },
+  )
+  .get(
+    "/station/:stationId",
+    async ({ params: { stationId } }) => {
+      return await getSessionsByStation(db, stationId);
+    },
+    { params: t.Object({ stationId: t.String() }) },
   )
   .get(
     "/:sessionId",
@@ -23,4 +41,49 @@ export const SessionRoute = new Elysia({ prefix: "/session" })
       return session;
     },
     { params: t.Object({ sessionId: t.String() }) },
+  ).post(
+    "/",
+    async ({ error, body, user, workspace }) => {
+      const station = await getStation(db, body.stationId);
+      if (station === undefined) {
+        return error(404, "Station not found");
+      }
+      const toInsertSession = {
+        unitId: body.unitId,
+        userId: user.id,
+        projectId: station.projectId,
+        stationId: body.stationId,
+        integrity: body.integrity,
+        aborted: body.aborted,
+        notes: body.notes,
+        commitHash: body.commitHash,
+      };
+      const newSession = await createSession(db, toInsertSession);
+      if (newSession.isErr()) {
+        return error(500, newSession.error);
+      }
+      // Create all the measurements for this session
+      await Promise.all(
+        body.measurements.map((measurement) => createMeasurement(db, workspace.id, {
+          ...measurement,
+          sessionId: newSession.value.id,
+          unitId: body.unitId,
+          projectId: station.projectId,
+          tagNames: []
+        }))
+      );
+      return { ...newSession.value };
+    },
+    {
+      body: t.Object({ 
+        unitId: t.String(),
+        stationId: t.String(),
+        integrity: t.Boolean(),
+        aborted: t.Boolean(),
+        notes: t.Optional(t.String()),
+        commitHash: t.Optional(t.String()),
+        measurements: t.Array(sessionMeasurement), 
+      }),
+    },
   );
+

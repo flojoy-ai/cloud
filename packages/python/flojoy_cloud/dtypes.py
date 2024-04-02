@@ -6,7 +6,7 @@ from typing import Literal, Optional
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
-from flojoy_cloud.measurement import MeasurementType
+from flojoy_cloud.measurement import MeasurementData, MeasurementType
 
 
 class CamelModel(BaseModel):
@@ -113,3 +113,12 @@ class Test(CloudModel):
     name: str
     measurement_type: MeasurementType
     updated_at: Optional[datetime.datetime]
+
+
+class SessionMeasurement(BaseModel):
+    data: MeasurementData
+    test_id: str
+    name: str | None = None
+    passed: bool | None = None
+    created_at: datetime.datetime | None = None
+

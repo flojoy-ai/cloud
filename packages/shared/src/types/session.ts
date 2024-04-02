@@ -14,3 +14,4 @@ export const insertSession = t.Object({
 });
 
 export type InsertSession = Static<typeof insertSession>;
+

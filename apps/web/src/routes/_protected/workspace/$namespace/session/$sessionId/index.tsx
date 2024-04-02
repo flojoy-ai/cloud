@@ -77,6 +77,10 @@ const columns: ColumnDef<Measurement>[] = [
     accessorKey: "testId",
   },
   {
+    header: "Sequence",
+    accessorKey: "sequenceName",
+  },
+  {
     header: "Status",
     accessorKey: "pass",
     cell: (row) => {
