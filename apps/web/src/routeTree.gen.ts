@@ -33,11 +33,11 @@ import { Route as ProtectedWorkspaceNamespaceStationStationIdRouteImport } from 
 import { Route as ProtectedWorkspaceNamespaceProjectProjectIdRouteImport } from './routes/_protected/workspace/$namespace/project/$projectId/route'
 import { Route as ProtectedWorkspaceNamespacePartPartIdRouteImport } from './routes/_protected/workspace/$namespace/part/$partId/route'
 import { Route as ProtectedWorkspaceNamespaceVariationPartVariationIdIndexImport } from './routes/_protected/workspace/$namespace/variation/$partVariationId/index'
+import { Route as ProtectedWorkspaceNamespaceUnitUnitIdIndexImport } from './routes/_protected/workspace/$namespace/unit/$unitId/index'
 import { Route as ProtectedWorkspaceNamespaceStationStationIdIndexImport } from './routes/_protected/workspace/$namespace/station/$stationId/index'
 import { Route as ProtectedWorkspaceNamespaceSessionSessionIdIndexImport } from './routes/_protected/workspace/$namespace/session/$sessionId/index'
 import { Route as ProtectedWorkspaceNamespaceProjectProjectIdIndexImport } from './routes/_protected/workspace/$namespace/project/$projectId/index'
 import { Route as ProtectedWorkspaceNamespacePartPartIdIndexImport } from './routes/_protected/workspace/$namespace/part/$partId/index'
-import { Route as ProtectedWorkspaceNamespaceHardwareHardwareIdIndexImport } from './routes/_protected/workspace/$namespace/hardware/$hardwareId/index'
 
 // Create Virtual Routes
 
@@ -164,6 +164,12 @@ const ProtectedWorkspaceNamespaceVariationPartVariationIdIndexRoute =
       ProtectedWorkspaceNamespaceVariationPartVariationIdRouteRoute,
   } as any)
 
+const ProtectedWorkspaceNamespaceUnitUnitIdIndexRoute =
+  ProtectedWorkspaceNamespaceUnitUnitIdIndexImport.update({
+    path: '/unit/$unitId/',
+    getParentRoute: () => ProtectedWorkspaceNamespaceRouteRoute,
+  } as any)
+
 const ProtectedWorkspaceNamespaceStationStationIdIndexRoute =
   ProtectedWorkspaceNamespaceStationStationIdIndexImport.update({
     path: '/',
@@ -186,12 +192,6 @@ const ProtectedWorkspaceNamespacePartPartIdIndexRoute =
   ProtectedWorkspaceNamespacePartPartIdIndexImport.update({
     path: '/',
     getParentRoute: () => ProtectedWorkspaceNamespacePartPartIdRouteRoute,
-  } as any)
-
-const ProtectedWorkspaceNamespaceHardwareHardwareIdIndexRoute =
-  ProtectedWorkspaceNamespaceHardwareHardwareIdIndexImport.update({
-    path: '/hardware/$hardwareId/',
-    getParentRoute: () => ProtectedWorkspaceNamespaceRouteRoute,
   } as any)
 
 // Populate the FileRoutesByPath interface
@@ -278,10 +278,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceSettingsIndexImport
       parentRoute: typeof ProtectedWorkspaceNamespaceSettingsRouteImport
     }
-    '/_protected/workspace/$namespace/hardware/$hardwareId/': {
-      preLoaderRoute: typeof ProtectedWorkspaceNamespaceHardwareHardwareIdIndexImport
-      parentRoute: typeof ProtectedWorkspaceNamespaceRouteImport
-    }
     '/_protected/workspace/$namespace/part/$partId/': {
       preLoaderRoute: typeof ProtectedWorkspaceNamespacePartPartIdIndexImport
       parentRoute: typeof ProtectedWorkspaceNamespacePartPartIdRouteImport
@@ -297,6 +293,10 @@ declare module '@tanstack/react-router' {
     '/_protected/workspace/$namespace/station/$stationId/': {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceStationStationIdIndexImport
       parentRoute: typeof ProtectedWorkspaceNamespaceStationStationIdRouteImport
+    }
+    '/_protected/workspace/$namespace/unit/$unitId/': {
+      preLoaderRoute: typeof ProtectedWorkspaceNamespaceUnitUnitIdIndexImport
+      parentRoute: typeof ProtectedWorkspaceNamespaceRouteImport
     }
     '/_protected/workspace/$namespace/variation/$partVariationId/': {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceVariationPartVariationIdIndexImport
@@ -333,8 +333,8 @@ export const routeTree = rootRoute.addChildren([
         [ProtectedWorkspaceNamespaceVariationPartVariationIdIndexRoute],
       ),
       ProtectedWorkspaceNamespacePartIndexRoute,
-      ProtectedWorkspaceNamespaceHardwareHardwareIdIndexRoute,
       ProtectedWorkspaceNamespaceSessionSessionIdIndexRoute,
+      ProtectedWorkspaceNamespaceUnitUnitIdIndexRoute,
     ]),
     ProtectedProfileIndexRoute,
     ProtectedWorkspaceIndexRoute,

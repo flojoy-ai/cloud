@@ -14,7 +14,7 @@ import { PartRoute } from "./routes/part";
 import SuperJSON from "superjson";
 import { ProductRoute } from "./routes/product";
 import { PartVariationRoute } from "./routes/part-variation";
-import { HardwareRoute } from "./routes/hardware";
+import { UnitRoute } from "./routes/unit";
 import { StationRoute } from "./routes/station";
 import { AuthEntraRoute } from "./routes/auth/entra";
 import { SessionRoute } from "./routes/session";
@@ -73,7 +73,7 @@ const app = new Elysia()
   .use(PartRoute)
   .use(PartVariationRoute)
   .use(StationRoute)
-  .use(HardwareRoute)
+  .use(UnitRoute)
   .use(SessionRoute)
   .get("/health", () => ({ status: "200" }))
   .listen(env.PORT);

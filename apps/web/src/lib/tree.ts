@@ -1,8 +1,8 @@
 import {
   PartVariationTreeRoot,
   PartVariationTreeNode,
-  HardwareTreeNode,
-  HardwareTreeRoot,
+  UnitTreeNode,
+  UnitTreeRoot,
 } from "@cloud/shared";
 import { Node, Edge } from "reactflow";
 
@@ -53,11 +53,11 @@ export const makePartVariationGraph = (root: PartVariationTreeRoot) => {
   return { nodes, edges };
 };
 
-export const makeHardwareGraph = (root: HardwareTreeRoot) => {
+export const makeUnitGraph = (root: UnitTreeRoot) => {
   const nodes: Node[] = [];
   const edges: Edge[] = [];
 
-  const traverse = (node: HardwareTreeNode): string => {
+  const traverse = (node: UnitTreeNode): string => {
     const duplicates = nodes.filter((n) => n.id.startsWith(node.id)).length;
     const id = duplicates === 0 ? node.id : `${node.id}_${duplicates}`;
     if (node.components.length === 0) {

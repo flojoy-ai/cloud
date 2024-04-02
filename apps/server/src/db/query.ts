@@ -6,7 +6,7 @@ import { Result, errAsync, ok } from "neverthrow";
 
 export async function markUpdatedAt(
   db: Kysely<DB>,
-  table: "project" | "hardware" | "test" | "workspace",
+  table: "project" | "unit" | "test" | "workspace",
   id: string,
 ) {
   await db

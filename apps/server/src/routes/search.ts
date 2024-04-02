@@ -60,10 +60,10 @@ export const SearchRoute = new Elysia({ prefix: "/search" })
         .where(sql<SqlBool>`(name <-> ${query}) < 0.85`)
         .where("workspaceId", "=", workspace.id);
 
-      const hardwareQuery = db
-        .selectFrom("hardware")
+      const unitQuery = db
+        .selectFrom("unit")
         .select(["serialNumber as name", "id"])
-        .select(sql<SearchResult["type"]>`'hardware'`.as("type"))
+        .select(sql<SearchResult["type"]>`'unit'`.as("type"))
         .select(sql<number>`name <-> ${query}`.as("dist"))
         .where(sql<SqlBool>`(name <-> ${query}) < 0.85`)
         .where("workspaceId", "=", workspace.id);
@@ -80,7 +80,7 @@ export const SearchRoute = new Elysia({ prefix: "/search" })
         productQuery,
         partQuery,
         partVariationQuery,
-        hardwareQuery,
+        unitQuery,
         projectQuery,
       ]
         .reduce((q, acc) => acc.unionAll(q))

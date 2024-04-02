@@ -49,7 +49,7 @@ const Highlight = ({ text, pattern }: HighlightProps) => {
 
 const typeIcons = {
   partVariation: Route,
-  hardware: Cpu,
+  unit: Cpu,
   project: FolderKanban,
   product: ShoppingCart,
   part: FolderTree,
@@ -57,7 +57,7 @@ const typeIcons = {
 
 const nameLookup = {
   partVariation: "PartVariation",
-  hardware: "Part Instance",
+  unit: "Part Instance",
   project: "Test Project",
   product: "Product",
   part: "Part Part",
@@ -102,12 +102,12 @@ const SearchResultItem = ({ result, query, workspace }: SearchResultProps) => {
                 projectId: result.id,
               },
             });
-          case "hardware":
+          case "unit":
             return router.navigate({
-              to: `/workspace/$namespace/hardware/$hardwareId`,
+              to: `/workspace/$namespace/unit/$unitId`,
               params: {
                 namespace: workspace.namespace,
-                hardwareId: result.id,
+                unitId: result.id,
               },
             });
         }

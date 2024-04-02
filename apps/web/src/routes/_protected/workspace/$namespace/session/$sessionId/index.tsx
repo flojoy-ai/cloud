@@ -18,7 +18,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { getStationQueryOpts } from "@/lib/queries/station";
 import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace/index";
-import { getHardwareQueryOpts } from "@/lib/queries/hardware";
+import { getUnitQueryOpts } from "@/lib/queries/unit";
 import { DataTable } from "@/components/ui/data-table";
 import { Measurement } from "@cloud/shared/src/schemas/public/Measurement";
 import { ColumnDef } from "@tanstack/react-table";
@@ -44,10 +44,10 @@ export const Route = createFileRoute(
     const station = await context.queryClient.ensureQueryData(
       getStationQueryOpts({ stationId: session.stationId, context }),
     );
-    const hardware = await context.queryClient.ensureQueryData(
-      getHardwareQueryOpts({ hardwareId: session.hardwareId, context }),
+    const unit = await context.queryClient.ensureQueryData(
+      getUnitQueryOpts({ unitId: session.unitId, context }),
     );
-    return { session, station, hardware };
+    return { session, station, unit };
   },
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(
@@ -121,7 +121,7 @@ const computePassingStatus = (measurements: Measurement[]) => {
 
 function Page() {
   const context = Route.useRouteContext();
-  const { workspace, station, hardware, session } = context;
+  const { workspace, station, unit, session } = context;
 
   const { data: project } = useSuspenseQuery(
     getProjectQueryOpts({ projectId: station.projectId, context }),
@@ -188,10 +188,10 @@ function Page() {
           <Link
             className="underline hover:text-muted-foreground"
             from={WorkspaceIndexRoute.fullPath}
-            to="hardware/$hardwareId"
-            params={{ hardwareId: hardware.id }}
+            to="unit/$unitId"
+            params={{ unitId: unit.id }}
           >
-            {hardware.serialNumber}
+            {unit.serialNumber}
           </Link>
         </PageHeaderHeading>
         <PageHeaderDescription>

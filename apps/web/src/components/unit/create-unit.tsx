@@ -36,10 +36,10 @@ import {
 } from "@/components/ui/select";
 import { client } from "@/lib/client";
 import {
-  getHardwaresQueryKey,
-  getHardwaresQueryOpts,
-  getPartVariationHardwareQueryKey,
-} from "@/lib/queries/hardware";
+  getUnitsQueryKey,
+  getUnitsQueryOpts,
+  getPartVariationUnitQueryKey,
+} from "@/lib/queries/unit";
 import {
   getPartVariationQueryOpts,
   getPartVariationsQueryOpts,
@@ -48,7 +48,7 @@ import { handleError } from "@/lib/utils";
 import {
   Workspace,
   PartVariationTreeRoot,
-  insertHardware,
+  insertUnit,
 } from "@cloud/shared";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
 import { Static, Type as t } from "@sinclair/typebox";
@@ -60,9 +60,9 @@ import {
 import { Icons } from "../icons";
 
 const formSchema = t.Composite([
-  t.Omit(insertHardware, ["components"]),
+  t.Omit(insertUnit, ["components"]),
   t.Object({
-    components: t.Array(t.Object({ hardwareId: t.String() })),
+    components: t.Array(t.Object({ unitId: t.String() })),
   }),
 ]);
 
@@ -82,7 +82,7 @@ const getComponentPartVariationIds = (tree: PartVariationTreeRoot) => {
   );
 };
 
-const CreateHardware = ({
+const CreateUnit = ({
   children,
   workspace,
   partVariationId,
@@ -94,24 +94,24 @@ const CreateHardware = ({
   >(undefined);
   const queryClient = useQueryClient();
 
-  const createHardware = useMutation({
-    mutationFn: async (values: Static<typeof insertHardware>) => {
-      const { error } = await client.hardware.index.post(values, {
+  const createUnit = useMutation({
+    mutationFn: async (values: Static<typeof insertUnit>) => {
+      const { error } = await client.unit.index.post(values, {
         headers: { "flojoy-workspace-id": workspace.id },
       });
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: getHardwaresQueryKey() });
+      queryClient.invalidateQueries({ queryKey: getUnitsQueryKey() });
       queryClient.invalidateQueries({
-        queryKey: getPartVariationHardwareQueryKey(partVariationId),
+        queryKey: getPartVariationUnitQueryKey(partVariationId),
       });
       setIsDialogOpen(false);
     },
   });
 
-  const { data: hardware } = useSuspenseQuery(
-    getHardwaresQueryOpts({ onlyAvailable: true, context: { workspace } }),
+  const { data: unit } = useSuspenseQuery(
+    getUnitsQueryOpts({ onlyAvailable: true, context: { workspace } }),
   );
   const { data: partVariations } = useSuspenseQuery(
     getPartVariationsQueryOpts({ context: { workspace } }),
@@ -136,13 +136,13 @@ const CreateHardware = ({
     form.setValue(
       "components",
       devicePartVariations.map(() => ({
-        hardwareId: "",
+        unitId: "",
       })),
     );
     setDevicePartVariations(devicePartVariations);
   }, [partVariationId, form, partVariationTree]);
 
-  if (!hardware) {
+  if (!unit) {
     return (
       <Button variant="default" size="sm" disabled={true}>
         {children}
@@ -152,13 +152,13 @@ const CreateHardware = ({
 
   function onSubmit(values: FormSchema) {
     toast.promise(
-      createHardware.mutateAsync({
+      createUnit.mutateAsync({
         ...values,
-        components: values.components.map((c) => c.hardwareId),
+        components: values.components.map((c) => c.unitId),
       }),
       {
-        loading: "Creating your hardware instance...",
-        success: "Your hardware is ready.",
+        loading: "Creating your unit instance...",
+        success: "Your unit is ready.",
         error: handleError,
       },
     );
@@ -181,9 +181,9 @@ const CreateHardware = ({
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Register new hardware</DialogTitle>
+          <DialogTitle>Register new unit</DialogTitle>
           <DialogDescription>
-            Which hardware of yours do you want to register?
+            Which unit of yours do you want to register?
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -202,7 +202,7 @@ const CreateHardware = ({
                     />
                   </FormControl>
                   <FormDescription>
-                    A unique identifier for this hardware instance.
+                    A unique identifier for this unit instance.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -236,7 +236,7 @@ const CreateHardware = ({
                           <FormField
                             control={form.control}
                             key={`${part}-${index}`}
-                            name={`components.${index}.hardwareId` as const}
+                            name={`components.${index}.unitId` as const}
                             render={({ field }) => (
                               <FormItem className="flex items-center gap-2">
                                 <FormControl>
@@ -248,7 +248,7 @@ const CreateHardware = ({
                                       <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                      {hardware
+                                      {unit
                                         .filter(
                                           (hw) => hw.partVariationId === part,
                                         )
@@ -287,4 +287,4 @@ const CreateHardware = ({
   );
 };
 
-export default CreateHardware;
+export default CreateUnit;

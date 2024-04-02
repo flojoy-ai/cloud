@@ -1,4 +1,4 @@
-import CreateHardware from "@/components/hardware/create-hardware";
+import CreateUnit from "@/components/unit/create-unit";
 import {
   PageHeader,
   PageHeaderDescription,
@@ -17,8 +17,8 @@ import { DataTable } from "@/components/ui/data-table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PartVariationTreeVisualization } from "@/components/visualization/tree-visualization";
 import { getPartQueryOpts } from "@/lib/queries/part";
-import { getPartVariationHardwareQueryOpts } from "@/lib/queries/hardware";
-import { HardwareWithParent } from "@cloud/shared";
+import { getPartVariationUnitQueryOpts } from "@/lib/queries/unit";
+import { UnitWithParent } from "@cloud/shared";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute, useRouter } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
@@ -34,7 +34,7 @@ export const Route = createFileRoute(
   pendingComponent: CenterLoadingSpinner,
   loader: ({ context, params: { partVariationId } }) => {
     context.queryClient.ensureQueryData(
-      getPartVariationHardwareQueryOpts({ partVariationId, context }),
+      getPartVariationUnitQueryOpts({ partVariationId, context }),
     );
     context.queryClient.ensureQueryData(
       getPartQueryOpts({ partId: context.partVariation.partId, context }),
@@ -42,7 +42,7 @@ export const Route = createFileRoute(
   },
 });
 
-const hardwareColumns: ColumnDef<HardwareWithParent>[] = [
+const unitColumns: ColumnDef<UnitWithParent>[] = [
   {
     accessorKey: "name",
     header: "Serial Number",
@@ -65,8 +65,8 @@ const hardwareColumns: ColumnDef<HardwareWithParent>[] = [
       return (
         <Link
           from={"/workspace/$namespace/variation/$partVariationId"}
-          to={"/workspace/$namespace/hardware/$hardwareId"}
-          params={{ hardwareId: row.original.id }}
+          to={"/workspace/$namespace/unit/$unitId"}
+          params={{ unitId: row.original.id }}
         >
           <ArrowRight />
         </Link>
@@ -76,7 +76,7 @@ const hardwareColumns: ColumnDef<HardwareWithParent>[] = [
   // {
   //   id: "actions",
   //   header: "Actions",
-  //   cell: HardwareActions,
+  //   cell: UnitActions,
   // },
 ];
 
@@ -85,8 +85,8 @@ function PartVariationPage() {
   const { partVariationId } = Route.useParams();
   const router = useRouter();
 
-  const { data: hardware } = useSuspenseQuery(
-    getPartVariationHardwareQueryOpts({
+  const { data: unit } = useSuspenseQuery(
+    getPartVariationUnitQueryOpts({
       partVariationId,
       context: { workspace },
     }),
@@ -148,24 +148,24 @@ function PartVariationPage() {
         </PageHeaderDescription>
       </PageHeader>
       <div className="py-4" />
-      <CreateHardware workspace={workspace} partVariationId={partVariation.id}>
+      <CreateUnit workspace={workspace} partVariationId={partVariation.id}>
         <div className="flex items-center gap-1">
           <Plus size={20} />
           <div>Create</div>
         </div>
-      </CreateHardware>
+      </CreateUnit>
       <div className="py-2" />
       <h1 className="text-xl font-bold">Instances</h1>
       <div className="py-2" />
       <div className="flex gap-x-8">
         <div className="w-3/5">
-          {hardware.length === 0 ? (
+          {unit.length === 0 ? (
             <div className="text-muted-foreground">
-              No hardware found for this partVariation, go register one!
+              No unit found for this partVariation, go register one!
             </div>
           ) : (
             <ScrollArea className="h-[379px]">
-              <DataTable columns={hardwareColumns} data={hardware} />
+              <DataTable columns={unitColumns} data={unit} />
             </ScrollArea>
           )}
         </div>

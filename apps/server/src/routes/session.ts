@@ -5,13 +5,13 @@ import { getSession, getSessions } from "../db/session";
 
 export const SessionRoute = new Elysia({ prefix: "/session" })
   .use(WorkspaceMiddleware)
-  // Get all test sessions for a hardware instance
+  // Get all test sessions for a unit instance
   .get(
-    "/hardware/:hardwareId",
-    async ({ params: { hardwareId } }) => {
-      return await getSessions(db, hardwareId);
+    "/unit/:unitId",
+    async ({ params: { unitId } }) => {
+      return await getSessions(db, unitId);
     },
-    { params: t.Object({ hardwareId: t.String() }) },
+    { params: t.Object({ unitId: t.String() }) },
   )
   .get(
     "/:sessionId",

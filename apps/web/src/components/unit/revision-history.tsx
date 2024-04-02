@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Cpu, History, MinusCircle, PlusCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { HardwareRevision, RevisionType } from "@cloud/shared";
+import { UnitRevision, RevisionType } from "@cloud/shared";
 
 const iconMap: Record<RevisionType, JSX.Element> = {
   add: <PlusCircle size={20} className="stroke-green-500/60" />,
@@ -22,7 +22,7 @@ const iconMap: Record<RevisionType, JSX.Element> = {
 };
 
 type Props = {
-  revisions: HardwareRevision[];
+  revisions: UnitRevision[];
 };
 
 const RevisionHistory = ({ revisions }: Props) => {
@@ -44,7 +44,7 @@ const RevisionHistory = ({ revisions }: Props) => {
         <DialogHeader>
           <DialogTitle>Revision history</DialogTitle>
           <DialogDescription>
-            See the history of the components of this hardware device.
+            See the history of the components of this unit device.
           </DialogDescription>
         </DialogHeader>
 

@@ -1,4 +1,4 @@
-import CreatePartVariation from "@/components/hardware/create-part-variation";
+import CreatePartVariation from "@/components/unit/create-part-variation";
 import { Icons } from "@/components/icons";
 import {
   PageHeader,
@@ -43,7 +43,7 @@ export const Route = createFileRoute(
 });
 
 const partVariationColumns: ColumnDef<
-  PartVariation & { hardwareCount: number }
+  PartVariation & { unitCount: number }
 >[] = [
   {
     accessorKey: "name",
@@ -57,10 +57,10 @@ const partVariationColumns: ColumnDef<
     header: "Description",
   },
   {
-    accessorKey: "hardwareCount",
+    accessorKey: "unitCount",
     header: "Number of units",
     cell: ({ row }) => {
-      return <div className="font-bold">{row.original.hardwareCount}</div>;
+      return <div className="font-bold">{row.original.unitCount}</div>;
     },
   },
   {

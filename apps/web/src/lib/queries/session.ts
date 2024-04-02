@@ -4,23 +4,23 @@ import { client } from "../client";
 import { Workspace } from "@cloud/shared";
 
 type GetSessionsParams = {
-  hardwareId: string;
+  unitId: string;
   context: {
     workspace: Workspace;
   };
 };
 
 export function getSessionsQueryOpts({
-  hardwareId,
+  unitId,
   context,
 }: GetSessionsParams) {
   return queryOptions({
     queryFn: async () => {
-      const hardwareQuery = await client.session.hardware({ hardwareId }).get({
+      const unitQuery = await client.session.unit({ unitId }).get({
         headers: { "flojoy-workspace-id": context.workspace.id },
       });
-      if (hardwareQuery.error) throw hardwareQuery.error;
-      return hardwareQuery.data;
+      if (unitQuery.error) throw unitQuery.error;
+      return unitQuery.data;
     },
     queryKey: ["session"],
   });

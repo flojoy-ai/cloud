@@ -4,8 +4,8 @@ export async function up(db: Kysely<unknown>): Promise<void> {
   await db.schema
     .createTable("session")
     .addColumn("id", "text", (col) => col.primaryKey())
-    .addColumn("hardware_id", "text", (col) =>
-      col.notNull().references("hardware.id").onDelete("cascade"),
+    .addColumn("unit_id", "text", (col) =>
+      col.notNull().references("unit.id").onDelete("cascade"),
     )
     .addColumn(
       "user_id",

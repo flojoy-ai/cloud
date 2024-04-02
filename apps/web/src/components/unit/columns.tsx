@@ -23,7 +23,7 @@ import { type ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 // import { useState } from "react";
 // import { handleError } from "@/lib/utils";
-import { Project, PartVariation, Hardware, Part } from "@cloud/shared";
+import { Project, PartVariation, Unit, Part } from "@cloud/shared";
 
 // type ActionsProps = {
 //   elem: { id: string };
@@ -57,8 +57,8 @@ import { Project, PartVariation, Hardware, Part } from "@cloud/shared";
 //   );
 // };
 
-export const hardwareColumns: ColumnDef<
-  Hardware & { projects: Project[]; partVariation: PartVariation }
+export const unitColumns: ColumnDef<
+  Unit & { projects: Project[]; partVariation: PartVariation }
 >[] = [
   {
     accessorKey: "name",
@@ -119,17 +119,17 @@ export const hardwareColumns: ColumnDef<
   {
     id: "actions",
     header: "Actions",
-    // cell: HardwareActions,
+    // cell: UnitActions,
   },
 ];
 
-// function HardwareActions({
+// function UnitActions({
 //   row,
 // }: {
-//   row: Row<Hardware & { projects: Project[]; partVariation: PartVariation }>;
+//   row: Row<Unit & { projects: Project[]; partVariation: PartVariation }>;
 // }) {
 //   const [isOpen, setIsOpen] = useState(false);
-//   const deleteHardware = api.hardware.deleteHardware.useMutation();
+//   const deleteUnit = api.unit.deleteUnit.useMutation();
 //   const utils = api.useUtils();
 //   return (
 //     <>
@@ -150,13 +150,13 @@ export const hardwareColumns: ColumnDef<
 //             <AlertDialogAction
 //               onClick={() =>
 //                 toast.promise(
-//                   deleteHardware.mutateAsync(
+//                   deleteUnit.mutateAsync(
 //                     {
-//                       hardwareId: row.original.id,
+//                       unitId: row.original.id,
 //                     },
 //                     {
 //                       onSuccess: () => {
-//                         void utils.hardware.getAllHardware.invalidate();
+//                         void utils.unit.getAllUnit.invalidate();
 //                       },
 //                     },
 //                   ),
@@ -206,7 +206,7 @@ export const hardwareColumns: ColumnDef<
 //             partVariation and remove your data from our servers. <br /> This partVariation can
 //             only be deleted if there are:
 //             <ul className="list-inside list-disc">
-//               <li>no hardware instances of this partVariation. </li>
+//               <li>no unit instances of this partVariation. </li>
 //               <li>no projects using this partVariation.</li>
 //               <li>no system partVariations using this device partVariation. </li>
 //             </ul>

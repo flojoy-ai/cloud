@@ -3,7 +3,7 @@ import { t, Static } from "elysia";
 export type { Session } from "../schemas/public/Session";
 
 export const insertSession = t.Object({
-  hardwareId: t.String(),
+  unitId: t.String(),
   userId: t.Optional(t.String()), // TODO: Remove the optional?
   projectId: t.String(),
   stationId: t.String(),

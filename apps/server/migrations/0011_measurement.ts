@@ -12,8 +12,8 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .addColumn("name", "text", (col) => col.notNull())
     .addColumn("data", "jsonb", (col) => col.notNull())
     .addColumn("pass", "boolean")
-    .addColumn("hardware_id", "text", (col) =>
-      col.notNull().references("hardware.id").onDelete("cascade"),
+    .addColumn("unit_id", "text", (col) =>
+      col.notNull().references("unit.id").onDelete("cascade"),
     )
     .addColumn("test_id", "text", (col) =>
       col.notNull().references("test.id").onDelete("cascade"),
@@ -43,10 +43,10 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .execute();
 
   await db.schema
-    .createIndex("measurement_hardware_id_index")
+    .createIndex("measurement_unit_id_index")
     .ifNotExists()
     .on("measurement")
-    .column("hardware_id")
+    .column("unit_id")
     .execute();
 
   await db.schema

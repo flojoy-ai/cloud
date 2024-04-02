@@ -37,38 +37,38 @@ import { typeboxResolver } from "@hookform/resolvers/typebox";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { client } from "@/lib/client";
 import {
-  getHardwareQueryKey,
-  getHardwaresQueryOpts,
-} from "@/lib/queries/hardware";
+  getUnitQueryKey,
+  getUnitsQueryOpts,
+} from "@/lib/queries/unit";
 import {
   Workspace,
-  HardwareTreeRoot,
-  SwapHardwareComponent,
-  swapHardwareComponent,
+  UnitTreeRoot,
+  SwapUnitComponent,
+  swapUnitComponent,
 } from "@cloud/shared";
 
-type FormSchema = SwapHardwareComponent;
+type FormSchema = SwapUnitComponent;
 
 type Props = {
   workspace: Workspace;
-  hardware: HardwareTreeRoot;
+  unit: UnitTreeRoot;
 };
 
-const SwapHardware = ({ workspace, hardware }: Props) => {
+const SwapUnit = ({ workspace, unit }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const queryClient = useQueryClient();
 
   const form = useForm<FormSchema>({
-    resolver: typeboxResolver(swapHardwareComponent),
+    resolver: typeboxResolver(swapUnitComponent),
     defaultValues: {
-      hardwareId: hardware.id,
+      unitId: unit.id,
     },
   });
 
-  const swapHardware = useMutation({
+  const swapUnit = useMutation({
     mutationFn: async (values: FormSchema) => {
       const { error } = await client
-        .hardware({ hardwareId: hardware.id })
+        .unit({ unitId: unit.id })
         .index.patch(values, {
           headers: { "flojoy-workspace-id": workspace.id },
         });
@@ -77,37 +77,37 @@ const SwapHardware = ({ workspace, hardware }: Props) => {
     onSuccess: () => {
       setIsDialogOpen(false);
       queryClient.invalidateQueries({
-        queryKey: getHardwareQueryKey(hardware.id),
+        queryKey: getUnitQueryKey(unit.id),
       });
     },
   });
 
-  const { data: availableHardware } = useQuery(
-    getHardwaresQueryOpts({ onlyAvailable: true, context: { workspace } }),
+  const { data: availableUnit } = useQuery(
+    getUnitsQueryOpts({ onlyAvailable: true, context: { workspace } }),
   );
 
   function onSubmit(values: FormSchema) {
-    toast.promise(swapHardware.mutateAsync(values), {
-      loading: "Creating hardware revision...",
+    toast.promise(swapUnit.mutateAsync(values), {
+      loading: "Creating unit revision...",
       success: "Revision created.",
       error: (err) => `${err}`,
     });
   }
 
   // Devices can't have revisions if they don't have components
-  if (hardware.components.length === 0) {
+  if (unit.components.length === 0) {
     return null;
   }
 
-  const selectedComponent = form.watch("oldHardwareComponentId");
-  const selectedPartVariation = hardware.components.find(
+  const selectedComponent = form.watch("oldUnitComponentId");
+  const selectedPartVariation = unit.components.find(
     (c) => c.id === selectedComponent,
   )?.partVariationId;
   const swappable = selectedPartVariation
-    ? availableHardware?.filter(
+    ? availableUnit?.filter(
         (h) => h.partVariationId === selectedPartVariation,
       )
-    : availableHardware;
+    : availableUnit;
 
   return (
     <Dialog
@@ -126,14 +126,14 @@ const SwapHardware = ({ workspace, hardware }: Props) => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Create a hardware revision</DialogTitle>
+          <DialogTitle>Create a unit revision</DialogTitle>
           <DialogDescription>Swap components out.</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
             <FormField
               control={form.control}
-              name="oldHardwareComponentId"
+              name="oldUnitComponentId"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Old Component</FormLabel>
@@ -143,7 +143,7 @@ const SwapHardware = ({ workspace, hardware }: Props) => {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {hardware.components.map((child) => (
+                        {unit.components.map((child) => (
                           <SelectItem value={child.id} key={child.id}>
                             {child.serialNumber}
                           </SelectItem>
@@ -161,7 +161,7 @@ const SwapHardware = ({ workspace, hardware }: Props) => {
 
             <FormField
               control={form.control}
-              name="newHardwareComponentId"
+              name="newUnitComponentId"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>New Component</FormLabel>
@@ -223,4 +223,4 @@ const SwapHardware = ({ workspace, hardware }: Props) => {
   );
 };
 
-export default SwapHardware;
+export default SwapUnit;

@@ -4,12 +4,12 @@ import { Result, err, ok } from "neverthrow";
 import { DB, InsertSession, Session } from "@cloud/shared";
 import { jsonArrayFrom } from "kysely/helpers/postgres";
 
-export async function getSessions(db: Kysely<DB>, hardwareId: string) {
+export async function getSessions(db: Kysely<DB>, unitId: string) {
   return await db
     .selectFrom("session")
     .selectAll()
     .select((eb) => withStatus(eb))
-    .where("hardwareId", "=", hardwareId)
+    .where("unitId", "=", unitId)
     .execute();
 }
 

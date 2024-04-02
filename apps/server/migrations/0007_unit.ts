@@ -2,7 +2,7 @@ import { type Kysely, sql } from "kysely";
 
 export async function up(db: Kysely<unknown>): Promise<void> {
   await db.schema
-    .createTable("hardware")
+    .createTable("unit")
     .addColumn("id", "text", (col) => col.primaryKey())
     .addColumn("workspace_id", "text", (col) =>
       col.notNull().references("workspace.id").onDelete("cascade"),
@@ -18,49 +18,46 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .addColumn("updated_at", "timestamptz", (col) =>
       col.defaultTo(sql`now()`).notNull(),
     )
-    .addUniqueConstraint("hardware_serial_number_part_variation_id_unique", [
+    .addUniqueConstraint("unit_serial_number_part_variation_id_unique", [
       "serial_number",
       "part_variation_id",
     ])
     .execute();
 
   await db.schema
-    .createIndex("hardware_serial_number_index")
-    .on("hardware")
+    .createIndex("unit_serial_number_index")
+    .on("unit")
     .column("serial_number")
     .execute();
 
   await db.schema
-    .createTable("hardware_relation")
-    .addColumn("parent_hardware_id", "text", (col) =>
-      col.notNull().references("hardware.id").onDelete("cascade"),
+    .createTable("unit_relation")
+    .addColumn("parent_unit_id", "text", (col) =>
+      col.notNull().references("unit.id").onDelete("cascade"),
     )
-    .addColumn("child_hardware_id", "text", (col) =>
-      col.notNull().references("hardware.id").onDelete("restrict"),
+    .addColumn("child_unit_id", "text", (col) =>
+      col.notNull().references("unit.id").onDelete("restrict"),
     )
-    .addPrimaryKeyConstraint("hardware_relation_pk", [
-      "parent_hardware_id",
-      "child_hardware_id",
+    .addPrimaryKeyConstraint("unit_relation_pk", [
+      "parent_unit_id",
+      "child_unit_id",
     ])
     .execute();
 
   await db.schema
-    .createTable("project_hardware")
+    .createTable("project_unit")
     .addColumn("project_id", "text", (col) =>
       col.notNull().references("project.id").onDelete("cascade"),
     )
-    .addColumn("hardware_id", "text", (col) =>
-      col.notNull().references("hardware.id").onDelete("cascade"),
+    .addColumn("unit_id", "text", (col) =>
+      col.notNull().references("unit.id").onDelete("cascade"),
     )
-    .addPrimaryKeyConstraint("project_hardware_pk", [
-      "project_id",
-      "hardware_id",
-    ])
+    .addPrimaryKeyConstraint("project_unit_pk", ["project_id", "unit_id"])
     .execute();
 }
 
 export async function down(db: Kysely<unknown>): Promise<void> {
-  await db.schema.dropTable("hardware_relation").execute();
-  await db.schema.dropTable("project_hardware").execute();
-  await db.schema.dropTable("hardware").execute();
+  await db.schema.dropTable("unit_relation").execute();
+  await db.schema.dropTable("project_unit").execute();
+  await db.schema.dropTable("unit").execute();
 }

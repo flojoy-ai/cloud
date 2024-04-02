@@ -47,7 +47,7 @@ export async function createMeasurement(
   }
 
   await markUpdatedAt(db, "test", input.testId);
-  await markUpdatedAt(db, "hardware", input.hardwareId);
+  await markUpdatedAt(db, "unit", input.unitId);
 
   return res;
 }

@@ -36,7 +36,7 @@ const perform = async (z: ZObject, bundle: Bundle<MeasurementInputData>) => {
     },
     params: {},
     body: {
-      hardwareId: bundle.inputData.hardwareId,
+      unitId: bundle.inputData.unitId,
       testId: bundle.inputData.testId,
       name: bundle.inputData.name,
       data: {

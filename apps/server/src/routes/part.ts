@@ -12,14 +12,14 @@ export const PartRoute = new Elysia({ prefix: "/part" })
       .selectAll("part")
       .where("part.workspaceId", "=", workspace.id)
       .leftJoin("part_variation", "part_variation.partId", "part.id")
-      .leftJoin("hardware", "part_variation.id", "hardware.partVariationId")
+      .leftJoin("unit", "part_variation.id", "unit.partVariationId")
       .select(({ fn }) =>
         fn
           .count<number>("part_variation.id")
           .distinct()
           .as("partVariationCount"),
       )
-      .select(({ fn }) => fn.count<number>("hardware.id").as("hardwareCount"))
+      .select(({ fn }) => fn.count<number>("unit.id").as("unitCount"))
       .groupBy("part.id")
       .execute();
     return families;
@@ -53,12 +53,12 @@ export const PartRoute = new Elysia({ prefix: "/part" })
             .where("part_variation.workspaceId", "=", workspace.id)
             .where("part_variation.partId", "=", partId)
             .leftJoin(
-              "hardware",
+              "unit",
               "part_variation.id",
-              "hardware.partVariationId",
+              "unit.partVariationId",
             )
             .select(({ fn }) =>
-              fn.count<number>("hardware.id").as("hardwareCount"),
+              fn.count<number>("unit.id").as("unitCount"),
             )
             .groupBy("part_variation.id")
             .execute();

@@ -5,12 +5,12 @@ import { type WorkspaceId } from './Workspace';
 import { type PartVariationId } from './PartVariation';
 import { type ColumnType, type Selectable, type Insertable, type Updateable } from 'kysely';
 
-export type HardwareId = string;
+export type UnitId = string;
 
-/** Represents the table public.hardware */
-export default interface HardwareTable {
+/** Represents the table public.unit */
+export default interface UnitTable {
   /** Database type: pg_catalog.text */
-  id: ColumnType<HardwareId, HardwareId, HardwareId>;
+  id: ColumnType<UnitId, UnitId, UnitId>;
 
   /** Database type: pg_catalog.text */
   workspaceId: ColumnType<WorkspaceId, WorkspaceId, WorkspaceId>;
@@ -31,8 +31,8 @@ export default interface HardwareTable {
   updatedAt: ColumnType<Date, Date | string | undefined, Date | string>;
 }
 
-export type Hardware = Selectable<HardwareTable>;
+export type Unit = Selectable<UnitTable>;
 
-export type NewHardware = Insertable<HardwareTable>;
+export type NewUnit = Insertable<UnitTable>;
 
-export type HardwareUpdate = Updateable<HardwareTable>;
+export type UnitUpdate = Updateable<UnitTable>;

@@ -10,7 +10,7 @@ export const searchResultTypes = [
   "product",
   "part",
   "partVariation",
-  "hardware",
+  "unit",
   "project",
 ] as const;
 

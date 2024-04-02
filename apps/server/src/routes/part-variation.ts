@@ -15,8 +15,8 @@ export const PartVariationRoute = new Elysia({ prefix: "/partVariation" })
       .selectFrom("part_variation")
       .selectAll("part_variation")
       .where("part_variation.workspaceId", "=", workspace.id)
-      .leftJoin("hardware", "part_variation.id", "hardware.partVariationId")
-      .select(({ fn }) => fn.count<number>("hardware.id").as("hardwareCount"))
+      .leftJoin("unit", "part_variation.id", "unit.partVariationId")
+      .select(({ fn }) => fn.count<number>("unit.id").as("unitCount"))
       .groupBy("part_variation.id")
       .execute();
 
@@ -55,22 +55,22 @@ export const PartVariationRoute = new Elysia({ prefix: "/partVariation" })
         },
       )
       .get(
-        "/hardware",
+        "/unit",
         async ({ workspace, params: { partVariationId } }) => {
           const partVariations = await db
-            .selectFrom("hardware")
-            .selectAll("hardware")
-            .where("hardware.workspaceId", "=", workspace.id)
-            .where("hardware.partVariationId", "=", partVariationId)
+            .selectFrom("unit")
+            .selectAll("unit")
+            .where("unit.workspaceId", "=", workspace.id)
+            .where("unit.partVariationId", "=", partVariationId)
             .leftJoin(
-              "hardware_relation",
-              "hardware.id",
-              "hardware_relation.childHardwareId",
+              "unit_relation",
+              "unit.id",
+              "unit_relation.childUnitId",
             )
             .select((eb) =>
               jsonObjectFrom(
                 eb
-                  .selectFrom("hardware as h")
+                  .selectFrom("unit as h")
                   .selectAll("h")
                   .select((eb) =>
                     jsonObjectFrom(
@@ -85,7 +85,7 @@ export const PartVariationRoute = new Elysia({ prefix: "/partVariation" })
                     ).as("partVariation"),
                   )
                   .$narrowType<{ partVariation: PartVariation }>()
-                  .whereRef("h.id", "=", "hardware_relation.parentHardwareId"),
+                  .whereRef("h.id", "=", "unit_relation.parentUnitId"),
               ).as("parent"),
             )
             .execute();

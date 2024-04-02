@@ -98,9 +98,9 @@ const CreatePart = ({ workspaceId, products }: Props) => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Register a new hardware part</DialogTitle>
+          <DialogTitle>Register a new unit part</DialogTitle>
           <DialogDescription>
-            What part of hardware partVariations are you working on?
+            What part of unit partVariations are you working on?
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>

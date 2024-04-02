@@ -68,7 +68,7 @@ function Page() {
         <PageHeaderHeading className="">Production Lines</PageHeaderHeading>
         <PageHeaderDescription>
           A production line groups a set of test stations that run tests on a
-          specific hardware partVariation.
+          specific unit partVariation.
         </PageHeaderDescription>
       </PageHeader>
       <div className="py-4"></div>

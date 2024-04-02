@@ -59,7 +59,7 @@ export const measurementData = t.Union([
 export type MeasurementData = Static<typeof measurementData>;
 
 export const insertMeasurement = t.Object({
-  hardwareId: t.String(),
+  unitId: t.String(),
   testId: t.String(),
   sessionId: t.Optional(t.String()),
   sequenceName: t.Optional(t.String()),

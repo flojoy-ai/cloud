@@ -10,8 +10,8 @@ import ReactFlow, {
 import dagre from "@dagrejs/dagre";
 
 import "reactflow/dist/style.css";
-import { makeHardwareGraph, makePartVariationGraph } from "@/lib/tree";
-import { HardwareTreeRoot, PartVariationTreeRoot } from "@cloud/shared";
+import { makeUnitGraph, makePartVariationGraph } from "@/lib/tree";
+import { UnitTreeRoot, PartVariationTreeRoot } from "@cloud/shared";
 
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
@@ -106,14 +106,14 @@ export const PartVariationTreeVisualization = ({
   return <TreeVisualization nodes={nodes} edges={edges} />;
 };
 
-type HardwareTreeVisualizationProps = {
-  tree: HardwareTreeRoot;
+type UnitTreeVisualizationProps = {
+  tree: UnitTreeRoot;
 };
 
-export const HardwareTreeVisualization = ({
+export const UnitTreeVisualization = ({
   tree,
-}: HardwareTreeVisualizationProps) => {
-  const { nodes, edges } = useMemo(() => makeHardwareGraph(tree), [tree]);
+}: UnitTreeVisualizationProps) => {
+  const { nodes, edges } = useMemo(() => makeUnitGraph(tree), [tree]);
 
   return <TreeVisualization nodes={nodes} edges={edges} />;
 };

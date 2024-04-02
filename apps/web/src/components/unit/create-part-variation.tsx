@@ -146,9 +146,9 @@ const CreatePartVariation = ({ workspaceId, partVariations, part }: Props) => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Register a new hardware partVariation</DialogTitle>
+          <DialogTitle>Register a new unit partVariation</DialogTitle>
           <DialogDescription>
-            What is the hardware partVariation you are working with?
+            What is the unit partVariation you are working with?
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -194,7 +194,7 @@ const CreatePartVariation = ({ workspaceId, partVariations, part }: Props) => {
               name="type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Hardware PartVariation Type</FormLabel>
+                  <FormLabel>Unit PartVariation Type</FormLabel>
                   <FormControl>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger className="w-[180px]">
@@ -207,7 +207,7 @@ const CreatePartVariation = ({ workspaceId, partVariations, part }: Props) => {
                     </Select>
                   </FormControl>
                   <FormDescription>
-                    A <b>device</b> is a standalone hardware device made up of
+                    A <b>device</b> is a standalone unit device made up of
                     just itself. A <b>system</b> is a set of interconnected{" "}
                     <b>devices</b> together.
                   </FormDescription>

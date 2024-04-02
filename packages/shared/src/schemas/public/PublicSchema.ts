@@ -16,16 +16,16 @@ import { type default as PartTable } from './Part';
 import { type default as PartVariationTable } from './PartVariation';
 import { type default as PartVariationRelationTable } from './PartVariationRelation';
 import { type default as ProjectTable } from './Project';
-import { type default as HardwareTable } from './Hardware';
-import { type default as HardwareRelationTable } from './HardwareRelation';
-import { type default as ProjectHardwareTable } from './ProjectHardware';
+import { type default as UnitTable } from './Unit';
+import { type default as UnitRelationTable } from './UnitRelation';
+import { type default as ProjectUnitTable } from './ProjectUnit';
 import { type default as TestTable } from './Test';
 import { type default as StationTable } from './Station';
 import { type default as SessionTable } from './Session';
 import { type default as MeasurementTable } from './Measurement';
 import { type default as TagTable } from './Tag';
 import { type default as MeasurementTagTable } from './MeasurementTag';
-import { type default as HardwareRevisionTable } from './HardwareRevision';
+import { type default as UnitRevisionTable } from './UnitRevision';
 import { type default as SecretTable } from './Secret';
 
 export default interface PublicSchema {
@@ -59,11 +59,11 @@ export default interface PublicSchema {
 
   project: ProjectTable;
 
-  hardware: HardwareTable;
+  unit: UnitTable;
 
-  hardware_relation: HardwareRelationTable;
+  unit_relation: UnitRelationTable;
 
-  project_hardware: ProjectHardwareTable;
+  project_unit: ProjectUnitTable;
 
   test: TestTable;
 
@@ -77,7 +77,7 @@ export default interface PublicSchema {
 
   measurement_tag: MeasurementTagTable;
 
-  hardware_revision: HardwareRevisionTable;
+  unit_revision: UnitRevisionTable;
 
   secret: SecretTable;
 }

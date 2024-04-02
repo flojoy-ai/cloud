@@ -101,27 +101,27 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
     ).safeUnwrap();
 
     const insertDevices = _.times(9, (i) => ({
-      id: generateDatabaseId("hardware"),
+      id: generateDatabaseId("unit"),
       serialNumber: `SN000${i + 1}`,
       partVariationId: devicePartVariation1.id,
       workspaceId,
     }));
 
-    const hardwares = await db
-      .insertInto("hardware")
+    const units = await db
+      .insertInto("unit")
       .values([...insertDevices])
       .returningAll()
       .execute();
 
-    if (!hardwares) {
-      return err("Failed to create hardware devices");
+    if (!units) {
+      return err("Failed to create unit devices");
     }
 
     await db
-      .insertInto("project_hardware")
+      .insertInto("project_unit")
       .values(
-        hardwares.map((hw) => ({
-          hardwareId: hw.id,
+        units.map((hw) => ({
+          unitId: hw.id,
           projectId: deviceProject.id,
         })),
       )
@@ -134,12 +134,12 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
       })
     ).safeUnwrap();
 
-    for (let i = 0; i < hardwares.length; i++) {
-      const hardware = hardwares[i]!;
+    for (let i = 0; i < units.length; i++) {
+      const unit = units[i]!;
 
       const session = yield* (
         await createSession(db, {
-          hardwareId: hardware.id,
+          unitId: unit.id,
           projectId: deviceProject.id,
           stationId: station.id,
           notes: "This is a test session",
@@ -152,7 +152,7 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
       yield* (
         await createMeasurement(db, workspaceId, {
           name: "Did Light Up",
-          hardwareId: hardware.id,
+          unitId: unit.id,
           testId: booleanTest.id,
           projectId: deviceProject.id,
           sessionId: session.id,
@@ -165,7 +165,7 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
       yield* (
         await createMeasurement(db, workspaceId, {
           name: "Data Point",
-          hardwareId: hardware.id,
+          unitId: unit.id,
           testId: dataframeTest.id,
           projectId: deviceProject.id,
           sessionId: session.id,

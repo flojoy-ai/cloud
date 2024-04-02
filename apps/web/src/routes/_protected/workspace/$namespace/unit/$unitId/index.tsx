@@ -1,5 +1,5 @@
-import RevisionHistory from "@/components/hardware/revision-history";
-import SwapHardware from "@/components/hardware/swap-hardware";
+import RevisionHistory from "@/components/unit/revision-history";
+import SwapUnit from "@/components/unit/swap-unit";
 import {
   PageHeader,
   PageHeaderDescription,
@@ -15,12 +15,12 @@ import {
 } from "@/components/ui/breadcrumb";
 import { DataTable } from "@/components/ui/data-table";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { HardwareTreeVisualization } from "@/components/visualization/tree-visualization";
+import { UnitTreeVisualization } from "@/components/visualization/tree-visualization";
 import { getPartQueryOpts } from "@/lib/queries/part";
 import {
-  getHardwareQueryOpts,
-  getHardwareRevisionsQueryOpts,
-} from "@/lib/queries/hardware";
+  getUnitQueryOpts,
+  getUnitRevisionsQueryOpts,
+} from "@/lib/queries/unit";
 import { getPartVariationQueryOpts } from "@/lib/queries/part-variation";
 import { getSessionsQueryOpts } from "@/lib/queries/session";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -33,29 +33,29 @@ import { Session } from "@cloud/shared/src/schemas/public/Session";
 import CenterLoadingSpinner from "@/components/center-loading-spinner";
 
 export const Route = createFileRoute(
-  "/_protected/workspace/$namespace/hardware/$hardwareId/",
+  "/_protected/workspace/$namespace/unit/$unitId/",
 )({
-  component: HardwarePage,
+  component: UnitPage,
 
   pendingComponent: CenterLoadingSpinner,
-  beforeLoad: async ({ context, params: { hardwareId } }) => {
-    const hardware = await context.queryClient.ensureQueryData(
-      getHardwareQueryOpts({ hardwareId, context }),
+  beforeLoad: async ({ context, params: { unitId } }) => {
+    const unit = await context.queryClient.ensureQueryData(
+      getUnitQueryOpts({ unitId, context }),
     );
     const partVariation = await context.queryClient.ensureQueryData(
       getPartVariationQueryOpts({
-        partVariationId: hardware.partVariationId,
+        partVariationId: unit.partVariationId,
         context,
       }),
     );
-    return { hardware, partVariation };
+    return { unit, partVariation };
   },
-  loader: async ({ context, params: { hardwareId } }) => {
+  loader: async ({ context, params: { unitId } }) => {
     context.queryClient.ensureQueryData(
-      getHardwareRevisionsQueryOpts({ hardwareId, context }),
+      getUnitRevisionsQueryOpts({ unitId, context }),
     );
     context.queryClient.ensureQueryData(
-      getSessionsQueryOpts({ hardwareId, context }),
+      getSessionsQueryOpts({ unitId, context }),
     );
     context.queryClient.ensureQueryData(
       getPartQueryOpts({ partId: context.partVariation.partId, context }),
@@ -102,14 +102,14 @@ const columns: ColumnDef<Session & { status: boolean | null }>[] = [
   },
 ];
 
-function HardwarePage() {
+function UnitPage() {
   const context = Route.useRouteContext();
-  const { workspace, hardware, partVariation } = context;
+  const { workspace, unit, partVariation } = context;
   const { data: revisions } = useSuspenseQuery(
-    getHardwareRevisionsQueryOpts({ hardwareId: hardware.id, context }),
+    getUnitRevisionsQueryOpts({ unitId: unit.id, context }),
   );
   const { data: sessions } = useSuspenseQuery(
-    getSessionsQueryOpts({ hardwareId: hardware.id, context }),
+    getSessionsQueryOpts({ unitId: unit.id, context }),
   );
   const { data: part } = useSuspenseQuery(
     getPartQueryOpts({ partId: partVariation.partId, context }),
@@ -162,39 +162,39 @@ function HardwarePage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>{hardware.serialNumber}</BreadcrumbPage>
+            <BreadcrumbPage>{unit.serialNumber}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
       <PageHeader>
         <PageHeaderHeading className="">
           <div className="flex items-center gap-x-2">
-            <div>{hardware.serialNumber}</div>
-            {hardware.components.length > 0 && (
+            <div>{unit.serialNumber}</div>
+            {unit.components.length > 0 && (
               <>
-                <SwapHardware hardware={hardware} workspace={workspace} />
+                <SwapUnit unit={unit} workspace={workspace} />
                 <RevisionHistory revisions={revisions} />
               </>
             )}
           </div>
         </PageHeaderHeading>
         <PageHeaderDescription>
-          All tests that have been performed on &quot;{hardware.serialNumber}
+          All tests that have been performed on &quot;{unit.serialNumber}
           &quot; are listed here.
         </PageHeaderDescription>
       </PageHeader>
       <div className="py-2" />
-      {hardware.parent && (
+      {unit.parent && (
         <div>
           <span className="font-medium text-muted-foreground">In use: </span>
           <Link
             from={WorkspaceIndexRoute.fullPath}
-            to="hardware/$hardwareId"
+            to="unit/$unitId"
             params={{
-              hardwareId: hardware.parent.id,
+              unitId: unit.parent.id,
             }}
           >
-            {hardware.parent.serialNumber}
+            {unit.parent.serialNumber}
           </Link>
         </div>
       )}
@@ -223,7 +223,7 @@ function HardwarePage() {
           </ScrollArea>
         </div>
         <div className="w-2/5 h-[380px] border rounded-lg">
-          <HardwareTreeVisualization tree={hardware} />
+          <UnitTreeVisualization tree={unit} />
         </div>
       </div>
     </div>

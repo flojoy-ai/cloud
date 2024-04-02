@@ -11,7 +11,7 @@ describe("Measurement", () => {
   test("creates a measurement", async () => {
     const bundle = {
       inputData: {
-        hardwareId: "test-123",
+        unitId: "test-123",
         testId: "test-234",
         name: "my test",
         type: "boolean",
@@ -24,7 +24,7 @@ describe("Measurement", () => {
       bundle,
     );
     expect(result).toHaveProperty("id");
-    expect(result).toHaveProperty("hardwareId", bundle.inputData.hardwareId);
+    expect(result).toHaveProperty("unitId", bundle.inputData.unitId);
     expect(result).toHaveProperty("testId", bundle.inputData.testId);
     expect(result).toHaveProperty("name", bundle.inputData.name);
     expect(result).toHaveProperty("pass", bundle.inputData.pass);
