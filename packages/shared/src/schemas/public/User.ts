@@ -11,7 +11,7 @@ export default interface UserTable {
   id: ColumnType<UserId, UserId, UserId>;
 
   /** Database type: pg_catalog.bool */
-  emailVerified: ColumnType<boolean | null, boolean | null, boolean | null>;
+  emailVerified: ColumnType<boolean, boolean | undefined, boolean>;
 
   /** Database type: pg_catalog.text */
   email: ColumnType<string, string, string>;
