@@ -22,7 +22,7 @@ import { HardwareWithParent } from "@cloud/shared";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute, useRouter } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
-import { Plus } from "lucide-react";
+import { ArrowRight, Plus } from "lucide-react";
 import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
 import CenterLoadingSpinner from "@/components/center-loading-spinner";
 
@@ -57,6 +57,20 @@ const hardwareColumns: ColumnDef<HardwareWithParent>[] = [
       const parentName = row.original.parent?.serialNumber;
       if (!parentName) return null;
       return <Badge variant="outline">{parentName}</Badge>;
+    },
+  },
+  {
+    id: "view-more",
+    cell: ({ row }) => {
+      return (
+        <Link
+          from={"/workspace/$namespace/variation/$partVariationId"}
+          to={"/workspace/$namespace/hardware/$hardwareId"}
+          params={{ hardwareId: row.original.id }}
+        >
+          <ArrowRight />
+        </Link>
+      );
     },
   },
   // {
@@ -151,17 +165,7 @@ function PartVariationPage() {
             </div>
           ) : (
             <ScrollArea className="h-[379px]">
-              <DataTable
-                columns={hardwareColumns}
-                data={hardware}
-                onRowClick={(row) =>
-                  router.navigate({
-                    from: WorkspaceIndexRoute.fullPath,
-                    to: "hardware/$hardwareId",
-                    params: { hardwareId: row.id },
-                  })
-                }
-              />
+              <DataTable columns={hardwareColumns} data={hardware} />
             </ScrollArea>
           )}
         </div>

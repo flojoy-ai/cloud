@@ -22,17 +22,18 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import CreatePart from "@/components/hardware/create-part";
 import { DataTable } from "@/components/ui/data-table";
-import { getFamiliesQueryOpts } from "@/lib/queries/part";
+import { getPartsQueryOpts } from "@/lib/queries/part";
 import { getProductsQueryOpts } from "@/lib/queries/product";
 import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
 import CenterLoadingSpinner from "@/components/center-loading-spinner";
+import { ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/_protected/workspace/$namespace/part/")({
   component: HardwareInventory,
 
   pendingComponent: CenterLoadingSpinner,
   loader: async ({ context }) => {
-    context.queryClient.ensureQueryData(getFamiliesQueryOpts({ context }));
+    context.queryClient.ensureQueryData(getPartsQueryOpts({ context }));
     context.queryClient.ensureQueryData(getProductsQueryOpts({ context }));
   },
 });
@@ -61,17 +62,27 @@ const partColumns: ColumnDef<PartEntry>[] = [
       return <div className="font-bold">{row.original.hardwareCount}</div>;
     },
   },
+  {
+    id: "view-more",
+    cell: ({ row }) => {
+      return (
+        <Link
+          from={Route.fullPath}
+          to={"$partId"}
+          params={{ partId: row.original.id }}
+        >
+          <ArrowRight />
+        </Link>
+      );
+    },
+  },
 ];
 
 function HardwareInventory() {
   const context = Route.useRouteContext();
   const { workspace } = context;
 
-  const router = useRouter();
-
-  const { data: families } = useSuspenseQuery(
-    getFamiliesQueryOpts({ context }),
-  );
+  const { data: parts } = useSuspenseQuery(getPartsQueryOpts({ context }));
   const { data: products } = useSuspenseQuery(
     getProductsQueryOpts({ context }),
   );
@@ -97,7 +108,7 @@ function HardwareInventory() {
       <PageHeader>
         <PageHeaderHeading>Inventory</PageHeaderHeading>
         <PageHeaderDescription>
-          Here you can find all your registered part families.
+          Here you can find all your registered parts.
         </PageHeaderDescription>
       </PageHeader>
       <div className="py-4" />
@@ -107,27 +118,17 @@ function HardwareInventory() {
       <div>
         <div className="py-2" />
 
-        <h1 className="text-xl font-bold">Part Families</h1>
+        <h1 className="text-xl font-bold">Parts</h1>
         <div className="py-1" />
         <CreatePart workspaceId={workspace.id} products={products} />
         <div className="py-4" />
 
-        {families.length === 0 ? (
+        {parts.length === 0 ? (
           <div className="text-muted-foreground">
-            No part families found, go create one!
+            No parts found, go create one!
           </div>
         ) : (
-          <DataTable
-            columns={partColumns}
-            data={families}
-            onRowClick={(row) => {
-              router.navigate({
-                from: Route.fullPath,
-                to: "$partId",
-                params: { partId: row.id },
-              });
-            }}
-          />
+          <DataTable columns={partColumns} data={parts} />
         )}
       </div>
 

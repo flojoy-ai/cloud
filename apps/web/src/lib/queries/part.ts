@@ -29,17 +29,17 @@ export function getPartQueryOpts({ partId, context }: GetPartParams) {
   });
 }
 
-type GetFamiliesParams = {
+type GetPartsParams = {
   context: {
     workspace: Workspace;
   };
 };
 
-export function getFamiliesQueryKey() {
+export function getPartsQueryKey() {
   return ["families"];
 }
 
-export function getFamiliesQueryOpts({ context }: GetFamiliesParams) {
+export function getPartsQueryOpts({ context }: GetPartsParams) {
   return queryOptions({
     queryFn: async () => {
       const { data: families, error: partError } = await client.part.index.get({
@@ -49,6 +49,6 @@ export function getFamiliesQueryOpts({ context }: GetFamiliesParams) {
       if (partError) throw partError;
       return families;
     },
-    queryKey: getFamiliesQueryKey(),
+    queryKey: getPartsQueryKey(),
   });
 }

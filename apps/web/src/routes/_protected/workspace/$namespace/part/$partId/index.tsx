@@ -27,6 +27,7 @@ import { useState } from "react";
 import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
 import { PartVariationTreeVisualization } from "@/components/visualization/tree-visualization";
 import CenterLoadingSpinner from "@/components/center-loading-spinner";
+import { ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/part/$partId/",
@@ -48,15 +49,7 @@ const partVariationColumns: ColumnDef<
     accessorKey: "name",
     header: "Name",
     cell: ({ row }) => {
-      return (
-        <Link
-          from={WorkspaceIndexRoute.fullPath}
-          to="variation/$partVariationId"
-          params={{ partVariationId: row.original.id }}
-        >
-          <Badge>{row.original.partNumber}</Badge>
-        </Link>
-      );
+      return <Badge>{row.original.partNumber}</Badge>;
     },
   },
   {
@@ -68,6 +61,20 @@ const partVariationColumns: ColumnDef<
     header: "Number of units",
     cell: ({ row }) => {
       return <div className="font-bold">{row.original.hardwareCount}</div>;
+    },
+  },
+  {
+    id: "view-more",
+    cell: ({ row }) => {
+      return (
+        <Link
+          from={"/workspace/$namespace/part/$partId"}
+          to={"/workspace/$namespace/variation/$partVariationId"}
+          params={{ partVariationId: row.original.id }}
+        >
+          <ArrowRight />
+        </Link>
+      );
     },
   },
 ];
@@ -158,7 +165,7 @@ function PartPage() {
           Product: {part.productName}
         </div>
         <PageHeaderDescription>
-          Here you can find all of the parts registered under this part.
+          Here you can find all of this part's variations.
           <br />
         </PageHeaderDescription>
       </PageHeader>
@@ -171,7 +178,7 @@ function PartPage() {
         part={part}
       />
       <div className="py-2" />
-      <h1 className="text-xl font-bold">Part Variations</h1>
+      <h1 className="text-xl font-bold">Variations</h1>
       <div className="py-2" />
 
       {partVariations.length === 0 ? (

@@ -32,7 +32,7 @@ import { Textarea } from "../ui/textarea";
 import { Autocomplete } from "../ui/autocomplete";
 import { insertPart, Product } from "@cloud/shared";
 import { getProductsQueryKey } from "@/lib/queries/product";
-import { getFamiliesQueryKey } from "@/lib/queries/part";
+import { getPartsQueryKey } from "@/lib/queries/part";
 
 type FormSchema = Static<typeof insertPart>;
 
@@ -60,7 +60,7 @@ const CreatePart = ({ workspaceId, products }: Props) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getProductsQueryKey() });
-      queryClient.invalidateQueries({ queryKey: getFamiliesQueryKey() });
+      queryClient.invalidateQueries({ queryKey: getPartsQueryKey() });
       setIsDialogOpen(false);
     },
   });
