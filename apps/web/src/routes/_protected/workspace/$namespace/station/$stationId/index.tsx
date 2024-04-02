@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 import CenterLoadingSpinner from "@/components/center-loading-spinner";
-=======
 import { columns } from "@/components/session/columns";
->>>>>>> 3587a306 (chore: station page & upload session (wip))
 import {
   PageHeader,
   PageHeaderDescription,
