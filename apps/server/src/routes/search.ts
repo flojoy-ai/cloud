@@ -24,18 +24,18 @@ function makeQuery(
     case "partVariation":
       return db
         .selectFrom("part_variation")
-        .select(["partNumber as name", "id"])
+        .select(["part_variation.partNumber as name", "id"])
         .select(sql<SearchResult["type"]>`'partVariation'`.as("type"))
-        .select(sql<number>`name <-> ${query}`.as("dist"))
-        .where(sql<SqlBool>`(name <-> ${query}) < 0.85`)
+        .select(sql<number>`part_variation.part_number <-> ${query}`.as("dist"))
+        .where(sql<SqlBool>`(part_variation.part_number <-> ${query}) < 0.85`)
         .where("workspaceId", "=", workspaceId);
     case "unit":
       return db
         .selectFrom("unit")
-        .select(["serialNumber as name", "id"])
+        .select(["unit.serialNumber as name", "id"])
         .select(sql<SearchResult["type"]>`'unit'`.as("type"))
-        .select(sql<number>`name <-> ${query}`.as("dist"))
-        .where(sql<SqlBool>`(name <-> ${query}) < 0.85`)
+        .select(sql<number>`unit.serial_number <-> ${query}`.as("dist"))
+        .where(sql<SqlBool>`(unit.serial_number <-> ${query}) < 0.85`)
         .where("workspaceId", "=", workspaceId);
   }
 }
@@ -68,6 +68,8 @@ export const SearchRoute = new Elysia({ prefix: "/search" })
         projectQuery,
       ]
         .reduce((q, acc) => acc.unionAll(q))
+        // FIXME: fix type checking
+        // @ts-expect-error kysely can't infer the type properly
         .orderBy("dist")
         .limit(10);
 
