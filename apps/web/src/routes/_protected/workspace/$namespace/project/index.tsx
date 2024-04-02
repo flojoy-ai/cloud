@@ -17,10 +17,12 @@ import {
 import { getProjectsQueryOpts } from "@/lib/queries/project";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { getPartVariationsQueryOpts } from "@/lib/queries/part-variation";
+import CenterLoadingSpinner from "@/components/center-loading-spinner";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/project/",
 )({
+  pendingComponent: CenterLoadingSpinner,
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(getProjectsQueryOpts({ context }));
     context.queryClient.ensureQueryData(

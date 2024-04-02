@@ -6,6 +6,7 @@ import {
   PageHeaderHeading,
 } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
+import CenterLoadingSpinner from "@/components/center-loading-spinner";
 
 export const Route = createFileRoute("/_protected/workspace/$namespace")({
   component: Page,
@@ -22,6 +23,8 @@ export const Route = createFileRoute("/_protected/workspace/$namespace")({
       </Button>
     </PageHeader>
   ),
+
+  pendingComponent: CenterLoadingSpinner,
   beforeLoad: async ({ context: { queryClient }, params: { namespace } }) => {
     const workspace = await queryClient.ensureQueryData(
       getWorkspaceQueryOpts({ namespace }),

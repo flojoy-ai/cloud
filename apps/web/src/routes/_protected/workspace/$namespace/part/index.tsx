@@ -25,9 +25,12 @@ import { DataTable } from "@/components/ui/data-table";
 import { getFamiliesQueryOpts } from "@/lib/queries/part";
 import { getProductsQueryOpts } from "@/lib/queries/product";
 import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
+import CenterLoadingSpinner from "@/components/center-loading-spinner";
 
 export const Route = createFileRoute("/_protected/workspace/$namespace/part/")({
   component: HardwareInventory,
+
+  pendingComponent: CenterLoadingSpinner,
   loader: async ({ context }) => {
     context.queryClient.ensureQueryData(getFamiliesQueryOpts({ context }));
     context.queryClient.ensureQueryData(getProductsQueryOpts({ context }));

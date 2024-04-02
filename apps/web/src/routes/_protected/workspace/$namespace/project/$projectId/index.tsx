@@ -26,10 +26,12 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { DataTable } from "@/components/ui/data-table";
 import { columns } from "@/components/station/columns";
 import { getPartVariationQueryOpts } from "@/lib/queries/part-variation";
+import CenterLoadingSpinner from "@/components/center-loading-spinner";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/project/$projectId/",
 )({
+  pendingComponent: CenterLoadingSpinner,
   loader: ({ context, params: { projectId } }) => {
     context.queryClient.ensureQueryData(
       getStationsQueryOpts({ projectId, context }),

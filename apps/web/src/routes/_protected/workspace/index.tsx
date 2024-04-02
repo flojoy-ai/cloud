@@ -9,12 +9,14 @@ import { Button } from "@/components/ui/button";
 import WorkspaceCard from "@/components/workspace/workspace-card";
 import { getWorkspacesQueryOpts } from "@/lib/queries/workspace";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import CenterLoadingSpinner from "@/components/center-loading-spinner";
 
 export const Route = createFileRoute("/_protected/workspace/")({
   component: Workspaces,
   loader: async ({ context }) => {
     context.queryClient.ensureQueryData(getWorkspacesQueryOpts());
   },
+  pendingComponent: CenterLoadingSpinner,
 });
 
 function Workspaces() {

@@ -1,4 +1,4 @@
-import { Icons } from "@/components/icons";
+import CenterLoadingSpinner from "@/components/center-loading-spinner";
 import { ProtectedHeader } from "@/components/navbar/protected-header";
 import { getWorkspacesQueryOpts } from "@/lib/queries/workspace";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -9,11 +9,7 @@ export const Route = createFileRoute("/_protected")({
   loader: async ({ context }) => {
     context.queryClient.ensureQueryData(getWorkspacesQueryOpts());
   },
-  pendingComponent: () => (
-    <div className="h-screen flex justify-center items-center">
-      <Icons.spinner className="animate-spin" />
-    </div>
-  ),
+  pendingComponent: CenterLoadingSpinner,
 });
 
 function Protected() {

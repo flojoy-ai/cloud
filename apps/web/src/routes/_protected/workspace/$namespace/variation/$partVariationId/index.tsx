@@ -24,11 +24,14 @@ import { Link, createFileRoute, useRouter } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
+import CenterLoadingSpinner from "@/components/center-loading-spinner";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/variation/$partVariationId/",
 )({
   component: PartVariationPage,
+
+  pendingComponent: CenterLoadingSpinner,
   loader: ({ context, params: { partVariationId } }) => {
     context.queryClient.ensureQueryData(
       getPartVariationHardwareQueryOpts({ partVariationId, context }),

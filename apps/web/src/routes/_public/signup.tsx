@@ -7,6 +7,7 @@ import { env } from "@/env";
 import { getAuthMethodsQueryOpts } from "@/lib/queries/auth";
 
 import { match } from "ts-pattern";
+import CenterLoadingSpinner from "@/components/center-loading-spinner";
 
 export const Route = createFileRoute("/_public/signup")({
   beforeLoad: async ({ context: { queryClient } }) => {
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/_public/signup")({
       authMethods: await queryClient.ensureQueryData(getAuthMethodsQueryOpts()),
     };
   },
+  pendingComponent: CenterLoadingSpinner,
   component: SignUp,
 });
 

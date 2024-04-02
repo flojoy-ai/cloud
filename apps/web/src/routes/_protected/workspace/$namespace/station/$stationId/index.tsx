@@ -1,3 +1,4 @@
+import CenterLoadingSpinner from "@/components/center-loading-spinner";
 import {
   PageHeader,
   PageHeaderDescription,
@@ -18,6 +19,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/station/$stationId/",
 )({
+  pendingComponent: CenterLoadingSpinner,
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(
       getProjectQueryOpts({ projectId: context.station.projectId, context }),

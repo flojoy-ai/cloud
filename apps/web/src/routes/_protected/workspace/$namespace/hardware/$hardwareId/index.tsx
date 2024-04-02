@@ -30,11 +30,14 @@ import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$nam
 import { useRouter } from "@tanstack/react-router";
 import { Badge } from "@/components/ui/badge";
 import { Session } from "@cloud/shared/src/schemas/public/Session";
+import CenterLoadingSpinner from "@/components/center-loading-spinner";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/hardware/$hardwareId/",
 )({
   component: HardwarePage,
+
+  pendingComponent: CenterLoadingSpinner,
   beforeLoad: async ({ context, params: { hardwareId } }) => {
     const hardware = await context.queryClient.ensureQueryData(
       getHardwareQueryOpts({ hardwareId, context }),

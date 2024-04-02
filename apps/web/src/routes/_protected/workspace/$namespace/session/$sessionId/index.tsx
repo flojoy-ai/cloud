@@ -28,12 +28,16 @@ import _ from "lodash";
 import { useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Check, X } from "lucide-react";
+import CenterLoadingSpinner from "@/components/center-loading-spinner";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/session/$sessionId/",
 )({
   component: Page,
+
+  pendingComponent: CenterLoadingSpinner,
   beforeLoad: async ({ context, params: { sessionId } }) => {
+    // FIXME: do not do tihs too slow
     const session = await context.queryClient.ensureQueryData(
       getSessionQueryOpts({ sessionId, context }),
     );

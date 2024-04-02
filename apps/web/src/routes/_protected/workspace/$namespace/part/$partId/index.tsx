@@ -26,10 +26,12 @@ import { ColumnDef } from "@tanstack/react-table";
 import { useState } from "react";
 import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
 import { PartVariationTreeVisualization } from "@/components/visualization/tree-visualization";
+import CenterLoadingSpinner from "@/components/center-loading-spinner";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/part/$partId/",
 )({
+  pendingComponent: CenterLoadingSpinner,
   component: PartPage,
   loader: ({ context, params: { partId } }) => {
     context.queryClient.ensureQueryData(
