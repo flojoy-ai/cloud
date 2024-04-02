@@ -4,7 +4,9 @@ export async function up(db: Kysely<unknown>): Promise<void> {
   await db.schema
     .createTable("user")
     .addColumn("id", "text", (col) => col.primaryKey())
-    .addColumn("email_verified", "boolean", (col) => col.defaultTo(false))
+    .addColumn("email_verified", "boolean", (col) =>
+      col.defaultTo(false).notNull(),
+    )
     .addColumn("email", "text", (col) => col.notNull())
     .addColumn("hashed_password", "text")
     .addColumn("created_at", "timestamptz", (col) =>

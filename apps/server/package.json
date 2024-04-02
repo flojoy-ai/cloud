@@ -17,8 +17,8 @@
   "dependencies": {
     "@bogeychan/elysia-logger": "^0.0.20",
     "@cloud/eslint-config": "workspace:*",
-    "@cloud/tsconfig": "workspace:*",
     "@cloud/shared": "workspace:*",
+    "@cloud/tsconfig": "workspace:*",
     "@elysiajs/cors": "^1.0.2",
     "@elysiajs/swagger": "^1.0.3",
     "@lucia-auth/adapter-postgresql": "^3.1.2",
@@ -26,6 +26,7 @@
     "@t3-oss/env-core": "^0.9.2",
     "arctic": "^1.5.0",
     "elysia": "^1.0.10",
+    "jose": "^5.2.3",
     "kanel": "^3.8.8",
     "kanel-kysely": "^0.3.3",
     "kysely": "^0.27.3",
