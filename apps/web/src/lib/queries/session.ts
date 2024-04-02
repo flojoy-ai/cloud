@@ -10,7 +10,7 @@ type GetSessionsParams = {
   };
 };
 
-export function getSessionsQueryOpts({
+export function getSessionsByUnitIdQueryOpts({
   unitId,
   context,
 }: GetSessionsParams) {
@@ -22,11 +22,15 @@ export function getSessionsQueryOpts({
       if (unitQuery.error) throw unitQuery.error;
       return unitQuery.data;
     },
-    queryKey: ["session"],
+    queryKey: getSessionsQueryKey(unitId),
   });
 }
 
-export const getSessionsQueryKey = () => ["session"];
+export const getSessionsQueryKey = (unitId: string) => [
+  "session",
+  "unit",
+  unitId,
+];
 
 type GetSessionParams = {
   sessionId: string;
@@ -44,7 +48,7 @@ export function getSessionQueryOpts({ sessionId, context }: GetSessionParams) {
       if (sessionQuery.error) throw sessionQuery.error;
       return sessionQuery.data;
     },
-    queryKey: ["session", sessionId],
+    queryKey: getSessionQueryKey(sessionId),
   });
 }
 

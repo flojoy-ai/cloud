@@ -22,7 +22,7 @@ import {
   getUnitRevisionsQueryOpts,
 } from "@/lib/queries/unit";
 import { getPartVariationQueryOpts } from "@/lib/queries/part-variation";
-import { getSessionsQueryOpts } from "@/lib/queries/session";
+import { getSessionsByUnitIdQueryOpts } from "@/lib/queries/session";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
@@ -35,9 +35,7 @@ import CenterLoadingSpinner from "@/components/center-loading-spinner";
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/unit/$unitId/",
 )({
-  component: UnitPage,
-
-  pendingComponent: CenterLoadingSpinner,
+  component: () => <div>LMAO</div>,
   beforeLoad: async ({ context, params: { unitId } }) => {
     const unit = await context.queryClient.ensureQueryData(
       getUnitQueryOpts({ unitId, context }),
@@ -55,12 +53,13 @@ export const Route = createFileRoute(
       getUnitRevisionsQueryOpts({ unitId, context }),
     );
     context.queryClient.ensureQueryData(
-      getSessionsQueryOpts({ unitId, context }),
+      getSessionsByUnitIdQueryOpts({ unitId, context }),
     );
     context.queryClient.ensureQueryData(
       getPartQueryOpts({ partId: context.partVariation.partId, context }),
     );
   },
+  pendingComponent: CenterLoadingSpinner,
 });
 
 const columns: ColumnDef<Session & { status: boolean | null }>[] = [
@@ -76,24 +75,25 @@ const columns: ColumnDef<Session & { status: boolean | null }>[] = [
     header: "Status",
     accessorKey: "pass",
     cell: ({ row }) => {
-      if (row.original.status === true)
+      if (row.original.status === true) {
         return (
           <Badge variant={null} className="bg-green-300 text-green-900">
             Pass
           </Badge>
         );
-      else if (row.original.status === false)
+      } else if (row.original.status === false) {
         return (
           <Badge variant={null} className="bg-red-300 text-red-900">
             Fail
           </Badge>
         );
-      else
+      } else {
         return (
           <Badge variant={null} className="bg-gray-300 text-gray-600">
             Unevaluated
           </Badge>
         );
+      }
     },
   },
   {
@@ -110,7 +110,7 @@ function UnitPage() {
     getUnitRevisionsQueryOpts({ unitId, context }),
   );
   const { data: sessions } = useSuspenseQuery(
-    getSessionsQueryOpts({ unitId, context }),
+    getSessionsByUnitIdQueryOpts({ unitId, context }),
   );
   const { data: part } = useSuspenseQuery(
     getPartQueryOpts({ partId: partVariation.partId, context }),

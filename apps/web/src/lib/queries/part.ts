@@ -36,7 +36,7 @@ type GetPartsParams = {
 };
 
 export function getPartsQueryKey() {
-  return ["families"];
+  return ["parts"];
 }
 
 export function getPartsQueryOpts({ context }: GetPartsParams) {
