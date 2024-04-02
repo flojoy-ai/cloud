@@ -224,7 +224,16 @@ function UnitPage() {
           </ScrollArea>
         </div>
         <div className="w-2/5 h-[380px] border rounded-lg">
-          <UnitTreeVisualization tree={unit} />
+          <UnitTreeVisualization
+            tree={unit}
+            onNodeClick={(node) => {
+              router.navigate({
+                from: Route.fullPath,
+                to: "../$unitId",
+                params: { unitId: node.data.unit.id },
+              });
+            }}
+          />
         </div>
       </div>
     </div>

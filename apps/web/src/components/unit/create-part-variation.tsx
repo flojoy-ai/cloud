@@ -144,7 +144,7 @@ const CreatePartVariation = ({ workspaceId, partVariations, part }: Props) => {
           Create
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-screen overflow-auto">
         <DialogHeader>
           <DialogTitle>Register a new unit partVariation</DialogTitle>
           <DialogDescription>
@@ -194,7 +194,7 @@ const CreatePartVariation = ({ workspaceId, partVariations, part }: Props) => {
               name="type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Unit PartVariation Type</FormLabel>
+                  <FormLabel>Type</FormLabel>
                   <FormControl>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger className="w-[180px]">
@@ -207,8 +207,8 @@ const CreatePartVariation = ({ workspaceId, partVariations, part }: Props) => {
                     </Select>
                   </FormControl>
                   <FormDescription>
-                    A <b>device</b> is a standalone unit device made up of
-                    just itself. A <b>system</b> is a set of interconnected{" "}
+                    A <b>device</b> is a standalone unit device made up of just
+                    itself. A <b>system</b> is a set of interconnected{" "}
                     <b>devices</b> together.
                   </FormDescription>
                   <FormMessage />
@@ -219,8 +219,8 @@ const CreatePartVariation = ({ workspaceId, partVariations, part }: Props) => {
               <div className="space-y-2">
                 <FormLabel className="">System Components</FormLabel>
                 <FormDescription>
-                  You can pick the components that make up this system from
-                  existing device partVariations. This will help you build the
+                  You can pick the components that make up this assembly from
+                  existing parts. This will help you build the
                   &apos;blueprint&apos; of the system.
                 </FormDescription>
                 {fields.map((field, index) => (
@@ -301,7 +301,7 @@ const CreatePartVariation = ({ workspaceId, partVariations, part }: Props) => {
                 </Button>
                 <FormDescription>
                   When you try to initialize an system instance based on this
-                  partVariation, then you first need to make sure all its
+                  part variation, then you first need to make sure all its
                   components exist.
                 </FormDescription>
               </div>

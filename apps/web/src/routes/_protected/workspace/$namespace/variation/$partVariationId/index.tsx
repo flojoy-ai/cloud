@@ -22,7 +22,7 @@ import { getPartVariationUnitQueryOpts } from "@/lib/queries/unit";
 import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
 import { UnitWithParent } from "@cloud/shared";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute, useRouter } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowRight, Plus } from "lucide-react";
 
@@ -78,6 +78,7 @@ const unitColumns: ColumnDef<UnitWithParent>[] = [
 function PartVariationPage() {
   const { workspace, partVariation } = Route.useRouteContext();
   const { partVariationId } = Route.useParams();
+  const router = useRouter();
 
   const { data: unit } = useSuspenseQuery(
     getPartVariationUnitQueryOpts({
@@ -164,7 +165,18 @@ function PartVariationPage() {
           )}
         </div>
         <div className="w-2/5 h-[379px] border rounded-lg">
-          <PartVariationTreeVisualization tree={partVariation} />
+          <PartVariationTreeVisualization
+            tree={partVariation}
+            onNodeClick={(node) => {
+              router.navigate({
+                from: WorkspaceIndexRoute.fullPath,
+                to: "variation/$partVariationId",
+                params: {
+                  partVariationId: node.data.partVariation.id,
+                },
+              });
+            }}
+          />
         </div>
       </div>
       <div className="py-4" />

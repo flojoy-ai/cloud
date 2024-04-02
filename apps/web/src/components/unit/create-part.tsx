@@ -74,8 +74,8 @@ const CreatePart = ({ workspaceId, products }: Props) => {
 
   function onSubmit(values: FormSchema) {
     toast.promise(createPart.mutateAsync(values), {
-      loading: "Creating your part part...",
-      success: "Part part created.",
+      loading: "Creating your part...",
+      success: "Part created.",
       error: handleError,
     });
   }
@@ -100,7 +100,7 @@ const CreatePart = ({ workspaceId, products }: Props) => {
         <DialogHeader>
           <DialogTitle>Register a new unit part</DialogTitle>
           <DialogDescription>
-            What part of unit partVariations are you working on?
+            What hardware part are you working on?
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -115,7 +115,7 @@ const CreatePart = ({ workspaceId, products }: Props) => {
                     <Input placeholder="M1234" {...field} data-1p-ignore />
                   </FormControl>
                   <FormDescription>
-                    What are you calling this part of parts?
+                    What are you calling this part?
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

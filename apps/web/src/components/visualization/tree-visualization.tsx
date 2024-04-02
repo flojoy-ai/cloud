@@ -10,7 +10,12 @@ import ReactFlow, {
 import dagre from "@dagrejs/dagre";
 
 import "reactflow/dist/style.css";
-import { makeUnitGraph, makePartVariationGraph } from "@/lib/tree";
+import {
+  makeUnitGraph,
+  makePartVariationGraph,
+  PartVariationNodeData,
+  UnitNodeData,
+} from "@/lib/tree";
 import { UnitTreeRoot, PartVariationTreeRoot } from "@cloud/shared";
 
 const dagreGraph = new dagre.graphlib.Graph();
@@ -50,11 +55,13 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
   return { nodes, edges };
 };
 
-type FlowProps = {
-  nodes: Node[];
+type FlowProps<T> = {
+  nodes: Node<T>[];
   edges: Edge[];
+  onNodeClick?: (node: Node<T>) => void;
 };
-const Flow = ({ nodes, edges }: FlowProps) => {
+
+const Flow = <T,>({ nodes, edges, onNodeClick }: FlowProps<T>) => {
   const rf = useReactFlow();
   useEffect(() => {
     setTimeout(rf.fitView);
@@ -64,6 +71,7 @@ const Flow = ({ nodes, edges }: FlowProps) => {
     <ReactFlow
       nodes={nodes}
       edges={edges}
+      onNodeClick={onNodeClick ? (_, node) => onNodeClick(node) : undefined}
       connectionLineType={ConnectionLineType.SmoothStep}
       fitView
       proOptions={{
@@ -76,12 +84,17 @@ const Flow = ({ nodes, edges }: FlowProps) => {
   );
 };
 
-type Props = {
-  nodes: Node[];
+type Props<T> = {
+  nodes: Node<T>[];
   edges: Edge[];
+  onNodeClick?: (node: Node<T>) => void;
 };
 
-export const TreeVisualization = ({ nodes, edges }: Props) => {
+export const TreeVisualization = <T,>({
+  nodes,
+  edges,
+  onNodeClick,
+}: Props<T>) => {
   const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
     nodes,
     edges,
@@ -89,33 +102,45 @@ export const TreeVisualization = ({ nodes, edges }: Props) => {
 
   return (
     <ReactFlowProvider>
-      <Flow nodes={layoutedNodes} edges={layoutedEdges} />
+      <Flow
+        nodes={layoutedNodes}
+        edges={layoutedEdges}
+        onNodeClick={onNodeClick}
+      />
     </ReactFlowProvider>
   );
 };
 
 type PartVariationTreeVisualizationProps = {
   tree: PartVariationTreeRoot;
+  onNodeClick?: (node: Node<PartVariationNodeData>) => void;
 };
 
 export const PartVariationTreeVisualization = ({
   tree,
+  onNodeClick,
 }: PartVariationTreeVisualizationProps) => {
   const { nodes, edges } = useMemo(() => makePartVariationGraph(tree), [tree]);
 
-  return <TreeVisualization nodes={nodes} edges={edges} />;
+  return (
+    <TreeVisualization nodes={nodes} edges={edges} onNodeClick={onNodeClick} />
+  );
 };
 
 type UnitTreeVisualizationProps = {
   tree: UnitTreeRoot;
+  onNodeClick?: (node: Node<UnitNodeData>) => void;
 };
 
 export const UnitTreeVisualization = ({
   tree,
+  onNodeClick,
 }: UnitTreeVisualizationProps) => {
   const { nodes, edges } = useMemo(() => makeUnitGraph(tree), [tree]);
 
-  return <TreeVisualization nodes={nodes} edges={edges} />;
+  return (
+    <TreeVisualization nodes={nodes} edges={edges} onNodeClick={onNodeClick} />
+  );
 };
 
 export default TreeVisualization;

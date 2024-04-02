@@ -18,10 +18,13 @@ import { DataTable } from "@/components/ui/data-table";
 import { Separator } from "@/components/ui/separator";
 import { client } from "@/lib/client";
 import { getPartQueryOpts } from "@/lib/queries/part";
-import { getPartPartVariationsQueryOpts } from "@/lib/queries/part-variation";
+import {
+  getPartPartVariationsQueryOpts,
+  getPartVariationsQueryOpts,
+} from "@/lib/queries/part-variation";
 import { PartVariation, PartVariationTreeNode } from "@cloud/shared";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute, useRouter } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
 import { useState } from "react";
 import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
@@ -33,51 +36,53 @@ export const Route = createFileRoute(
   "/_protected/workspace/$namespace/part/$partId/",
 )({
   pendingComponent: CenterLoadingSpinner,
-  component: PartPage,
+  component: PartVariationPage,
   loader: ({ context, params: { partId } }) => {
     context.queryClient.ensureQueryData(
       getPartPartVariationsQueryOpts({ partId, context }),
+    );
+    context.queryClient.ensureQueryData(
+      getPartVariationsQueryOpts({ context }),
     );
     context.queryClient.ensureQueryData(getPartQueryOpts({ partId, context }));
   },
 });
 
-const partVariationColumns: ColumnDef<
-  PartVariation & { unitCount: number }
->[] = [
-  {
-    accessorKey: "name",
-    header: "Name",
-    cell: ({ row }) => {
-      return <Badge>{row.original.partNumber}</Badge>;
+const partVariationColumns: ColumnDef<PartVariation & { unitCount: number }>[] =
+  [
+    {
+      accessorKey: "name",
+      header: "Name",
+      cell: ({ row }) => {
+        return <Badge>{row.original.partNumber}</Badge>;
+      },
     },
-  },
-  {
-    accessorKey: "description",
-    header: "Description",
-  },
-  {
-    accessorKey: "unitCount",
-    header: "Number of units",
-    cell: ({ row }) => {
-      return <div className="font-bold">{row.original.unitCount}</div>;
+    {
+      accessorKey: "description",
+      header: "Description",
     },
-  },
-  {
-    id: "view-more",
-    cell: ({ row }) => {
-      return (
-        <Link
-          from={"/workspace/$namespace/part/$partId"}
-          to={"/workspace/$namespace/variation/$partVariationId"}
-          params={{ partVariationId: row.original.id }}
-        >
-          <ArrowRight />
-        </Link>
-      );
+    {
+      accessorKey: "unitCount",
+      header: "Number of units",
+      cell: ({ row }) => {
+        return <div className="font-bold">{row.original.unitCount}</div>;
+      },
     },
-  },
-];
+    {
+      id: "view-more",
+      cell: ({ row }) => {
+        return (
+          <Link
+            from={"/workspace/$namespace/part/$partId"}
+            to={"/workspace/$namespace/variation/$partVariationId"}
+            params={{ partVariationId: row.original.id }}
+          >
+            <ArrowRight />
+          </Link>
+        );
+      },
+    },
+  ];
 
 const partVariationComponentColumns: ColumnDef<
   PartVariationTreeNode & { count: number }
@@ -98,12 +103,18 @@ const partVariationComponentColumns: ColumnDef<
   },
 ];
 
-function PartPage() {
+function PartVariationPage() {
   const { workspace } = Route.useRouteContext();
   const { partId } = Route.useParams();
 
+  const router = useRouter();
+
   const { data: partVariations } = useSuspenseQuery(
     getPartPartVariationsQueryOpts({ partId, context: { workspace } }),
+  );
+
+  const { data: allPartVariations } = useSuspenseQuery(
+    getPartVariationsQueryOpts({ context: { workspace } }),
   );
 
   const { data: part } = useSuspenseQuery(
@@ -174,7 +185,7 @@ function PartPage() {
       <div className="py-2" />
       <CreatePartVariation
         workspaceId={workspace.id}
-        partVariations={partVariations}
+        partVariations={allPartVariations}
         part={part}
       />
       <div className="py-2" />
@@ -183,7 +194,7 @@ function PartPage() {
 
       {partVariations.length === 0 ? (
         <div className="text-muted-foreground">
-          No partVariations found, go create one!
+          No part variations found, go create one!
         </div>
       ) : (
         <>
@@ -213,7 +224,18 @@ function PartPage() {
                     />
                   </div>
                   <div className="w-2/5">
-                    <PartVariationTreeVisualization tree={partVariationTree} />
+                    <PartVariationTreeVisualization
+                      tree={partVariationTree}
+                      onNodeClick={(node) => {
+                        router.navigate({
+                          from: WorkspaceIndexRoute.fullPath,
+                          to: "variation/$partVariationId",
+                          params: {
+                            partVariationId: node.data.partVariation.id,
+                          },
+                        });
+                      }}
+                    />
                   </div>
                 </div>
               </>
