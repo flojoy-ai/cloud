@@ -37,10 +37,11 @@ import { Cpu, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { Checkbox } from "../ui/checkbox";
 
 const partVariationFormSchema = t.Composite([
   insertPartVariation,
-  t.Object({ type: t.Union([t.Literal("device"), t.Literal("system")]) }),
+  t.Object({ hasComponents: t.Boolean() }),
 ]);
 type FormSchema = Static<typeof partVariationFormSchema>;
 
@@ -73,7 +74,7 @@ const CreatePartVariation = ({ workspaceId, partVariations, part }: Props) => {
     defaultValues: {
       workspaceId,
       partId: part.id,
-      type: "device",
+      hasComponents: false,
       components: [{ partVariationId: "", count: 1 }],
     },
   });
@@ -91,8 +92,8 @@ const CreatePartVariation = ({ workspaceId, partVariations, part }: Props) => {
   };
 
   function onSubmit(values: FormSchema) {
-    const { type, ...rest } = values;
-    if (type === "device") {
+    const { hasComponents, ...rest } = values;
+    if (!hasComponents) {
       toast.promise(
         createPartVariation.mutateAsync({
           ...rest,
@@ -104,9 +105,7 @@ const CreatePartVariation = ({ workspaceId, partVariations, part }: Props) => {
           error: handleError,
         },
       );
-    }
-
-    if (type === "system") {
+    } else {
       let hasError = false;
       for (let i = 0; i < values.components.length; i++) {
         if (values.components[i]?.partVariationId === "") {
@@ -146,9 +145,9 @@ const CreatePartVariation = ({ workspaceId, partVariations, part }: Props) => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md max-h-screen overflow-auto">
         <DialogHeader>
-          <DialogTitle>Register a new unit partVariation</DialogTitle>
+          <DialogTitle>Register a new part variation</DialogTitle>
           <DialogDescription>
-            What is the unit partVariation you are working with?
+            What variant of this part are you testing?
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -191,33 +190,30 @@ const CreatePartVariation = ({ workspaceId, partVariations, part }: Props) => {
             />
             <FormField
               control={form.control}
-              name="type"
+              name="hasComponents"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Type</FormLabel>
-                  <FormControl>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="device">Device</SelectItem>
-                        <SelectItem value="system">System</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormDescription>
-                    A <b>device</b> is a standalone unit device made up of just
-                    itself. A <b>system</b> is a set of interconnected{" "}
-                    <b>devices</b> together.
-                  </FormDescription>
+                  <div className="flex items-center gap-x-2">
+                    <FormLabel>Has components?</FormLabel>
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={(state) =>
+                          form.setValue(
+                            "hasComponents",
+                            Boolean(state.valueOf()),
+                          )
+                        }
+                      />
+                    </FormControl>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            {form.watch("type") === "system" && (
+            {form.watch("hasComponents") && (
               <div className="space-y-2">
-                <FormLabel className="">System Components</FormLabel>
+                <FormLabel className="">Components</FormLabel>
                 <FormDescription>
                   You can pick the components that make up this assembly from
                   existing parts. This will help you build the
