@@ -50,7 +50,7 @@ export const Route = createFileRoute(
     );
     return { unit, partVariation };
   },
-  loader: async ({ context, params: { unitId } }) => {
+  loader: ({ context, params: { unitId } }) => {
     context.queryClient.ensureQueryData(
       getUnitRevisionsQueryOpts({ unitId, context }),
     );
@@ -104,12 +104,13 @@ const columns: ColumnDef<Session & { status: boolean | null }>[] = [
 
 function UnitPage() {
   const context = Route.useRouteContext();
+  const { unitId } = Route.useParams();
   const { workspace, unit, partVariation } = context;
   const { data: revisions } = useSuspenseQuery(
-    getUnitRevisionsQueryOpts({ unitId: unit.id, context }),
+    getUnitRevisionsQueryOpts({ unitId, context }),
   );
   const { data: sessions } = useSuspenseQuery(
-    getSessionsQueryOpts({ unitId: unit.id, context }),
+    getSessionsQueryOpts({ unitId, context }),
   );
   const { data: part } = useSuspenseQuery(
     getPartQueryOpts({ partId: partVariation.partId, context }),
