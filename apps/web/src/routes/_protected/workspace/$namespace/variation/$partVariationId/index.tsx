@@ -137,7 +137,7 @@ function PartVariationPage() {
           Product: {part.productName}
         </div>
         <PageHeaderDescription>
-          Here you can find all of the parts registered under this part.
+          Here you can find all of the units of this part variant.
           <br />
         </PageHeaderDescription>
       </PageHeader>
