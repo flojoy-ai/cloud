@@ -34,6 +34,12 @@ export const SecretRoute = new Elysia({ prefix: "/secret" })
   .post("/", async ({ workspaceUser }) => {
     const value = await generateWorkpspacePersonalAccessToken(workspaceUser);
 
+    await db
+      .deleteFrom("secret as s")
+      .where("s.workspaceId", "=", workspaceUser.workspaceId)
+      .where("s.userId", "=", workspaceUser.userId)
+      .execute();
+
     const secret = await db
       .insertInto("secret")
       .values({
