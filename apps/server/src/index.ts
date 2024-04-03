@@ -37,6 +37,7 @@ const app = new Elysia()
       ],
     }),
   )
+  .use(swagger())
   .mapResponse(({ request, response }) => {
     const isJson = typeof response === "object";
     if (!isJson) return response as Response;
@@ -60,7 +61,6 @@ const app = new Elysia()
       autoLogging: true,
     }),
   )
-  .use(swagger())
   .use(UserRoute)
   .use(AuthRoute)
   .use(AuthGoogleRoute)
