@@ -15,7 +15,7 @@ export async function getProjectPerm({
   const projectUser = await db
     .selectFrom("project_user as pu")
     .selectAll()
-    .where("pu.workspaceId", "=", user.id)
+    .where("pu.userId", "=", user.id)
     .where("pu.projectId", "=", projectId)
     .executeTakeFirst();
 
