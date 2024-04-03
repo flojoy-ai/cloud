@@ -163,6 +163,20 @@ const partVariationComponentColumns: ColumnDef<
       return <div className="font-bold">{row.original.count}</div>;
     },
   },
+  {
+    id: "view-more",
+    cell: ({ row }) => {
+      return (
+        <Link
+          from={"/workspace/$namespace/part/$partId"}
+          to={"/workspace/$namespace/variation/$partVariationId"}
+          params={{ partVariationId: row.original.id }}
+        >
+          <ArrowRight />
+        </Link>
+      );
+    },
+  },
 ];
 
 function PartPage() {
@@ -326,7 +340,6 @@ function PartPage() {
                         count: child.count,
                         ...child.partVariation,
                       }))}
-                      onRowClick={(row) => setSelectedPartVariationId(row.id)}
                     />
                   </div>
                   <div className="w-2/5">
