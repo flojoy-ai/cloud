@@ -166,7 +166,7 @@ export default function NewProjectButton({ workspace, partVariations }: Props) {
                         </Select>
                       ) : (
                         <div className="text-sm">
-                          No partVariations found, go{" "}
+                          No part variations found, go{" "}
                           <Link
                             to={"/workspace/$namespace/part"}
                             params={{ namespace: workspace.namespace }}
