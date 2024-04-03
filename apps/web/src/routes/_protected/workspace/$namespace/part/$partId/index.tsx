@@ -48,6 +48,7 @@ import { Link, createFileRoute, useRouter } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowRight, MoreHorizontal, Plus } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/part/$partId/",
@@ -119,7 +120,11 @@ const partVariationColumns: (
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(partVariant.id)}
+              onClick={() =>
+                toast.promise(navigator.clipboard.writeText(partVariant.id), {
+                  success: "Copied ID to clipboard.",
+                })
+              }
             >
               Copy ID
             </DropdownMenuItem>
