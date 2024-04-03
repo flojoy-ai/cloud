@@ -185,7 +185,7 @@ const SearchBar = ({
         )}
       >
         <CommandInput
-          placeholder="Type a command or search..."
+          placeholder="Search..."
           onValueChange={setValue}
           // FIXME: this hack to allow the links to be clicked properly before the component unmounts
           onBlur={() => setTimeout(() => setSelected(false), 75)}
