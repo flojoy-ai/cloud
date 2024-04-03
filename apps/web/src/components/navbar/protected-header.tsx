@@ -25,7 +25,6 @@ import { Workspace } from "@cloud/shared";
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { CheckIcon, ChevronsUpDown, PlusCircleIcon } from "lucide-react";
 import { useState } from "react";
-import ExternalLinks from "./external-links";
 import UserButton from "./user-button";
 import AuthButtons from "./auth-buttons";
 import SearchBar from "../workspace/search-bar";
