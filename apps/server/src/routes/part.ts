@@ -52,14 +52,8 @@ export const PartRoute = new Elysia({ prefix: "/part" })
             .selectAll("part_variation")
             .where("part_variation.workspaceId", "=", workspace.id)
             .where("part_variation.partId", "=", partId)
-            .leftJoin(
-              "unit",
-              "part_variation.id",
-              "unit.partVariationId",
-            )
-            .select(({ fn }) =>
-              fn.count<number>("unit.id").as("unitCount"),
-            )
+            .leftJoin("unit", "part_variation.id", "unit.partVariationId")
+            .select(({ fn }) => fn.count<number>("unit.id").as("unitCount"))
             .groupBy("part_variation.id")
             .execute();
 

@@ -81,10 +81,7 @@ export async function createUnit(
           throw new DuplicateError("Some unit devices are already in use!");
         }
 
-        const partVariationCount = _.countBy(
-          units,
-          (h) => h.partVariationId,
-        );
+        const partVariationCount = _.countBy(units, (h) => h.partVariationId);
         const matches = _.every(
           partVariationComponents,
           (c) => partVariationCount[c.partVariationId] === c.count,
@@ -156,9 +153,7 @@ export async function doUnitComponentSwap(
   user: WorkspaceUser,
   input: SwapUnitComponent,
 ) {
-  const unitComponents = await getUnitComponentsWithPartVariation(
-    unit.id,
-  );
+  const unitComponents = await getUnitComponentsWithPartVariation(unit.id);
 
   return fromPromise(
     db.transaction().execute(async (tx) => {
@@ -181,20 +176,15 @@ export async function doUnitComponentSwap(
         );
 
       if (
-        oldUnitComponent.partVariationId !==
-        newUnitComponent.partVariationId
+        oldUnitComponent.partVariationId !== newUnitComponent.partVariationId
       ) {
         throw new BadRequestError("PartVariation mismatch");
       }
 
       if (
-        !unitComponents.some(
-          (hc) => hc.unitId === input.oldUnitComponentId,
-        )
+        !unitComponents.some((hc) => hc.unitId === input.oldUnitComponentId)
       ) {
-        throw new BadRequestError(
-          "Old component is not a part of the unit",
-        );
+        throw new BadRequestError("Old component is not a part of the unit");
       }
 
       await tx
@@ -249,9 +239,7 @@ export const notInUse = ({
   );
 };
 
-export function withUnitPartVariation(
-  eb: ExpressionBuilder<DB, "unit">,
-) {
+export function withUnitPartVariation(eb: ExpressionBuilder<DB, "unit">) {
   return jsonObjectFrom(
     eb
       .selectFrom("part_variation")
@@ -285,11 +273,7 @@ export async function getUnitTree(
           eb
             .selectFrom("unit_relation as hr")
             .innerJoin("unit", "hr.childUnitId", "unit.id")
-            .innerJoin(
-              "unit_tree",
-              "unit_tree.unitId",
-              "hr.parentUnitId",
-            )
+            .innerJoin("unit_tree", "unit_tree.unitId", "hr.parentUnitId")
             .innerJoin(
               "part_variation",
               "unit.partVariationId",
@@ -351,11 +335,7 @@ export async function getUnitComponentsWithPartVariation(id: string) {
   return await db
     .selectFrom("unit_relation as hr")
     .innerJoin("unit", "unit.id", "hr.childUnitId")
-    .innerJoin(
-      "part_variation",
-      "part_variation.id",
-      "unit.partVariationId",
-    )
+    .innerJoin("part_variation", "part_variation.id", "unit.partVariationId")
     .select([
       "hr.childUnitId as unitId",
       "part_variation.id as partVariationId",

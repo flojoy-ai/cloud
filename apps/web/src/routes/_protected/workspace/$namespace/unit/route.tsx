@@ -5,4 +5,3 @@ export const Route = createFileRoute("/_protected/workspace/$namespace/unit")({
   component: () => <Outlet />,
   pendingComponent: CenterLoadingSpinner,
 });
-

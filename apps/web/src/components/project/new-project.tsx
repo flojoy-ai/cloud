@@ -178,9 +178,8 @@ export default function NewProjectButton({ workspace, partVariations }: Props) {
                       )}
                     </FormControl>
                     <FormDescription>
-                      Which unit partVariation is this production line
-                      testing? <br /> Don&apos;t see your unit
-                      partVariation?{" "}
+                      Which unit partVariation is this production line testing?{" "}
+                      <br /> Don&apos;t see your unit partVariation?{" "}
                       <Link
                         to="/workspace"
                         className="underline hover:text-primary"
