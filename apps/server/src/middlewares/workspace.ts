@@ -19,7 +19,7 @@ export const WorkspaceMiddleware = new Elysia({ name: "WorkspaceMiddleware" })
       .executeTakeFirst();
 
     if (!workspace) {
-      return error("Bad Request");
+      return error(400, "Invalid workspace ID or you don't have access to it");
     }
 
     const workspaceUser = await db
@@ -30,7 +30,7 @@ export const WorkspaceMiddleware = new Elysia({ name: "WorkspaceMiddleware" })
       .executeTakeFirst();
 
     if (!workspaceUser) {
-      return error("Bad Request");
+      return error(400, "Invalid workspace ID or you don't have access to it");
     }
 
     return { workspace, workspaceUser };

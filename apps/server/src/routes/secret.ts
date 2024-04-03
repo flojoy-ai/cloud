@@ -1,5 +1,5 @@
 import { AuthMiddleware } from "../middlewares/auth";
-import { Elysia } from "elysia";
+import { Elysia, error } from "elysia";
 import { DatabaseError } from "pg";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
 import { db } from "../db/kysely";
@@ -12,16 +12,19 @@ export const SecretRoute = new Elysia({ prefix: "/secret" })
     DatabaseError,
   })
   .onError(({ code, error, set }) => {
-    // TODO: handle this better
     switch (code) {
       case "DatabaseError":
-        set.status = 409;
+        set.status = 500;
         return error;
       default:
         return error;
     }
   })
-  .get("/", async ({ workspaceUser }) => {
+  .get("/", async ({ workspaceUser, authMethod }) => {
+    if (authMethod === "secret") {
+      return error("I'm a teapot");
+    }
+
     const session = await db
       .selectFrom("user_session as us")
       .selectAll()
@@ -31,7 +34,11 @@ export const SecretRoute = new Elysia({ prefix: "/secret" })
 
     return session;
   })
-  .post("/", async ({ workspaceUser }) => {
+  .post("/", async ({ workspaceUser, authMethod }) => {
+    if (authMethod === "secret") {
+      return error("I'm a teapot");
+    }
+
     await db
       .deleteFrom("user_session as us")
       .where("us.userId", "=", workspaceUser.userId)
