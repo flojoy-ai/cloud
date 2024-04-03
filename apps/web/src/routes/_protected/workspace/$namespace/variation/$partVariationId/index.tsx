@@ -54,9 +54,19 @@ const unitColumns: ColumnDef<UnitWithParent>[] = [
     accessorKey: "parent",
     header: "Parent",
     cell: ({ row }) => {
+      if (!row.original.parent) return null;
       const parentName = row.original.parent?.serialNumber;
-      if (!parentName) return null;
-      return <Badge variant="outline">{parentName}</Badge>;
+      return (
+        <Link
+          from={WorkspaceIndexRoute.fullPath}
+          to="unit/$unitId"
+          params={{ unitId: row.original.parent.id }}
+        >
+          <Badge variant="outline" className="hover:bg-muted">
+            {parentName}
+          </Badge>
+        </Link>
+      );
     },
   },
   {
