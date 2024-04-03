@@ -14,6 +14,7 @@ const adapter = new NodePostgresAdapter(pool, {
 export const lucia = new Lucia(adapter, {
   sessionCookie: {
     expires: false,
+
     attributes: {
       secure: env.NODE_ENV === "production",
     },

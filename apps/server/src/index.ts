@@ -33,7 +33,7 @@ const app = new Elysia()
         "content-type",
         "flojoy-workspace-id",
         "use-superjson",
-        "flojoy-workspace-personal-access-token",
+        "flojoy-workspace-personal-secret",
       ],
     }),
   )

@@ -24,6 +24,9 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .addColumn("user_id", "text", (col) =>
       col.references("user.id").onDelete("cascade").notNull(),
     )
+    .addColumn("workspace_id", "text", (col) =>
+      col.references("workspace.id").onDelete("cascade"),
+    )
     .addColumn("expires_at", "timestamptz", (col) => col.notNull())
     .execute();
 

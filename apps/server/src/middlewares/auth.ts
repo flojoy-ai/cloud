@@ -1,12 +1,12 @@
 import { lucia } from "../auth/lucia";
 import { env } from "../env";
-import { Elysia, t } from "elysia";
+import { Elysia } from "elysia";
 import { verifyRequestOrigin } from "lucia";
 
 import type { User, Session } from "lucia";
 import { getUrlFromUri } from "../lib/url";
-import { decryptWorkspacePersonalAccessToken } from "../lib/secret";
-import { db } from "../db/kysely";
+
+type AuthMethod = "web" | "secret";
 
 export const AuthMiddleware = new Elysia()
   .derive(
@@ -15,6 +15,7 @@ export const AuthMiddleware = new Elysia()
     ): Promise<{
       user: User | null;
       session: Session | null;
+      authMethod: AuthMethod | null;
     }> => {
       // CSRF check
       if (context.request.method !== "GET") {
@@ -32,6 +33,7 @@ export const AuthMiddleware = new Elysia()
           return {
             user: null,
             session: null,
+            authMethod: null,
           };
         }
       }
@@ -43,6 +45,7 @@ export const AuthMiddleware = new Elysia()
         return {
           user: null,
           session: null,
+          authMethod: null,
         };
       }
 
@@ -64,41 +67,64 @@ export const AuthMiddleware = new Elysia()
       return {
         user,
         session,
+        authMethod: "web",
       };
     },
   )
   .propagate()
-  .guard({
-    headers: t.Object({
-      "flojoy-workspace-personal-access-token": t.Optional(t.String()),
-      "flojoy-workspace-id": t.Optional(t.String()),
-    }),
-  })
+  .derive(
+    async (
+      context,
+    ): Promise<{
+      user: User | null;
+      session: Session | null;
+      authMethod: AuthMethod | null;
+    }> => {
+      if (context.user && context.session && context.authMethod) {
+        return {
+          user: context.user,
+          session: context.session,
+          authMethod: context.authMethod,
+        };
+      }
+
+      const personalSecret =
+        context.request.headers.get("flojoy-workspace-personal-secret") ?? "";
+
+      const sessionId = lucia.readSessionCookie(
+        "auth_session=" + personalSecret,
+      );
+      if (!sessionId) {
+        return {
+          user: null,
+          session: null,
+          authMethod: null,
+        };
+      }
+
+      const { session, user } = await lucia.validateSession(sessionId);
+      return {
+        user,
+        session,
+        authMethod: "secret",
+      };
+    },
+  )
+  .propagate()
   .derive(
     async ({
-      headers,
       user,
       session,
+      authMethod,
     }): Promise<{
       user: User;
+      session: Session;
+      authMethod: AuthMethod;
     }> => {
-      if (!user || !session) {
-        const personalAccessToken =
-          headers["flojoy-workspace-personal-access-token"];
-        const workspaceId = headers["flojoy-workspace-id"];
-        if (personalAccessToken && workspaceId) {
-          const value =
-            await decryptWorkspacePersonalAccessToken(personalAccessToken);
-          const user = await db
-            .selectFrom("user as u")
-            .where("u.id", "=", value.userId)
-            .selectAll()
-            .executeTakeFirstOrThrow();
-          return { user };
-        }
+      if (!user || !session || !authMethod) {
         throw new Error("Unauthorized");
       }
-      return { user };
+      return { user, session, authMethod };
     },
   )
   .propagate();
