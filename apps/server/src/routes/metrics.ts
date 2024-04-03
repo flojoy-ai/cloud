@@ -1,8 +1,7 @@
-import Elysia, { Static, t } from "elysia";
+import Elysia, { t } from "elysia";
 import { getProjectMetrics, getWorkspaceMetrics } from "../db/metrics";
-import { WorkspaceMiddleware } from "../middlewares/workspace";
-import { match } from "ts-pattern";
 import { getPastStartTime, pastTimePeriod } from "../lib/time";
+import { WorkspaceMiddleware } from "../middlewares/workspace";
 
 export const timeFilterQueryParams = t.Object({
   past: pastTimePeriod,
