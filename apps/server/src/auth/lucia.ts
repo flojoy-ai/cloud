@@ -13,6 +13,8 @@ const adapter = new NodePostgresAdapter(pool, {
 
 export const lucia = new Lucia(adapter, {
   sessionCookie: {
+    // NOTE: keep this at false since we are also using this value for
+    // workspace personal secret
     expires: false,
 
     attributes: {
