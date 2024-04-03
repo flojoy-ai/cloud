@@ -27,14 +27,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { client } from "@/lib/client";
-import { getPartVariationsQueryKey } from "@/lib/queries/part-variation";
+import {
+  getPartPartVariationsQueryKey,
+  getPartVariationsQueryKey,
+} from "@/lib/queries/part-variation";
 import { handleError } from "@/lib/utils";
 import { Part, PartVariation, insertPartVariation } from "@cloud/shared";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
 import { Static, Type as t } from "@sinclair/typebox";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Cpu, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useEffect } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Checkbox } from "../ui/checkbox";
@@ -43,18 +46,39 @@ const partVariationFormSchema = t.Composite([
   insertPartVariation,
   t.Object({ hasComponents: t.Boolean() }),
 ]);
+
 type FormSchema = Static<typeof partVariationFormSchema>;
+
+export type CreatePartVariationDefaultValues = Omit<
+  FormSchema,
+  "workspaceId" | "partId"
+>;
 
 type Props = {
   workspaceId: string;
   partVariations: PartVariation[];
   part: Part;
+  defaultValues?: CreatePartVariationDefaultValues;
+  setDefaultValues: (
+    values: CreatePartVariationDefaultValues | undefined,
+  ) => void;
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  openDialog: () => void;
 };
 
-const CreatePartVariation = ({ workspaceId, partVariations, part }: Props) => {
+const CreatePartVariation = ({
+  workspaceId,
+  partVariations,
+  part,
+  open,
+  setOpen,
+  openDialog,
+  defaultValues,
+  setDefaultValues,
+}: Props) => {
   const queryClient = useQueryClient();
 
-  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const createPartVariation = useMutation({
     mutationFn: async (values: Static<typeof insertPartVariation>) => {
       const { error } = await client.partVariation.index.post(values, {
@@ -62,33 +86,64 @@ const CreatePartVariation = ({ workspaceId, partVariations, part }: Props) => {
       });
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, { partId }) => {
       queryClient.invalidateQueries({ queryKey: getPartVariationsQueryKey() });
+      queryClient.invalidateQueries({
+        queryKey: getPartPartVariationsQueryKey(partId),
+      });
 
-      setIsDialogOpen(false);
+      setOpen(false);
     },
   });
+
+  const getDefaultValues = useCallback(
+    (defaultValues?: CreatePartVariationDefaultValues) => {
+      return {
+        workspaceId,
+        partId: part.id,
+        ...(defaultValues ?? {
+          hasComponents: false,
+          components: [{ partVariationId: "", count: 1 }],
+        }),
+      };
+    },
+    [part.id, workspaceId],
+  );
 
   const form = useForm<FormSchema>({
     resolver: typeboxResolver(partVariationFormSchema),
-    defaultValues: {
-      workspaceId,
-      partId: part.id,
-      hasComponents: false,
-      components: [{ partVariationId: "", count: 1 }],
-    },
+    defaultValues: getDefaultValues(defaultValues),
   });
+
   const { fields, insert, remove } = useFieldArray({
     control: form.control,
     name: "components",
     keyName: "partVariationId",
   });
 
-  const handleRemove = (index: number) => {
+  // extremely annoying react hook form quirk with resetting field arrays
+  useEffect(() => {
+    if (open) {
+      form.reset(getDefaultValues(defaultValues));
+    } else {
+      form.reset(getDefaultValues(undefined));
+      setDefaultValues(undefined);
+    }
+  }, [
+    open,
+    defaultValues,
+    form,
+    part,
+    workspaceId,
+    getDefaultValues,
+    setDefaultValues,
+  ]);
+
+  const handleRemove = (i: number) => {
     if (fields.length === 1) {
       return;
     }
-    remove(index);
+    remove(i);
   };
 
   function onSubmit(values: FormSchema) {
@@ -100,8 +155,8 @@ const CreatePartVariation = ({ workspaceId, partVariations, part }: Props) => {
           components: [],
         }),
         {
-          loading: "Creating your partVariation...",
-          success: "PartVariation created.",
+          loading: "Creating your part variation...",
+          success: "Part variation created.",
           error: handleError,
         },
       );
@@ -110,7 +165,7 @@ const CreatePartVariation = ({ workspaceId, partVariations, part }: Props) => {
       for (let i = 0; i < values.components.length; i++) {
         if (values.components[i]?.partVariationId === "") {
           form.setError(`components.${i}.partVariationId` as const, {
-            message: "Cannot have empty component partVariation",
+            message: "Cannot have empty component part",
           });
           hasError = true;
         }
@@ -120,8 +175,8 @@ const CreatePartVariation = ({ workspaceId, partVariations, part }: Props) => {
       }
 
       toast.promise(createPartVariation.mutateAsync(rest), {
-        loading: "Creating your partVariation...",
-        success: "PartVariation created.",
+        loading: "Creating your part variation...",
+        success: "Part variation created.",
         error: handleError,
       });
     }
@@ -129,15 +184,15 @@ const CreatePartVariation = ({ workspaceId, partVariations, part }: Props) => {
 
   return (
     <Dialog
-      open={isDialogOpen}
+      open={open}
       onOpenChange={(open) => {
-        setIsDialogOpen(open);
-        if (!open) {
-          form.reset();
+        setOpen(open);
+        if (open) {
+          form.reset(defaultValues);
         }
       }}
     >
-      <DialogTrigger asChild>
+      <DialogTrigger asChild onClick={() => openDialog()}>
         <Button variant="default" size="sm">
           <Cpu className="mr-2 text-muted" size={20} />
           Create
@@ -152,7 +207,10 @@ const CreatePartVariation = ({ workspaceId, partVariations, part }: Props) => {
         </DialogHeader>
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(onSubmit, (e) => console.log(e))}
+            onSubmit={form.handleSubmit(onSubmit, (e) => {
+              console.log(e);
+              console.log(form.getValues());
+            })}
             className="space-y-4"
           >
             <FormField
@@ -223,7 +281,6 @@ const CreatePartVariation = ({ workspaceId, partVariations, part }: Props) => {
                   <div className="flex gap-2 " key={field.partVariationId}>
                     <FormField
                       control={form.control}
-                      key={field.partVariationId}
                       name={`components.${index}.partVariationId` as const}
                       render={({ field }) => (
                         <FormItem>
@@ -296,9 +353,9 @@ const CreatePartVariation = ({ workspaceId, partVariations, part }: Props) => {
                   <Plus size={16} className="mr-2" /> Add Component
                 </Button>
                 <FormDescription>
-                  When you try to initialize an system instance based on this
-                  part variation, then you first need to make sure all its
-                  components exist.
+                  When you try to initialize an unit based on this part
+                  variation, then you first need to make sure all its components
+                  exist.
                 </FormDescription>
               </div>
             )}
