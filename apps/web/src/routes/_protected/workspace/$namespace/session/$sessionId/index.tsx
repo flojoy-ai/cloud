@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils";
 import _ from "lodash";
 import { useMemo } from "react";
 import { Card } from "@/components/ui/card";
-import { Check, X } from "lucide-react";
+import { Check, CpuIcon, X } from "lucide-react";
 import CenterLoadingSpinner from "@/components/center-loading-spinner";
 
 export const Route = createFileRoute(
@@ -186,45 +186,58 @@ function Page() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <PageHeader>
-        <PageHeaderHeading className="">
-          Test Session for{" "}
-          <Link
-            className="underline hover:text-muted-foreground"
-            from={WorkspaceIndexRoute.fullPath}
-            to="unit/$unitId"
-            params={{ unitId: unit.id }}
-          >
-            {unit.serialNumber}
-          </Link>
-        </PageHeaderHeading>
-        <PageHeaderDescription>
-          {session.createdAt.toLocaleString()}
-        </PageHeaderDescription>
-      </PageHeader>
 
-      <Card className="w-fit p-4 text-center">
-        <div
-          className={cn(
-            "flex items-center justify-center gap-2 text-2xl font-bold",
-            pickTernary(
-              status.passing,
-              "text-green-500",
-              "text-red-500",
-              "text-muted-foreground",
-            ),
+      <div className="flex mb-4">
+        <div className="flex-grow min-w-96">
+          <PageHeader>
+            <PageHeaderHeading>
+              Test Session
+            </PageHeaderHeading>
+            <div className="flex flex-wrap h-8 item-center justify-center max-w-[750px] text-lg text-muted-foreground sm:text-xl">
+              <CpuIcon className="h-6 w-6 mr-2" />
+              <p className="pb-3 mr-1"> Unit Under Test:</p>
+              <Link
+                className="underline hover:text-muted-foreground"
+                from={WorkspaceIndexRoute.fullPath}
+                to="unit/$unitId"
+                params={{ unitId: unit.id }}
+              >
+                {unit.serialNumber}
+              </Link>
+            </div>
+          </PageHeader>
+        </div>
+
+        <Card className=" w-fit p-4 mt-8 text-center">
+          { session.aborted ? (
+            <div className="flex items-center justify-center gap-2 text-2xl font-bold text-red-500">
+                Aborted
+            </div>
+          ) : (
+          <div
+            className={cn(
+              "flex items-center justify-center gap-2 text-2xl font-bold",
+              pickTernary(
+                status.passing,
+                "text-green-500",
+                "text-red-500",
+                "text-muted-foreground",
+              ),
+            )}
+          >
+            {pickTernary(status.passing, "Passing", "Failing", "Unevaluated")}
+            {pickTernary(status.passing, <check />, <x />, <></>)}
+          </div>
           )}
-        >
-          {pickTernary(status.passing, "Passing", "Failing", "Unevaluated")}
-          {pickTernary(status.passing, <Check />, <X />, <></>)}
-        </div>
-        <div className="py-2" />
-        <div className="text-sm text-muted-foreground">
-          <span>{status.passCount} passed</span>,{" "}
-          <span>{status.failCount} failed</span>,{" "}
-          <span>{status.unevaluatedCount} unevaluated</span>
-        </div>
-      </Card>
+          <div className="py-2" />
+          <div className="text-sm text-muted-foreground">
+            <span>{status.passCount} passed</span>,{" "}
+            <span>{status.failCount} failed</span>,{" "}
+            <span>{status.unevaluatedCount} unevaluated</span>
+          </div>
+        </Card>
+      </div>
+
       <DataTable columns={columns} data={session.measurements} />
     </div>
   );
