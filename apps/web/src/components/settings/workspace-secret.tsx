@@ -1,13 +1,13 @@
 import { Workspace } from "@cloud/shared";
-import { Secret } from "@cloud/shared/src/schemas/public/Secret";
 import { Button } from "../ui/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { client } from "@/lib/client";
 import { getSecretQueryKey } from "@/lib/queries/secret";
+import { UserSession } from "@cloud/shared/src/schemas/public/UserSession";
 
 type Props = {
   workspace: Workspace;
-  secret: Secret | null;
+  secret: UserSession | null;
 };
 
 const WorkspaceSecret = ({ workspace, secret }: Props) => {
@@ -31,11 +31,11 @@ const WorkspaceSecret = ({ workspace, secret }: Props) => {
     <div className="">
       <Button onClick={handleGenerate}>Generate</Button>
       {secret && (
-        <Button onClick={() => navigator.clipboard.writeText(secret.value)}>
+        <Button onClick={() => navigator.clipboard.writeText(secret.id)}>
           Copy
         </Button>
       )}
-      <div className="whitespace-pre-wrap break-words">{secret?.value}</div>
+      <div className="whitespace-pre-wrap break-words">{secret?.id}</div>
       <div className="whitespace-pre-wrap break-words">{workspace.id}</div>
     </div>
   );

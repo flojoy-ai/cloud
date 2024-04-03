@@ -3,8 +3,9 @@ import { generateDatabaseId } from "../lib/db-utils";
 import { Result, err, ok } from "neverthrow";
 import { DB, InsertSession, Session } from "@cloud/shared";
 import { jsonArrayFrom } from "kysely/helpers/postgres";
+import { db } from "./kysely";
 
-export async function getSessionsByUnit(db: Kysely<DB>, unitId: string) {
+export async function getSessionsByUnit(unitId: string) {
   return await db
     .selectFrom("session")
     .selectAll()
@@ -13,7 +14,7 @@ export async function getSessionsByUnit(db: Kysely<DB>, unitId: string) {
     .execute();
 }
 
-export async function getSessionsByStation(db: Kysely<DB>, stationId: string) {
+export async function getSessionsByStation(stationId: string) {
   return await db
     .selectFrom("session")
     .selectAll()
@@ -22,7 +23,7 @@ export async function getSessionsByStation(db: Kysely<DB>, stationId: string) {
     .execute();
 }
 
-export async function getSessionsByProject(db: Kysely<DB>, projectId: string) {
+export async function getSessionsByProject(projectId: string) {
   return await db
     .selectFrom("session")
     .selectAll()

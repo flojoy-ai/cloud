@@ -14,21 +14,21 @@ export const SessionRoute = new Elysia({ prefix: "/session" })
   .get(
     "/unit/:unitId",
     async ({ params: { unitId } }) => {
-      return await getSessionsByUnit(db, unitId);
+      return await getSessionsByUnit(unitId);
     },
     { params: t.Object({ unitId: t.String() }) },
   )
   .get(
     "/project/:projectId",
     async ({ params: { projectId } }) => {
-      return await getSessionsByProject(db, projectId);
+      return await getSessionsByProject(projectId);
     },
     { params: t.Object({ projectId: t.String() }) },
   )
   .get(
     "/station/:stationId",
     async ({ params: { stationId } }) => {
-      return await getSessionsByStation(db, stationId);
+      return await getSessionsByStation(stationId);
     },
     { params: t.Object({ stationId: t.String() }) },
   )

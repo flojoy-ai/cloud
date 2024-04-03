@@ -1,6 +1,5 @@
 import { db } from "../db/kysely";
 import { createStation } from "../db/station";
-// import { ProjectMiddleware } from "../middlewares/project";
 import { InsertStation } from "@cloud/shared";
 import { Elysia, error, t } from "elysia";
 import { DatabaseError } from "pg";
@@ -22,7 +21,6 @@ export const StationRoute = new Elysia({
         return error;
     }
   })
-  // .use(ProjectMiddleware)
   .get("/:stationId", async ({ params: { stationId } }) => {
     // FIXME: permission check
     const station = await db

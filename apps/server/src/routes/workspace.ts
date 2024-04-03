@@ -6,7 +6,10 @@ import { DatabaseError } from "pg";
 import { generateDatabaseId } from "../lib/db-utils";
 import { populateExample } from "../db/example";
 
-export const WorkspaceRoute = new Elysia({ prefix: "/workspace" })
+export const WorkspaceRoute = new Elysia({
+  prefix: "/workspace",
+  name: "WorkspaceRoute",
+})
   .use(AuthMiddleware)
   .error({
     DatabaseError,
@@ -15,7 +18,7 @@ export const WorkspaceRoute = new Elysia({ prefix: "/workspace" })
     // TODO: handle this better
     switch (code) {
       case "DatabaseError":
-        set.status = 409;
+        set.status = 500;
         return error;
       default:
         return error;
@@ -91,7 +94,7 @@ export const WorkspaceRoute = new Elysia({ prefix: "/workspace" })
       .executeTakeFirstOrThrow(
         () =>
           new NotFoundError(
-            `Workspace with namespace '${params.namespace}' not found`,
+            "You do not have access to this workspace or it does not exist",
           ),
       );
   });

@@ -1,9 +1,9 @@
 import { AuthMiddleware } from "../middlewares/auth";
-import { Elysia } from "elysia";
+import { Elysia, error } from "elysia";
 import { DatabaseError } from "pg";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
-import { generateWorkpspacePersonalAccessToken } from "../lib/secret";
 import { db } from "../db/kysely";
+import { lucia } from "../auth/lucia";
 
 export const SecretRoute = new Elysia({ prefix: "/secret" })
   .use(AuthMiddleware)
@@ -12,36 +12,42 @@ export const SecretRoute = new Elysia({ prefix: "/secret" })
     DatabaseError,
   })
   .onError(({ code, error, set }) => {
-    // TODO: handle this better
     switch (code) {
       case "DatabaseError":
-        set.status = 409;
+        set.status = 500;
         return error;
       default:
         return error;
     }
   })
-  .get("/", async ({ workspaceUser }) => {
-    const secret = await db
-      .selectFrom("secret as s")
+  .get("/", async ({ workspaceUser, authMethod }) => {
+    if (authMethod === "secret") {
+      return error("I'm a teapot");
+    }
+
+    const session = await db
+      .selectFrom("user_session as us")
       .selectAll()
-      .where("s.userId", "=", workspaceUser.userId)
-      .where("s.workspaceId", "=", workspaceUser.workspaceId)
+      .where("us.userId", "=", workspaceUser.userId)
+      .where("us.workspaceId", "=", workspaceUser.workspaceId)
       .executeTakeFirst();
 
-    return secret;
+    return session;
   })
-  .post("/", async ({ workspaceUser }) => {
-    const value = await generateWorkpspacePersonalAccessToken(workspaceUser);
+  .post("/", async ({ workspaceUser, authMethod }) => {
+    if (authMethod === "secret") {
+      return error("I'm a teapot");
+    }
 
-    const secret = await db
-      .insertInto("secret")
-      .values({
-        userId: workspaceUser.userId,
-        workspaceId: workspaceUser.workspaceId,
-        value,
-      })
+    await db
+      .deleteFrom("user_session as us")
+      .where("us.userId", "=", workspaceUser.userId)
+      .where("us.workspaceId", "=", workspaceUser.workspaceId)
       .execute();
 
-    return secret;
+    const session = await lucia.createSession(workspaceUser.userId, {
+      workspace_id: workspaceUser.workspaceId,
+    });
+
+    return session;
   });
