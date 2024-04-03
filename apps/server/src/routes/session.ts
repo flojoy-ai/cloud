@@ -9,7 +9,7 @@ export const SessionRoute = new Elysia({ prefix: "/session" })
   .get(
     "/unit/:unitId",
     async ({ params: { unitId } }) => {
-      return await getSessions(db, unitId);
+      return await getSessions(unitId);
     },
     { params: t.Object({ unitId: t.String() }) },
   )

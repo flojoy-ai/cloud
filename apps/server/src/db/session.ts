@@ -3,8 +3,9 @@ import { generateDatabaseId } from "../lib/db-utils";
 import { Result, err, ok } from "neverthrow";
 import { DB, InsertSession, Session } from "@cloud/shared";
 import { jsonArrayFrom } from "kysely/helpers/postgres";
+import { db } from "./kysely";
 
-export async function getSessions(db: Kysely<DB>, unitId: string) {
+export async function getSessions(unitId: string) {
   return await db
     .selectFrom("session")
     .selectAll()
