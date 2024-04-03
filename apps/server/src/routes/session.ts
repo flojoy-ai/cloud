@@ -6,6 +6,7 @@ import { insertMeasurement, insertSession, sessionMeasurement } from "@cloud/sha
 import { AuthMiddleware } from "../middlewares/auth";
 import { createMeasurement } from "../db/measurement";
 import { getStation } from "../db/station";
+import { getUnit, getUnitBySerialNumber } from "../db/unit";
 
 export const SessionRoute = new Elysia({ prefix: "/session" })
   .use(WorkspaceMiddleware)
@@ -48,8 +49,12 @@ export const SessionRoute = new Elysia({ prefix: "/session" })
       if (station === undefined) {
         return error(404, "Station not found");
       }
+      const unit = await getUnitBySerialNumber(db, body.serialNumber);
+      if (unit === undefined) {
+        return error(404, `Serial Number ${body.serialNumber} not found`);
+      }
       const toInsertSession = {
-        unitId: body.unitId,
+        unitId: unit.id,
         userId: user.id,
         projectId: station.projectId,
         stationId: body.stationId,
@@ -67,7 +72,7 @@ export const SessionRoute = new Elysia({ prefix: "/session" })
         body.measurements.map((measurement) => createMeasurement(db, workspace.id, {
           ...measurement,
           sessionId: newSession.value.id,
-          unitId: body.unitId,
+          unitId: unit.id,
           projectId: station.projectId,
           tagNames: []
         }))
@@ -76,7 +81,7 @@ export const SessionRoute = new Elysia({ prefix: "/session" })
     },
     {
       body: t.Object({ 
-        unitId: t.String(),
+        serialNumber: t.String(),
         stationId: t.String(),
         integrity: t.Boolean(),
         aborted: t.Boolean(),

@@ -398,7 +398,6 @@ class FlojoyCloud:
     def upload_session(
         self,
         serial_number: str,
-        part_number: str,
         station_id: str,
         integrity: bool,
         aborted: bool,
@@ -407,20 +406,17 @@ class FlojoyCloud:
         measurements: List[SessionMeasurement],
     ):
 
-        hardware_id = self.get_hardware_id(part_number, serial_number)
         m_list = []
         for m in measurements:
             # Find id of each part
-            part_variant_id = "TODO"
             m_list.append({
-                "partVariantId": part_variant_id,
                 "data": make_payload(m.data),
                 "name": m.name,
                 "pass": m.passed,
                 "createdAt": m.created_at.isoformat() if m.created_at else None
             })
         body = _make_params({
-            "hardwareId": hardware_id,
+            "serialNumber": serial_number,
             "stationId": station_id,
             "integrity": integrity,
             "aborted": aborted,

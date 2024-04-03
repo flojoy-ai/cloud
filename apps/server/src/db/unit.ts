@@ -363,3 +363,11 @@ export async function getUnitComponentsWithPartVariation(id: string) {
     .where("hr.parentUnitId", "=", id)
     .execute();
 }
+
+export async function getUnitBySerialNumber(db: Kysely<DB>, serialNumber: string) {
+  return await db
+    .selectFrom("unit")
+    .selectAll()
+    .where("unit.serialNumber", "=", serialNumber)
+    .executeTakeFirst();
+}
