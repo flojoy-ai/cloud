@@ -7,7 +7,6 @@ import {
   ShoppingCart,
 } from "lucide-react";
 import { useState } from "react";
-
 import {
   Command,
   CommandGroup,
@@ -128,6 +127,7 @@ type Props = {
   activeClassName?: string;
   listClassName?: string;
   width?: string;
+  small?: boolean;
 };
 
 const groupSearchResults = (results: SearchResult[]) => {
@@ -145,6 +145,7 @@ const SearchBar = ({
   emptyClassName,
   activeClassName,
   listClassName,
+  small,
 }: Props) => {
   const [value, setValue] = useState("");
   const [selected, setSelected] = useState(false);
@@ -179,14 +180,16 @@ const SearchBar = ({
       <Command
         className={cn(
           "rounded-lg border",
+          small ? "h-8" : "",
           !showResults
             ? cn("rounded-lg border", emptyClassName)
             : cn("rounded-b-none border border-b-0", activeClassName),
         )}
       >
         <CommandInput
-          placeholder="Type a command or search..."
+          placeholder={small ? "Search" : "Type a command or search..."}
           onValueChange={setValue}
+          className={small ? "py-0 h-8" : ""}
           // FIXME: this hack to allow the links to be clicked properly before the component unmounts
           onBlur={() => setTimeout(() => setSelected(false), 75)}
           onFocus={() => setSelected(true)}
