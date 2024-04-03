@@ -217,8 +217,8 @@ function UnitPage() {
             tree={unit}
             onNodeClick={(node) => {
               router.navigate({
-                from: Route.fullPath,
-                to: "../$unitId",
+                from: "/workspace/$namespace/unit/$unitId",
+                to: "/workspace/$namespace/unit/$unitId/",
                 params: { unitId: node.data.unit.id },
               });
             }}
