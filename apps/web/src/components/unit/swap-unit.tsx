@@ -36,10 +36,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { client } from "@/lib/client";
-import {
-  getUnitQueryKey,
-  getUnitsQueryOpts,
-} from "@/lib/queries/unit";
+import { getUnitQueryKey, getUnitsQueryOpts } from "@/lib/queries/unit";
 import {
   Workspace,
   UnitTreeRoot,
@@ -104,9 +101,7 @@ const SwapUnit = ({ workspace, unit }: Props) => {
     (c) => c.id === selectedComponent,
   )?.partVariationId;
   const swappable = selectedPartVariation
-    ? availableUnit?.filter(
-        (h) => h.partVariationId === selectedPartVariation,
-      )
+    ? availableUnit?.filter((h) => h.partVariationId === selectedPartVariation)
     : availableUnit;
 
   return (

@@ -62,11 +62,7 @@ export const PartVariationRoute = new Elysia({ prefix: "/partVariation" })
             .selectAll("unit")
             .where("unit.workspaceId", "=", workspace.id)
             .where("unit.partVariationId", "=", partVariationId)
-            .leftJoin(
-              "unit_relation",
-              "unit.id",
-              "unit_relation.childUnitId",
-            )
+            .leftJoin("unit_relation", "unit.id", "unit_relation.childUnitId")
             .select((eb) =>
               jsonObjectFrom(
                 eb

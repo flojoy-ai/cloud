@@ -45,8 +45,7 @@ export const BouncyCardsFeatures = () => {
           <CardTitle>Ludicrous scalability</CardTitle>
           <div className="absolute bottom-0 left-4 right-4 top-32 translate-y-8 rounded-t-2xl bg-gradient-to-br from-green-400 to-emerald-400 p-4 transition-transform duration-200 group-hover:translate-y-4 group-hover:rotate-[2deg]">
             <span className="block text-center font-semibold text-emerald-50">
-              Scale to millions of unit devices with billions of
-              measurements.
+              Scale to millions of unit devices with billions of measurements.
             </span>
           </div>
         </BounceCard>

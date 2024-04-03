@@ -52,73 +52,58 @@ export const UnitRoute = new Elysia({ prefix: "/unit" })
     },
     { body: insertUnit },
   )
-  .group(
-    "/:unitId",
-    { params: t.Object({ unitId: t.String() }) },
-    (app) =>
-      app
-        .use(UnitMiddleware)
-        .get("/", async ({ workspace, params: { unitId }, error }) => {
-          const unit = await db
-            .selectFrom("unit")
-            .selectAll("unit")
-            .where("id", "=", unitId)
-            .where("workspaceId", "=", workspace.id)
-            .select((eb) => withUnitPartVariation(eb))
-            .leftJoin(
-              "unit_relation",
-              "unit.id",
-              "unit_relation.childUnitId",
-            )
-            .select((eb) =>
-              jsonObjectFrom(
-                eb
-                  .selectFrom("unit as h")
-                  .selectAll("h")
-                  .select((eb) =>
-                    jsonObjectFrom(
-                      eb
-                        .selectFrom("part_variation")
-                        .selectAll("part_variation")
-                        .whereRef(
-                          "part_variation.id",
-                          "=",
-                          "h.partVariationId",
-                        ),
-                    ).as("partVariation"),
-                  )
-                  .$narrowType<{ partVariation: PartVariation }>()
-                  .whereRef("h.id", "=", "unit_relation.parentUnitId"),
-              ).as("parent"),
-            )
-            .$narrowType<{ partVariation: PartVariation }>()
-            .executeTakeFirst();
-          if (unit === undefined) {
-            return error(404, "PartVariation not found");
+  .group("/:unitId", { params: t.Object({ unitId: t.String() }) }, (app) =>
+    app
+      .use(UnitMiddleware)
+      .get("/", async ({ workspace, params: { unitId }, error }) => {
+        const unit = await db
+          .selectFrom("unit")
+          .selectAll("unit")
+          .where("id", "=", unitId)
+          .where("workspaceId", "=", workspace.id)
+          .select((eb) => withUnitPartVariation(eb))
+          .leftJoin("unit_relation", "unit.id", "unit_relation.childUnitId")
+          .select((eb) =>
+            jsonObjectFrom(
+              eb
+                .selectFrom("unit as h")
+                .selectAll("h")
+                .select((eb) =>
+                  jsonObjectFrom(
+                    eb
+                      .selectFrom("part_variation")
+                      .selectAll("part_variation")
+                      .whereRef("part_variation.id", "=", "h.partVariationId"),
+                  ).as("partVariation"),
+                )
+                .$narrowType<{ partVariation: PartVariation }>()
+                .whereRef("h.id", "=", "unit_relation.parentUnitId"),
+            ).as("parent"),
+          )
+          .$narrowType<{ partVariation: PartVariation }>()
+          .executeTakeFirst();
+        if (unit === undefined) {
+          return error(404, "PartVariation not found");
+        }
+
+        return await getUnitTree(unit);
+      })
+      .patch(
+        "/",
+        async ({ unit, workspaceUser, body, error }) => {
+          if (workspaceUser.role === "member") {
+            return error("Forbidden");
+          }
+          const res = await doUnitComponentSwap(unit, workspaceUser, body);
+          if (res.isErr()) {
+            return error(res.error.code, res.error.message);
           }
 
-          return await getUnitTree(unit);
-        })
-        .patch(
-          "/",
-          async ({ unit, workspaceUser, body, error }) => {
-            if (workspaceUser.role === "member") {
-              return error("Forbidden");
-            }
-            const res = await doUnitComponentSwap(
-              unit,
-              workspaceUser,
-              body,
-            );
-            if (res.isErr()) {
-              return error(res.error.code, res.error.message);
-            }
-
-            return {};
-          },
-          { body: swapUnitComponent },
-        )
-        .get("/revisions", async ({ unit }) => {
-          return await getUnitRevisions(unit.id);
-        }),
+          return {};
+        },
+        { body: swapUnitComponent },
+      )
+      .get("/revisions", async ({ unit }) => {
+        return await getUnitRevisions(unit.id);
+      }),
   );
