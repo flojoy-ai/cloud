@@ -36,6 +36,7 @@ const WorkspaceSecret = ({ workspace, secret }: Props) => {
         </Button>
       )}
       <div className="whitespace-pre-wrap break-words">{secret?.value}</div>
+      <div className="whitespace-pre-wrap break-words">{workspace.id}</div>
     </div>
   );
 };
