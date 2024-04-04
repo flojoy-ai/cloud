@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils";
 import _ from "lodash";
 import { useMemo } from "react";
 import { Card } from "@/components/ui/card";
-import { CpuIcon } from "lucide-react";
+import { Check, CpuIcon, X } from "lucide-react";
 import CenterLoadingSpinner from "@/components/center-loading-spinner";
 
 export const Route = createFileRoute(
