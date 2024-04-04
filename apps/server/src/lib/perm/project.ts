@@ -2,16 +2,17 @@ import { User } from "lucia";
 import { db } from "../../db/kysely";
 import { Result, err, ok } from "neverthrow";
 import { Permission } from "../../types/perm";
+import { projectRoleToPerm } from "../perm";
 
 type GetProjectPermParams = {
   projectId: string;
   user: User;
 };
 
-export async function getProjectPerm({
-  projectId,
-  user,
-}: GetProjectPermParams): Promise<Result<Permission, string>> {
+export async function checkProjectPerm(
+  { projectId, user }: GetProjectPermParams,
+  perm: Permission,
+): Promise<Result<boolean, string>> {
   const projectUser = await db
     .selectFrom("project_user as pu")
     .selectAll()
@@ -23,11 +24,5 @@ export async function getProjectPerm({
     return err("Invalid project ID or you don't have access to it");
   }
 
-  switch (projectUser.role) {
-    case "test":
-      return ok("read" satisfies Permission);
-
-    case "dev":
-      return ok("write" satisfies Permission);
-  }
+  return ok(perm === projectRoleToPerm(projectUser.role));
 }

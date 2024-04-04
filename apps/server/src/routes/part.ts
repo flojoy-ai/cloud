@@ -1,16 +1,18 @@
 import { db } from "../db/kysely";
-import Elysia, { t } from "elysia";
+import Elysia, { error, t } from "elysia";
 import { createPart } from "../db/part";
 import { insertPart } from "@cloud/shared";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
+import { checkPartPerm } from "../lib/perm/part";
+import { checkWorkspacePerm } from "../lib/perm/workspace";
 
-export const PartRoute = new Elysia({ prefix: "/part" })
+export const PartRoute = new Elysia({ prefix: "/part", name: "PartRoute" })
   .use(WorkspaceMiddleware)
-  .get("/", async ({ workspace }) => {
+  .get("/", async ({ workspaceUser }) => {
     const families = await db
       .selectFrom("part")
       .selectAll("part")
-      .where("part.workspaceId", "=", workspace.id)
+      .where("part.workspaceId", "=", workspaceUser.workspaceId)
       .leftJoin("part_variation", "part_variation.partId", "part.id")
       .leftJoin("unit", "part_variation.id", "unit.partVariationId")
       .select(({ fn }) =>
@@ -42,6 +44,23 @@ export const PartRoute = new Elysia({ prefix: "/part" })
         },
         {
           params: t.Object({ partId: t.String() }),
+          async beforeHandle({ params, workspaceUser }) {
+            const result = await checkPartPerm(
+              {
+                partId: params.partId,
+                workspaceUser,
+              },
+              "read",
+            );
+
+            if (result.isErr()) {
+              return error(403, result.error);
+            }
+
+            if (!result.value) {
+              return error(403, "You do not have permission to read this part");
+            }
+          },
         },
       )
       .get(
@@ -59,7 +78,26 @@ export const PartRoute = new Elysia({ prefix: "/part" })
 
           return partVariations;
         },
-        { params: t.Object({ partId: t.String() }) },
+        {
+          params: t.Object({ partId: t.String() }),
+          async beforeHandle({ params, workspaceUser }) {
+            const result = await checkPartPerm(
+              {
+                partId: params.partId,
+                workspaceUser,
+              },
+              "read",
+            );
+
+            if (result.isErr()) {
+              return error(403, result.error);
+            }
+
+            if (!result.value) {
+              return error(403, "You do not have permission to read this part");
+            }
+          },
+        },
       ),
   )
   .post(
@@ -71,5 +109,17 @@ export const PartRoute = new Elysia({ prefix: "/part" })
       }
       return res.value;
     },
-    { body: insertPart },
+    {
+      body: insertPart,
+      async beforeHandle({ workspaceUser }) {
+        const result = await checkWorkspacePerm({ workspaceUser }, "write");
+
+        if (result.isErr()) {
+          return error(403, result.error);
+        }
+        if (!result.value) {
+          return error(403, "You do not have permission to create a part");
+        }
+      },
+    },
   );

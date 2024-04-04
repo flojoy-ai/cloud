@@ -1,7 +1,6 @@
 import { db } from "../db/kysely";
 import { createProject } from "../db/project";
-import { canRead } from "../lib/perm";
-import { getProjectPerm } from "../lib/perm/project";
+import { checkProjectPerm } from "../lib/perm/project";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
 import { CreateProjectSchema } from "@cloud/shared";
 import { Elysia, error } from "elysia";
@@ -96,16 +95,19 @@ export const ProjectRoute = new Elysia({
     },
     {
       async beforeHandle({ params, user }) {
-        const permission = await getProjectPerm({
-          projectId: params.projectId,
-          user: user,
-        });
+        const hasPermission = await checkProjectPerm(
+          {
+            projectId: params.projectId,
+            user: user,
+          },
+          "read",
+        );
 
-        if (permission.isErr()) {
-          return error(403, permission.error);
+        if (hasPermission.isErr()) {
+          return error(403, hasPermission.error);
         }
 
-        if (!canRead(permission.value)) {
+        if (!hasPermission.value) {
           return error(403, "You do not have permission to read this project");
         }
       },
