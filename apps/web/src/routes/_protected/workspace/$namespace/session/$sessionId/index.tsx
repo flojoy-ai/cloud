@@ -220,7 +220,7 @@ function Page() {
               )}
             >
               {pickTernary(status.passing, "Passing", "Failing", "Unevaluated")}
-              {pickTernary(status.passing, <check />, <x />, <></>)}
+              {pickTernary(status.passing, <Check />, <X />, <></>)}
             </div>
           )}
           <div className="py-2" />
