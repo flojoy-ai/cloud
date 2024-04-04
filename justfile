@@ -54,17 +54,24 @@ check-ruff:
   just packages/python/check
 
 # ----- railway -----
+
 railway:
   just apps/web/railway
   just apps/server/railway
 
 # ----- env -----
+
 env:
   just apps/web/railway
   just apps/server/railway
 
 # ----- nuke -----
+
 nuke:
   rm -rf node_modules
   rm -rf apps/server/node_modules
   rm -rf apps/web/node_modules
+
+# ----- postgres -----
+
+docker compose -f docker-compose.dev.yml up
