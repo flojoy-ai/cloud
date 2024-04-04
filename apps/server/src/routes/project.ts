@@ -102,11 +102,11 @@ export const ProjectRoute = new Elysia({
       return project;
     },
     {
-      async beforeHandle({ params, user }) {
+      async beforeHandle({ params, workspaceUser }) {
         const hasPermission = await checkProjectPerm(
           {
             projectId: params.projectId,
-            user: user,
+            workspaceUser,
           },
           "read",
         );

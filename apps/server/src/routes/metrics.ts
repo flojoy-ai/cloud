@@ -1,4 +1,4 @@
-import Elysia, { t } from "elysia";
+import { Elysia, t } from "elysia";
 import { getProjectMetrics, getWorkspaceMetrics } from "../db/metrics";
 import { getPastStartTime, pastTimePeriod } from "../lib/time";
 import { WorkspaceMiddleware } from "../middlewares/workspace";

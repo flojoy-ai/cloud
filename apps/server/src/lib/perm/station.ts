@@ -4,24 +4,33 @@ import { Permission } from "../../types/perm";
 import { canAdmin, canRead, canWrite, projectRoleToPerm } from "../perm";
 import { WorkspaceUser } from "@cloud/shared";
 
-type GetProjectPermParams = {
-  projectId: string;
+type GetStationPermParams = {
+  stationId: string;
   workspaceUser: WorkspaceUser;
 };
 
-export async function checkProjectPerm(
-  { projectId, workspaceUser }: GetProjectPermParams,
+export async function checkStationPerm(
+  { stationId, workspaceUser }: GetStationPermParams,
   perm: Permission,
 ): Promise<Result<boolean, string>> {
+  const station = await db
+    .selectFrom("station as s")
+    .selectAll()
+    .where("s.id", "=", stationId)
+    .executeTakeFirstOrThrow();
+
   const projectUser = await db
     .selectFrom("project_user as pu")
     .selectAll()
     .where("pu.userId", "=", workspaceUser.userId)
-    .where("pu.projectId", "=", projectId)
-    .executeTakeFirst();
+    .where("pu.projectId", "=", station.projectId)
+    .executeTakeFirstOrThrow();
 
-  if (!projectUser) {
-    return err("Invalid project ID or you don't have access to it");
+  if (
+    projectUser.userId !== workspaceUser.userId ||
+    projectUser.workspaceId !== workspaceUser.workspaceId
+  ) {
+    return err("Invalid station ID or you don't have access to it");
   }
 
   switch (perm) {
