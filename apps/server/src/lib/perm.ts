@@ -35,6 +35,10 @@ export function canAdmin(perm: Permission): boolean {
   }
 }
 
+export function isPending(perm: Permission): boolean {
+  return perm === "pending";
+}
+
 export function workspaceRoleToPerm(workspaceRole: WorkspaceRole): Permission {
   switch (workspaceRole) {
     case "admin":

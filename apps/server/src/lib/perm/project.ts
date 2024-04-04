@@ -1,7 +1,13 @@
 import { db } from "../../db/kysely";
 import { Result, err, ok } from "neverthrow";
 import { Permission } from "../../types/perm";
-import { canAdmin, canRead, canWrite, projectRoleToPerm } from "../perm";
+import {
+  canAdmin,
+  canRead,
+  canWrite,
+  isPending,
+  projectRoleToPerm,
+} from "../perm";
 import { WorkspaceUser } from "@cloud/shared";
 
 type GetProjectPermParams = {
@@ -31,5 +37,7 @@ export async function checkProjectPerm(
       return ok(canWrite(projectRoleToPerm(projectUser.role)));
     case "admin":
       return ok(canAdmin(projectRoleToPerm(projectUser.role)));
+    case "pending":
+      return ok(isPending(projectRoleToPerm(projectUser.role)));
   }
 }

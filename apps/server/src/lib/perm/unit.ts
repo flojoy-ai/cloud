@@ -2,7 +2,13 @@ import { db } from "../../db/kysely";
 import { Result, err, ok } from "neverthrow";
 import { Permission } from "../../types/perm";
 import { WorkspaceUser } from "@cloud/shared";
-import { canAdmin, canRead, canWrite, workspaceRoleToPerm } from "../perm";
+import {
+  canAdmin,
+  canRead,
+  canWrite,
+  isPending,
+  workspaceRoleToPerm,
+} from "../perm";
 
 type GetUnitPermParams = {
   unitId: string;
@@ -31,6 +37,6 @@ export async function checkUnitPerm(
     case "admin":
       return ok(canAdmin(workspaceRoleToPerm(workspaceUser.role)));
     case "pending":
-      return ok(canAdmin(workspaceRoleToPerm(workspaceUser.role)));
+      return ok(isPending(workspaceRoleToPerm(workspaceUser.role)));
   }
 }
