@@ -1,13 +1,6 @@
 import { db } from "../../db/kysely";
 import { Result, err, ok } from "neverthrow";
-import { Permission } from "../../types/perm";
-import {
-  canAdmin,
-  canRead,
-  canWrite,
-  isPending,
-  projectRoleToPerm,
-} from "../perm";
+import { Perm, projectRoleToPerm } from "../perm";
 import { WorkspaceUser } from "@cloud/shared";
 
 type GetStationPermParams = {
@@ -15,10 +8,10 @@ type GetStationPermParams = {
   workspaceUser: WorkspaceUser;
 };
 
-export async function checkStationPerm(
-  { stationId, workspaceUser }: GetStationPermParams,
-  perm: Permission,
-): Promise<Result<boolean, string>> {
+export async function checkStationPerm({
+  stationId,
+  workspaceUser,
+}: GetStationPermParams): Promise<Result<Perm, string>> {
   const station = await db
     .selectFrom("station as s")
     .selectAll()
@@ -39,14 +32,5 @@ export async function checkStationPerm(
     return err("Invalid station ID or you don't have access to it");
   }
 
-  switch (perm) {
-    case "read":
-      return ok(canRead(projectRoleToPerm(projectUser.role)));
-    case "write":
-      return ok(canWrite(projectRoleToPerm(projectUser.role)));
-    case "admin":
-      return ok(canAdmin(projectRoleToPerm(projectUser.role)));
-    case "pending":
-      return ok(isPending(projectRoleToPerm(projectUser.role)));
-  }
+  return ok(new Perm(projectRoleToPerm(projectUser.role)));
 }

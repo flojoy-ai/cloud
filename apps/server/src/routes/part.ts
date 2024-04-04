@@ -45,21 +45,15 @@ export const PartRoute = new Elysia({ prefix: "/part", name: "PartRoute" })
         {
           params: t.Object({ partId: t.String() }),
           async beforeHandle({ params, workspaceUser }) {
-            const result = await checkPartPerm(
-              {
-                partId: params.partId,
-                workspaceUser,
-              },
-              "read",
+            const perm = await checkPartPerm({
+              partId: params.partId,
+              workspaceUser,
+            });
+
+            return perm.match(
+              (perm) => (perm.canRead() ? undefined : error("Forbidden")),
+              (err) => error(403, err),
             );
-
-            if (result.isErr()) {
-              return error(403, result.error);
-            }
-
-            if (!result.value) {
-              return error(403, "You do not have permission to read this part");
-            }
           },
         },
       )
@@ -81,21 +75,14 @@ export const PartRoute = new Elysia({ prefix: "/part", name: "PartRoute" })
         {
           params: t.Object({ partId: t.String() }),
           async beforeHandle({ params, workspaceUser }) {
-            const result = await checkPartPerm(
-              {
-                partId: params.partId,
-                workspaceUser,
-              },
-              "read",
+            const perm = await checkPartPerm({
+              partId: params.partId,
+              workspaceUser,
+            });
+            return perm.match(
+              (perm) => (perm.canRead() ? undefined : error("Forbidden")),
+              (err) => error(403, err),
             );
-
-            if (result.isErr()) {
-              return error(403, result.error);
-            }
-
-            if (!result.value) {
-              return error(403, "You do not have permission to read this part");
-            }
           },
         },
       ),
@@ -112,14 +99,12 @@ export const PartRoute = new Elysia({ prefix: "/part", name: "PartRoute" })
     {
       body: insertPart,
       async beforeHandle({ workspaceUser }) {
-        const result = await checkWorkspacePerm({ workspaceUser }, "write");
+        const perm = await checkWorkspacePerm({ workspaceUser });
 
-        if (result.isErr()) {
-          return error(403, result.error);
-        }
-        if (!result.value) {
-          return error(403, "You do not have permission to create a part");
-        }
+        return perm.match(
+          (perm) => (perm.canWrite() ? undefined : error("Forbidden")),
+          (err) => error(403, err),
+        );
       },
     },
   );

@@ -42,17 +42,12 @@ export const UnitRoute = new Elysia({ prefix: "/unit", name: "UnitRoute" })
         onlyAvailable: queryBool,
       }),
       async beforeHandle({ workspaceUser, error }) {
-        const result = await checkWorkspacePerm({ workspaceUser }, "read");
+        const perm = await checkWorkspacePerm({ workspaceUser });
 
-        if (result.isErr()) {
-          return error(403, result.error);
-        }
-        if (!result.value) {
-          return error(
-            403,
-            "You do not have permission to read units in this workspace",
-          );
-        }
+        return perm.match(
+          (perm) => (perm.canRead() ? undefined : error("Forbidden")),
+          (err) => error(403, err),
+        );
       },
     },
   )
@@ -68,14 +63,12 @@ export const UnitRoute = new Elysia({ prefix: "/unit", name: "UnitRoute" })
     {
       body: insertUnit,
       async beforeHandle({ workspaceUser, error }) {
-        const result = await checkWorkspacePerm({ workspaceUser }, "write");
+        const perm = await checkWorkspacePerm({ workspaceUser });
 
-        if (result.isErr()) {
-          return error(403, result.error);
-        }
-        if (!result.value) {
-          return error(403, "You do not have permission to create a unit");
-        }
+        return perm.match(
+          (perm) => (perm.canRead() ? undefined : error("Forbidden")),
+          (err) => error(403, err),
+        );
       },
     },
   )
@@ -122,17 +115,12 @@ export const UnitRoute = new Elysia({ prefix: "/unit", name: "UnitRoute" })
         },
         {
           async beforeHandle({ workspaceUser, error, params: { unitId } }) {
-            const result = await checkUnitPerm(
-              { unitId, workspaceUser },
-              "read",
-            );
+            const perm = await checkUnitPerm({ unitId, workspaceUser });
 
-            if (result.isErr()) {
-              return error(403, result.error);
-            }
-            if (!result.value) {
-              return error(403, "You do not have permission to read this unit");
-            }
+            return perm.match(
+              (perm) => (perm.canRead() ? undefined : error("Forbidden")),
+              (err) => error(403, err),
+            );
           },
         },
       )
@@ -154,20 +142,12 @@ export const UnitRoute = new Elysia({ prefix: "/unit", name: "UnitRoute" })
         {
           body: swapUnitComponent,
           async beforeHandle({ workspaceUser, error, params: { unitId } }) {
-            const result = await checkUnitPerm(
-              { unitId, workspaceUser },
-              "write",
-            );
+            const perm = await checkUnitPerm({ unitId, workspaceUser });
 
-            if (result.isErr()) {
-              return error(403, result.error);
-            }
-            if (!result.value) {
-              return error(
-                403,
-                "You do not have permission to update this unit",
-              );
-            }
+            return perm.match(
+              (perm) => (perm.canWrite() ? undefined : error("Forbidden")),
+              (err) => error(403, err),
+            );
           },
         },
       )
@@ -180,17 +160,12 @@ export const UnitRoute = new Elysia({ prefix: "/unit", name: "UnitRoute" })
         },
         {
           async beforeHandle({ workspaceUser, error, params: { unitId } }) {
-            const result = await checkUnitPerm(
-              { unitId, workspaceUser },
-              "read",
-            );
+            const perm = await checkUnitPerm({ unitId, workspaceUser });
 
-            if (result.isErr()) {
-              return error(403, result.error);
-            }
-            if (!result.value) {
-              return error(403, "You do not have permission to read this unit");
-            }
+            return perm.match(
+              (perm) => (perm.canRead() ? undefined : error("Forbidden")),
+              (err) => error(403, err),
+            );
           },
         },
       ),

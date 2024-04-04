@@ -6,6 +6,7 @@ import { WorkspaceMiddleware } from "../middlewares/workspace";
 import { CreateProjectSchema } from "@cloud/shared";
 import { Elysia, error } from "elysia";
 import { DatabaseError } from "pg";
+import { checkWorkspacePerm } from "../lib/perm/workspace";
 
 export const ProjectRoute = new Elysia({
   prefix: "/project",
@@ -38,10 +39,6 @@ export const ProjectRoute = new Elysia({
     async ({ body, workspaceUser }) => {
       if (body.workspaceId !== workspaceUser.workspaceId) {
         return error(400, "There is a mismatch in workspaceId");
-      }
-
-      if (!(workspaceUser.role === "admin" || workspaceUser.role === "owner")) {
-        return error(403, "You do not have permission to create a project");
       }
 
       const partVariation = await db
@@ -88,6 +85,15 @@ export const ProjectRoute = new Elysia({
     },
     {
       body: CreateProjectSchema,
+
+      async beforeHandle({ workspaceUser, error }) {
+        const perm = await checkWorkspacePerm({ workspaceUser });
+
+        return perm.match(
+          (perm) => (perm.canWrite() ? undefined : error("Forbidden")),
+          (err) => error(403, err),
+        );
+      },
     },
   )
   .get(
@@ -103,21 +109,15 @@ export const ProjectRoute = new Elysia({
     },
     {
       async beforeHandle({ params, workspaceUser }) {
-        const hasPermission = await checkProjectPerm(
-          {
-            projectId: params.projectId,
-            workspaceUser,
-          },
-          "read",
+        const perm = await checkProjectPerm({
+          projectId: params.projectId,
+          workspaceUser,
+        });
+
+        return perm.match(
+          (perm) => (perm.canRead() ? undefined : error("Forbidden")),
+          (err) => error(403, err),
         );
-
-        if (hasPermission.isErr()) {
-          return error(403, hasPermission.error);
-        }
-
-        if (!hasPermission.value) {
-          return error(403, "You do not have permission to read this project");
-        }
       },
     },
   );

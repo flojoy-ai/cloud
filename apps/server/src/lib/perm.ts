@@ -2,41 +2,47 @@ import WorkspaceRole from "@cloud/shared/src/schemas/public/WorkspaceRole";
 import { Permission } from "../types/perm";
 import ProjectRole from "@cloud/shared/src/schemas/public/ProjectRole";
 
-export function canRead(perm: Permission): boolean {
-  switch (perm) {
-    case "read":
-    case "write":
-    case "admin":
-      return true;
-    case "pending":
-      return false;
-  }
-}
+export class Perm {
+  _permission: Permission;
 
-export function canWrite(perm: Permission): boolean {
-  switch (perm) {
-    case "pending":
-    case "read":
-      return false;
-    case "write":
-    case "admin":
-      return true;
+  constructor(permission: Permission) {
+    this._permission = permission;
   }
-}
 
-export function canAdmin(perm: Permission): boolean {
-  switch (perm) {
-    case "pending":
-    case "read":
-    case "write":
-      return false;
-    case "admin":
-      return true;
+  canRead(): boolean {
+    switch (this._permission) {
+      case "read":
+      case "write":
+      case "admin":
+        return true;
+      case "pending":
+        return false;
+    }
   }
-}
 
-export function isPending(perm: Permission): boolean {
-  return perm === "pending";
+  canWrite(): boolean {
+    switch (this._permission) {
+      case "pending":
+      case "read":
+        return false;
+      case "write":
+      case "admin":
+        return true;
+    }
+  }
+  canAdmin(): boolean {
+    switch (this._permission) {
+      case "pending":
+      case "read":
+      case "write":
+        return false;
+      case "admin":
+        return true;
+    }
+  }
+  isPending(): boolean {
+    return this._permission === "pending";
+  }
 }
 
 export function workspaceRoleToPerm(workspaceRole: WorkspaceRole): Permission {

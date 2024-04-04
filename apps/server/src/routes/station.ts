@@ -37,17 +37,12 @@ export const StationRoute = new Elysia({
     },
     {
       async beforeHandle({ workspaceUser, params: { stationId }, error }) {
-        const result = await checkStationPerm(
-          { workspaceUser, stationId },
-          "read",
-        );
+        const perm = await checkStationPerm({ workspaceUser, stationId });
 
-        if (result.isErr()) {
-          return error(403, result.error);
-        }
-        if (!result.value) {
-          return error(403, "Forbidden");
-        }
+        return perm.match(
+          (perm) => (perm.canRead() ? undefined : error("Forbidden")),
+          (err) => error(403, err),
+        );
       },
     },
   )
@@ -65,17 +60,12 @@ export const StationRoute = new Elysia({
         projectId: t.String(),
       }),
       async beforeHandle({ workspaceUser, query: { projectId }, error }) {
-        const result = await checkProjectPerm(
-          { workspaceUser, projectId },
-          "read",
-        );
+        const perm = await checkProjectPerm({ workspaceUser, projectId });
 
-        if (result.isErr()) {
-          return error(403, result.error);
-        }
-        if (!result.value) {
-          return error(403, "Forbidden");
-        }
+        return perm.match(
+          (perm) => (perm.canRead() ? undefined : error("Forbidden")),
+          (err) => error(403, err),
+        );
       },
     },
   )
@@ -94,17 +84,12 @@ export const StationRoute = new Elysia({
     {
       body: InsertStation,
       async beforeHandle({ workspaceUser, body: { projectId }, error }) {
-        const result = await checkProjectPerm(
-          { workspaceUser, projectId },
-          "write",
-        );
+        const perm = await checkProjectPerm({ workspaceUser, projectId });
 
-        if (result.isErr()) {
-          return error(403, result.error);
-        }
-        if (!result.value) {
-          return error(403, "Forbidden");
-        }
+        return perm.match(
+          (perm) => (perm.canWrite() ? undefined : error("Forbidden")),
+          (err) => error(403, err),
+        );
       },
     },
   );

@@ -38,14 +38,12 @@ export const PartVariationRoute = new Elysia({
     {
       body: insertPartVariation,
       async beforeHandle({ workspaceUser, error }) {
-        const result = await checkWorkspacePerm({ workspaceUser }, "write");
+        const perm = await checkWorkspacePerm({ workspaceUser });
 
-        if (result.isErr()) {
-          return error(403, result.error);
-        }
-        if (!result.value) {
-          return error("Forbidden");
-        }
+        return perm.match(
+          (perm) => (perm.canWrite() ? undefined : error("Forbidden")),
+          (err) => error(403, err),
+        );
       },
     },
   )
@@ -71,14 +69,11 @@ export const PartVariationRoute = new Elysia({
           params: t.Object({ partVariationId: t.String() }),
 
           async beforeHandle({ workspaceUser, error }) {
-            const result = await checkWorkspacePerm({ workspaceUser }, "read");
-
-            if (result.isErr()) {
-              return error(403, result.error);
-            }
-            if (!result.value) {
-              return error("Forbidden");
-            }
+            const perm = await checkWorkspacePerm({ workspaceUser });
+            return perm.match(
+              (perm) => (perm.canRead() ? undefined : error("Forbidden")),
+              (err) => error(403, err),
+            );
           },
         },
       )
@@ -120,14 +115,12 @@ export const PartVariationRoute = new Elysia({
           params: t.Object({ partVariationId: t.String() }),
 
           async beforeHandle({ workspaceUser, error }) {
-            const result = await checkWorkspacePerm({ workspaceUser }, "read");
+            const perm = await checkWorkspacePerm({ workspaceUser });
 
-            if (result.isErr()) {
-              return error(403, result.error);
-            }
-            if (!result.value) {
-              return error("Forbidden");
-            }
+            return perm.match(
+              (perm) => (perm.canRead() ? undefined : error("Forbidden")),
+              (err) => error(403, err),
+            );
           },
         },
       ),

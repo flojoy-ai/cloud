@@ -1,24 +1,17 @@
 import { db } from "../../db/kysely";
 import { Result, err, ok } from "neverthrow";
-import { Permission } from "../../types/perm";
 import { WorkspaceUser } from "@cloud/shared";
-import {
-  canAdmin,
-  canRead,
-  canWrite,
-  isPending,
-  workspaceRoleToPerm,
-} from "../perm";
+import { Perm, workspaceRoleToPerm } from "../perm";
 
 type GetUnitPermParams = {
   unitId: string;
   workspaceUser: WorkspaceUser;
 };
 
-export async function checkUnitPerm(
-  { unitId, workspaceUser }: GetUnitPermParams,
-  perm: Permission,
-): Promise<Result<boolean, string>> {
+export async function checkUnitPerm({
+  unitId,
+  workspaceUser,
+}: GetUnitPermParams): Promise<Result<Perm, string>> {
   const unit = await db
     .selectFrom("unit")
     .selectAll()
@@ -29,14 +22,5 @@ export async function checkUnitPerm(
     return err("Invalid unit ID or you don't have access to it");
   }
 
-  switch (perm) {
-    case "read":
-      return ok(canRead(workspaceRoleToPerm(workspaceUser.role)));
-    case "write":
-      return ok(canWrite(workspaceRoleToPerm(workspaceUser.role)));
-    case "admin":
-      return ok(canAdmin(workspaceRoleToPerm(workspaceUser.role)));
-    case "pending":
-      return ok(isPending(workspaceRoleToPerm(workspaceUser.role)));
-  }
+  return ok(new Perm(workspaceRoleToPerm(workspaceUser.role)));
 }

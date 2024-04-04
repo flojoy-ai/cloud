@@ -32,21 +32,15 @@ export const MetricsRoute = new Elysia({
     {
       query: timeFilterQueryParams,
       async beforeHandle({ params: { projectId }, workspaceUser, error }) {
-        const hasPermission = await checkProjectPerm(
-          {
-            projectId,
-            workspaceUser,
-          },
-          "read",
+        const perm = await checkProjectPerm({
+          projectId,
+          workspaceUser,
+        });
+
+        return perm.match(
+          (perm) => (perm.canRead() ? undefined : error("Forbidden")),
+          (err) => error(403, err),
         );
-
-        if (hasPermission.isErr()) {
-          return error(403, hasPermission.error);
-        }
-
-        if (!hasPermission.value) {
-          return error(403, "You do not have permission to read this project");
-        }
       },
     },
   );

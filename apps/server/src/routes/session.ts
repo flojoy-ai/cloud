@@ -28,19 +28,16 @@ export const SessionRoute = new Elysia({
     {
       params: t.Object({ sessionId: t.String() }),
       async beforeHandle({ params: { sessionId }, workspaceUser, error }) {
-        const hasPermission = await checkSessionPerm(
-          {
-            sessionId,
-            workspaceUser,
-          },
-          "read",
-        );
+        const perm = await checkSessionPerm({
+          sessionId,
+          workspaceUser,
+        });
 
-        if (hasPermission.isErr()) {
-          return error(403, hasPermission.error);
+        if (perm.isErr()) {
+          return error(403, perm.error);
         }
 
-        if (!hasPermission.value) {
+        if (!perm.value.canRead()) {
           return error(403, "You do not have permission to read this session");
         }
       },
