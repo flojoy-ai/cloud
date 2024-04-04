@@ -1,9 +1,22 @@
 import { ExpressionBuilder, Kysely, sql } from "kysely";
-import { generateDatabaseId } from "../lib/db-utils";
-import { Result, err, ok } from "neverthrow";
-import { DB, InsertSession, Session } from "@cloud/shared";
+import { fromTransaction, generateDatabaseId, tryQuery } from "../lib/db-utils";
+import { Result, ResultAsync, err, fromPromise, ok } from "neverthrow";
+import {
+  DB,
+  InsertSession,
+  Session,
+  SessionMeasurement,
+  Workspace,
+} from "@cloud/shared";
 import { jsonArrayFrom } from "kysely/helpers/postgres";
 import { db } from "./kysely";
+import { DBError, InternalServerError, NotFoundError } from "../lib/error";
+import { errIfUndefined } from "../lib/utils";
+import { getStation } from "./station";
+import { getUnitBySerialNumber } from "./unit";
+import { createTest, getTestByName } from "./test";
+import { createMeasurement } from "./measurement";
+import { User } from "lucia";
 
 export async function getSessionsByUnit(unitId: string) {
   return await db
@@ -72,20 +85,72 @@ export async function getSession(db: Kysely<DB>, sessionId: string) {
 
 export async function createSession(
   db: Kysely<DB>,
+  workspaceId: string,
   input: InsertSession,
-): Promise<Result<Session, string>> {
-  const session = await db
-    .insertInto("session")
-    .values({
-      id: generateDatabaseId("session"),
-      ...input,
-    })
-    .returningAll()
-    .executeTakeFirst();
+  user?: User,
+): Promise<Result<Session, DBError>> {
+  const { measurements, ...body } = input;
 
-  if (session === undefined) {
-    return err("Failed to create session");
+  const station = await getStation(db, body.stationId);
+  if (station === undefined) {
+    return err(new NotFoundError("Station not found"));
   }
 
-  return ok(session);
+  const unit = await getUnitBySerialNumber(db, body.serialNumber);
+  if (unit === undefined) {
+    return err(
+      new NotFoundError(`Serial Number ${body.serialNumber} not found`),
+    );
+  }
+
+  const toInsert = {
+    unitId: unit.id,
+    projectId: station.projectId,
+    userId: user?.id,
+    ...body,
+  };
+
+  return fromTransaction(async (tx) => {
+    const res = await tryQuery(
+      tx
+        .insertInto("session")
+        .values({
+          id: generateDatabaseId("session"),
+          ...toInsert,
+        })
+        .returningAll()
+        .executeTakeFirst(),
+    ).andThen(
+      errIfUndefined(new InternalServerError("Failed to create session")),
+    );
+    if (res.isErr()) return res;
+
+    const session = res.value;
+
+    for (const meas of measurements) {
+      // NOTE: TestId should be provided in the DS
+      let test = await getTestByName(db, meas.name);
+      if (test === undefined) {
+        const testResult = await createTest(db, {
+          name: meas.name,
+          projectId: station.projectId,
+          measurementType: meas.data.type,
+        });
+        if (testResult.isErr()) {
+          return err(new InternalServerError(testResult.error));
+        }
+        test = testResult.value;
+      }
+
+      await createMeasurement(db, workspaceId, {
+        ...meas,
+        sessionId: session.id,
+        testId: test.id,
+        unitId: unit.id,
+        projectId: station.projectId,
+        tagNames: [],
+      });
+    }
+    return ok(session);
+  });
 }

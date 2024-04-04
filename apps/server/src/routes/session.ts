@@ -8,11 +8,7 @@ import {
   getSessionsByProject,
   getSessionsByStation,
 } from "../db/session";
-import { sessionMeasurement } from "@cloud/shared";
-import { createMeasurement } from "../db/measurement";
-import { getStation } from "../db/station";
-import { getUnitBySerialNumber } from "../db/unit";
-import { createTest, getTestByName } from "../db/test";
+import { insertSession } from "@cloud/shared";
 
 export const SessionRoute = new Elysia({ prefix: "/session" })
   .use(WorkspaceMiddleware)
@@ -52,67 +48,13 @@ export const SessionRoute = new Elysia({ prefix: "/session" })
   .post(
     "/",
     async ({ error, body, user, workspace }) => {
-      const station = await getStation(db, body.stationId);
-      if (station === undefined) {
-        return error(404, "Station not found");
+      const res = await createSession(db, workspace.id, user, body);
+      if (res.isErr()) {
+        return error(res.error.code, res.error);
       }
-      const unit = await getUnitBySerialNumber(db, body.serialNumber);
-      if (unit === undefined) {
-        return error(404, `Serial Number ${body.serialNumber} not found`);
-      }
-      const toInsertSession = {
-        unitId: unit.id,
-        userId: user.id,
-        projectId: station.projectId,
-        stationId: body.stationId,
-        integrity: body.integrity,
-        aborted: body.aborted,
-        notes: body.notes,
-        commitHash: body.commitHash,
-      };
-      const newSession = await createSession(db, toInsertSession);
-      if (newSession.isErr()) {
-        return error(500, newSession.error);
-      }
-
-      // Create all the measurements for this session
-      await Promise.all(
-        body.measurements.map(async (measurement) => {
-          // NOTE: TestId should be provided in the DS
-          let test = await getTestByName(db, measurement.name);
-          if (test === undefined) {
-            const testResult = await createTest(db, {
-              name: measurement.name,
-              projectId: station.projectId,
-              measurementType: measurement.data.type,
-            });
-            if (testResult.isErr()) {
-              return error(500, testResult.error);
-            }
-            test = testResult.value;
-          }
-          // END NOTE ~~~
-          createMeasurement(db, workspace.id, {
-            ...measurement,
-            sessionId: newSession.value.id,
-            testId: test.id,
-            unitId: unit.id,
-            projectId: station.projectId,
-            tagNames: [],
-          });
-        }),
-      );
-      return { ...newSession.value };
+      return res.value;
     },
     {
-      body: t.Object({
-        serialNumber: t.String(),
-        stationId: t.String(),
-        integrity: t.Boolean(),
-        aborted: t.Boolean(),
-        notes: t.Optional(t.String()),
-        commitHash: t.Optional(t.String()),
-        measurements: t.Array(sessionMeasurement),
-      }),
+      body: insertSession,
     },
   );
