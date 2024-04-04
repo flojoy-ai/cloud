@@ -24,7 +24,10 @@ export const WorkspaceRoute = new Elysia({
         return error;
     }
   })
-  .get("/", async ({ user }) => {
+  .get("/", async ({ user, authMethod }) => {
+    if (authMethod === "secret") {
+      return error("I'm a teapot");
+    }
     return await db
       .selectFrom("workspace_user as wu")
       .innerJoin("workspace as w", "w.id", "wu.workspaceId")
