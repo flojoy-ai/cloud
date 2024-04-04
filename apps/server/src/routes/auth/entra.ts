@@ -10,7 +10,10 @@ import { generateDatabaseId } from "../../lib/db-utils";
 import { db } from "../../db/kysely";
 import { getUrlFromUri } from "../../lib/url";
 
-export const AuthEntraRoute = new Elysia({ prefix: "/auth/entra" })
+export const AuthEntraRoute = new Elysia({
+  prefix: "/auth/entra",
+  name: "AuthEntraRoute",
+})
   .get(
     "/login",
     async ({ cookie: { entra_oauth_state, entra_code_verifier }, set }) => {

@@ -8,7 +8,10 @@ import { PartVariation, insertPartVariation } from "@cloud/shared";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
 import { jsonObjectFrom } from "kysely/helpers/postgres";
 
-export const PartVariationRoute = new Elysia({ prefix: "/partVariation" })
+export const PartVariationRoute = new Elysia({
+  prefix: "/partVariation",
+  name: "PartVariationRoute",
+})
   .use(WorkspaceMiddleware)
   .get("/", async ({ workspace }) => {
     const partVariations = await db

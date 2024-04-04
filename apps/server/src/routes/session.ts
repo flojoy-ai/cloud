@@ -3,7 +3,10 @@ import Elysia, { t } from "elysia";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
 import { getSession, getSessions } from "../db/session";
 
-export const SessionRoute = new Elysia({ prefix: "/session" })
+export const SessionRoute = new Elysia({
+  prefix: "/session",
+  name: "SessionRoute",
+})
   .use(WorkspaceMiddleware)
   // Get all test sessions for a unit instance
   .get(

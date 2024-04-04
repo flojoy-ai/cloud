@@ -9,7 +9,10 @@ export const timeFilterQueryParams = t.Object({
   to: t.Optional(t.Date()),
 });
 
-export const MetricsRoute = new Elysia({ prefix: "/part" })
+export const MetricsRoute = new Elysia({
+  prefix: "/metrics",
+  name: "MetricsRoute",
+})
   .use(WorkspaceMiddleware)
   .get(
     "/workspace",

@@ -5,7 +5,7 @@ import { AuthMiddleware } from "../middlewares/auth";
 import { AuthMethod } from "@cloud/shared";
 import { Elysia } from "elysia";
 
-export const AuthRoute = new Elysia({ prefix: "/auth" })
+export const AuthRoute = new Elysia({ prefix: "/auth", name: "AuthRoute" })
   .get("/", async () => {
     const availableMethods: AuthMethod[] = [];
     if (env.GOOGLE_CLIENT_ID) {
