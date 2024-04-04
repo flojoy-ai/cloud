@@ -2,7 +2,7 @@ import { User } from "lucia";
 import { db } from "../../db/kysely";
 import { Result, err, ok } from "neverthrow";
 import { Permission } from "../../types/perm";
-import { projectRoleToPerm } from "../perm";
+import { canAdmin, canRead, canWrite, projectRoleToPerm } from "../perm";
 
 type GetProjectPermParams = {
   projectId: string;
@@ -24,5 +24,12 @@ export async function checkProjectPerm(
     return err("Invalid project ID or you don't have access to it");
   }
 
-  return ok(perm === projectRoleToPerm(projectUser.role));
+  switch (perm) {
+    case "read":
+      return ok(canRead(projectRoleToPerm(projectUser.role)));
+    case "write":
+      return ok(canWrite(projectRoleToPerm(projectUser.role)));
+    case "admin":
+      return ok(canAdmin(projectRoleToPerm(projectUser.role)));
+  }
 }

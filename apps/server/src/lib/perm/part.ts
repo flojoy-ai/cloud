@@ -2,7 +2,7 @@ import { db } from "../../db/kysely";
 import { Result, err, ok } from "neverthrow";
 import { Permission } from "../../types/perm";
 import { WorkspaceUser } from "@cloud/shared";
-import { workspaceRoleToPerm } from "../perm";
+import { canAdmin, canRead, canWrite, workspaceRoleToPerm } from "../perm";
 
 type GetPartPermParams = {
   partId: string;
@@ -23,5 +23,12 @@ export async function checkPartPerm(
     return err("Invalid Part ID or you don't have access to it");
   }
 
-  return ok(perm === workspaceRoleToPerm(workspaceUser.role));
+  switch (perm) {
+    case "read":
+      return ok(canRead(workspaceRoleToPerm(workspaceUser.role)));
+    case "write":
+      return ok(canWrite(workspaceRoleToPerm(workspaceUser.role)));
+    case "admin":
+      return ok(canAdmin(workspaceRoleToPerm(workspaceUser.role)));
+  }
 }
