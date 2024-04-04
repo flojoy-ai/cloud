@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import type { User } from "lucia";
 import { useRouter } from "@tanstack/react-router";
 import { env } from "@/env";
@@ -61,25 +61,28 @@ function UserButton({ user }: Props) {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem className="cursor-pointer">
-          <a
-            href={"https://rest.flojoy.ai"}
-            target="_blank"
-          >
+          <a href={"https://rest.flojoy.ai"} target="_blank">
             API Docs
           </a>
-          <DropdownMenuShortcut><BookText className="h-4 w-4"/></DropdownMenuShortcut>
+          <DropdownMenuShortcut>
+            <BookText className="h-4 w-4" />
+          </DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuItem className="cursor-pointer">
           <a href={siteConfig.links.discord} target="_blank" rel="noreferrer">
             Support
           </a>
-          <DropdownMenuShortcut><Icons.discord className="h-4 w-4" /></DropdownMenuShortcut>
+          <DropdownMenuShortcut>
+            <Icons.discord className="h-4 w-4" />
+          </DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuItem className="cursor-pointer">
           <a href={siteConfig.links.github} target="_blank" rel="noreferrer">
             GitHub
           </a>
-          <DropdownMenuShortcut><Icons.github className="h-4 w-4"/></DropdownMenuShortcut>
+          <DropdownMenuShortcut>
+            <Icons.github className="h-4 w-4" />
+          </DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem className="cursor-pointer" onSelect={handleLogout}>

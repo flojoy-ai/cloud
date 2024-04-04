@@ -69,7 +69,7 @@ export const PartVariationRoute = new Elysia({ prefix: "/partVariation" })
                   .selectFrom("unit as h")
                   .selectAll("h")
                   .select((eb) =>
-                   jsonObjectFrom(
+                    jsonObjectFrom(
                       eb
                         .selectFrom("part_variation")
                         .selectAll("part_variation")

@@ -61,7 +61,10 @@ type GetSessionsByStationParams = {
   };
 };
 
-export function getSessionsByStationQueryOpts({ stationId, context }: GetSessionsByStationParams ) {
+export function getSessionsByStationQueryOpts({
+  stationId,
+  context,
+}: GetSessionsByStationParams) {
   return queryOptions({
     queryFn: async () => {
       const stationQuery = await client.session.station({ stationId }).get({
@@ -75,4 +78,3 @@ export function getSessionsByStationQueryOpts({ stationId, context }: GetSession
 }
 
 export const getSessionsByStationQueryKey = () => ["session"];
-

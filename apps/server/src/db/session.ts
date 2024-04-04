@@ -89,4 +89,3 @@ export async function createSession(
 
   return ok(session);
 }
-

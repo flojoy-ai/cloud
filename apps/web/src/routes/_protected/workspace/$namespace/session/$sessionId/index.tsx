@@ -1,10 +1,6 @@
 import { getSessionQueryOpts } from "@/lib/queries/session";
 
-import {
-  PageHeader,
-  PageHeaderDescription,
-  PageHeaderHeading,
-} from "@/components/small-header";
+import { PageHeader, PageHeaderHeading } from "@/components/small-header";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -27,7 +23,7 @@ import { cn } from "@/lib/utils";
 import _ from "lodash";
 import { useMemo } from "react";
 import { Card } from "@/components/ui/card";
-import { Check, CpuIcon, X } from "lucide-react";
+import { CpuIcon } from "lucide-react";
 import CenterLoadingSpinner from "@/components/center-loading-spinner";
 
 export const Route = createFileRoute(
@@ -190,9 +186,7 @@ function Page() {
       <div className="flex mb-4">
         <div className="flex-grow min-w-96">
           <PageHeader>
-            <PageHeaderHeading>
-              Test Session
-            </PageHeaderHeading>
+            <PageHeaderHeading>Test Session</PageHeaderHeading>
             <div className="flex flex-wrap h-8 item-center justify-center max-w-[750px] text-lg text-muted-foreground sm:text-xl">
               <CpuIcon className="h-6 w-6 mr-2" />
               <p className="pb-3 mr-1"> Unit Under Test:</p>
@@ -209,25 +203,25 @@ function Page() {
         </div>
 
         <Card className=" w-fit p-4 mt-8 text-center">
-          { session.aborted ? (
+          {session.aborted ? (
             <div className="flex items-center justify-center gap-2 text-2xl font-bold text-red-500">
-                Aborted
+              Aborted
             </div>
           ) : (
-          <div
-            className={cn(
-              "flex items-center justify-center gap-2 text-2xl font-bold",
-              pickTernary(
-                status.passing,
-                "text-green-500",
-                "text-red-500",
-                "text-muted-foreground",
-              ),
-            )}
-          >
-            {pickTernary(status.passing, "Passing", "Failing", "Unevaluated")}
-            {pickTernary(status.passing, <check />, <x />, <></>)}
-          </div>
+            <div
+              className={cn(
+                "flex items-center justify-center gap-2 text-2xl font-bold",
+                pickTernary(
+                  status.passing,
+                  "text-green-500",
+                  "text-red-500",
+                  "text-muted-foreground",
+                ),
+              )}
+            >
+              {pickTernary(status.passing, "Passing", "Failing", "Unevaluated")}
+              {pickTernary(status.passing, <check />, <x />, <></>)}
+            </div>
           )}
           <div className="py-2" />
           <div className="text-sm text-muted-foreground">

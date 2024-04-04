@@ -13,7 +13,12 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
 import { getProjectQueryOpts } from "@/lib/queries/project";
 import { getSessionsByStationQueryOpts } from "@/lib/queries/session";
@@ -97,7 +102,10 @@ function Page() {
       </Breadcrumb>
       <PageHeader>
         <PageHeaderHeading className="">{station.name}</PageHeaderHeading>
-        <PageHeaderDescription>Here you can consult all the session that have been executed at this station</PageHeaderDescription>
+        <PageHeaderDescription>
+          Here you can consult all the session that have been executed at this
+          station
+        </PageHeaderDescription>
       </PageHeader>
       <div className="grid grid-cols-4 gap-4">
         <div className="col-span-3">
@@ -107,9 +115,7 @@ function Page() {
           <Card>
             <CardHeader>
               <CardTitle>Pass</CardTitle>
-              <CardDescription>
-                Global Statistics
-              </CardDescription>
+              <CardDescription>Global Statistics</CardDescription>
             </CardHeader>
           </Card>
         </div>

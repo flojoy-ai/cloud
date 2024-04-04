@@ -21,7 +21,6 @@ from flojoy_cloud.dtypes import (
     ProjectWithModel,
     Test,
     SessionMeasurement,
-    UploadSession,
 )
 from flojoy_cloud.measurement import MeasurementData, MeasurementType, make_payload
 
@@ -405,25 +404,28 @@ class FlojoyCloud:
         commit_hash: Optional[str],
         measurements: List[SessionMeasurement],
     ):
-
         m_list = []
         for m in measurements:
             # Find id of each part
-            m_list.append({
-                "data": make_payload(m.data),
-                "name": m.name,
-                "pass": m.passed,
-                "createdAt": m.created_at.isoformat() if m.created_at else None
-            })
-        body = _make_params({
-            "serialNumber": serial_number,
-            "stationId": station_id,
-            "integrity": integrity,
-            "aborted": aborted,
-            "notes": notes,
-            "commitHash": commit_hash,
-            "measurements": m_list
-        })
+            m_list.append(
+                {
+                    "data": make_payload(m.data),
+                    "name": m.name,
+                    "pass": m.passed,
+                    "createdAt": m.created_at.isoformat() if m.created_at else None,
+                }
+            )
+        body = _make_params(
+            {
+                "serialNumber": serial_number,
+                "stationId": station_id,
+                "integrity": integrity,
+                "aborted": aborted,
+                "notes": notes,
+                "commitHash": commit_hash,
+                "measurements": m_list,
+            }
+        )
 
         return self.client.post(
             "/session/measurements",
@@ -432,4 +434,3 @@ class FlojoyCloud:
                 "Content-Type": "application/json",
             },
         )
-

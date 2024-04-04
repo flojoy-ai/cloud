@@ -344,7 +344,10 @@ export async function getUnitComponentsWithPartVariation(id: string) {
     .execute();
 }
 
-export async function getUnitBySerialNumber(db: Kysely<DB>, serialNumber: string) {
+export async function getUnitBySerialNumber(
+  db: Kysely<DB>,
+  serialNumber: string,
+) {
   return await db
     .selectFrom("unit")
     .selectAll()

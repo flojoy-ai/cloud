@@ -86,8 +86,6 @@ export const sessionMeasurement = t.Object({
 
 export type SessionMeasurement = Static<typeof sessionMeasurement>;
 
-
-
 // const booleanExplorerSchema = z.object({
 //   xAxis: z.union([z.literal("timestamp"), z.literal("device_id")]),
 // });

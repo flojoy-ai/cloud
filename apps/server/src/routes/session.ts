@@ -1,12 +1,17 @@
 import { db } from "../db/kysely";
 import Elysia, { t } from "elysia";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
-import { createSession, getSession, getSessionsByUnit, getSessionsByProject, getSessionsByStation } from "../db/session";
-import { insertMeasurement, insertSession, sessionMeasurement } from "@cloud/shared";
-import { AuthMiddleware } from "../middlewares/auth";
+import {
+  createSession,
+  getSession,
+  getSessionsByUnit,
+  getSessionsByProject,
+  getSessionsByStation,
+} from "../db/session";
+import { sessionMeasurement } from "@cloud/shared";
 import { createMeasurement } from "../db/measurement";
 import { getStation } from "../db/station";
-import { getUnit, getUnitBySerialNumber } from "../db/unit";
+import { getUnitBySerialNumber } from "../db/unit";
 import { createTest, getTestByName } from "../db/test";
 
 export const SessionRoute = new Elysia({ prefix: "/session" })
@@ -43,7 +48,8 @@ export const SessionRoute = new Elysia({ prefix: "/session" })
       return session;
     },
     { params: t.Object({ sessionId: t.String() }) },
-  ).post(
+  )
+  .post(
     "/",
     async ({ error, body, user, workspace }) => {
       const station = await getStation(db, body.stationId);
@@ -68,12 +74,12 @@ export const SessionRoute = new Elysia({ prefix: "/session" })
       if (newSession.isErr()) {
         return error(500, newSession.error);
       }
-      
+
       // Create all the measurements for this session
       await Promise.all(
         body.measurements.map(async (measurement) => {
           // NOTE: TestId should be provided in the DS
-          let test = await getTestByName(db, measurement.name); 
+          let test = await getTestByName(db, measurement.name);
           if (test === undefined) {
             const testResult = await createTest(db, {
               name: measurement.name,
@@ -92,22 +98,21 @@ export const SessionRoute = new Elysia({ prefix: "/session" })
             testId: test.id,
             unitId: unit.id,
             projectId: station.projectId,
-            tagNames: []
-          })
-        })
+            tagNames: [],
+          });
+        }),
       );
       return { ...newSession.value };
     },
     {
-      body: t.Object({ 
+      body: t.Object({
         serialNumber: t.String(),
         stationId: t.String(),
         integrity: t.Boolean(),
         aborted: t.Boolean(),
         notes: t.Optional(t.String()),
         commitHash: t.Optional(t.String()),
-        measurements: t.Array(sessionMeasurement), 
+        measurements: t.Array(sessionMeasurement),
       }),
     },
   );
-

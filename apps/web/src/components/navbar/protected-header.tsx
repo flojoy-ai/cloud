@@ -132,7 +132,6 @@ export function ProtectedNav({ workspaces, currentWorkspace }: NavProps) {
             </Command>
           </PopoverContent>
         </Popover>
-
       </nav>
     </div>
   );
