@@ -41,11 +41,9 @@ export function getProjectQueryKey(projectId: string) {
 export function getProjectQueryOpts({ projectId, context }: getProjectProps) {
   return queryOptions({
     queryFn: async () => {
-      const { data: project, error } = await client
-        .project({ projectId })
-        .index.get({
-          headers: { "flojoy-workspace-id": context.workspace.id },
-        });
+      const { data: project, error } = await client.project({ projectId }).get({
+        headers: { "flojoy-workspace-id": context.workspace.id },
+      });
       if (error) {
         throw error;
       }
