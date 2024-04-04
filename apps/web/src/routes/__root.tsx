@@ -1,3 +1,4 @@
+import CenterLoadingSpinner from "@/components/center-loading-spinner";
 import { AuthContext } from "@/context/auth";
 import { QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
@@ -20,4 +21,6 @@ export const Route = createRootRouteWithContext<{
       )}
     </div>
   ),
+  // leaving this here because i'm annoyed at the suspense errors
+  pendingComponent: CenterLoadingSpinner,
 });
