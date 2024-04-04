@@ -32,7 +32,12 @@ export const StationRoute = new Elysia({
         .selectFrom("station as s")
         .selectAll()
         .where("s.id", "=", stationId)
-        .executeTakeFirstOrThrow();
+        .executeTakeFirst();
+
+      if (!station) {
+        return error(404, "station not found");
+      }
+
       return station;
     },
     {

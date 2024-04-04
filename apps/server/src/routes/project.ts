@@ -103,7 +103,11 @@ export const ProjectRoute = new Elysia({
         .selectFrom("project as p")
         .selectAll()
         .where("p.id", "=", params.projectId)
-        .executeTakeFirstOrThrow();
+        .executeTakeFirst();
+
+      if (!project) {
+        return error(404, "project not found or you do not have access");
+      }
 
       return project;
     },

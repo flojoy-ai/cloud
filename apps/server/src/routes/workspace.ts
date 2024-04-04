@@ -1,6 +1,6 @@
 import { AuthMiddleware } from "../middlewares/auth";
 import { createWorkspace } from "@cloud/shared";
-import { Elysia, NotFoundError, error, t } from "elysia";
+import { Elysia, error, t } from "elysia";
 import { db } from "../db/kysely";
 import { DatabaseError } from "pg";
 import { generateDatabaseId } from "../lib/db-utils";
@@ -102,12 +102,11 @@ export const WorkspaceRoute = new Elysia({
       .innerJoin("workspace_user as wu", (join) =>
         join.onRef("wu.workspaceId", "=", "w.id").on("wu.userId", "=", user.id),
       )
-      .executeTakeFirstOrThrow(
-        () =>
-          new NotFoundError(
-            "You do not have access to this workspace or it does not exist",
-          ),
-      );
+      .executeTakeFirst();
+
+    if (!workspace) {
+      return error(404, "workspace not found or you do not have access");
+    }
 
     if (authMethod === "secret") {
       // NOTE: Why is this needed? Since the auth method is secret and a given
