@@ -9,6 +9,7 @@ import {
   getSessionsByStation,
 } from "../db/session";
 import { insertSession } from "@cloud/shared";
+import { fromTransaction } from "../lib/db-utils";
 
 export const SessionRoute = new Elysia({ prefix: "/session" })
   .use(WorkspaceMiddleware)
@@ -48,7 +49,9 @@ export const SessionRoute = new Elysia({ prefix: "/session" })
   .post(
     "/",
     async ({ error, body, user, workspace }) => {
-      const res = await createSession(db, workspace.id, body, user);
+      const res = await fromTransaction(
+        async (tx) => await createSession(tx, workspace.id, body, user),
+      );
       if (res.isErr()) {
         return error(res.error.code, res.error);
       }

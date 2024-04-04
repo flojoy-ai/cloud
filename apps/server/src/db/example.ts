@@ -283,6 +283,9 @@ export async function populateExample(
       const unit = pis[i]!;
       const val = Math.random() < 0.8;
 
+      console.log(i);
+      console.log("station id", station.projectId);
+      console.log("project id", pi5Project.id);
       yield* (
         await createSession(db, workspaceId, {
           serialNumber: unit.serialNumber,

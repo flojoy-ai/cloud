@@ -114,47 +114,46 @@ export async function createSession(
     commitHash: body.commitHash,
   };
 
-  return fromTransaction(async (tx) => {
-    const res = await tryQuery(
-      tx
-        .insertInto("session")
-        .values({
-          id: generateDatabaseId("session"),
-          ...toInsert,
-        })
-        .returningAll()
-        .executeTakeFirst(),
-    ).andThen(
-      errIfUndefined(new InternalServerError("Failed to create session")),
-    );
-    if (res.isErr()) return res;
+  const res = await tryQuery(
+    db
+      .insertInto("session")
+      .values({
+        id: generateDatabaseId("session"),
+        ...toInsert,
+      })
+      .returningAll()
+      .executeTakeFirst(),
+  ).andThen(
+    errIfUndefined(new InternalServerError("Failed to create session")),
+  );
+  if (res.isErr()) return res;
 
-    const session = res.value;
+  const session = res.value;
 
-    for (const meas of measurements) {
-      // NOTE: TestId should be provided in the DS
-      let test = await getTestByName(db, meas.name);
-      if (test === undefined) {
-        const testResult = await createTest(db, {
-          name: meas.name,
-          projectId: station.projectId,
-          measurementType: meas.data.type,
-        });
-        if (testResult.isErr()) {
-          return err(new InternalServerError(testResult.error));
-        }
-        test = testResult.value;
-      }
-
-      await createMeasurement(db, workspaceId, {
-        ...meas,
-        sessionId: session.id,
-        testId: test.id,
-        unitId: unit.id,
+  for (const meas of measurements) {
+    // NOTE: TestId should be provided in the DS
+    let test = await getTestByName(db, meas.name);
+    if (test === undefined) {
+      const testResult = await createTest(db, {
+        name: meas.name,
         projectId: station.projectId,
-        tagNames: [],
+        measurementType: meas.data.type,
       });
+      if (testResult.isErr()) {
+        return err(new InternalServerError(testResult.error));
+      }
+      test = testResult.value;
     }
-    return ok(session);
-  });
+
+    await createMeasurement(db, workspaceId, {
+      ...meas,
+      sessionId: session.id,
+      testId: test.id,
+      unitId: unit.id,
+      projectId: station.projectId,
+      tagNames: [],
+    });
+  }
+
+  return ok(session);
 }

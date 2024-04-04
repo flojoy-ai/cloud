@@ -49,9 +49,9 @@ export function tryQuery<T>(promise: Promise<T>): ResultAsync<T, DBError> {
     const err = e as DatabaseError;
     switch (err.code) {
       case ErrorCode.DUPLICATE:
-        return new DuplicateError("Record already exists!");
+        return new DuplicateError(err.message);
       case ErrorCode.FOREIGN_KEY_VIOLATION:
-        return new ForeignKeyError("Resource is in use!");
+        return new ForeignKeyError(err.message);
       default:
         return new InternalServerError(err.message);
     }
