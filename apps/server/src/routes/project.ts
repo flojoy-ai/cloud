@@ -1,3 +1,4 @@
+import { fromPromise } from "neverthrow";
 import { db } from "../db/kysely";
 import { createProject } from "../db/project";
 import { checkProjectPerm } from "../lib/perm/project";
@@ -50,32 +51,39 @@ export const ProjectRoute = new Elysia({
         .selectAll()
         .executeTakeFirstOrThrow();
 
-      const result = await db.transaction().execute(async (tx) => {
-        const project = await createProject(tx, {
-          ...body,
-          partVariationId: partVariation.id,
-          workspaceId: workspaceUser.workspaceId,
-        });
-
-        if (project.isErr()) {
-          return project;
-        }
-
-        await tx
-          .insertInto("project_user")
-          .values({
-            projectId: project.value.id,
-            userId: workspaceUser.userId,
-            role: "dev",
+      const result = await fromPromise(
+        db.transaction().execute(async (tx) => {
+          const project = await createProject(tx, {
+            ...body,
+            partVariationId: partVariation.id,
             workspaceId: workspaceUser.workspaceId,
-          })
-          .executeTakeFirstOrThrow();
-        return project;
-      });
+          });
+
+          if (project.isErr()) {
+            throw new Error(project.error);
+          }
+
+          await tx
+            .insertInto("project_user")
+            .values({
+              projectId: project.value.id,
+              userId: workspaceUser.userId,
+              role: "dev",
+              workspaceId: workspaceUser.workspaceId,
+            })
+            .executeTakeFirstOrThrow(
+              () => new Error("Failed to create project user"),
+            );
+
+          return project.value;
+        }),
+        (e) => (e as Error).message,
+      );
 
       if (result.isErr()) {
         return error(500, result.error);
       }
+
       return result.value;
     },
     {

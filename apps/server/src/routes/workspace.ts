@@ -5,7 +5,7 @@ import { db } from "../db/kysely";
 import { DatabaseError } from "pg";
 import { generateDatabaseId } from "../lib/db-utils";
 import { populateExample } from "../db/example";
-import { err, fromPromise, ok } from "neverthrow";
+import { fromPromise } from "neverthrow";
 
 export const WorkspaceRoute = new Elysia({
   prefix: "/workspace",
