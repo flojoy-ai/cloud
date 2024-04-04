@@ -7,15 +7,34 @@ import { Badge } from "../ui/badge";
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 
-export const columns: ColumnDef<Session>[] = [
+export const columns: ColumnDef<Session & { status: boolean | null }>[] = [
   {
     accessorKey: "id",
     header: "ID",
   },
   {
-    accessorKey: "status",
     header: "Status",
-    // TODO: Return aggregated result
+    cell: ({ row }) => {
+      if (row.original.status === true) {
+        return (
+          <Badge variant={null} className="bg-green-300 text-green-900">
+            Pass
+          </Badge>
+        );
+      } else if (row.original.status === false) {
+        return (
+          <Badge variant={null} className="bg-red-300 text-red-900">
+            Fail
+          </Badge>
+        );
+      } else {
+        return (
+          <Badge variant={null} className="bg-gray-300 text-gray-600">
+            Unevaluated
+          </Badge>
+        );
+      }
+    },
   },
   {
     accessorKey: "aborted",

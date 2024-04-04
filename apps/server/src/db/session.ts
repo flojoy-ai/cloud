@@ -36,11 +36,11 @@ export async function getSessionsByStation(
 ) {
   return await db
     .selectFrom("session")
-    .selectAll()
+    .selectAll("session")
     .innerJoin("project_user as pu", (join) =>
       join
         .on("pu.workspaceId", "=", workspaceUser.workspaceId)
-        .on("pu.projectId", "=", "session.projectId")
+        // .on("pu.projectId", "=", "session.projectId")
         .on("pu.userId", "=", workspaceUser.userId),
     )
     .select((eb) => withStatus(eb))
@@ -54,7 +54,7 @@ export async function getSessionsByProject(
 ) {
   return await db
     .selectFrom("session")
-    .selectAll()
+    .selectAll("session")
     .innerJoin("project_user as pu", (join) =>
       join
         .on("pu.workspaceId", "=", workspaceUser.workspaceId)
