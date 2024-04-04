@@ -7,6 +7,7 @@ import { AuthMiddleware } from "../middlewares/auth";
 import { createMeasurement } from "../db/measurement";
 import { getStation } from "../db/station";
 import { getUnit, getUnitBySerialNumber } from "../db/unit";
+import { createTest, getTestByName } from "../db/test";
 
 export const SessionRoute = new Elysia({ prefix: "/session" })
   .use(WorkspaceMiddleware)
@@ -67,15 +68,33 @@ export const SessionRoute = new Elysia({ prefix: "/session" })
       if (newSession.isErr()) {
         return error(500, newSession.error);
       }
+      
       // Create all the measurements for this session
       await Promise.all(
-        body.measurements.map((measurement) => createMeasurement(db, workspace.id, {
-          ...measurement,
-          sessionId: newSession.value.id,
-          unitId: unit.id,
-          projectId: station.projectId,
-          tagNames: []
-        }))
+        body.measurements.map(async (measurement) => {
+          // NOTE: TestId should be provided in the DS
+          let test = await getTestByName(db, measurement.name); 
+          if (test === undefined) {
+            const testResult = await createTest(db, {
+              name: measurement.name,
+              projectId: station.projectId,
+              measurementType: measurement.data.type,
+            });
+            if (testResult.isErr()) {
+              return error(500, testResult.error);
+            }
+            test = testResult.value;
+          }
+          // END NOTE ~~~
+          createMeasurement(db, workspace.id, {
+            ...measurement,
+            sessionId: newSession.value.id,
+            testId: test.id,
+            unitId: unit.id,
+            projectId: station.projectId,
+            tagNames: []
+          })
+        })
       );
       return { ...newSession.value };
     },
