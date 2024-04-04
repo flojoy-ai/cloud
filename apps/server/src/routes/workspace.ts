@@ -30,6 +30,7 @@ export const WorkspaceRoute = new Elysia({
     }
     return await db
       .selectFrom("workspace_user as wu")
+      .where("wu.role", "!=", "pending")
       .innerJoin("workspace as w", "w.id", "wu.workspaceId")
       .innerJoin("user as u", "u.id", "wu.userId")
       .where("wu.userId", "=", user.id)

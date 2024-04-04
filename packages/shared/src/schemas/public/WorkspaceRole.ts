@@ -5,6 +5,7 @@
 type WorkspaceRole = 
   | 'owner'
   | 'admin'
-  | 'member';
+  | 'member'
+  | 'pending';
 
 export default WorkspaceRole;

@@ -8,11 +8,14 @@ export function canRead(perm: Permission): boolean {
     case "write":
     case "admin":
       return true;
+    case "pending":
+      return false;
   }
 }
 
 export function canWrite(perm: Permission): boolean {
   switch (perm) {
+    case "pending":
     case "read":
       return false;
     case "write":
@@ -23,6 +26,7 @@ export function canWrite(perm: Permission): boolean {
 
 export function canAdmin(perm: Permission): boolean {
   switch (perm) {
+    case "pending":
     case "read":
     case "write":
       return false;
@@ -41,6 +45,9 @@ export function workspaceRoleToPerm(workspaceRole: WorkspaceRole): Permission {
 
     case "member":
       return "read" satisfies Permission;
+
+    case "pending":
+      return "pending" satisfies Permission;
   }
 }
 
@@ -51,5 +58,8 @@ export function projectRoleToPerm(projectRole: ProjectRole): Permission {
 
     case "dev":
       return "write" satisfies Permission;
+
+    case "pending":
+      return "pending" satisfies Permission;
   }
 }

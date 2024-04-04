@@ -1,7 +1,7 @@
 import { db } from "../db/kysely";
 import Elysia, { t } from "elysia";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
-import { getSession, getSessions } from "../db/session";
+import { getSession, getSessionsByUnitId } from "../db/session";
 import { checkSessionPerm } from "../lib/perm/session";
 
 export const SessionRoute = new Elysia({
@@ -11,8 +11,8 @@ export const SessionRoute = new Elysia({
   .use(WorkspaceMiddleware)
   .get(
     "/unit/:unitId",
-    async ({ params: { unitId } }) => {
-      return await getSessions(unitId);
+    async ({ params: { unitId }, workspaceUser }) => {
+      return await getSessionsByUnitId(unitId, workspaceUser);
     },
     { params: t.Object({ unitId: t.String() }) },
   )

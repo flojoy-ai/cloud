@@ -40,5 +40,7 @@ export async function checkSessionPerm(
       return ok(canWrite(projectRoleToPerm(projectUser.role)));
     case "admin":
       return ok(canAdmin(projectRoleToPerm(projectUser.role)));
+    case "pending":
+      return ok(canAdmin(projectRoleToPerm(projectUser.role)));
   }
 }

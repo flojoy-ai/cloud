@@ -1,14 +1,24 @@
 import { ExpressionBuilder, Kysely, sql } from "kysely";
 import { generateDatabaseId } from "../lib/db-utils";
 import { Result, err, ok } from "neverthrow";
-import { DB, InsertSession, Session } from "@cloud/shared";
+import { DB, InsertSession, Session, WorkspaceUser } from "@cloud/shared";
 import { jsonArrayFrom } from "kysely/helpers/postgres";
 import { db } from "./kysely";
 
-export async function getSessions(unitId: string) {
+export async function getSessionsByUnitId(
+  unitId: string,
+  workspaceUser: WorkspaceUser,
+) {
   return await db
     .selectFrom("session")
     .selectAll()
+    .innerJoin("project_user as pu", (join) =>
+      join
+        .on("pu.workspaceId", "=", workspaceUser.workspaceId)
+        .on("pu.projectId", "=", "session.projectId")
+        .on("pu.userId", "=", workspaceUser.userId),
+    )
+    .where("pu.role", "!=", "pending")
     .select((eb) => withStatus(eb))
     .where("unitId", "=", unitId)
     .execute();

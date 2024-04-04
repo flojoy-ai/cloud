@@ -30,5 +30,7 @@ export async function checkUnitPerm(
       return ok(canWrite(workspaceRoleToPerm(workspaceUser.role)));
     case "admin":
       return ok(canAdmin(workspaceRoleToPerm(workspaceUser.role)));
+    case "pending":
+      return ok(canAdmin(workspaceRoleToPerm(workspaceUser.role)));
   }
 }
