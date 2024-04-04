@@ -64,6 +64,7 @@ env:
   just apps/server/railway
 
 # ----- nuke -----
-rm -rf node_modules
-rm -rf apps/server/node_modules
-rm -rf apps/web/node_modules
+nuke:
+  rm -rf node_modules
+  rm -rf apps/server/node_modules
+  rm -rf apps/web/node_modules
