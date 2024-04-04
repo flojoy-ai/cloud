@@ -5,6 +5,7 @@ import { db } from "../db/kysely";
 import { DatabaseError } from "pg";
 import { generateDatabaseId } from "../lib/db-utils";
 import { populateExample } from "../db/example";
+import { err, ok } from "neverthrow";
 
 export const WorkspaceRoute = new Elysia({
   prefix: "/workspace",
@@ -15,7 +16,6 @@ export const WorkspaceRoute = new Elysia({
     DatabaseError,
   })
   .onError(({ code, error, set }) => {
-    // TODO: handle this better
     switch (code) {
       case "DatabaseError":
         set.status = 500;
@@ -50,7 +50,7 @@ export const WorkspaceRoute = new Elysia({
           .executeTakeFirst();
 
         if (!newWorkspace) {
-          return error(500, "Failed to create workspace");
+          return err("Failed to create workspace");
         }
 
         await tx
@@ -58,26 +58,26 @@ export const WorkspaceRoute = new Elysia({
           .values({
             workspaceId: newWorkspace.id,
             userId: user.id,
-            role: "owner" as const,
+            role: "owner",
           })
           .execute();
 
         scope.value = newWorkspace.namespace;
 
-        return newWorkspace;
+        return ok(newWorkspace);
       });
 
-      if ("_type" in newWorkspace) {
-        return newWorkspace;
+      if (newWorkspace.isErr()) {
+        return error(500, newWorkspace.error);
       }
 
       if (!populateData) {
-        return newWorkspace;
+        return newWorkspace.value;
       }
 
-      await populateExample(db, newWorkspace.id);
+      await populateExample(db, newWorkspace.value.id);
 
-      return newWorkspace;
+      return newWorkspace.value;
     },
     {
       body: createWorkspace,
