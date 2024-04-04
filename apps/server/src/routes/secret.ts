@@ -1,12 +1,13 @@
-import { AuthMiddleware } from "../middlewares/auth";
 import { Elysia, error } from "elysia";
 import { DatabaseError } from "pg";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
 import { db } from "../db/kysely";
 import { lucia } from "../auth/lucia";
 
-export const SecretRoute = new Elysia({ prefix: "/secret" })
-  .use(AuthMiddleware)
+export const SecretRoute = new Elysia({
+  prefix: "/secret",
+  name: "SecretRoute",
+})
   .use(WorkspaceMiddleware)
   .error({
     DatabaseError,

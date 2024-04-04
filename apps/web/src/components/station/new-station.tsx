@@ -51,6 +51,9 @@ export default function NewStationButton({ project }: Props) {
     mutationFn: async (values: InsertStation) => {
       const { data, error } = await client.station.index.post(values, {
         query: { projectId: project.id },
+        headers: {
+          "flojoy-workspace-id": project.workspaceId,
+        },
       });
       if (error) {
         switch (error.status) {

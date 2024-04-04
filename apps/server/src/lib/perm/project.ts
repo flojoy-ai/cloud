@@ -1,21 +1,21 @@
-import { User } from "lucia";
 import { db } from "../../db/kysely";
 import { Result, err, ok } from "neverthrow";
-import { Permission } from "../../types/perm";
+import { Perm, projectRoleToPerm } from "../perm";
+import { WorkspaceUser } from "@cloud/shared";
 
 type GetProjectPermParams = {
   projectId: string;
-  user: User;
+  workspaceUser: WorkspaceUser;
 };
 
-export async function getProjectPerm({
+export async function checkProjectPerm({
   projectId,
-  user,
-}: GetProjectPermParams): Promise<Result<Permission, string>> {
+  workspaceUser,
+}: GetProjectPermParams): Promise<Result<Perm, string>> {
   const projectUser = await db
     .selectFrom("project_user as pu")
     .selectAll()
-    .where("pu.userId", "=", user.id)
+    .where("pu.userId", "=", workspaceUser.userId)
     .where("pu.projectId", "=", projectId)
     .executeTakeFirst();
 
@@ -23,11 +23,5 @@ export async function getProjectPerm({
     return err("Invalid project ID or you don't have access to it");
   }
 
-  switch (projectUser.role) {
-    case "test":
-      return ok("read" satisfies Permission);
-
-    case "dev":
-      return ok("write" satisfies Permission);
-  }
+  return ok(new Perm(projectRoleToPerm(projectUser.role)));
 }

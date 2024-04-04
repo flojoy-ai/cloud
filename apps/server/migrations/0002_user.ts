@@ -66,7 +66,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
 
   await db.schema
     .createType("workspace_role")
-    .asEnum(["owner", "admin", "member"])
+    .asEnum(["owner", "admin", "member", "pending"])
     .execute();
 
   await db.schema

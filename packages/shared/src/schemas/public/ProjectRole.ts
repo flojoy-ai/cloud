@@ -4,6 +4,7 @@
 /** Represents the enum public.project_role */
 type ProjectRole = 
   | 'test'
-  | 'dev';
+  | 'dev'
+  | 'pending';
 
 export default ProjectRole;

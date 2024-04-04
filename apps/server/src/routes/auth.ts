@@ -5,7 +5,7 @@ import { AuthMiddleware } from "../middlewares/auth";
 import { AuthMethod } from "@cloud/shared";
 import { Elysia } from "elysia";
 
-export const AuthRoute = new Elysia({ prefix: "/auth" })
+export const AuthRoute = new Elysia({ prefix: "/auth", name: "AuthRoute" })
   .get("/", async () => {
     const availableMethods: AuthMethod[] = [];
     if (env.GOOGLE_CLIENT_ID) {
@@ -17,7 +17,10 @@ export const AuthRoute = new Elysia({ prefix: "/auth" })
     return availableMethods;
   })
   .use(AuthMiddleware)
-  .get("/logout", async ({ set, session, cookie }) => {
+  .get("/logout", async ({ set, session, cookie, authMethod, error }) => {
+    if (authMethod === "secret") {
+      return error("I'm a teapot");
+    }
     // make sure to invalidate the current session!
     await lucia.invalidateSession(session.id);
 

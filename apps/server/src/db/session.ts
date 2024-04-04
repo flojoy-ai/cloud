@@ -1,45 +1,67 @@
+import { DB, InsertSession, Session, WorkspaceUser } from "@cloud/shared";
 import { ExpressionBuilder, Kysely, sql } from "kysely";
-import { fromTransaction, generateDatabaseId, tryQuery } from "../lib/db-utils";
-import { Result, ResultAsync, err, fromPromise, ok } from "neverthrow";
-import {
-  DB,
-  InsertSession,
-  Session,
-  SessionMeasurement,
-  Workspace,
-} from "@cloud/shared";
 import { jsonArrayFrom } from "kysely/helpers/postgres";
-import { db } from "./kysely";
+import { User } from "lucia";
+import { Result, err, ok } from "neverthrow";
+import { generateDatabaseId, tryQuery } from "../lib/db-utils";
 import { DBError, InternalServerError, NotFoundError } from "../lib/error";
 import { errIfUndefined } from "../lib/utils";
-import { getStation } from "./station";
-import { getUnitBySerialNumber } from "./unit";
-import { createTest, getTestByName } from "./test";
+import { db } from "./kysely";
 import { createMeasurement } from "./measurement";
-import { User } from "lucia";
+import { getStation } from "./station";
+import { createTest, getTestByName } from "./test";
+import { getUnitBySerialNumber } from "./unit";
 
-export async function getSessionsByUnit(unitId: string) {
+export async function getSessionsByUnitId(
+  unitId: string,
+  workspaceUser: WorkspaceUser,
+) {
   return await db
     .selectFrom("session")
     .selectAll()
+    .innerJoin("project_user as pu", (join) =>
+      join
+        .on("pu.workspaceId", "=", workspaceUser.workspaceId)
+        .on("pu.projectId", "=", "session.projectId")
+        .on("pu.userId", "=", workspaceUser.userId),
+    )
+    .where("pu.role", "!=", "pending")
     .select((eb) => withStatus(eb))
     .where("unitId", "=", unitId)
     .execute();
 }
 
-export async function getSessionsByStation(stationId: string) {
+export async function getSessionsByStation(
+  stationId: string,
+  workspaceUser: WorkspaceUser,
+) {
   return await db
     .selectFrom("session")
     .selectAll()
+    .innerJoin("project_user as pu", (join) =>
+      join
+        .on("pu.workspaceId", "=", workspaceUser.workspaceId)
+        .on("pu.projectId", "=", "session.projectId")
+        .on("pu.userId", "=", workspaceUser.userId),
+    )
     .select((eb) => withStatus(eb))
     .where("stationId", "=", stationId)
     .execute();
 }
 
-export async function getSessionsByProject(projectId: string) {
+export async function getSessionsByProject(
+  projectId: string,
+  workspaceUser: WorkspaceUser,
+) {
   return await db
     .selectFrom("session")
     .selectAll()
+    .innerJoin("project_user as pu", (join) =>
+      join
+        .on("pu.workspaceId", "=", workspaceUser.workspaceId)
+        .on("pu.projectId", "=", "session.projectId")
+        .on("pu.userId", "=", workspaceUser.userId),
+    )
     .select((eb) => withStatus(eb))
     .where("projectId", "=", projectId)
     .execute();

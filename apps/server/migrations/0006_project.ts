@@ -30,7 +30,10 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .column("name")
     .execute();
 
-  await db.schema.createType("project_role").asEnum(["test", "dev"]).execute();
+  await db.schema
+    .createType("project_role")
+    .asEnum(["test", "dev", "pending"])
+    .execute();
 
   await db.schema
     .createTable("project_user")
@@ -52,7 +55,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
 }
 
 export async function down(db: Kysely<unknown>): Promise<void> {
-  await db.schema.dropTable("project").execute();
   await db.schema.dropTable("project_user").execute();
+  await db.schema.dropTable("project").execute();
   await db.schema.dropType("project_role").execute();
 }

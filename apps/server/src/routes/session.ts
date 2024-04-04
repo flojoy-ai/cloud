@@ -10,28 +10,32 @@ import {
 } from "../db/session";
 import { insertSession } from "@cloud/shared";
 import { fromTransaction } from "../lib/db-utils";
+import { getSession, getSessionsByUnitId } from "../db/session";
+import { checkSessionPerm } from "../lib/perm/session";
 
-export const SessionRoute = new Elysia({ prefix: "/session" })
+export const SessionRoute = new Elysia({
+  prefix: "/session",
+  name: "SessionRoute",
+})
   .use(WorkspaceMiddleware)
-  // Get all test sessions for a unit instance
   .get(
     "/unit/:unitId",
-    async ({ params: { unitId } }) => {
-      return await getSessionsByUnit(unitId);
+    async ({ params: { unitId }, workspaceUser }) => {
+      return await getSessionsByUnitId(unitId, workspaceUser);
     },
     { params: t.Object({ unitId: t.String() }) },
   )
   .get(
     "/project/:projectId",
-    async ({ params: { projectId } }) => {
-      return await getSessionsByProject(projectId);
+    async ({ params: { projectId }, workspaceUser }) => {
+      return await getSessionsByProject(projectId, workspaceUser);
     },
     { params: t.Object({ projectId: t.String() }) },
   )
   .get(
     "/station/:stationId",
-    async ({ params: { stationId } }) => {
-      return await getSessionsByStation(stationId);
+    async ({ params: { stationId }, workspaceUser }) => {
+      return await getSessionsByStation(stationId, workspaceUser);
     },
     { params: t.Object({ stationId: t.String() }) },
   )
@@ -59,5 +63,20 @@ export const SessionRoute = new Elysia({ prefix: "/session" })
     },
     {
       body: insertSession,
+      params: t.Object({ sessionId: t.String() }),
+      async beforeHandle({ params: { sessionId }, workspaceUser, error }) {
+        const perm = await checkSessionPerm({
+          sessionId,
+          workspaceUser,
+        });
+
+        if (perm.isErr()) {
+          return error(403, perm.error);
+        }
+
+        if (!perm.value.canRead()) {
+          return error(403, "You do not have permission to read this session");
+        }
+      },
     },
   );

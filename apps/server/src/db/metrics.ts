@@ -24,7 +24,7 @@ export function workspaceCounter(
     if (end) {
       query = query.where("createdAt", "<=", end);
     }
-    return (await query.executeTakeFirst())!.count;
+    return (await query.executeTakeFirstOrThrow()).count;
   };
 }
 
@@ -46,11 +46,13 @@ export async function projectCount(
   table: keyof Pick<DB, "session" | "unit">,
   projectId: string,
 ) {
-  return (await db
-    .selectFrom(table)
-    .where("projectId", "=", projectId)
-    .select((eb) => eb.fn.countAll<number>().as("count"))
-    .executeTakeFirst())!.count; //countAll always returns something
+  return (
+    await db
+      .selectFrom(table)
+      .where("projectId", "=", projectId)
+      .select((eb) => eb.fn.countAll<number>().as("count"))
+      .executeTakeFirstOrThrow()
+  ).count; //countAll always returns something
 }
 
 export async function projectMeanTestSessions(projectId: string) {
@@ -74,12 +76,14 @@ export async function sessionCountWithStatus(
 }
 
 export async function abortedSessionCount(projectId: string) {
-  return (await db
-    .selectFrom("session")
-    .where("projectId", "=", projectId)
-    .where("aborted", "=", true)
-    .select((eb) => eb.fn.countAll<number>().as("count"))
-    .executeTakeFirst())!.count;
+  return (
+    await db
+      .selectFrom("session")
+      .where("projectId", "=", projectId)
+      .where("aborted", "=", true)
+      .select((eb) => eb.fn.countAll<number>().as("count"))
+      .executeTakeFirstOrThrow()
+  ).count;
 }
 
 export async function firstPassYield(projectId: string) {

@@ -1,5 +1,5 @@
 import { createWorkspace } from "@cloud/shared";
-import { Elysia, NotFoundError, t } from "elysia";
+import { Elysia, error, t } from "elysia";
 import { ok, safeTry } from "neverthrow";
 import { DatabaseError } from "pg";
 import { populateExample } from "../db/example";
@@ -17,7 +17,6 @@ export const WorkspaceRoute = new Elysia({
     DatabaseError,
   })
   .onError(({ code, error, set }) => {
-    // TODO: handle this better
     switch (code) {
       case "DatabaseError":
         set.status = 500;
@@ -26,9 +25,13 @@ export const WorkspaceRoute = new Elysia({
         return error;
     }
   })
-  .get("/", async ({ user }) => {
+  .get("/", async ({ user, authMethod }) => {
+    if (authMethod === "secret") {
+      return error("I'm a teapot");
+    }
     return await db
       .selectFrom("workspace_user as wu")
+      .where("wu.role", "!=", "pending")
       .innerJoin("workspace as w", "w.id", "wu.workspaceId")
       .innerJoin("user as u", "u.id", "wu.userId")
       .where("wu.userId", "=", user.id)
@@ -97,15 +100,41 @@ export const WorkspaceRoute = new Elysia({
       }),
     },
   )
-  .get("/:namespace", async ({ params }) => {
-    return await db
-      .selectFrom("workspace")
+  .get("/:namespace", async ({ params, authMethod, request, user }) => {
+    const workspace = await db
+      .selectFrom("workspace as w")
       .selectAll()
-      .where("workspace.namespace", "=", params.namespace)
-      .executeTakeFirstOrThrow(
-        () =>
-          new NotFoundError(
-            "You do not have access to this workspace or it does not exist",
-          ),
+      .where("w.namespace", "=", params.namespace)
+      .innerJoin("workspace_user as wu", (join) =>
+        join.onRef("wu.workspaceId", "=", "w.id").on("wu.userId", "=", user.id),
+      )
+      .executeTakeFirst();
+
+    if (!workspace) {
+      return error(404, "workspace not found or you do not have access");
+    }
+
+    if (authMethod === "secret") {
+      // NOTE: Why is this needed? Since the auth method is secret and a given
+      // secret is scoped to a specific workspace, we need to make sure only
+      // that specific workspace can be retrived
+      const personalSecret = request.headers.get(
+        "flojoy-workspace-personal-secret",
       );
+      if (!personalSecret) {
+        return error(500, "This is impossible");
+      }
+
+      const userSession = await db
+        .selectFrom("user_session as us")
+        .selectAll()
+        .where("us.id", "=", personalSecret)
+        .executeTakeFirst();
+
+      if (userSession?.workspaceId !== workspace.id) {
+        return error(403, "You do not have access to this workspace");
+      }
+    }
+
+    return workspace;
   });

@@ -3,11 +3,15 @@ import { createStation } from "../db/station";
 import { InsertStation } from "@cloud/shared";
 import { Elysia, error, t } from "elysia";
 import { DatabaseError } from "pg";
+import { checkStationPerm } from "../lib/perm/station";
+import { WorkspaceMiddleware } from "../middlewares/workspace";
+import { checkProjectPerm } from "../lib/perm/project";
 
 export const StationRoute = new Elysia({
   prefix: "/station",
   name: "StationRoute",
 })
+  .use(WorkspaceMiddleware)
   .error({
     DatabaseError,
   })
@@ -21,15 +25,32 @@ export const StationRoute = new Elysia({
         return error;
     }
   })
-  .get("/:stationId", async ({ params: { stationId } }) => {
-    // FIXME: permission check
-    const station = await db
-      .selectFrom("station as s")
-      .selectAll()
-      .where("s.id", "=", stationId)
-      .executeTakeFirstOrThrow();
-    return station;
-  })
+  .get(
+    "/:stationId",
+    async ({ params: { stationId } }) => {
+      const station = await db
+        .selectFrom("station as s")
+        .selectAll()
+        .where("s.id", "=", stationId)
+        .executeTakeFirst();
+
+      if (!station) {
+        return error(404, "station not found");
+      }
+
+      return station;
+    },
+    {
+      async beforeHandle({ workspaceUser, params: { stationId }, error }) {
+        const perm = await checkStationPerm({ workspaceUser, stationId });
+
+        return perm.match(
+          (perm) => (perm.canRead() ? undefined : error("Forbidden")),
+          (err) => error(403, err),
+        );
+      },
+    },
+  )
   .get(
     "/",
     async ({ query }) => {
@@ -43,6 +64,14 @@ export const StationRoute = new Elysia({
       query: t.Object({
         projectId: t.String(),
       }),
+      async beforeHandle({ workspaceUser, query: { projectId }, error }) {
+        const perm = await checkProjectPerm({ workspaceUser, projectId });
+
+        return perm.match(
+          (perm) => (perm.canRead() ? undefined : error("Forbidden")),
+          (err) => error(403, err),
+        );
+      },
     },
   )
   .post(
@@ -59,5 +88,13 @@ export const StationRoute = new Elysia({
     },
     {
       body: InsertStation,
+      async beforeHandle({ workspaceUser, body: { projectId }, error }) {
+        const perm = await checkProjectPerm({ workspaceUser, projectId });
+
+        return perm.match(
+          (perm) => (perm.canWrite() ? undefined : error("Forbidden")),
+          (err) => error(403, err),
+        );
+      },
     },
   );

@@ -7,8 +7,12 @@ import {
 import { PartVariation, insertPartVariation } from "@cloud/shared";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
 import { jsonObjectFrom } from "kysely/helpers/postgres";
+import { checkWorkspacePerm } from "../lib/perm/workspace";
 
-export const PartVariationRoute = new Elysia({ prefix: "/partVariation" })
+export const PartVariationRoute = new Elysia({
+  prefix: "/partVariation",
+  name: "PartVariationRoute",
+})
   .use(WorkspaceMiddleware)
   .get("/", async ({ workspace }) => {
     const partVariations = await db
@@ -31,7 +35,17 @@ export const PartVariationRoute = new Elysia({ prefix: "/partVariation" })
       }
       return res.value;
     },
-    { body: insertPartVariation },
+    {
+      body: insertPartVariation,
+      async beforeHandle({ workspaceUser, error }) {
+        const perm = await checkWorkspacePerm({ workspaceUser });
+
+        return perm.match(
+          (perm) => (perm.canWrite() ? undefined : error("Forbidden")),
+          (err) => error(403, err),
+        );
+      },
+    },
   )
   .group("/:partVariationId", (app) =>
     app
@@ -44,6 +58,7 @@ export const PartVariationRoute = new Elysia({ prefix: "/partVariation" })
             .where("id", "=", partVariationId)
             .where("workspaceId", "=", workspace.id)
             .executeTakeFirst();
+
           if (partVariation === undefined) {
             return error(404, "PartVariation not found");
           }
@@ -52,6 +67,14 @@ export const PartVariationRoute = new Elysia({ prefix: "/partVariation" })
         },
         {
           params: t.Object({ partVariationId: t.String() }),
+
+          async beforeHandle({ workspaceUser, error }) {
+            const perm = await checkWorkspacePerm({ workspaceUser });
+            return perm.match(
+              (perm) => (perm.canRead() ? undefined : error("Forbidden")),
+              (err) => error(403, err),
+            );
+          },
         },
       )
       .get(
@@ -88,6 +111,17 @@ export const PartVariationRoute = new Elysia({ prefix: "/partVariation" })
 
           return partVariations;
         },
-        { params: t.Object({ partVariationId: t.String() }) },
+        {
+          params: t.Object({ partVariationId: t.String() }),
+
+          async beforeHandle({ workspaceUser, error }) {
+            const perm = await checkWorkspacePerm({ workspaceUser });
+
+            return perm.match(
+              (perm) => (perm.canRead() ? undefined : error("Forbidden")),
+              (err) => error(403, err),
+            );
+          },
+        },
       ),
   );

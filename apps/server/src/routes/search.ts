@@ -40,7 +40,10 @@ function makeQuery(
   }
 }
 
-export const SearchRoute = new Elysia({ prefix: "/search" })
+export const SearchRoute = new Elysia({
+  prefix: "/search",
+  name: "SearchRoute",
+})
   .use(WorkspaceMiddleware)
   .get(
     "/",
