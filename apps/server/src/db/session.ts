@@ -40,7 +40,7 @@ export async function getSessionsByStation(
     .innerJoin("project_user as pu", (join) =>
       join
         .on("pu.workspaceId", "=", workspaceUser.workspaceId)
-        // .on("pu.projectId", "=", "session.projectId")
+        .onRef("pu.projectId", "=", "session.projectId")
         .on("pu.userId", "=", workspaceUser.userId),
     )
     .select((eb) => withStatus(eb))
@@ -58,7 +58,7 @@ export async function getSessionsByProject(
     .innerJoin("project_user as pu", (join) =>
       join
         .on("pu.workspaceId", "=", workspaceUser.workspaceId)
-        .on("pu.projectId", "=", "session.projectId")
+        .onRef("pu.projectId", "=", "session.projectId")
         .on("pu.userId", "=", workspaceUser.userId),
     )
     .select((eb) => withStatus(eb))
