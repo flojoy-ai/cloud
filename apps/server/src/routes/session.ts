@@ -2,13 +2,13 @@ import { db } from "../db/kysely";
 import Elysia, { t } from "elysia";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
 import { getSession, getSessions } from "../db/session";
+import { checkSessionPerm } from "../lib/perm/session";
 
 export const SessionRoute = new Elysia({
   prefix: "/session",
   name: "SessionRoute",
 })
   .use(WorkspaceMiddleware)
-  // Get all test sessions for a unit instance
   .get(
     "/unit/:unitId",
     async ({ params: { unitId } }) => {
@@ -25,5 +25,24 @@ export const SessionRoute = new Elysia({
       }
       return session;
     },
-    { params: t.Object({ sessionId: t.String() }) },
+    {
+      params: t.Object({ sessionId: t.String() }),
+      async beforeHandle({ params: { sessionId }, workspaceUser, error }) {
+        const hasPermission = await checkSessionPerm(
+          {
+            sessionId,
+            workspaceUser,
+          },
+          "read",
+        );
+
+        if (hasPermission.isErr()) {
+          return error(403, hasPermission.error);
+        }
+
+        if (!hasPermission.value) {
+          return error(403, "You do not have permission to read this session");
+        }
+      },
+    },
   );

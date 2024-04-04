@@ -7,6 +7,7 @@ import {
 import { PartVariation, insertPartVariation } from "@cloud/shared";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
 import { jsonObjectFrom } from "kysely/helpers/postgres";
+import { checkWorkspacePerm } from "../lib/perm/workspace";
 
 export const PartVariationRoute = new Elysia({
   prefix: "/partVariation",
@@ -34,7 +35,19 @@ export const PartVariationRoute = new Elysia({
       }
       return res.value;
     },
-    { body: insertPartVariation },
+    {
+      body: insertPartVariation,
+      async beforeHandle({ workspaceUser, error }) {
+        const result = await checkWorkspacePerm({ workspaceUser }, "write");
+
+        if (result.isErr()) {
+          return error(403, result.error);
+        }
+        if (!result.value) {
+          return error("Forbidden");
+        }
+      },
+    },
   )
   .group("/:partVariationId", (app) =>
     app
@@ -47,6 +60,7 @@ export const PartVariationRoute = new Elysia({
             .where("id", "=", partVariationId)
             .where("workspaceId", "=", workspace.id)
             .executeTakeFirst();
+
           if (partVariation === undefined) {
             return error(404, "PartVariation not found");
           }
@@ -55,6 +69,17 @@ export const PartVariationRoute = new Elysia({
         },
         {
           params: t.Object({ partVariationId: t.String() }),
+
+          async beforeHandle({ workspaceUser, error }) {
+            const result = await checkWorkspacePerm({ workspaceUser }, "read");
+
+            if (result.isErr()) {
+              return error(403, result.error);
+            }
+            if (!result.value) {
+              return error("Forbidden");
+            }
+          },
         },
       )
       .get(
@@ -91,6 +116,19 @@ export const PartVariationRoute = new Elysia({
 
           return partVariations;
         },
-        { params: t.Object({ partVariationId: t.String() }) },
+        {
+          params: t.Object({ partVariationId: t.String() }),
+
+          async beforeHandle({ workspaceUser, error }) {
+            const result = await checkWorkspacePerm({ workspaceUser }, "read");
+
+            if (result.isErr()) {
+              return error(403, result.error);
+            }
+            if (!result.value) {
+              return error("Forbidden");
+            }
+          },
+        },
       ),
   );

@@ -7,11 +7,11 @@ export const ProductRoute = new Elysia({
   name: "ProductRoute",
 })
   .use(WorkspaceMiddleware)
-  .get("/", async ({ workspace }) => {
+  .get("/", async ({ workspaceUser }) => {
     const products = await db
       .selectFrom("product")
       .selectAll()
-      .where("workspaceId", "=", workspace.id)
+      .where("workspaceId", "=", workspaceUser.workspaceId)
       .execute();
     return products;
   });
