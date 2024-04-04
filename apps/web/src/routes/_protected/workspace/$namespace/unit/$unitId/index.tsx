@@ -56,7 +56,6 @@ const columns: ColumnDef<Session & { status: boolean | null }>[] = [
   },
   {
     header: "Status",
-    accessorKey: "pass",
     cell: ({ row }) => {
       if (row.original.status === true) {
         return (

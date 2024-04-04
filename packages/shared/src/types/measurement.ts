@@ -74,6 +74,18 @@ export const insertMeasurement = t.Object({
 
 export type InsertMeasurement = Static<typeof insertMeasurement>;
 
+export const sessionMeasurement = t.Object({
+  testId: t.String(),
+  sequenceName: t.Optional(t.String()),
+  cycleNumber: t.Optional(t.Integer()),
+  name: t.String({ default: "Untitled measurement" }),
+  data: measurementData,
+  pass: t.Nullable(t.Boolean()),
+  createdAt: t.Date(),
+});
+
+export type SessionMeasurement = Static<typeof sessionMeasurement>;
+
 // const booleanExplorerSchema = z.object({
 //   xAxis: z.union([z.literal("timestamp"), z.literal("device_id")]),
 // });

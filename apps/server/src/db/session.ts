@@ -1,9 +1,15 @@
-import { ExpressionBuilder, Kysely, sql } from "kysely";
-import { generateDatabaseId } from "../lib/db-utils";
-import { Result, err, ok } from "neverthrow";
 import { DB, InsertSession, Session, WorkspaceUser } from "@cloud/shared";
+import { ExpressionBuilder, Kysely, sql } from "kysely";
 import { jsonArrayFrom } from "kysely/helpers/postgres";
+import { Result, err, ok } from "neverthrow";
+import { generateDatabaseId, tryQuery } from "../lib/db-utils";
+import { DBError, InternalServerError, NotFoundError } from "../lib/error";
+import { errIfUndefined } from "../lib/utils";
 import { db } from "./kysely";
+import { createMeasurement } from "./measurement";
+import { getStation } from "./station";
+import { createTest, getTestByName } from "./test";
+import { getUnitBySerialNumber } from "./unit";
 
 export async function getSessionsByUnitId(
   unitId: string,
@@ -11,16 +17,52 @@ export async function getSessionsByUnitId(
 ) {
   return await db
     .selectFrom("session")
-    .selectAll()
+    .selectAll("session")
+    .innerJoin("project_user as pu", (join) =>
+      join
+        .on("pu.workspaceId", "=", workspaceUser.workspaceId)
+        .onRef("pu.projectId", "=", "session.projectId")
+        .on("pu.userId", "=", workspaceUser.userId),
+    )
+    .where("pu.role", "!=", "pending")
+    .select((eb) => withStatus(eb))
+    .where("session.unitId", "=", unitId)
+    .execute();
+}
+
+export async function getSessionsByStation(
+  stationId: string,
+  workspaceUser: WorkspaceUser,
+) {
+  return await db
+    .selectFrom("session")
+    .selectAll("session")
+    .innerJoin("project_user as pu", (join) =>
+      join
+        .on("pu.workspaceId", "=", workspaceUser.workspaceId)
+        // .on("pu.projectId", "=", "session.projectId")
+        .on("pu.userId", "=", workspaceUser.userId),
+    )
+    .select((eb) => withStatus(eb))
+    .where("stationId", "=", stationId)
+    .execute();
+}
+
+export async function getSessionsByProject(
+  projectId: string,
+  workspaceUser: WorkspaceUser,
+) {
+  return await db
+    .selectFrom("session")
+    .selectAll("session")
     .innerJoin("project_user as pu", (join) =>
       join
         .on("pu.workspaceId", "=", workspaceUser.workspaceId)
         .on("pu.projectId", "=", "session.projectId")
         .on("pu.userId", "=", workspaceUser.userId),
     )
-    .where("pu.role", "!=", "pending")
     .select((eb) => withStatus(eb))
-    .where("unitId", "=", unitId)
+    .where("projectId", "=", projectId)
     .execute();
 }
 
@@ -64,19 +106,74 @@ export async function getSession(db: Kysely<DB>, sessionId: string) {
 
 export async function createSession(
   db: Kysely<DB>,
+  workspaceId: string,
+  userId: string,
   input: InsertSession,
-): Promise<Result<Session, string>> {
-  const session = await db
-    .insertInto("session")
-    .values({
-      id: generateDatabaseId("session"),
-      ...input,
-    })
-    .returningAll()
-    .executeTakeFirst();
+): Promise<Result<Session, DBError>> {
+  const { measurements, ...body } = input;
 
-  if (session === undefined) {
-    return err("Failed to create session");
+  const station = await getStation(db, body.stationId);
+  if (station === undefined) {
+    return err(new NotFoundError("Station not found"));
+  }
+
+  const unit = await getUnitBySerialNumber(db, body.serialNumber, workspaceId);
+  if (unit === undefined) {
+    return err(
+      new NotFoundError(`Serial Number ${body.serialNumber} not found`),
+    );
+  }
+
+  const toInsert = {
+    unitId: unit.id,
+    userId: userId,
+    projectId: station.projectId,
+    stationId: body.stationId,
+    integrity: body.integrity,
+    aborted: body.aborted,
+    notes: body.notes,
+    commitHash: body.commitHash,
+  };
+
+  const res = await tryQuery(
+    db
+      .insertInto("session")
+      .values({
+        id: generateDatabaseId("session"),
+        ...toInsert,
+      })
+      .returningAll()
+      .executeTakeFirst(),
+  ).andThen(
+    errIfUndefined(new InternalServerError("Failed to create session")),
+  );
+  if (res.isErr()) return res;
+
+  const session = res.value;
+
+  for (const meas of measurements) {
+    // NOTE: TestId should be provided in the DS
+    let test = await getTestByName(db, meas.name);
+    if (test === undefined) {
+      const testResult = await createTest(db, {
+        name: meas.name,
+        projectId: station.projectId,
+        measurementType: meas.data.type,
+      });
+      if (testResult.isErr()) {
+        return err(new InternalServerError(testResult.error));
+      }
+      test = testResult.value;
+    }
+
+    await createMeasurement(db, workspaceId, {
+      ...meas,
+      sessionId: session.id,
+      testId: test.id,
+      unitId: unit.id,
+      projectId: station.projectId,
+      tagNames: [],
+    });
   }
 
   return ok(session);

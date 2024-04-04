@@ -1,5 +1,5 @@
 import swagger from "@elysiajs/swagger";
-import { Elysia } from "elysia";
+import { ELYSIA_RESPONSE, Elysia } from "elysia";
 import { fixCtxRequest } from "./lib/fix";
 import { UserRoute } from "./routes/user";
 import { AuthRoute } from "./routes/auth";
@@ -38,7 +38,7 @@ const app = new Elysia()
     }),
   )
   .use(swagger())
-  .mapResponse(({ request, response }) => {
+  .mapResponse(({ request, response, set }) => {
     const isJson = typeof response === "object";
     if (!isJson) return response as Response;
 
@@ -53,6 +53,10 @@ const app = new Elysia()
         "Content-Type": "application/json; charset=utf-8",
         "Content-Encoding": "gzip",
       },
+      status:
+        response !== null && ELYSIA_RESPONSE in response
+          ? (response[ELYSIA_RESPONSE] as number)
+          : (set.status as number),
     });
   })
   .use(

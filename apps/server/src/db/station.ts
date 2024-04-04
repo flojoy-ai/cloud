@@ -22,3 +22,11 @@ export async function createStation(
 
   return ok(session);
 }
+
+export async function getStation(db: Kysely<DB>, stationId: string) {
+  return await db
+    .selectFrom("station")
+    .selectAll("station")
+    .where("station.id", "=", stationId)
+    .executeTakeFirst();
+}

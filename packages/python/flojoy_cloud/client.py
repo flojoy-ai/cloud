@@ -1,7 +1,7 @@
 import datetime
 import json
 import os
-from typing import Any, Callable, Optional, ParamSpec, TypeVar, overload
+from typing import Any, Callable, List, Optional, ParamSpec, TypeVar, overload
 
 import httpx
 import numpy as np
@@ -20,6 +20,7 @@ from flojoy_cloud.dtypes import (
     Project,
     ProjectWithModel,
     Test,
+    SessionMeasurement,
 )
 from flojoy_cloud.measurement import MeasurementData, MeasurementType, make_payload
 
@@ -387,3 +388,49 @@ class FlojoyCloud:
     @query(model=None)
     def delete_measurement(self, measurement_id: str):
         return self.client.delete(f"/measurements/{measurement_id}")
+
+    @query(model=None)
+    def get_hardware_id(self, part_number: str, serial_number: str):
+        return "TODO"
+
+    @query(model=MeasurementCreateResult)
+    def upload_session(
+        self,
+        serial_number: str,
+        station_id: str,
+        integrity: bool,
+        aborted: bool,
+        notes: Optional[str],
+        commit_hash: Optional[str],
+        measurements: List[SessionMeasurement],
+    ):
+        m_list = []
+        for m in measurements:
+            # Find id of each part
+            m_list.append(
+                {
+                    "data": make_payload(m.data),
+                    "name": m.name,
+                    "pass": m.passed,
+                    "createdAt": m.created_at.isoformat() if m.created_at else None,
+                }
+            )
+        body = _make_params(
+            {
+                "serialNumber": serial_number,
+                "stationId": station_id,
+                "integrity": integrity,
+                "aborted": aborted,
+                "notes": notes,
+                "commitHash": commit_hash,
+                "measurements": m_list,
+            }
+        )
+
+        return self.client.post(
+            "/session/measurements",
+            content=json.dumps(body, cls=CloudEncoder),
+            headers={
+                "Content-Type": "application/json",
+            },
+        )

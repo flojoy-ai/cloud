@@ -25,7 +25,6 @@ import { Workspace } from "@cloud/shared";
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { CheckIcon, ChevronsUpDown, PlusCircleIcon } from "lucide-react";
 import { useState } from "react";
-import ExternalLinks from "./external-links";
 import UserButton from "./user-button";
 import AuthButtons from "./auth-buttons";
 import SearchBar from "../workspace/search-bar";
@@ -133,16 +132,6 @@ export function ProtectedNav({ workspaces, currentWorkspace }: NavProps) {
             </Command>
           </PopoverContent>
         </Popover>
-
-        <a
-          href={"https://rest.flojoy.ai"}
-          target="_blank"
-          className={cn(
-            "text-foreground/60 transition-colors hover:text-foreground/80",
-          )}
-        >
-          API Docs
-        </a>
       </nav>
     </div>
   );
@@ -170,17 +159,17 @@ export function ProtectedHeader({ workspaces }: Props) {
           workspaces={workspaces}
           currentWorkspace={currentWorkspace}
         />
-        {currentWorkspace && !isWorkspaceIndexRoute && (
-          <>
-            <div className="px-3" />
-            <SearchBar
-              workspace={currentWorkspace}
-              className="max-w-72 w-full"
-              emptyClassName="border-b-0"
-            />
-          </>
-        )}
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+          {currentWorkspace && !isWorkspaceIndexRoute && (
+            <>
+              <div className="px-3" />
+              <SearchBar
+                workspace={currentWorkspace}
+                className="max-w-72 w-full"
+                small={true}
+              />
+            </>
+          )}
           <nav className="flex items-center">
             {!user ? (
               <AuthButtons />
@@ -202,8 +191,6 @@ export function ProtectedHeader({ workspaces }: Props) {
                 <UserButton user={user} />
               </>
             )}
-            <div className="px-1" />
-            <ExternalLinks />
             <ModeToggle />
           </nav>
         </div>

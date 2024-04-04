@@ -19,3 +19,11 @@ export async function createTest(db: Kysely<DB>, input: InsertTest) {
 
   return ok(test);
 }
+
+export async function getTestByName(db: Kysely<DB>, name: string) {
+  return await db
+    .selectFrom("test")
+    .selectAll("test")
+    .where("test.name", "=", name)
+    .executeTakeFirst();
+}

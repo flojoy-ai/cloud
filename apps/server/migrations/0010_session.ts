@@ -1,5 +1,4 @@
 import { type Kysely, sql } from "kysely";
-
 export async function up(db: Kysely<unknown>): Promise<void> {
   await db.schema
     .createTable("session")
@@ -7,11 +6,8 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .addColumn("unit_id", "text", (col) =>
       col.notNull().references("unit.id").onDelete("cascade"),
     )
-    .addColumn(
-      "user_id",
-      "text",
-      // NOTE: Keeping as nullable for the sake of being able to generate example data
-      (col) => col.references("user.id").onDelete("cascade"),
+    .addColumn("user_id", "text", (col) =>
+      col.notNull().references("user.id").onDelete("cascade"),
     )
     .addColumn("project_id", "text", (col) =>
       col.notNull().references("project.id").onDelete("cascade"),

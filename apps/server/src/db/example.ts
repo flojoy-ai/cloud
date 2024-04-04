@@ -1,11 +1,10 @@
 import _ from "lodash";
 
-import { generateDatabaseId } from "../lib/db-utils";
+import { DB, WorkspaceUser } from "@cloud/shared";
 import { Kysely } from "kysely";
-import { DB } from "@cloud/shared";
 import { err, ok, safeTry } from "neverthrow";
+import { generateDatabaseId } from "../lib/db-utils";
 import { createPart } from "./part";
-import { createMeasurement } from "./measurement";
 import { createPartVariation } from "./part-variation";
 import { createProduct } from "./product";
 import { createProject } from "./project";
@@ -24,7 +23,12 @@ const generateRandomNumbers = () => {
   return randomNumbers;
 };
 
-export async function populateExample(db: Kysely<DB>, workspaceId: string) {
+export async function populateExample(
+  db: Kysely<DB>,
+  workspaceUser: WorkspaceUser,
+) {
+  const workspaceId = workspaceUser.workspaceId;
+
   return safeTry(async function* () {
     const product = yield* (
       await createProduct(db, {
@@ -145,6 +149,16 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
         workspaceId,
       })
     ).safeUnwrap();
+
+    await db
+      .insertInto("project_user")
+      .values({
+        projectId: pi5Project.id,
+        userId: workspaceUser.userId,
+        role: "dev",
+        workspaceId: workspaceUser.workspaceId,
+      })
+      .executeTakeFirstOrThrow();
 
     const booleanTest = yield* (
       await createTest(db, {
@@ -267,49 +281,37 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
 
     for (let i = 0; i < pis.length; i++) {
       const unit = pis[i]!;
+      const val = Math.random() < 0.8;
 
-      const session = yield* (
-        await createSession(db, {
-          unitId: unit.id,
-          projectId: pi5Project.id,
+      yield* (
+        await createSession(db, workspaceId, workspaceUser.userId, {
+          serialNumber: unit.serialNumber,
           stationId: station.id,
           notes: "This is a test session",
           integrity: true,
           aborted: false,
-        })
-      ).safeUnwrap();
-
-      const val = Math.random() < 0.8;
-      yield* (
-        await createMeasurement(db, workspaceId, {
-          name: "Did Light Up",
-          unitId: unit.id,
-          testId: booleanTest.id,
-          projectId: pi5Project.id,
-          sessionId: session.id,
-          createdAt: new Date(new Date().getTime() + i * 20000),
-          data: { type: "boolean" as const, value: val },
-          pass: val,
-          tagNames: ["example"],
-        })
-      ).safeUnwrap();
-      yield* (
-        await createMeasurement(db, workspaceId, {
-          name: "Data Point",
-          unitId: unit.id,
-          testId: dataframeTest.id,
-          projectId: pi5Project.id,
-          sessionId: session.id,
-          createdAt: new Date(new Date().getTime() + i * 20000),
-          data: {
-            type: "dataframe" as const,
-            value: {
-              x: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-              y: generateRandomNumbers(),
+          measurements: [
+            {
+              name: "Did Light Up",
+              testId: booleanTest.id,
+              createdAt: new Date(new Date().getTime() + i * 20000),
+              data: { type: "boolean" as const, value: val },
+              pass: val,
             },
-          },
-          pass: Math.random() < 0.7 ? true : null,
-          tagNames: ["example"],
+            {
+              name: "Data Point",
+              testId: dataframeTest.id,
+              createdAt: new Date(new Date().getTime() + i * 20000),
+              data: {
+                type: "dataframe" as const,
+                value: {
+                  x: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                  y: generateRandomNumbers(),
+                },
+              },
+              pass: Math.random() < 0.7 ? true : null,
+            },
+          ],
         })
       ).safeUnwrap();
     }

@@ -53,3 +53,28 @@ export function getSessionQueryOpts({ sessionId, context }: GetSessionParams) {
 }
 
 export const getSessionQueryKey = (sessionId: string) => ["session", sessionId];
+
+type GetSessionsByStationParams = {
+  stationId: string;
+  context: {
+    workspace: Workspace;
+  };
+};
+
+export function getSessionsByStationQueryOpts({
+  stationId,
+  context,
+}: GetSessionsByStationParams) {
+  return queryOptions({
+    queryFn: async () => {
+      const stationQuery = await client.session.station({ stationId }).get({
+        headers: { "flojoy-workspace-id": context.workspace.id },
+      });
+      if (stationQuery.error) throw stationQuery.error;
+      return stationQuery.data;
+    },
+    queryKey: ["session"],
+  });
+}
+
+export const getSessionsByStationQueryKey = () => ["session"];
