@@ -2,7 +2,7 @@ import _ from "lodash";
 
 import { generateDatabaseId } from "../lib/db-utils";
 import { Kysely } from "kysely";
-import { DB } from "@cloud/shared";
+import { DB, WorkspaceUser } from "@cloud/shared";
 import { err, ok, safeTry } from "neverthrow";
 import { createPart } from "./part";
 import { createMeasurement } from "./measurement";
@@ -24,7 +24,12 @@ const generateRandomNumbers = () => {
   return randomNumbers;
 };
 
-export async function populateExample(db: Kysely<DB>, workspaceId: string) {
+export async function populateExample(
+  db: Kysely<DB>,
+  workspaceUser: WorkspaceUser,
+) {
+  const workspaceId = workspaceUser.workspaceId;
+
   return safeTry(async function* () {
     const product = yield* (
       await createProduct(db, {
@@ -145,6 +150,16 @@ export async function populateExample(db: Kysely<DB>, workspaceId: string) {
         workspaceId,
       })
     ).safeUnwrap();
+
+    await db
+      .insertInto("project_user")
+      .values({
+        projectId: pi5Project.id,
+        userId: workspaceUser.userId,
+        role: "dev",
+        workspaceId: workspaceUser.workspaceId,
+      })
+      .executeTakeFirstOrThrow();
 
     const booleanTest = yield* (
       await createTest(db, {

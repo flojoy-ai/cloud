@@ -5,6 +5,7 @@ import { db } from "../db/kysely";
 import { DatabaseError } from "pg";
 import { generateDatabaseId } from "../lib/db-utils";
 import { populateExample } from "../db/example";
+import { fromPromise } from "neverthrow";
 
 export const WorkspaceRoute = new Elysia({
   prefix: "/workspace",
@@ -38,34 +39,43 @@ export const WorkspaceRoute = new Elysia({
     async ({ body, user, error, cookie: { scope } }) => {
       const { populateData, ...data } = body;
 
-      const newWorkspace = await db.transaction().execute(async (tx) => {
-        const newWorkspace = await tx
-          .insertInto("workspace")
-          .values({
-            id: generateDatabaseId("workspace"),
-            ...data,
-            planType: "enterprise",
-          })
-          .returningAll()
-          .executeTakeFirst();
+      const res = await fromPromise(
+        db.transaction().execute(async (tx) => {
+          const newWorkspace = await tx
+            .insertInto("workspace")
+            .values({
+              id: generateDatabaseId("workspace"),
+              ...data,
+              planType: "enterprise",
+            })
+            .returningAll()
+            .executeTakeFirstOrThrow(
+              () => new Error("Failed to create workspace"),
+            );
 
-        if (!newWorkspace) {
-          return error(500, "Failed to create workspace");
-        }
+          const workspaceUser = await tx
+            .insertInto("workspace_user")
+            .values({
+              workspaceId: newWorkspace.id,
+              userId: user.id,
+              role: "owner" as const,
+            })
+            .returningAll()
+            .executeTakeFirstOrThrow(
+              () => new Error("Failed to create workspace user"),
+            );
 
-        await tx
-          .insertInto("workspace_user")
-          .values({
-            workspaceId: newWorkspace.id,
-            userId: user.id,
-            role: "owner" as const,
-          })
-          .execute();
+          scope.value = newWorkspace.namespace;
 
-        scope.value = newWorkspace.namespace;
+          return { newWorkspace, workspaceUser };
+        }),
+        (e) => (e as Error).message,
+      );
 
-        return newWorkspace;
-      });
+      if (res.isErr()) {
+        return error(500, res.error);
+      }
+      const { newWorkspace, workspaceUser } = res.value;
 
       if ("_type" in newWorkspace) {
         return newWorkspace;
@@ -75,7 +85,7 @@ export const WorkspaceRoute = new Elysia({
         return newWorkspace;
       }
 
-      await populateExample(db, newWorkspace.id);
+      await populateExample(db, workspaceUser);
 
       return newWorkspace;
     },
