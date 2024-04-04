@@ -1,17 +1,16 @@
-import { db } from "../db/kysely";
+import { insertSession } from "@cloud/shared";
 import Elysia, { t } from "elysia";
-import { WorkspaceMiddleware } from "../middlewares/workspace";
+import { db } from "../db/kysely";
 import {
   createSession,
   getSession,
-  getSessionsByUnit,
   getSessionsByProject,
   getSessionsByStation,
+  getSessionsByUnitId,
 } from "../db/session";
-import { insertSession } from "@cloud/shared";
 import { fromTransaction } from "../lib/db-utils";
-import { getSession, getSessionsByUnitId } from "../db/session";
 import { checkSessionPerm } from "../lib/perm/session";
+import { WorkspaceMiddleware } from "../middlewares/workspace";
 
 export const SessionRoute = new Elysia({
   prefix: "/session",
@@ -54,7 +53,7 @@ export const SessionRoute = new Elysia({
     "/",
     async ({ error, body, user, workspace }) => {
       const res = await fromTransaction(
-        async (tx) => await createSession(tx, workspace.id, body, user),
+        async (tx) => await createSession(tx, workspace.id, user.id, body),
       );
       if (res.isErr()) {
         return error(res.error.code, res.error);

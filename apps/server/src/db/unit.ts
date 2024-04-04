@@ -347,10 +347,12 @@ export async function getUnitComponentsWithPartVariation(id: string) {
 export async function getUnitBySerialNumber(
   db: Kysely<DB>,
   serialNumber: string,
+  workspaceId: string,
 ) {
   return await db
     .selectFrom("unit")
     .selectAll()
     .where("unit.serialNumber", "=", serialNumber)
+    .where("unit.workspaceId", "=", workspaceId)
     .executeTakeFirst();
 }

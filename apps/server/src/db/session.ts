@@ -1,7 +1,6 @@
 import { DB, InsertSession, Session, WorkspaceUser } from "@cloud/shared";
 import { ExpressionBuilder, Kysely, sql } from "kysely";
 import { jsonArrayFrom } from "kysely/helpers/postgres";
-import { User } from "lucia";
 import { Result, err, ok } from "neverthrow";
 import { generateDatabaseId, tryQuery } from "../lib/db-utils";
 import { DBError, InternalServerError, NotFoundError } from "../lib/error";
@@ -18,16 +17,16 @@ export async function getSessionsByUnitId(
 ) {
   return await db
     .selectFrom("session")
-    .selectAll()
+    .selectAll("session")
     .innerJoin("project_user as pu", (join) =>
       join
         .on("pu.workspaceId", "=", workspaceUser.workspaceId)
-        .on("pu.projectId", "=", "session.projectId")
+        .onRef("pu.projectId", "=", "session.projectId")
         .on("pu.userId", "=", workspaceUser.userId),
     )
     .where("pu.role", "!=", "pending")
     .select((eb) => withStatus(eb))
-    .where("unitId", "=", unitId)
+    .where("session.unitId", "=", unitId)
     .execute();
 }
 
@@ -108,8 +107,8 @@ export async function getSession(db: Kysely<DB>, sessionId: string) {
 export async function createSession(
   db: Kysely<DB>,
   workspaceId: string,
+  userId: string,
   input: InsertSession,
-  user?: User,
 ): Promise<Result<Session, DBError>> {
   const { measurements, ...body } = input;
 
@@ -118,7 +117,7 @@ export async function createSession(
     return err(new NotFoundError("Station not found"));
   }
 
-  const unit = await getUnitBySerialNumber(db, body.serialNumber);
+  const unit = await getUnitBySerialNumber(db, body.serialNumber, workspaceId);
   if (unit === undefined) {
     return err(
       new NotFoundError(`Serial Number ${body.serialNumber} not found`),
@@ -127,7 +126,7 @@ export async function createSession(
 
   const toInsert = {
     unitId: unit.id,
-    userId: user?.id,
+    userId: userId,
     projectId: station.projectId,
     stationId: body.stationId,
     integrity: body.integrity,

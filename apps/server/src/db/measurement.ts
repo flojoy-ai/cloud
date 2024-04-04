@@ -49,5 +49,5 @@ export async function createMeasurement(
   await markUpdatedAt(db, "test", input.testId);
   await markUpdatedAt(db, "unit", input.unitId);
 
-  return res;
+  return measurement.id;
 }
