@@ -48,7 +48,7 @@ export const SessionRoute = new Elysia({ prefix: "/session" })
   .post(
     "/",
     async ({ error, body, user, workspace }) => {
-      const res = await createSession(db, workspace.id, user, body);
+      const res = await createSession(db, workspace.id, body, user);
       if (res.isErr()) {
         return error(res.error.code, res.error);
       }

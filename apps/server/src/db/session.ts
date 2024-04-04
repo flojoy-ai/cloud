@@ -105,9 +105,13 @@ export async function createSession(
 
   const toInsert = {
     unitId: unit.id,
-    projectId: station.projectId,
     userId: user?.id,
-    ...body,
+    projectId: station.projectId,
+    stationId: body.stationId,
+    integrity: body.integrity,
+    aborted: body.aborted,
+    notes: body.notes,
+    commitHash: body.commitHash,
   };
 
   return fromTransaction(async (tx) => {

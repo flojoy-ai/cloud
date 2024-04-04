@@ -1,11 +1,10 @@
 import _ from "lodash";
 
-import { generateDatabaseId } from "../lib/db-utils";
-import { Kysely } from "kysely";
 import { DB, WorkspaceUser } from "@cloud/shared";
+import { Kysely } from "kysely";
 import { err, ok, safeTry } from "neverthrow";
+import { generateDatabaseId } from "../lib/db-utils";
 import { createPart } from "./part";
-import { createMeasurement } from "./measurement";
 import { createPartVariation } from "./part-variation";
 import { createProduct } from "./product";
 import { createProject } from "./project";
