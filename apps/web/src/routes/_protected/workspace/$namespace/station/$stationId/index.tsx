@@ -49,8 +49,6 @@ function Page() {
     getSessionsByStationQueryOpts({ stationId: station.id, context }),
   );
 
-  console.log(sessions);
-
   return (
     <div className="container max-w-screen-2xl">
       <div className="py-2"></div>
