@@ -1,5 +1,7 @@
 import { getSessionQueryOpts } from "@/lib/queries/session";
 
+import CenterLoadingSpinner from "@/components/center-loading-spinner";
+import { SessionTable } from "@/components/session/session-table";
 import { PageHeader, PageHeaderHeading } from "@/components/small-header";
 import {
   Breadcrumb,
@@ -9,22 +11,17 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Card } from "@/components/ui/card";
 import { getProjectQueryOpts } from "@/lib/queries/project";
+import { getStationQueryOpts } from "@/lib/queries/station";
+import { getUnitQueryOpts } from "@/lib/queries/unit";
+import { computePassingStatus } from "@/lib/session";
+import { cn } from "@/lib/utils";
+import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace/index";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { getStationQueryOpts } from "@/lib/queries/station";
-import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace/index";
-import { getUnitQueryOpts } from "@/lib/queries/unit";
-import { DataTable } from "@/components/ui/data-table";
-import { Measurement } from "@cloud/shared/src/schemas/public/Measurement";
-import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
-import _ from "lodash";
-import { useMemo } from "react";
-import { Card } from "@/components/ui/card";
 import { Check, CpuIcon, X } from "lucide-react";
-import CenterLoadingSpinner from "@/components/center-loading-spinner";
+import { useMemo } from "react";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/session/$sessionId/",
@@ -62,62 +59,6 @@ function pickTernary<T>(ternary: boolean | null, a: T, b: T, c: T) {
       return c;
   }
 }
-
-const columns: ColumnDef<Measurement>[] = [
-  {
-    header: "Name",
-    accessorKey: "name",
-  },
-  {
-    header: "Test",
-    accessorKey: "testId",
-  },
-  {
-    header: "Sequence",
-    accessorKey: "sequenceName",
-  },
-  {
-    header: "Status",
-    accessorKey: "pass",
-    cell: (row) => {
-      if (row.row.original.pass === true)
-        return <Badge className="bg-green-300 text-green-900">Pass</Badge>;
-      else if (row.row.original.pass === false)
-        return <Badge className="bg-red-300 text-red-900">Fail</Badge>;
-      else
-        return <Badge className="bg-gray-300 text-gray-600">Unevaluated</Badge>;
-    },
-  },
-];
-
-const computePassingStatus = (measurements: Measurement[]) => {
-  const latest = _.values(_.groupBy(measurements, (meas) => meas.testId)).map(
-    (meas) => meas[0]!,
-  );
-
-  let unevaluatedCount = 0;
-  let passCount = 0;
-  let failCount = 0;
-
-  for (const meas of latest) {
-    if (meas.pass === null) {
-      unevaluatedCount++;
-    } else if (meas.pass) {
-      passCount++;
-    } else {
-      failCount++;
-    }
-  }
-
-  const passing = failCount > 0 ? false : unevaluatedCount > 0 ? null : true;
-
-  return {
-    passing,
-    passCount,
-    unevaluatedCount: unevaluatedCount,
-    failCount,
-  };
-};
 
 function Page() {
   const context = Route.useRouteContext();
@@ -231,8 +172,10 @@ function Page() {
           </div>
         </Card>
       </div>
+      <div className="py-2" />
 
-      <DataTable columns={columns} data={session.measurements} />
+      {/* <DataTable columns={columns} data={session.measurements} /> */}
+      <SessionTable measurements={session.measurements} />
     </div>
   );
 }

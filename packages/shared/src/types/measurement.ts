@@ -1,6 +1,11 @@
 import { Static, t } from "elysia";
+import type { Measurement as SchemaMeasurement } from "../schemas/public/Measurement";
 
-export type { Measurement } from "../schemas/public/Measurement";
+export type Measurement = Omit<SchemaMeasurement, "data"> & {
+  data: MeasurementData;
+};
+
+// export type { Measurement } from "../schemas/public/Measurement";
 
 // Step 1: Add the measurement name here
 export const allMeasurementDataTypes = [
