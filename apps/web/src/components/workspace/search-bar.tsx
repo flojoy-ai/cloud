@@ -194,6 +194,7 @@ const SearchBar = ({
           onBlur={() => setTimeout(() => setSelected(false), 75)}
           onFocus={() => setSelected(true)}
         />
+        {/* TODO: Fix z-index for this */}
         <CommandList
           className={cn(
             "absolute w-full bg-background top-[46px] left-0",

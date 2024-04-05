@@ -1,4 +1,10 @@
-import { DB, InsertSession, Session, WorkspaceUser } from "@cloud/shared";
+import {
+  DB,
+  InsertSession,
+  MeasurementData,
+  Session,
+  WorkspaceUser,
+} from "@cloud/shared";
 import { ExpressionBuilder, Kysely, sql } from "kysely";
 import { jsonArrayFrom } from "kysely/helpers/postgres";
 import { Result, err, ok } from "neverthrow";
@@ -66,12 +72,16 @@ export async function getSessionsByProject(
     .execute();
 }
 
+// FIXME: Kysely says the type of measurement.createdAt is Date,
+// but it's actually a string. Bit confusing for frontend...
+// See: https://github.com/kysely-org/kysely/issues/482
 export function withSessionMeasurements(eb: ExpressionBuilder<DB, "session">) {
   return jsonArrayFrom(
     eb
       .selectFrom("measurement")
       .selectAll("measurement")
-      .whereRef("measurement.sessionId", "=", "session.id"),
+      .whereRef("measurement.sessionId", "=", "session.id")
+      .$narrowType<{ data: MeasurementData }>(),
   ).as("measurements");
 }
 
