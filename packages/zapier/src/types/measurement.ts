@@ -1,5 +1,5 @@
 export type MeasurementInputData = {
-  hardwareId: string;
+  unitId: string;
   testId: string;
   name: string;
   type: MeasurementDataType;

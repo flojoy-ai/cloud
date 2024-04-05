@@ -1,0 +1,14 @@
+{
+  "name": "@cloud/shared",
+  "version": "0.0.1",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "dependencies": {},
+  "devDependencies": {
+    "@cloud/tsconfig": "workspace:*",
+    "@types/react": "^18.2.73",
+    "@types/react-dom": "^18.2.23",
+    "react": "^18.2.0",
+    "typescript": "^5.4.3"
+  }
+}

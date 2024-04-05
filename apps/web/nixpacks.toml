@@ -1,0 +1,13 @@
+# nixpacks.toml
+
+# [phases.setup]
+# nixPkgs = ['bun']
+
+[phases.install]
+cmds = ['bun install']
+
+[phases.build]
+cmds = ['cd apps/web && bun run build']
+
+[start]
+cmd = 'cd apps/web && bun start'

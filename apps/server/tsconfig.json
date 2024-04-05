@@ -1,0 +1,7 @@
+{
+  "extends": "@cloud/tsconfig/elysia.json",
+
+  "compilerOptions": {
+    "moduleResolution": "Bundler"
+  }
+}

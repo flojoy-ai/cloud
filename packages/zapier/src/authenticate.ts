@@ -24,7 +24,7 @@ const getAccessToken = async (
   const options: HttpRequestOptions = {
     method: "POST",
     headers: {
-      "content-type": "application/x-www-form-urlencoded",
+      "Content-Type": "application/x-www-form-urlencoded",
       accept: "application/json",
       Authorization: `Bearer ${bundle.cleanedRequest.querystring.workspace_secret}`,
     },
@@ -70,7 +70,7 @@ export default {
         grant_type: "refresh_token",
       },
       headers: {
-        "content-type": "application/x-www-form-urlencoded",
+        "Content-Type": "application/x-www-form-urlencoded",
         accept: "application/json",
       },
       method: "POST",

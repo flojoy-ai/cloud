@@ -38,7 +38,7 @@ export default async function Page({
               "text-foreground/60 transition-colors hover:text-foreground/80",
             )}
           >
-            Hardware Inventory
+            Inventory
           </Link>
 
           <Link

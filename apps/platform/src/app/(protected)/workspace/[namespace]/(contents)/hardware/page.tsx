@@ -33,7 +33,7 @@ export default async function HardwareInventory({
     <div className="container max-w-screen-2xl">
       {searchParams.back && <Button>Back</Button>}
       <PageHeader>
-        <PageHeaderHeading>Hardware Inventory</PageHeaderHeading>
+        <PageHeaderHeading>Inventory</PageHeaderHeading>
         <PageHeaderDescription>
           Here you can find all your registered devices and systems in this
           workspace. <br />

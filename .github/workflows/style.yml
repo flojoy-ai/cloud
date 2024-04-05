@@ -1,43 +1,54 @@
-name: Code Style Check
+name: Code Style
 
 on:
-  - push
-  - pull_request
+  push:
+    branches:
+      - main
+      - staging
+  pull_request:
 
 jobs:
-  prettier-check:
+  ruff:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Install Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/setup-python@v5
         with:
-          node-version: 20
+          python-version: "3.11"
 
-      - uses: pnpm/action-setup@v2
-        name: Install pnpm
-        with:
-          version: 8
-          run_install: false
-
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+      - uses: abatilo/actions-poetry@v2
 
       - uses: actions/cache@v3
-        name: Setup pnpm cache
         with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+          path: ./packages/python/.venv
+          key: venv-${{ hashFiles('poetry.lock') }}
 
-      - name: Install dependencies
-        run: pnpm install
+      - uses: extractions/setup-just@v1
 
-      - name: Prettier Check
-        run: pnpm format:check
+      - name: Install
+        run: just install-poetry
+
+      - name: Check
+        run: just check-ruff
+
+  prettier:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - uses: extractions/setup-just@v1
+
+      - name: Install
+        run: just install-bun
+
+      - name: Check
+        run: just check-prettier
