@@ -10,7 +10,7 @@ export function getAuthMethodsQueryOpts() {
     queryFn: async () => {
       const { data: authMethods, error } = await client.auth.index.get();
 
-      if (error) throw error;
+      if (error) throw error.value;
       return authMethods;
     },
     queryKey: getAuthMethodsQueryKey(),

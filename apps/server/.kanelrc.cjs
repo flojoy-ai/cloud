@@ -10,7 +10,9 @@ const outputPath = "../../packages/shared/src/schemas";
 
 /** @type {import('kanel').Config} */
 module.exports = {
-  connection: process.env.DATABASE_URL + "?sslmode=require",
+  connection:
+    process.env.DATABASE_URL +
+    (process.env.NODE_ENV === "development" ? "" : "?sslmode=require"),
 
   preDeleteOutputFolder: true,
   outputPath,

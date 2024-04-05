@@ -95,7 +95,7 @@ const CreateUnit = ({
       const { error } = await client.unit.index.post(values, {
         headers: { "flojoy-workspace-id": workspace.id },
       });
-      if (error) throw error;
+      if (error) throw error.value;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getUnitsQueryKey() });
@@ -147,6 +147,22 @@ const CreateUnit = ({
   }
 
   function onSubmit(values: FormSchema) {
+    const devicePartVariations =
+      getComponentPartVariationIds(partVariationTree);
+    if (devicePartVariations.length > 0) {
+      let hasError = false;
+      for (let i = 0; i < values.components.length; i++) {
+        if (values.components[i]?.unitId === "") {
+          form.setError(`components.${i}.unitId` as const, {
+            message: "Cannot have empty component",
+          });
+          hasError = true;
+        }
+      }
+      if (hasError) {
+        return;
+      }
+    }
     toast.promise(
       createUnit.mutateAsync({
         ...values,

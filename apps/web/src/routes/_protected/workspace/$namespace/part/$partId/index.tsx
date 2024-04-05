@@ -212,7 +212,7 @@ function PartPage() {
         .index.get({
           headers: { "flojoy-workspace-id": workspace.id },
         });
-      if (error) throw error;
+      if (error) throw error.value;
       return data;
     },
     queryKey: getPartVariationQueryKey(selectedPartVariationId ?? ""),

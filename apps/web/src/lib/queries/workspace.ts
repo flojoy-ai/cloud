@@ -9,7 +9,7 @@ export function getWorkspacesQueryOpts() {
   return queryOptions({
     queryFn: async () => {
       const { data: workspaces, error } = await client.workspace.index.get();
-      if (error) throw error;
+      if (error) throw error.value;
       return workspaces;
     },
     queryKey: getWorkspacesQueryKey(),

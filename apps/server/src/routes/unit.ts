@@ -56,7 +56,7 @@ export const UnitRoute = new Elysia({ prefix: "/unit", name: "UnitRoute" })
     async ({ body, error, workspace, user }) => {
       const res = await createUnit(db, workspace.id, user, body);
       if (res.isErr()) {
-        return error(500, res.error.message);
+        return error(res.error.code, res.error.message);
       }
       return res.value;
     },

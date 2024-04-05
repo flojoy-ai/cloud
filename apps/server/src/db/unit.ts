@@ -66,6 +66,16 @@ export async function createUnit(
 
       if (partVariationComponents.length > 0) {
         const ids = components;
+        if (components.length === 0) {
+          throw new BadRequestError(
+            "Component list cannot be empty for this part variation",
+          );
+        }
+        if (ids.some((c) => c.length === 0)) {
+          throw new BadRequestError(
+            "Cannot have empty component ID in component list",
+          );
+        }
         if (_.uniq(ids).length !== ids.length) {
           throw new BadRequestError("Duplicate unit devices");
         }
@@ -86,6 +96,7 @@ export async function createUnit(
           partVariationComponents,
           (c) => partVariationCount[c.partVariationId] === c.count,
         );
+        // TODO: Check that the keys match exactly
 
         if (!matches) {
           throw new BadRequestError(

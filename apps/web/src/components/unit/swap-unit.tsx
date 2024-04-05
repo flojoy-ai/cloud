@@ -69,7 +69,7 @@ const SwapUnit = ({ workspace, unit }: Props) => {
         .index.patch(values, {
           headers: { "flojoy-workspace-id": workspace.id },
         });
-      if (error) throw error;
+      if (error) throw error.value;
     },
     onSuccess: () => {
       setIsDialogOpen(false);

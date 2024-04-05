@@ -5,6 +5,12 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export const isSuperJson = (
+  obj: unknown,
+): obj is { json: { response: unknown }; meta: object } => {
+  return typeof obj === "object" && obj !== null && "json" in obj;
+};
+
 export const handleError = (error: unknown, defaultMessage?: string) => {
   //TODO: Make this work for elysia
 
@@ -25,8 +31,12 @@ export const handleError = (error: unknown, defaultMessage?: string) => {
   //     "Internal server error!"
   //   );
   // }
-  if (error instanceof Error) {
-    return error.message;
+  if (typeof error === "string") {
+    return error;
   }
+  if (isSuperJson(error)) {
+    return error.json.response as string;
+  }
+
   return defaultMessage ?? "Internal server error!";
 };
