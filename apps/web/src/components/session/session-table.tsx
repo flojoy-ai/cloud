@@ -70,28 +70,28 @@ const groupMeasurements = (data: Measurement[]): SessionTableRow[] => {
   return cycles;
 };
 
-const makeMeasurement = (): Measurement => ({
-  id: faker.string.uuid(),
-  name: faker.word.words({ count: 10 }),
-  testId: faker.string.uuid(),
-  unitId: faker.string.uuid(),
-  sessionId: faker.string.uuid(),
-  projectId: faker.string.uuid(),
-  cycleNumber: faker.number.int(3),
-  sequenceName: faker.helpers.arrayElement(["A", "B", "C"]),
-  data: faker.helpers.arrayElement([
-    {
-      type: "scalar",
-      value: faker.number.float({ min: 0, max: 100, fractionDigits: 4 }),
-    },
-    { type: "boolean", value: faker.datatype.boolean() },
-    { type: "dataframe", value: {} },
-  ]),
-  pass: faker.datatype.boolean(),
-  storageProvider: "postgres",
-  createdAt: faker.date.recent(),
-  isDeleted: false,
-});
+// const makeMeasurement = (): Measurement => ({
+//   id: faker.string.uuid(),
+//   name: faker.word.words({ count: 10 }),
+//   testId: faker.string.uuid(),
+//   unitId: faker.string.uuid(),
+//   sessionId: faker.string.uuid(),
+//   projectId: faker.string.uuid(),
+//   cycleNumber: faker.number.int(3),
+//   sequenceName: faker.helpers.arrayElement(["A", "B", "C"]),
+//   data: faker.helpers.arrayElement([
+//     {
+//       type: "scalar",
+//       value: faker.number.float({ min: 0, max: 100, fractionDigits: 4 }),
+//     },
+//     { type: "boolean", value: faker.datatype.boolean() },
+//     { type: "dataframe", value: {} },
+//   ]),
+//   pass: faker.datatype.boolean(),
+//   storageProvider: "postgres",
+//   createdAt: faker.date.recent(),
+//   isDeleted: false,
+// });
 
 const columns: ColumnDef<SessionTableRow>[] = [
   {
