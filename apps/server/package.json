@@ -5,7 +5,7 @@
   "scripts": {
     "build": "bun build src/index.ts --outdir ./dist --target bun",
     "lint": "eslint .",
-    "start": "bun run dist/index.js",
+    "start": "bun run migrate:to-latest && bun run dist/index.js",
     "test": "bun test",
     "dev": "bun run --watch src/index.ts",
     "kanel": "NODE_TLS_REJECT_UNAUTHORIZED=0 bunx kanel",
