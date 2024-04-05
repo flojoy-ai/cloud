@@ -7,8 +7,6 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
-import { faker } from "@faker-js/faker";
-
 import {
   Table,
   TableBody,
