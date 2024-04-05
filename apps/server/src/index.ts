@@ -33,8 +33,10 @@ const app = new Elysia()
         "content-type",
         "flojoy-workspace-id",
         "use-superjson",
+        "superjson-meta",
         "flojoy-workspace-personal-secret",
       ],
+      exposedHeaders: ["superjson-meta"],
     }),
   )
   .use(swagger())
@@ -44,15 +46,20 @@ const app = new Elysia()
 
     const wantSuperJson = request.headers.get("use-superjson") === "true";
 
-    const text = wantSuperJson
-      ? SuperJSON.stringify(response)
-      : JSON.stringify(response);
+    const { json, meta } = wantSuperJson
+      ? SuperJSON.serialize(response)
+      : { json: JSON.stringify(response), meta: undefined };
 
-    return new Response(Bun.gzipSync(encoder.encode(text)), {
-      headers: {
-        "Content-Type": "application/json; charset=utf-8",
-        "Content-Encoding": "gzip",
-      },
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json; charset=utf-8",
+      "Content-Encoding": "gzip",
+    };
+    if (meta) {
+      headers["superjson-meta"] = JSON.stringify(meta);
+    }
+
+    return new Response(Bun.gzipSync(encoder.encode(JSON.stringify(json))), {
+      headers,
       status:
         response !== null && ELYSIA_RESPONSE in response
           ? (response[ELYSIA_RESPONSE] as number)

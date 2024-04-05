@@ -8,12 +8,30 @@ export const queryClient = new QueryClient();
 
 export const client = treaty<App>(env.VITE_SERVER_URL, {
   async onResponse(response) {
-    const val = SuperJSON.parse(await response.text());
+    // console.log(response);
+    const json = await response.json();
+    const superjsonMeta = response.headers.get("superjson-meta");
+    console.log(response.status);
+    if (!superjsonMeta) return json;
+
+    const superjsonVal = SuperJSON.deserialize({
+      json,
+      meta: JSON.parse(superjsonMeta),
+    });
     if (response.ok) {
-      return val;
+      return superjsonVal;
     } else {
-      throw val;
+      throw superjsonVal.response;
     }
+    // return superjsonVal;
+    // const val = superjsonMeta ?
+    // console.log(val);
+    // if (response.ok) {
+    //   return val;
+    // } else {
+    //   console.log(val.response.message);
+    //   throw val.response.message;
+    // }
   },
   headers: {
     Origin: env.VITE_SERVER_URL,
