@@ -9,8 +9,8 @@ import {
   getSessionsByUnitId,
 } from "../db/session";
 import { fromTransaction } from "../lib/db-utils";
-import { checkSessionPerm } from "../lib/perm/session";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
+import { checkStationPerm } from "../lib/perm/station";
 
 export const SessionRoute = new Elysia({
   prefix: "/session",
@@ -62,10 +62,9 @@ export const SessionRoute = new Elysia({
     },
     {
       body: insertSession,
-      params: t.Object({ sessionId: t.String() }),
-      async beforeHandle({ params: { sessionId }, workspaceUser, error }) {
-        const perm = await checkSessionPerm({
-          sessionId,
+      async beforeHandle({ workspaceUser, error, body: { stationId } }) {
+        const perm = await checkStationPerm({
+          stationId,
           workspaceUser,
         });
 
@@ -73,8 +72,8 @@ export const SessionRoute = new Elysia({
           return error(403, perm.error);
         }
 
-        if (!perm.value.canRead()) {
-          return error(403, "You do not have permission to read this session");
+        if (!perm.value.canWrite()) {
+          return error(403, "You do not have permission to add session to this station");
         }
       },
     },
