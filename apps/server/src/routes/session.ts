@@ -73,7 +73,10 @@ export const SessionRoute = new Elysia({
         }
 
         if (!perm.value.canWrite()) {
-          return error(403, "You do not have permission to add session to this station");
+          return error(
+            403,
+            "You do not have permission to add session to this station",
+          );
         }
       },
     },
