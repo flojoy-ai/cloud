@@ -18,7 +18,7 @@ export function getProductsQueryOpts({ context }: GetProductsParams) {
       const { data, error } = await client.product.index.get({
         headers: { "flojoy-workspace-id": context.workspace.id },
       });
-      if (error) throw error;
+      if (error) throw error.value;
       return data;
     },
     queryKey: getProductsQueryKey(),

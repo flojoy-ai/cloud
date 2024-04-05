@@ -84,7 +84,7 @@ const CreatePartVariation = ({
       const { error } = await client.partVariation.index.post(values, {
         headers: { "flojoy-workspace-id": workspaceId },
       });
-      if (error) throw error;
+      if (error) throw error.value;
     },
     onSuccess: (_, { partId }) => {
       queryClient.invalidateQueries({ queryKey: getPartVariationsQueryKey() });

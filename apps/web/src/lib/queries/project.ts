@@ -19,7 +19,7 @@ export function getProjectsQueryOpts({ context }: getProjectsProps) {
         headers: { "flojoy-workspace-id": context.workspace.id },
       });
       if (error) {
-        throw error;
+        throw error.value;
       }
       return projects;
     },
@@ -45,7 +45,7 @@ export function getProjectQueryOpts({ projectId, context }: getProjectProps) {
         headers: { "flojoy-workspace-id": context.workspace.id },
       });
       if (error) {
-        throw error;
+        throw error.value;
       }
       return project;
     },

@@ -95,7 +95,7 @@ const CreateUnit = ({
       const { error } = await client.unit.index.post(values, {
         headers: { "flojoy-workspace-id": workspace.id },
       });
-      if (error) throw error;
+      if (error) throw error.value;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getUnitsQueryKey() });

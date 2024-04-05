@@ -21,7 +21,7 @@ export function getStationsQueryOpts({ projectId, context }: getStationsProps) {
         headers: { "flojoy-workspace-id": context.workspace.id },
       });
       if (error) {
-        throw error;
+        throw error.value;
       }
       return stations;
     },
@@ -47,7 +47,7 @@ export function getStationQueryOpts({ stationId, context }: getStationProps) {
         headers: { "flojoy-workspace-id": context.workspace.id },
       });
       if (error) {
-        throw error;
+        throw error.value;
       }
       return station;
     },
