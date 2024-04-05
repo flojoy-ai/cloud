@@ -45,7 +45,6 @@ export const SessionRoute = new Elysia({
       if (session === undefined) {
         return error(404, "Test session not found");
       }
-      console.log(session);
       return session;
     },
     { params: t.Object({ sessionId: t.String() }) },

@@ -72,7 +72,6 @@ function Page() {
     () => computePassingStatus(session.measurements),
     [session],
   );
-  console.log(session);
 
   return (
     <div className="container max-w-screen-2xl">

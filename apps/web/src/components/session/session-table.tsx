@@ -169,7 +169,6 @@ export function SessionTable({ measurements }: Props) {
       ),
     [measurements],
   );
-  console.log(grouped);
   const [expanded, setExpanded] = useState<ExpandedState>({});
 
   const table = useReactTable({
