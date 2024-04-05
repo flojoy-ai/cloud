@@ -61,10 +61,19 @@ const app = new Elysia()
   })
   .use(
     logger({
-      level: env.NODE_ENV === "production" ? "error" : "info",
-      autoLogging: true,
+      transport: {
+        target: "pino-pretty",
+        options: {
+          colorize: true,
+        },
+      },
     }),
   )
+  .onError(({ log, error }) => {
+    // NOTE: the onError hook only catches errors that have been thrown
+    // it won't catch errors that are simply returned.
+    log.error(error);
+  })
   .use(UserRoute)
   .use(AuthRoute)
   .use(AuthGoogleRoute)
@@ -79,7 +88,7 @@ const app = new Elysia()
   .use(StationRoute)
   .use(UnitRoute)
   .use(SessionRoute)
-  .get("/health", () => ({ status: "200" }))
+  .get("/health", () => "ok")
   .listen(env.PORT);
 
 console.log(
