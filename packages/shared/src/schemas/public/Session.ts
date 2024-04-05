@@ -18,7 +18,7 @@ export default interface SessionTable {
   unitId: ColumnType<UnitId, UnitId, UnitId>;
 
   /** Database type: pg_catalog.text */
-  userId: ColumnType<UserId | null, UserId | null, UserId | null>;
+  userId: ColumnType<UserId, UserId, UserId>;
 
   /** Database type: pg_catalog.text */
   projectId: ColumnType<ProjectId, ProjectId, ProjectId>;
