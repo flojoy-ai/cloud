@@ -42,6 +42,15 @@ const app = new Elysia()
     const isJson = typeof response === "object";
     if (!isJson) return response as Response;
 
+    const status =
+      response !== null && ELYSIA_RESPONSE in response
+        ? (response[ELYSIA_RESPONSE] as number)
+        : (set.status as number);
+
+    if (status >= 300 && status < 200) {
+      return response as Response;
+    }
+
     const wantSuperJson = request.headers.get("use-superjson") === "true";
 
     const text = wantSuperJson
@@ -53,10 +62,7 @@ const app = new Elysia()
         "Content-Type": "application/json; charset=utf-8",
         "Content-Encoding": "gzip",
       },
-      status:
-        response !== null && ELYSIA_RESPONSE in response
-          ? (response[ELYSIA_RESPONSE] as number)
-          : (set.status as number),
+      status,
     });
   })
   .use(
@@ -89,6 +95,7 @@ const app = new Elysia()
   .use(UnitRoute)
   .use(SessionRoute)
   .get("/health", () => "ok")
+  .get("/error", ({ error }) => error("I'm a teapot"))
   .listen(env.PORT);
 
 console.log(
