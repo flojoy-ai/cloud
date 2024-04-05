@@ -25,15 +25,29 @@ export const WorkspaceRoute = new Elysia({
         return error;
     }
   })
-  .get("/", async ({ user, authMethod }) => {
+  .get("/", async ({ user, authMethod, request }) => {
     if (authMethod === "secret") {
-      return error("I'm a teapot");
+      const personalSecret = request.headers.get(
+        "flojoy-workspace-personal-secret",
+      );
+
+      return await db
+        .selectFrom("workspace_user as wu")
+        .where("wu.role", "!=", "pending")
+        .where("wu.userId", "=", user.id)
+        .innerJoin("workspace as w", "w.id", "wu.workspaceId")
+        .innerJoin("user_session as us", (join) =>
+          join
+            .on("us.id", "=", personalSecret)
+            .onRef("us.workspaceId", "=", "w.id"),
+        )
+        .selectAll("w")
+        .execute();
     }
     return await db
       .selectFrom("workspace_user as wu")
       .where("wu.role", "!=", "pending")
       .innerJoin("workspace as w", "w.id", "wu.workspaceId")
-      .innerJoin("user as u", "u.id", "wu.userId")
       .where("wu.userId", "=", user.id)
       .selectAll("w")
       .execute();
