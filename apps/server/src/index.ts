@@ -22,6 +22,12 @@ import { SecretRoute } from "./routes/secret";
 
 const encoder = new TextEncoder();
 
+const isElysiaErr = (
+  res: unknown,
+): res is { [ELYSIA_RESPONSE]: number; response: unknown } => {
+  return typeof res === "object" && res !== null && ELYSIA_RESPONSE in res;
+};
+
 const app = new Elysia()
   .derive((ctx) => fixCtxRequest(ctx.request))
   .use(
@@ -40,9 +46,27 @@ const app = new Elysia()
     }),
   )
   .use(swagger())
+  .use(
+    logger({
+      transport: {
+        target: "pino-pretty",
+        options: {
+          colorize: true,
+        },
+      },
+    }),
+  )
   .mapResponse(({ request, response, set }) => {
     const isJson = typeof response === "object";
     if (!isJson) return response as Response;
+
+    const status = isElysiaErr(response)
+      ? (response[ELYSIA_RESPONSE] as number)
+      : (set.status as number);
+
+    if (status >= 300 || status < 200) {
+      return response as Response;
+    }
 
     const wantSuperJson = request.headers.get("use-superjson") === "true";
 
@@ -60,18 +84,14 @@ const app = new Elysia()
 
     return new Response(Bun.gzipSync(encoder.encode(JSON.stringify(json))), {
       headers,
-      status:
-        response !== null && ELYSIA_RESPONSE in response
-          ? (response[ELYSIA_RESPONSE] as number)
-          : (set.status as number),
+      status,
     });
   })
-  .use(
-    logger({
-      level: env.NODE_ENV === "production" ? "error" : "info",
-      autoLogging: true,
-    }),
-  )
+  .onError(({ log, error }) => {
+    // NOTE: the onError hook only catches errors that have been thrown
+    // it won't catch errors that are simply returned.
+    log.error(error);
+  })
   .use(UserRoute)
   .use(AuthRoute)
   .use(AuthGoogleRoute)
@@ -86,7 +106,8 @@ const app = new Elysia()
   .use(StationRoute)
   .use(UnitRoute)
   .use(SessionRoute)
-  .get("/health", () => ({ status: "200" }))
+  .get("/health", () => "ok")
+  .get("/error", ({ error }) => error("I'm a teapot"))
   .listen(env.PORT);
 
 console.log(
