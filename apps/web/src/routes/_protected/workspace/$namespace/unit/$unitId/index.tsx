@@ -58,23 +58,11 @@ const columns: ColumnDef<Session & { status: boolean | null }>[] = [
     header: "Status",
     cell: ({ row }) => {
       if (row.original.status === true) {
-        return (
-          <Badge variant={null} className="bg-green-300 text-green-900">
-            Pass
-          </Badge>
-        );
+        return <Badge variant="green">Pass</Badge>;
       } else if (row.original.status === false) {
-        return (
-          <Badge variant={null} className="bg-red-300 text-red-900">
-            Fail
-          </Badge>
-        );
+        return <Badge variant="red">Fail</Badge>;
       } else {
-        return (
-          <Badge variant={null} className="bg-gray-300 text-gray-600">
-            Unevaluated
-          </Badge>
-        );
+        return <Badge variant={"gray"}>Unevaluated</Badge>;
       }
     },
   },
