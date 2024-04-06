@@ -74,6 +74,7 @@ export const insertMeasurement = t.Object({
   data: measurementData,
   pass: t.Nullable(t.Boolean()),
   createdAt: t.Date(),
+  durationMs: t.Integer({ default: 0 }),
   tagNames: t.Array(t.String(), { default: [] }),
 });
 
@@ -86,6 +87,7 @@ export const sessionMeasurement = t.Object({
   name: t.String({ default: "Untitled measurement" }),
   data: measurementData,
   pass: t.Nullable(t.Boolean()),
+  durationMs: t.Integer(),
   createdAt: t.Date(),
 });
 
