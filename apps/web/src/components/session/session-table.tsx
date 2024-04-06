@@ -145,9 +145,9 @@ const columns: ColumnDef<SessionTableRow>[] = [
   {
     header: "Completion Time",
     accessorKey: "durationMs",
-    cell ({ row }) {
-      const ms = row.original.durationMs
-      return <div>{ms ? `${ms / 1000}s` : ""}</div>
+    cell({ row }) {
+      const ms = row.original.durationMs;
+      return <div>{ms ? `${ms / 1000}s` : ""}</div>;
     },
   },
   {
