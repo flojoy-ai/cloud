@@ -32,7 +32,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .addColumn("created_at", "timestamptz", (col) =>
       col.defaultTo(sql`now()`).notNull(),
     )
-    .addColumn("duration_ms", "integer", (col) => col.defaultTo(0).notNull())
+    .addColumn("duration_ms", "integer", (col) => col.notNull().defaultTo(0))
     .addColumn("is_deleted", "boolean", (col) => col.defaultTo(false))
     .execute();
 

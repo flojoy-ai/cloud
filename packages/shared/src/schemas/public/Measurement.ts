@@ -48,6 +48,9 @@ export default interface MeasurementTable {
   /** Database type: pg_catalog.timestamptz */
   createdAt: ColumnType<Date, Date | string | undefined, Date | string>;
 
+  /** Database type: pg_catalog.int4 */
+  durationMs: ColumnType<number, number | undefined, number>;
+
   /** Database type: pg_catalog.bool */
   isDeleted: ColumnType<boolean | null, boolean | null, boolean | null>;
 }
