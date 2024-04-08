@@ -28,6 +28,7 @@ type SessionTableRow = {
   name: string;
   pass: boolean | null;
   createdAt?: Date;
+  durationMs?: number;
   data?: MeasurementData;
   subRows?: SessionTableRow[];
 };
@@ -139,6 +140,14 @@ const columns: ColumnDef<SessionTableRow>[] = [
         .exhaustive();
 
       return <div className="font-bold">{display}</div>;
+    },
+  },
+  {
+    header: "Completion Time",
+    accessorKey: "durationMs",
+    cell({ row }) {
+      const ms = row.original.durationMs;
+      return <div>{ms ? `${ms / 1000}s` : ""}</div>;
     },
   },
   {
