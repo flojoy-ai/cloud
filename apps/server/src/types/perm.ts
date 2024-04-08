@@ -1,1 +1,1 @@
-export type Permission = "read" | "write" | "admin" | "pending";
+export type Permission = "read" | "write" | "admin" | "pending" | "owner";
