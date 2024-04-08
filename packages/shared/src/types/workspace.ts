@@ -9,6 +9,11 @@ export const createWorkspace = t.Object({
   populateData: t.Boolean(),
 });
 
+export const updateWorkspace = t.Object({
+  name: t.String({ minLength: 1 }),
+  namespace: t.String({ minLength: 1 }),
+});
+
 export const planType = t.Union([
   t.Literal("hobby"),
   t.Literal("pro"),
@@ -25,3 +30,4 @@ export const workspace = t.Object({
 });
 
 export type CreateWorkspace = Static<typeof createWorkspace>;
+export type UpdateWorkspace = Static<typeof updateWorkspace>;

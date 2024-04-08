@@ -1,4 +1,4 @@
-import { createWorkspace } from "@cloud/shared";
+import { createWorkspace, updateWorkspace } from "@cloud/shared";
 import { Elysia, error, t } from "elysia";
 import { ok, safeTry } from "neverthrow";
 import { DatabaseError } from "pg";
@@ -7,6 +7,8 @@ import { db } from "../db/kysely";
 import { fromTransaction, generateDatabaseId, tryQuery } from "../lib/db-utils";
 import { InternalServerError } from "../lib/error";
 import { AuthMiddleware } from "../middlewares/auth";
+import { WorkspaceMiddleware } from "../middlewares/workspace";
+import { checkWorkspacePerm } from "../lib/perm/workspace";
 
 export const WorkspaceRoute = new Elysia({
   prefix: "/workspace",
@@ -151,4 +153,69 @@ export const WorkspaceRoute = new Elysia({
     }
 
     return workspace;
-  });
+  })
+  .use(WorkspaceMiddleware)
+  .patch(
+    "/",
+    async ({ workspaceUser, body, authMethod }) => {
+      if (authMethod === "secret") {
+        return error("I'm a teapot");
+      }
+
+      const workspace = await db
+        .updateTable("workspace")
+        .set({
+          ...body,
+        })
+        .where("workspace.id", "=", workspaceUser.workspaceId)
+        .returningAll()
+        .executeTakeFirstOrThrow(
+          () => new InternalServerError("Failed to create workspace"),
+        );
+
+      return workspace;
+    },
+    {
+      body: updateWorkspace,
+      async beforeHandle({ workspaceUser }) {
+        const perm = await checkWorkspacePerm({
+          workspaceUser,
+        });
+
+        return perm.match(
+          (perm) => (perm.canAdmin() ? undefined : error("Forbidden")),
+          (err) => error(403, err),
+        );
+      },
+    },
+  )
+  .delete(
+    "/",
+    async ({ workspaceUser, authMethod }) => {
+      if (authMethod === "secret") {
+        return error("I'm a teapot");
+      }
+
+      const workspace = await db
+        .deleteFrom("workspace")
+        .where("workspace.id", "=", workspaceUser.workspaceId)
+        .returningAll()
+        .executeTakeFirstOrThrow(
+          () => new InternalServerError("Failed to create workspace"),
+        );
+
+      return workspace;
+    },
+    {
+      async beforeHandle({ workspaceUser }) {
+        const perm = await checkWorkspacePerm({
+          workspaceUser,
+        });
+
+        return perm.match(
+          (perm) => (perm.isOwner() ? undefined : error("Forbidden")),
+          (err) => error(403, err),
+        );
+      },
+    },
+  );
