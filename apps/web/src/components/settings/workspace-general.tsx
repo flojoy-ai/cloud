@@ -135,7 +135,7 @@ const WorkspaceGeneral = ({ workspace }: Props) => {
                   <CardHeader>
                     <CardTitle className="text-xl">Workspace Name</CardTitle>
                     <CardDescription>
-                      This is your workspace&apos;s visible name within Fijoy.
+                      This is your workspace&apos;s visible name within Flojoy.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -170,7 +170,7 @@ const WorkspaceGeneral = ({ workspace }: Props) => {
                   <CardHeader>
                     <CardTitle className="text-xl">Workspace URL</CardTitle>
                     <CardDescription>
-                      This is your workspace’s URL namespace on Fijoy.
+                      This is your workspace’s URL namespace on Flojoy.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
