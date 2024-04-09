@@ -109,6 +109,7 @@ export async function createUnit(
           .values(
             components.map((c) => ({
               parentUnitId: created.id,
+              workspaceId,
               childUnitId: c,
             })),
           )
@@ -209,6 +210,7 @@ export async function doUnitComponentSwap(
         .values({
           parentUnitId: unit.id,
           childUnitId: input.newUnitComponentId,
+          workspaceId: unit.workspaceId,
         })
         .execute();
 

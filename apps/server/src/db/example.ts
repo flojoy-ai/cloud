@@ -238,6 +238,7 @@ export async function populateExample(
         pis.map((pi, i) => ({
           parentUnitId: pi.id,
           childUnitId: cpus[i].id,
+          workspaceId,
         })),
       )
       .execute();
@@ -248,6 +249,7 @@ export async function populateExample(
         pis.map((pi, i) => ({
           parentUnitId: pi.id,
           childUnitId: rams[i].id,
+          workspaceId,
         })),
       )
       .execute();
@@ -258,6 +260,7 @@ export async function populateExample(
         pis.map((pi, i) => ({
           parentUnitId: pi.id,
           childUnitId: disks[i].id,
+          workspaceId,
         })),
       )
       .execute();
@@ -293,6 +296,7 @@ export async function populateExample(
           measurements: [
             {
               name: "Did Light Up",
+              durationMs: 1000,
               testId: booleanTest.id,
               createdAt: new Date(new Date().getTime() + i * 20000),
               durationMs: 1000,
@@ -301,6 +305,7 @@ export async function populateExample(
             },
             {
               name: "Data Point",
+              durationMs: 1000,
               testId: dataframeTest.id,
               createdAt: new Date(new Date().getTime() + i * 20000),
               durationMs: 1566,

@@ -196,15 +196,26 @@ export const WorkspaceRoute = new Elysia({
         return error("I'm a teapot");
       }
 
-      const workspace = await db
-        .deleteFrom("workspace")
-        .where("workspace.id", "=", workspaceUser.workspaceId)
-        .returningAll()
-        .executeTakeFirstOrThrow(
-          () => new InternalServerError("Failed to create workspace"),
-        );
+      return await db.transaction().execute(async (tx) => {
+        await tx
+          .deleteFrom("part_variation_relation as pvr")
+          .where("pvr.workspaceId", "=", workspaceUser.workspaceId)
+          .execute();
+        await tx
+          .deleteFrom("unit_relation as ur")
+          .where("ur.workspaceId", "=", workspaceUser.workspaceId)
+          .execute();
 
-      return workspace;
+        const workspace = await tx
+          .deleteFrom("workspace")
+          .where("workspace.id", "=", workspaceUser.workspaceId)
+          .returningAll()
+          .executeTakeFirstOrThrow(
+            () => new InternalServerError("Failed to create workspace"),
+          );
+
+        return workspace;
+      });
     },
     {
       async beforeHandle({ workspaceUser }) {
