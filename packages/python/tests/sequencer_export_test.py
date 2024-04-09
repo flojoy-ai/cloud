@@ -3,6 +3,7 @@ from random import randint, random
 import pandas as pd
 import os
 import shutil
+import pytest
 
 
 def test_no_output():
@@ -95,3 +96,52 @@ def test_export_float():
     # Verify that the lastest data is the only one retreive
     data = test_sequencer._get_most_recent_data(test_id)
     assert data == 1.0
+
+
+def test_min_value_expected():
+    test_sequencer._set_min_max(10, None)
+
+    test_sequencer.assert_greater_than_min(11)
+    with pytest.raises(Exception):
+        test_sequencer.assert_greater_than_min(10)
+
+
+def test_max_value_expected():
+    test_sequencer._set_min_max(None, 10)
+
+    test_sequencer.assert_less_than_max(9)
+    with pytest.raises(Exception):
+        test_sequencer.assert_less_than_max(10)
+
+
+def test_min_max_value_expected():
+    test_sequencer._set_min_max(10, 15)
+
+    test_sequencer.assert_in_range(11)
+    test_sequencer.assert_in_range(14.99)
+    with pytest.raises(Exception):
+        test_sequencer.assert_in_range(15.001)
+
+
+def test_min_max_setter():
+    test_id = f"my_test_id_{randint(0,1000)}"
+    test_sequencer._set_output_loc(test_id)
+    test_sequencer._set_min_max(10, 15)
+
+    test_sequencer._set_output_loc(None)
+    test_sequencer._set_min_max(None, None)
+    min, max = test_sequencer.get_min_max()
+    assert min is None
+    assert max is None
+
+    test_sequencer._set_output_loc(test_id)
+    min, max = test_sequencer.get_min_max()
+    assert min is not None and max is not None
+    assert min == 10 and max == 15
+
+
+def test_min_max_type():
+    test_sequencer._set_min_max(10, 15.066)
+    min, max = test_sequencer.get_min_max()
+    assert isinstance(min, int)
+    assert isinstance(max, float)
