@@ -6,12 +6,26 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const handleError = (error: unknown, defaultMessage?: string) => {
-  //TODO: Make this work better for elysia errors
   if (typeof error === "string") {
     return error;
   }
-  if (typeof error === "object" && error !== null && "message" in error) {
-    return error.message;
+  if (typeof error === "object" && error !== null) {
+    if ("message" in error) {
+      return error.message;
+    }
+    if ("response" in error) {
+      if (typeof error.response === "string") {
+        // A response like error(500, "message") was returned
+        return error.response;
+      } else if (
+        // A response like error(500, Error Object) was returned
+        typeof error.response === "object" &&
+        error.response !== null &&
+        "message" in error.response
+      ) {
+        return error.response.message;
+      }
+    }
   }
 
   return defaultMessage ?? "Internal server error!";
