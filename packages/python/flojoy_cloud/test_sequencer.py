@@ -1,8 +1,18 @@
 import logging
 import os
+from typing import Tuple
 import pandas as pd
 import tempfile
 from .measurement import MeasurementData
+from pydantic import BaseModel
+
+
+ExpectedMeasurementType = int | float
+
+
+class ExpectedMeasurement(BaseModel):
+    min: ExpectedMeasurementType | None = None
+    max: ExpectedMeasurementType | None = None
 
 
 # ------ Public ------
@@ -34,7 +44,54 @@ def export(data: MeasurementData):
         raise TypeError(f"Unsupported data type: {type(data)}")
 
 
+def assert_in_range(data: ExpectedMeasurementType):
+    """ Assert that the data is within the min and max values """
+    min, max = get_min_max()
+    assert min is not None and max is not None, "Min and max values must be set"
+    assert min <= data <= max
+
+
+def assert_greater_than_min(data: ExpectedMeasurementType):
+    """ Assert that the data is greater than the min value """
+    min, _ = get_min_max()
+    assert min is not None, "Min value must be set"
+    assert data > min
+    
+
+def assert_less_than_max(data: ExpectedMeasurementType):
+    """ Asserts that the data is less than the max value """
+    _, max = get_min_max()
+    assert max is not None, "Max value must be set"
+    assert data < max
+
+
+def get_min_max() -> Tuple[ExpectedMeasurementType | None, ExpectedMeasurementType | None]:
+    output_dir, postfix_file = __get_location()
+    min_max_file = os.path.join(output_dir, f"min_{postfix_file}.json")
+    if os.path.exists(min_max_file):
+        with open(min_max_file, "r") as f:
+            data = ExpectedMeasurement.model_validate_json(f.read())
+            return data.min, data.max
+    logging.warn("Min and max values not found")
+    return None, None
+
+
 # ------ Protected ------
+
+
+def _set_min_max(min_val: ExpectedMeasurementType | None, max_val: ExpectedMeasurementType | None):
+    """
+    Set the min and max values for a test from within the test sequencer.
+     - The use of `_set_output_loc` prior to calling this is highly recommended.
+    """
+    output_dir, postfix_file = __get_location()
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    min_max_file = os.path.join(output_dir, f"min_{postfix_file}.json")
+    data = {"min": min_val, "max": max_val}
+    with open(min_max_file, "w") as f:
+        f.write(ExpectedMeasurement(**data).model_dump_json())
+        logging.info(f"Min and max values set to {min_max_file}")
 
 
 def _get_most_recent_data(
