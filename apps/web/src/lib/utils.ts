@@ -16,3 +16,9 @@ export const handleError = (error: unknown, defaultMessage?: string) => {
 
   return defaultMessage ?? "Internal server error!";
 };
+
+// NOTE: This function is needed because
+// when a query param can be undefined, it actually passes
+// the string "undefined". We just filter out the keys instead here.
+export const makeQueryParams = (params: Record<string, unknown | undefined>) =>
+  Object.fromEntries(Object.entries(params).filter(([, v]) => v !== undefined));

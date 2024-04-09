@@ -42,7 +42,7 @@ export function workspaceProjectResourceCounter(
       .selectFrom(table)
       .innerJoin("project", "projectId", "project.id")
       .innerJoin("workspace", "workspaceId", "workspace.id")
-      .where("workspaceId", "=", workspaceId)
+      .where("project.workspaceId", "=", workspaceId)
       .select((eb) => eb.fn.countAll<number>().as("count"));
     if (start) {
       query = query.where("createdAt", ">=", start);
@@ -97,7 +97,7 @@ export async function partVariationFailureDistribution(
     .selectFrom("measurement as m")
     .innerJoin("unit as u", "m.unitId", "u.id")
     .innerJoin("part_variation as pv", "u.partVariationId", "pv.id")
-    .where("workspaceId", "=", workspaceId)
+    .where("pv.workspaceId", "=", workspaceId)
     .where("m.pass", "=", false)
     .groupBy("pv.id")
     .select((eb) => ["pv.partNumber", eb.fn.countAll<number>().as("count")]);
@@ -121,7 +121,7 @@ export async function productFailureDistribution(
     .innerJoin("part_variation as pv", "u.partVariationId", "pv.id")
     .innerJoin("part as p", "pv.partId", "p.id")
     .innerJoin("product", "p.productId", "product.id")
-    .where("workspaceId", "=", workspaceId)
+    .where("product.workspaceId", "=", workspaceId)
     .where("m.pass", "=", false)
     .groupBy("product.id")
     .select((eb) => ["product.name", eb.fn.countAll<number>().as("count")]);
@@ -146,6 +146,13 @@ export async function getWorkspaceMetrics(
     end,
   );
   return {
+    // testSessionCount: 0,
+    // measurementCount: 0,
+    // partVariationCount: 0,
+    // unitCount: 0,
+    // userCount: 0,
+    // partVariationFailureDistribution: 0,
+    productFailureDistribution: 0,
     testSessionCount: await workspaceProjectCount("session"),
     measurementCount: await workspaceProjectCount("measurement"),
     partVariationCount: await workspaceCount("part_variation"),
@@ -156,11 +163,11 @@ export async function getWorkspaceMetrics(
       start,
       end,
     ),
-    productFailureDistribution: await productFailureDistribution(
-      workspaceId,
-      start,
-      end,
-    ),
+    // productFailureDistribution: await productFailureDistribution(
+    //   workspaceId,
+    //   start,
+    //   end,
+    // ),
   };
 }
 

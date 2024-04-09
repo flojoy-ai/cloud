@@ -13,6 +13,7 @@ export * from "./types/tag";
 export * from "./types/test";
 export * from "./types/utils";
 export * from "./types/workspace";
+export * from "./types/metrics";
 
 import DB from "./schemas/Database";
 export type { DB };

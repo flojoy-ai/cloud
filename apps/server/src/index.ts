@@ -19,6 +19,7 @@ import { StationRoute } from "./routes/station";
 import { AuthEntraRoute } from "./routes/auth/entra";
 import { SessionRoute } from "./routes/session";
 import { SecretRoute } from "./routes/secret";
+import { MetricsRoute } from "./routes/metrics";
 
 const encoder = new TextEncoder();
 
@@ -106,6 +107,7 @@ const app = new Elysia()
   .use(StationRoute)
   .use(UnitRoute)
   .use(SessionRoute)
+  .use(MetricsRoute)
   .get("/health", () => "ok")
   .get("/error", ({ error }) => error("I'm a teapot"))
   .listen(env.PORT);

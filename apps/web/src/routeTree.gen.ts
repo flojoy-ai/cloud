@@ -29,6 +29,7 @@ import { Route as ProtectedWorkspaceNamespaceProjectRouteImport } from './routes
 import { Route as ProtectedWorkspaceNamespaceSettingsIndexImport } from './routes/_protected/workspace/$namespace/settings/index'
 import { Route as ProtectedWorkspaceNamespaceProjectIndexImport } from './routes/_protected/workspace/$namespace/project/index'
 import { Route as ProtectedWorkspaceNamespacePartIndexImport } from './routes/_protected/workspace/$namespace/part/index'
+import { Route as ProtectedWorkspaceNamespaceDashboardIndexImport } from './routes/_protected/workspace/$namespace/dashboard/index'
 import { Route as ProtectedWorkspaceNamespaceVariationPartVariationIdRouteImport } from './routes/_protected/workspace/$namespace/variation/$partVariationId/route'
 import { Route as ProtectedWorkspaceNamespaceUnitUnitIdRouteImport } from './routes/_protected/workspace/$namespace/unit/$unitId/route'
 import { Route as ProtectedWorkspaceNamespaceStationStationIdRouteImport } from './routes/_protected/workspace/$namespace/station/$stationId/route'
@@ -138,6 +139,12 @@ const ProtectedWorkspaceNamespaceProjectIndexRoute =
 const ProtectedWorkspaceNamespacePartIndexRoute =
   ProtectedWorkspaceNamespacePartIndexImport.update({
     path: '/part/',
+    getParentRoute: () => ProtectedWorkspaceNamespaceRouteRoute,
+  } as any)
+
+const ProtectedWorkspaceNamespaceDashboardIndexRoute =
+  ProtectedWorkspaceNamespaceDashboardIndexImport.update({
+    path: '/dashboard/',
     getParentRoute: () => ProtectedWorkspaceNamespaceRouteRoute,
   } as any)
 
@@ -288,6 +295,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceVariationPartVariationIdRouteImport
       parentRoute: typeof ProtectedWorkspaceNamespaceRouteImport
     }
+    '/_protected/workspace/$namespace/dashboard/': {
+      preLoaderRoute: typeof ProtectedWorkspaceNamespaceDashboardIndexImport
+      parentRoute: typeof ProtectedWorkspaceNamespaceRouteImport
+    }
     '/_protected/workspace/$namespace/part/': {
       preLoaderRoute: typeof ProtectedWorkspaceNamespacePartIndexImport
       parentRoute: typeof ProtectedWorkspaceNamespaceRouteImport
@@ -359,6 +370,7 @@ export const routeTree = rootRoute.addChildren([
       ProtectedWorkspaceNamespaceVariationPartVariationIdRouteRoute.addChildren(
         [ProtectedWorkspaceNamespaceVariationPartVariationIdIndexRoute],
       ),
+      ProtectedWorkspaceNamespaceDashboardIndexRoute,
       ProtectedWorkspaceNamespacePartIndexRoute,
       ProtectedWorkspaceNamespaceSessionSessionIdIndexRoute,
     ]),

@@ -1,14 +1,9 @@
-import { Elysia, t } from "elysia";
+import { Elysia } from "elysia";
 import { getProjectMetrics, getWorkspaceMetrics } from "../db/metrics";
-import { getPastStartTime, pastTimePeriod } from "../lib/time";
+import { getPastStartTime } from "../lib/time";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
 import { checkProjectPerm } from "../lib/perm/project";
-
-export const timeFilterQueryParams = t.Object({
-  past: pastTimePeriod,
-  from: t.Optional(t.Date()),
-  to: t.Optional(t.Date()),
-});
+import { timeFilterQueryParams } from "@cloud/shared";
 
 export const MetricsRoute = new Elysia({
   prefix: "/metrics",

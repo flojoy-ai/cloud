@@ -1,16 +1,5 @@
-import { Static, t } from "elysia";
+import { PastTimePeriod } from "@cloud/shared";
 import { match } from "ts-pattern";
-
-export const pastTimePeriod = t.Optional(
-  t.Union([
-    t.Literal("day"),
-    t.Literal("week"),
-    t.Literal("month"),
-    t.Literal("year"),
-  ]),
-);
-
-export type PastTimePeriod = Static<typeof pastTimePeriod>;
 
 export const getPastStartTime = (past: PastTimePeriod) => {
   const now = new Date();
