@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { typedObjectEntries, typedObjectFromEntries } from "./typed";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -10,7 +11,7 @@ export const handleError = (error: unknown, defaultMessage?: string) => {
     return error;
   }
   if (typeof error === "object" && error !== null) {
-    if ("message" in error) {
+    if ("message" in error && typeof error.message === "string") {
       return error.message;
     }
     if ("response" in error) {
@@ -21,7 +22,8 @@ export const handleError = (error: unknown, defaultMessage?: string) => {
         // A response like error(500, Error Object) was returned
         typeof error.response === "object" &&
         error.response !== null &&
-        "message" in error.response
+        "message" in error.response &&
+        typeof error.response.message === "string"
       ) {
         return error.response.message;
       }
@@ -34,5 +36,9 @@ export const handleError = (error: unknown, defaultMessage?: string) => {
 // NOTE: This function is needed because
 // when a query param can be undefined, it actually passes
 // the string "undefined". We just filter out the keys instead here.
-export const makeQueryParams = (params: Record<string, unknown | undefined>) =>
-  Object.fromEntries(Object.entries(params).filter(([, v]) => v !== undefined));
+export const makeQueryParams = <T extends Record<PropertyKey, unknown>>(
+  params: T,
+) =>
+  typedObjectFromEntries(
+    typedObjectEntries(params).filter(([, v]) => v !== undefined),
+  );

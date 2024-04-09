@@ -1,18 +1,16 @@
 import { t, Static } from "elysia";
 
-export const pastTimePeriod = t.Optional(
-  t.Union([
-    t.Literal("day"),
-    t.Literal("week"),
-    t.Literal("month"),
-    t.Literal("year"),
-  ]),
-);
+export const timePeriod = t.Union([
+  t.Literal("day"),
+  t.Literal("week"),
+  t.Literal("month"),
+  t.Literal("year"),
+]);
 
-export type PastTimePeriod = Static<typeof pastTimePeriod>;
+export type TimePeriod = Static<typeof timePeriod>;
 
 export const timeFilterQueryParams = t.Object({
-  past: pastTimePeriod,
+  past: t.Optional(timePeriod),
   from: t.Optional(t.Date()),
   to: t.Optional(t.Date()),
 });

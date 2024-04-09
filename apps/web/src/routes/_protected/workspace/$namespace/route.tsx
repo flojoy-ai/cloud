@@ -7,22 +7,25 @@ import {
 } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import CenterLoadingSpinner from "@/components/center-loading-spinner";
+import { handleError } from "@/lib/utils";
 
 export const Route = createFileRoute("/_protected/workspace/$namespace")({
   component: Page,
 
-  errorComponent: () => (
-    <PageHeader>
-      <PageHeaderHeading>Oops!</PageHeaderHeading>
-      <PageHeaderDescription>
-        You do not have access to this workspace :(
-      </PageHeaderDescription>
-      <div className="py-2"></div>
-      <Button asChild>
-        <Link to={"/workspace"}>Go Back</Link>
-      </Button>
-    </PageHeader>
-  ),
+  errorComponent: ({ error, reset }) => {
+    return (
+      <PageHeader>
+        <PageHeaderHeading>Oops!</PageHeaderHeading>
+        <PageHeaderDescription>An error occurred :(</PageHeaderDescription>
+        <div className="py-2"></div>
+        <div className="text-red-500">{handleError(error)}</div>
+        <div className="py-2"></div>
+        <Button asChild onClick={reset}>
+          <Link to="/workspace">Go back</Link>
+        </Button>
+      </PageHeader>
+    );
+  },
 
   pendingComponent: CenterLoadingSpinner,
   beforeLoad: async ({ context: { queryClient }, params: { namespace } }) => {

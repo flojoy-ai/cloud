@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { client } from "../client";
-import { TimeFilterQueryParams, Workspace } from "@cloud/shared";
+import { TimeFilterQueryParams, TimePeriod, Workspace } from "@cloud/shared";
 import { makeQueryParams } from "../utils";
 
 type GetGlobalMetricsParams = {
@@ -29,6 +29,37 @@ export function getGlobalMetricsQueryOpts({
       return data;
     },
     queryKey: getGlobalMetricsQueryKey(),
+  });
+}
+
+type GetGlobalMetricsSeriesParams = {
+  bin: TimePeriod;
+  context: {
+    workspace: Workspace;
+  };
+} & TimeFilterQueryParams;
+
+export function getGlobalMetricsSeriesQueryKey() {
+  return ["globalMetricsSeries"];
+}
+
+export function getGlobalMetricsSeriesQueryOpts({
+  past,
+  bin,
+  from,
+  to,
+  context,
+}: GetGlobalMetricsSeriesParams) {
+  return queryOptions({
+    queryFn: async () => {
+      const { data, error } = await client.metrics.workspace.series.get({
+        query: makeQueryParams({ bin, past, from, to }),
+        headers: { "flojoy-workspace-id": context.workspace.id },
+      });
+      if (error) throw error;
+      return data;
+    },
+    queryKey: getGlobalMetricsSeriesQueryKey(),
   });
 }
 

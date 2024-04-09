@@ -1,9 +1,13 @@
-import { Elysia } from "elysia";
-import { getProjectMetrics, getWorkspaceMetrics } from "../db/metrics";
+import { Elysia, t } from "elysia";
+import {
+  getProjectMetrics,
+  getWorkspaceMetrics,
+  getWorkspaceOverTimeMetrics,
+} from "../db/metrics";
 import { getPastStartTime } from "../lib/time";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
 import { checkProjectPerm } from "../lib/perm/project";
-import { timeFilterQueryParams } from "@cloud/shared";
+import { timeFilterQueryParams, timePeriod } from "@cloud/shared";
 
 export const MetricsRoute = new Elysia({
   prefix: "/metrics",
@@ -18,6 +22,21 @@ export const MetricsRoute = new Elysia({
       return getWorkspaceMetrics(workspace.id, start, end);
     },
     { query: timeFilterQueryParams },
+  )
+  .get(
+    "/workspace/series",
+    async ({ workspace, query: { past, bin, from, to } }) => {
+      const start = from ?? (past ? getPastStartTime(past) : undefined);
+      const end = to;
+
+      return getWorkspaceOverTimeMetrics(workspace.id, bin, start, end);
+    },
+    {
+      query: t.Composite([
+        timeFilterQueryParams,
+        t.Object({ bin: timePeriod }),
+      ]),
+    },
   )
   .get(
     "/project/:projectId",

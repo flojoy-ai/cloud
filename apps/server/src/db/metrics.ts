@@ -1,4 +1,4 @@
-import { DB } from "@cloud/shared";
+import { DB, TimePeriod } from "@cloud/shared";
 import { sql } from "kysely";
 import _ from "lodash/fp";
 import { Result, err, ok } from "neverthrow";
@@ -54,38 +54,60 @@ export function workspaceProjectResourceCounter(
   };
 }
 
-export function countOverTime(
+export async function countSessionsOverTime(
   workspaceId: string,
   bin: "day" | "week" | "month" | "year",
   start: Date | undefined,
   end: Date | undefined,
 ) {
-  return async (table: "session" | "workspace_user") => {
-    let query = db
-      .selectFrom(table)
-      .select((eb) => [
-        // NOTE: Postgres only
-        sql<Date>`DATE_TRUNC(${bin}, createdAt)`.as("bin"),
-        eb.fn.countAll<number>().as("count"),
-      ])
-      .$if(table === "session", (qb) =>
-        qb
-          .innerJoin("project", "projectId", "project.id")
-          .innerJoin("workspace", "workspaceId", "workspace.id"),
-      )
-      .where("workspaceId", "=", workspaceId)
-      .groupBy("bin")
-      .orderBy("bin");
+  let query = db
+    .selectFrom("session")
+    .select((eb) => [
+      // NOTE: Postgres only
+      sql<Date>`DATE_TRUNC(${bin}, session.created_at)`.as("bin"),
+      eb.fn.countAll<number>().as("count"),
+    ])
+    .innerJoin("project", "projectId", "project.id")
+    .innerJoin("workspace", "workspaceId", "workspace.id")
+    .where("workspaceId", "=", workspaceId)
+    .groupBy("bin")
+    .orderBy("bin");
 
-    if (start) {
-      query = query.where(`${table}.createdAt`, ">=", start);
-    }
-    if (end) {
-      query = query.where(`${table}.createdAt`, "<=", end);
-    }
+  if (start) {
+    query = query.where(`session.createdAt`, ">=", start);
+  }
+  if (end) {
+    query = query.where(`session.createdAt`, "<=", end);
+  }
 
-    return await query.execute();
-  };
+  return await query.execute();
+}
+
+export async function countUsersOverTime(
+  workspaceId: string,
+  bin: "day" | "week" | "month" | "year",
+  start: Date | undefined,
+  end: Date | undefined,
+) {
+  let query = db
+    .selectFrom("workspace_user")
+    .select((eb) => [
+      // NOTE: Postgres only
+      sql<Date>`DATE_TRUNC(${bin}, workspace_user.created_at)`.as("bin"),
+      eb.fn.countAll<number>().as("count"),
+    ])
+    .where("workspaceId", "=", workspaceId)
+    .groupBy("bin")
+    .orderBy("bin");
+
+  if (start) {
+    query = query.where(`workspace_user.createdAt`, ">=", start);
+  }
+  if (end) {
+    query = query.where(`workspace_user.createdAt`, "<=", end);
+  }
+
+  return await query.execute();
 }
 
 export async function partVariationFailureDistribution(
@@ -166,14 +188,18 @@ export async function getWorkspaceMetrics(
 
 export async function getWorkspaceOverTimeMetrics(
   workspaceId: string,
-  bin: "day" | "week" | "month" | "year",
+  bin: TimePeriod,
   start: Date | undefined,
   end: Date | undefined,
 ) {
-  const counter = countOverTime(workspaceId, bin, start, end);
   return {
-    sessionCountOverTime: await counter("session"),
-    userCountOverTime: await counter("workspace_user"),
+    sessionCountOverTime: await countSessionsOverTime(
+      workspaceId,
+      bin,
+      start,
+      end,
+    ),
+    userCountOverTime: await countUsersOverTime(workspaceId, bin, start, end),
   };
 }
 
