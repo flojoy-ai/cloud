@@ -121,3 +121,6 @@ class SessionMeasurement(BaseModel):
     name: str | None = None
     passed: bool | None = None
     created_at: datetime.datetime | None = None
+
+    class Config:
+        arbitrary_types_allowed=True
