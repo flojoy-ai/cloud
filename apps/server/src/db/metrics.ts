@@ -23,10 +23,10 @@ export function workspaceCounter(
       .where("workspaceId", "=", workspaceId)
       .select((eb) => eb.fn.countAll<number>().as("count"));
     if (start) {
-      query = query.where("createdAt", ">=", start);
+      query = query.where(`${table}.createdAt`, ">=", start);
     }
     if (end) {
-      query = query.where("createdAt", "<=", end);
+      query = query.where(`${table}.createdAt`, "<=", end);
     }
     return (await query.executeTakeFirstOrThrow()).count;
   };
@@ -45,10 +45,10 @@ export function workspaceProjectResourceCounter(
       .where("project.workspaceId", "=", workspaceId)
       .select((eb) => eb.fn.countAll<number>().as("count"));
     if (start) {
-      query = query.where("createdAt", ">=", start);
+      query = query.where(`${table}.createdAt`, ">=", start);
     }
     if (end) {
-      query = query.where("createdAt", "<=", end);
+      query = query.where(`${table}.createdAt`, "<=", end);
     }
     return (await query.executeTakeFirstOrThrow()).count;
   };
@@ -78,10 +78,10 @@ export function countOverTime(
       .orderBy("bin");
 
     if (start) {
-      query = query.where("createdAt", ">=", start);
+      query = query.where(`${table}.createdAt`, ">=", start);
     }
     if (end) {
-      query = query.where("createdAt", "<=", end);
+      query = query.where(`${table}.createdAt`, "<=", end);
     }
 
     return await query.execute();
@@ -102,10 +102,10 @@ export async function partVariationFailureDistribution(
     .groupBy("pv.id")
     .select((eb) => ["pv.partNumber", eb.fn.countAll<number>().as("count")]);
   if (start) {
-    query = query.where("createdAt", ">=", start);
+    query = query.where("m.createdAt", ">=", start);
   }
   if (end) {
-    query = query.where("createdAt", "<=", end);
+    query = query.where("m.createdAt", "<=", end);
   }
   return await query.execute();
 }
@@ -126,10 +126,10 @@ export async function productFailureDistribution(
     .groupBy("product.id")
     .select((eb) => ["product.name", eb.fn.countAll<number>().as("count")]);
   if (start) {
-    query = query.where("createdAt", ">=", start);
+    query = query.where("m.createdAt", ">=", start);
   }
   if (end) {
-    query = query.where("createdAt", "<=", end);
+    query = query.where("m.createdAt", "<=", end);
   }
   return await query.execute();
 }
@@ -146,13 +146,6 @@ export async function getWorkspaceMetrics(
     end,
   );
   return {
-    // testSessionCount: 0,
-    // measurementCount: 0,
-    // partVariationCount: 0,
-    // unitCount: 0,
-    // userCount: 0,
-    // partVariationFailureDistribution: 0,
-    productFailureDistribution: 0,
     testSessionCount: await workspaceProjectCount("session"),
     measurementCount: await workspaceProjectCount("measurement"),
     partVariationCount: await workspaceCount("part_variation"),
@@ -163,11 +156,11 @@ export async function getWorkspaceMetrics(
       start,
       end,
     ),
-    // productFailureDistribution: await productFailureDistribution(
-    //   workspaceId,
-    //   start,
-    //   end,
-    // ),
+    productFailureDistribution: await productFailureDistribution(
+      workspaceId,
+      start,
+      end,
+    ),
   };
 }
 
@@ -185,7 +178,7 @@ export async function getWorkspaceOverTimeMetrics(
 }
 
 export async function projectCount(
-  table: keyof Pick<DB, "session" | "unit">,
+  table: keyof Pick<DB, "session" | "project_unit">,
   projectId: string,
 ) {
   return (
@@ -199,7 +192,7 @@ export async function projectCount(
 
 export async function projectMeanTestSessions(projectId: string) {
   const sessionCount = await projectCount("session", projectId);
-  const unitCount = await projectCount("unit", projectId);
+  const unitCount = await projectCount("project_unit", projectId);
   return sessionCount / unitCount;
 }
 
@@ -233,14 +226,14 @@ export async function meanCycleTime(projectId: string) {
     .with("cycle_averages", (db) =>
       db
         .selectFrom("session")
-        .where("projectId", "=", projectId)
+        .where("session.projectId", "=", projectId)
         .innerJoin("measurement", "session.id", "measurement.sessionId")
         .select(
-          sql`session.duration_ms / (MAX(measurement.cycle_number) + 1)`.as(
+          sql`SUM(measurement.duration_ms) / (MAX(measurement.cycle_number) + 1)`.as(
             "avgCycleTime",
           ),
         )
-        .groupBy("sessionId"),
+        .groupBy("measurement.sessionId"),
     )
     .selectFrom("cycle_averages")
     .select((eb) => eb.fn.avg<number>("avgCycleTime").as("avg"))
@@ -250,11 +243,12 @@ export async function meanCycleTime(projectId: string) {
 }
 
 export async function averageSessionTime(projectId: string) {
-  return await db
+  const res = await db
     .selectFrom("session")
-    .where("projectId", "=", projectId)
+    .where("session.projectId", "=", projectId)
     .select((eb) => eb.fn.avg<number>("durationMs").as("avg"))
     .executeTakeFirstOrThrow();
+  return res.avg;
 }
 
 export async function totalFailedTestTime(projectId: string) {
@@ -271,10 +265,24 @@ export async function totalFailedTestTime(projectId: string) {
 export async function firstPassYield(projectId: string) {
   const firstSessions = await db
     .selectFrom("session")
-    .select((eb) => [withStatus(eb), eb.fn.min("createdAt").as("createdAt")])
-    .where("projectId", "=", projectId)
-    .groupBy("unitId")
+    .innerJoin(
+      (eb) =>
+        eb
+          .selectFrom("session")
+          .select((eb) => ["unitId", eb.fn.min("createdAt").as("createdAt")])
+          .where("projectId", "=", projectId)
+          .groupBy("unitId")
+          .as("first_sessions"),
+      (join) =>
+        join
+          .onRef("first_sessions.unitId", "=", "session.unitId")
+          .onRef("first_sessions.createdAt", "=", "session.createdAt"),
+    )
+    .select((eb) => withStatus(eb))
     .execute();
+
+  if (firstSessions.length === 0) return 0;
+
   return (
     countWhere(firstSessions, (s) => s.status === true) / firstSessions.length
   );
@@ -283,13 +291,27 @@ export async function firstPassYield(projectId: string) {
 export async function testYield(projectId: string) {
   const passCount = await sessionCountWithStatus(projectId, true);
   const sessionCount = await projectCount("session", projectId);
+
+  if (sessionCount === 0) return 0;
+
   return passCount / sessionCount;
 }
 
 export async function getProjectMetrics(projectId: string) {
   return {
+    // testSessionCount: 0,
+    // unitCount: 0,
+    // meanSessionsPerUnit: 0,
+    // sessionPassedCount: 0,
+    // sessionFailedCount: 0,
+    // sessionAbortedCount: 0,
+    // meanCycleTime: 0,
+    // meanSessionTime: 0,
+    // totalFailedTestTime: 0,
+    // firstPassYield: 0,
+    // testYield: 0,
     testSessionCount: await projectCount("session", projectId),
-    unitCount: await projectCount("unit", projectId),
+    unitCount: await projectCount("project_unit", projectId),
     meanSessionsPerUnit: await projectMeanTestSessions(projectId),
     sessionPassedCount: await sessionCountWithStatus(projectId, true),
     sessionFailedCount: await sessionCountWithStatus(projectId, false),

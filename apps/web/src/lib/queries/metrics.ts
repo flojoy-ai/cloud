@@ -53,7 +53,7 @@ export function getProjectMetricsQueryOpts({
   return queryOptions({
     queryFn: async () => {
       const { data, error } = await client.metrics.project({ projectId }).get({
-        query: { past, from, to },
+        query: makeQueryParams({ past, from, to }),
         headers: { "flojoy-workspace-id": context.workspace.id },
       });
       if (error) throw error;
