@@ -295,6 +295,7 @@ export async function populateExample(
               name: "Did Light Up",
               testId: booleanTest.id,
               createdAt: new Date(new Date().getTime() + i * 20000),
+              durationMs: 1000,
               data: { type: "boolean" as const, value: val },
               pass: val,
             },
@@ -302,6 +303,7 @@ export async function populateExample(
               name: "Data Point",
               testId: dataframeTest.id,
               createdAt: new Date(new Date().getTime() + i * 20000),
+              durationMs: 1566,
               data: {
                 type: "dataframe" as const,
                 value: {
