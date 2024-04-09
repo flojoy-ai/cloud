@@ -1,6 +1,6 @@
 import { DB } from "@cloud/shared";
 import { createId } from "@paralleldrive/cuid2";
-import { Transaction } from "kysely";
+import { SelectQueryBuilder, Transaction, WhereInterface } from "kysely";
 import { Result, ResultAsync, fromPromise } from "neverthrow";
 import { DatabaseError } from "pg";
 import { db } from "../db/kysely";

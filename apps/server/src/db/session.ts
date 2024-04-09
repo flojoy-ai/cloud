@@ -16,6 +16,7 @@ import { createMeasurement } from "./measurement";
 import { getStation } from "./station";
 import { createTest, getTestByName } from "./test";
 import { getUnitBySerialNumber } from "./unit";
+import _ from "lodash";
 
 export async function getSessionsByUnitId(
   unitId: string,
@@ -134,6 +135,8 @@ export async function createSession(
     );
   }
 
+  const totalTime = _.sumBy(measurements, (m) => m.durationMs);
+
   const toInsert = {
     unitId: unit.id,
     userId: userId,
@@ -143,6 +146,7 @@ export async function createSession(
     aborted: body.aborted,
     notes: body.notes,
     commitHash: body.commitHash,
+    durationMs: totalTime,
   };
 
   const res = await tryQuery(
@@ -170,9 +174,10 @@ export async function createSession(
         projectId: station.projectId,
         measurementType: meas.data.type,
       });
-      if (testResult.isErr()) {
+
+      if (testResult.isErr())
         return err(new InternalServerError(testResult.error));
-      }
+
       test = testResult.value;
     }
 

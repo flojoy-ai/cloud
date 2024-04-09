@@ -1,5 +1,5 @@
 import { type Kysely } from "kysely";
-import { DB, InsertMeasurement } from "@cloud/shared";
+import { DB, InsertMeasurement, MeasurementData } from "@cloud/shared";
 import { generateDatabaseId } from "../lib/db-utils";
 import { getTagsByNames, markUpdatedAt } from "../db/query";
 import { err } from "neverthrow";
@@ -50,4 +50,13 @@ export async function createMeasurement(
   await markUpdatedAt(db, "unit", input.unitId);
 
   return measurement.id;
+}
+
+export async function getTestMeasurements(db: Kysely<DB>, testId: string) {
+  return await db
+    .selectFrom("measurement")
+    .selectAll()
+    .where("testId", "=", testId)
+    .$narrowType<{ data: MeasurementData }>()
+    .execute();
 }

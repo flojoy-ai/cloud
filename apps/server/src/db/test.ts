@@ -20,6 +20,14 @@ export async function createTest(db: Kysely<DB>, input: InsertTest) {
   return ok(test);
 }
 
+export async function getTest(db: Kysely<DB>, test: string) {
+  return await db
+    .selectFrom("test")
+    .selectAll("test")
+    .where("test.id", "=", test)
+    .executeTakeFirst();
+}
+
 export async function getTestByName(db: Kysely<DB>, name: string) {
   return await db
     .selectFrom("test")
