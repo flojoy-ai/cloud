@@ -1,7 +1,7 @@
 import { DB } from "@cloud/shared";
 import { sql } from "kysely";
 import _ from "lodash/fp";
-import { err, ok } from "neverthrow";
+import { Result, err, ok } from "neverthrow";
 import { BadRequestError, NotFoundError } from "../lib/error";
 import { median, mode } from "../lib/stats";
 import { countWhere } from "../lib/utils";
@@ -295,24 +295,20 @@ export async function getProjectMetrics(projectId: string) {
   };
 }
 
-async function getScalarTestMeasurements(testId: string) {
+export async function getTestDistribution(
+  testId: string,
+): Promise<Result<number[], NotFoundError | BadRequestError>> {
   const test = await getTest(db, testId);
   if (test === undefined) {
     return err(new NotFoundError("Test not found"));
   }
   if (test.measurementType !== "scalar") {
     return err(
-      new BadRequestError("Cannot calculate mean for non-scalar test"),
+      new BadRequestError("Can't get distribution for non-scalar test"),
     );
   }
-
-  return ok(await getTestMeasurements(db, testId));
-}
-
-export async function getTestDistribution(testId: string) {
-  return (await getScalarTestMeasurements(testId)).map((ms) =>
-    ms.map((m) => m.data.value as number),
-  );
+  const measurements = await getTestMeasurements(db, testId);
+  return ok(measurements.map((m) => m.data.value as number));
 }
 
 function testStatistic<T>(compute: (nums: number[]) => T) {
