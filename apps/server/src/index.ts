@@ -48,7 +48,7 @@ const app = new Elysia()
         ? (response[ELYSIA_RESPONSE] as number)
         : (set.status as number);
 
-    if (status >= 300 && status < 200) {
+    if (status >= 300 || status < 200) {
       return response as Response;
     }
 
