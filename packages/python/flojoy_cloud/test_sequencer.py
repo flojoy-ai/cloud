@@ -44,25 +44,16 @@ def export(data: MeasurementData):
         raise TypeError(f"Unsupported data type: {type(data)}")
 
 
-def assert_in_range(data: ExpectedMeasurementType):
+def is_in_range(data: ExpectedMeasurementType):
     """Assert that the data is within the min and max values"""
     min, max = get_min_max()
-    assert min is not None and max is not None, "Min and max values must be set"
-    assert min <= data <= max
-
-
-def assert_greater_or_equal_than_min(data: ExpectedMeasurementType):
-    """Assert that the data is greater than the min value"""
-    min, _ = get_min_max()
-    assert min is not None, "Min value must be set"
-    assert data >= min
-
-
-def assert_less_or_equal_than_max(data: ExpectedMeasurementType):
-    """Asserts that the data is less than the max value"""
-    _, max = get_min_max()
-    assert max is not None, "Max value must be set"
-    assert data <= max
+    if min is not None and max is not None:
+        return min <= data <= max
+    elif min is not None:
+        return min <= data
+    elif max is not None:
+        return data <= max
+    raise ValueError("Min and max values not set")
 
 
 def get_min_max() -> (
