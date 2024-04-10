@@ -1,8 +1,10 @@
 from flojoy_cloud import test_sequencer
 from random import randint, random
+from time import sleep
 import pandas as pd
 import os
 import shutil
+import pytest
 import pytest
 
 
@@ -14,6 +16,21 @@ def test_no_output():
     # Try to get the most recent data
     data = test_sequencer._get_most_recent_data(prefix_file)
     assert data is None
+
+    output_dir, prefix_file = test_sequencer.__get_location()
+    # delete the dir if it exists
+    if os.path.exists(output_dir):
+        shutil.rmtree(output_dir)
+    # try to set min max
+    test_sequencer._set_min_max(10, 15)
+
+    output_dir, prefix_file = test_sequencer.__get_location()
+    # delete the dir if it exists
+    if os.path.exists(output_dir):
+        shutil.rmtree(output_dir)
+    # Try to clean the set output location
+    test_sequencer._nuke_output_loc()
+
 
 
 def test_set_output():
@@ -49,12 +66,14 @@ def test_multiple_data_export():
     test_sequencer.export(my_value)
     df = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
     test_sequencer.export(df)
+    sleep(0.5)
     my_new_value = randint(0, 1000)
     test_sequencer.export(my_new_value)
 
     # Verify that the lastest data is the only one retreive
     data = test_sequencer._get_most_recent_data(test_id)
     assert data == my_new_value
+    assert isinstance(data, int)
 
 
 def test_export_dataframe():

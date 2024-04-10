@@ -5,6 +5,7 @@ import pandas as pd
 import tempfile
 from .measurement import MeasurementData
 from pydantic import BaseModel
+import shutil
 
 
 ExpectedMeasurementType = int | float
@@ -118,12 +119,27 @@ def _get_most_recent_data(
     return __extract_data(output_dir + output_file)
 
 
-def _set_output_loc(prefix: str | None):
+def _set_output_loc(prefix: str | None, rm_existing_data: bool = False):
     """Set the output location for the data when launching a test in the test sequencer."""
     if prefix is not None:
         os.environ[OPTIONAL_NAME_ENV] = prefix
     else:
         os.environ.pop(OPTIONAL_NAME_ENV)
+    if rm_existing_data:
+        _nuke_output_loc()
+
+
+def _nuke_output_loc():
+    """
+    Delete data files in the output directory.
+    """
+    output_dir, prefix = __get_location()
+    if not os.path.exists(output_dir):
+        return
+    for file in os.listdir(output_dir):
+        if prefix in file:
+            file_path = os.path.join(output_dir, file)
+            os.remove(file_path)
 
 
 # ------ Private ------
