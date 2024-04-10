@@ -9,6 +9,8 @@ import { InternalServerError } from "../lib/error";
 import { AuthMiddleware } from "../middlewares/auth";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
 import { checkWorkspacePerm } from "../lib/perm/workspace";
+import { jsonObjectFrom } from "kysely/helpers/postgres";
+import { User } from "@cloud/shared/src/schemas/public/User";
 
 export const WorkspaceRoute = new Elysia({
   prefix: "/workspace",
@@ -155,6 +157,43 @@ export const WorkspaceRoute = new Elysia({
     return workspace;
   })
   .use(WorkspaceMiddleware)
+  .get(
+    "/users",
+    async ({ workspaceUser, authMethod }) => {
+      if (authMethod === "secret") {
+        return error("I'm a teapot");
+      }
+
+      const workspaceUsers = await db
+        .selectFrom("workspace_user as wu")
+        .selectAll("wu")
+        .where("wu.workspaceId", "=", workspaceUser.workspaceId)
+        .select((eb) => [
+          jsonObjectFrom(
+            eb
+              .selectFrom("user as u")
+              .selectAll("u")
+              .whereRef("u.id", "=", "wu.userId"),
+          ).as("user"),
+        ])
+        .$narrowType<{ user: User }>()
+        .execute();
+
+      return workspaceUsers;
+    },
+    {
+      async beforeHandle({ workspaceUser }) {
+        const perm = await checkWorkspacePerm({
+          workspaceUser,
+        });
+
+        return perm.match(
+          (perm) => (perm.canRead() ? undefined : error("Forbidden")),
+          (err) => error(403, err),
+        );
+      },
+    },
+  )
   .patch(
     "/",
     async ({ workspaceUser, body, authMethod }) => {
