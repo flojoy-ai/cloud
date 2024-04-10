@@ -13,7 +13,10 @@ export const AuthContext = createContext<AuthContext | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { data: user, isLoading } = useQuery({
     queryFn: async () => {
-      const { data } = await client.user.index.get({ headers: {} });
+      const { data } = await client.user.index.get({
+        headers: {},
+      });
+
       return data;
     },
     queryKey: ["user"],

@@ -2,10 +2,15 @@ import CenterLoadingSpinner from "@/components/center-loading-spinner";
 import { ProtectedHeader } from "@/components/navbar/protected-header";
 import { getWorkspacesQueryOpts } from "@/lib/queries/workspace";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Outlet, createFileRoute } from "@tanstack/react-router";
+import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_protected")({
   component: Protected,
+  beforeLoad({ context }) {
+    if (!context.auth.user) {
+      throw redirect({ to: "/login" });
+    }
+  },
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(getWorkspacesQueryOpts());
   },
