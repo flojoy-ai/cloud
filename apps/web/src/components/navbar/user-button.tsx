@@ -52,13 +52,13 @@ function UserButton({ user }: Props) {
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onSelect={() => router.navigate({ to: "/profile" })}
-        >
-          Profile
-        </DropdownMenuItem>
+        {/* <DropdownMenuSeparator /> */}
+        {/* <DropdownMenuItem */}
+        {/*   className="cursor-pointer" */}
+        {/*   onSelect={() => router.navigate({ to: "/profile" })} */}
+        {/* > */}
+        {/*   Profile */}
+        {/* </DropdownMenuItem> */}
         <DropdownMenuSeparator />
         <DropdownMenuItem className="cursor-pointer">
           <a href={"https://rest.flojoy.ai"} target="_blank">
