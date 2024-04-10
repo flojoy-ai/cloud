@@ -158,7 +158,7 @@ export const WorkspaceRoute = new Elysia({
   })
   .use(WorkspaceMiddleware)
   .get(
-    "/users",
+    "/user",
     async ({ workspaceUser, authMethod }) => {
       if (authMethod === "secret") {
         return error("I'm a teapot");
@@ -189,6 +189,55 @@ export const WorkspaceRoute = new Elysia({
 
         return perm.match(
           (perm) => (perm.canRead() ? undefined : error("Forbidden")),
+          (err) => error(403, err),
+        );
+      },
+    },
+  )
+  .delete(
+    "/user",
+    async ({ workspaceUser, authMethod, body: { userId } }) => {
+      if (authMethod === "secret") {
+        return error("I'm a teapot");
+      }
+
+      const targetUser = await db
+        .selectFrom("workspace_user as wu")
+        .selectAll("wu")
+        .where("wu.userId", "=", userId)
+        .executeTakeFirstOrThrow(
+          () => new InternalServerError("Failed to find user"),
+        );
+
+      if (targetUser.role === "owner") {
+        return error(403, "Cannot remove owner");
+      }
+
+      if (targetUser.userId === workspaceUser.userId) {
+        return error(403, "Cannot remove self");
+      }
+
+      if (workspaceUser.role === "admin" && targetUser.role === "admin") {
+        return error(403, "Cannot remove another admin");
+      }
+
+      const workspaceUsers = await db
+        .deleteFrom("workspace_user as wu")
+        .where("wu.workspaceId", "=", targetUser.workspaceId)
+        .where("wu.userId", "=", targetUser.userId)
+        .execute();
+
+      return workspaceUsers;
+    },
+    {
+      body: t.Object({ userId: t.String() }),
+      async beforeHandle({ workspaceUser }) {
+        const perm = await checkWorkspacePerm({
+          workspaceUser,
+        });
+
+        return perm.match(
+          (perm) => (perm.canAdmin() ? undefined : error("Forbidden")),
           (err) => error(403, err),
         );
       },

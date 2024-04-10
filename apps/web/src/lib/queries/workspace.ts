@@ -47,8 +47,8 @@ type getWorkspaceUsersProps = {
   };
 };
 
-export function getWorkspaceUsersQueryKey(namespace: string) {
-  return ["workspace", namespace, "users"];
+export function getWorkspaceUsersQueryKey(workspaceId: string) {
+  return ["workspace", workspaceId, "users"];
 }
 
 export function getWorkspaceUsersQueryOpts({
@@ -56,7 +56,7 @@ export function getWorkspaceUsersQueryOpts({
 }: getWorkspaceUsersProps) {
   return queryOptions({
     queryFn: async () => {
-      const { data: workspaces, error } = await client.workspace.users.get({
+      const { data: workspaces, error } = await client.workspace.user.get({
         headers: {
           "flojoy-workspace-id": context.workspace.id,
         },
@@ -64,6 +64,6 @@ export function getWorkspaceUsersQueryOpts({
       if (error) throw error.value;
       return workspaces;
     },
-    queryKey: getWorkspaceUsersQueryKey(context.workspace.namespace),
+    queryKey: getWorkspaceUsersQueryKey(context.workspace.id),
   });
 }
