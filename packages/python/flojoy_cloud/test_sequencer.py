@@ -5,7 +5,6 @@ import pandas as pd
 import tempfile
 from .measurement import MeasurementData
 from pydantic import BaseModel
-import shutil
 
 
 ExpectedMeasurementType = int | float
@@ -171,7 +170,6 @@ def __get_most_recent_file(output_dir: str, prefix_file: str):
     if not os.path.exists(output_dir):
         return None
     for file in os.listdir(output_dir):
-        logging.info(f"Available data: {file}")
         if file.startswith(prefix_file):
             file_path = os.path.join(output_dir, file)
             file_time = os.path.getmtime(file_path)
