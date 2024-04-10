@@ -1,4 +1,8 @@
-import { createWorkspace, updateWorkspace } from "@cloud/shared";
+import {
+  createWorkspace,
+  updateWorkspace,
+  workspaceUserInvite,
+} from "@cloud/shared";
 import { Elysia, error, t } from "elysia";
 import { ok, safeTry } from "neverthrow";
 import { DatabaseError } from "pg";
@@ -313,6 +317,50 @@ export const WorkspaceRoute = new Elysia({
 
         return perm.match(
           (perm) => (perm.isOwner() ? undefined : error("Forbidden")),
+          (err) => error(403, err),
+        );
+      },
+    },
+  )
+  .post(
+    "/invite",
+    async ({ workspaceUser, authMethod, body: { email, role } }) => {
+      if (authMethod === "secret") {
+        return error("I'm a teapot");
+      }
+
+      await db
+        .deleteFrom("user_invite")
+        .where("email", "=", email)
+        .where("workspaceId", "=", workspaceUser.workspaceId)
+        .execute();
+
+      const invite = await db
+        .insertInto("user_invite")
+        .values({
+          id: generateDatabaseId("user_invite"),
+          workspaceId: workspaceUser.workspaceId,
+          email,
+          role,
+        })
+        .returningAll()
+        .executeTakeFirstOrThrow(
+          () => new InternalServerError("Failed to create invite"),
+        );
+
+      // TODO: send email
+
+      return invite;
+    },
+    {
+      body: workspaceUserInvite,
+      async beforeHandle({ workspaceUser }) {
+        const perm = await checkWorkspacePerm({
+          workspaceUser,
+        });
+
+        return perm.match(
+          (perm) => (perm.canAdmin() ? undefined : error("Forbidden")),
           (err) => error(403, err),
         );
       },
