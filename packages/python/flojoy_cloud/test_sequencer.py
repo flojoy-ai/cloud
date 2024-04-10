@@ -45,27 +45,29 @@ def export(data: MeasurementData):
 
 
 def assert_in_range(data: ExpectedMeasurementType):
-    """ Assert that the data is within the min and max values """
+    """Assert that the data is within the min and max values"""
     min, max = get_min_max()
     assert min is not None and max is not None, "Min and max values must be set"
     assert min <= data <= max
 
 
 def assert_greater_or_equal_than_min(data: ExpectedMeasurementType):
-    """ Assert that the data is greater than the min value """
+    """Assert that the data is greater than the min value"""
     min, _ = get_min_max()
     assert min is not None, "Min value must be set"
     assert data >= min
-    
+
 
 def assert_less_or_equal_than_max(data: ExpectedMeasurementType):
-    """ Asserts that the data is less than the max value """
+    """Asserts that the data is less than the max value"""
     _, max = get_min_max()
     assert max is not None, "Max value must be set"
     assert data <= max
 
 
-def get_min_max() -> Tuple[ExpectedMeasurementType | None, ExpectedMeasurementType | None]:
+def get_min_max() -> (
+    Tuple[ExpectedMeasurementType | None, ExpectedMeasurementType | None]
+):
     output_dir, postfix_file = __get_location()
     min_max_file = os.path.join(output_dir, f"min_{postfix_file}.json")
     if os.path.exists(min_max_file):
@@ -79,7 +81,9 @@ def get_min_max() -> Tuple[ExpectedMeasurementType | None, ExpectedMeasurementTy
 # ------ Protected ------
 
 
-def _set_min_max(min_val: ExpectedMeasurementType | None, max_val: ExpectedMeasurementType | None):
+def _set_min_max(
+    min_val: ExpectedMeasurementType | None, max_val: ExpectedMeasurementType | None
+):
     """
     Set the min and max values for a test from within the test sequencer.
      - The use of `_set_output_loc` prior to calling this is highly recommended.
