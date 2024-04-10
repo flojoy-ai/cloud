@@ -50,7 +50,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Trash } from "lucide-react";
+import { Trash2 } from "lucide-react";
+import { client } from "@/lib/client";
+import { useAuth } from "@/hooks/use-auth";
 
 type WorkspaceUserWithUser = WorkspaceUser & { user: User };
 
@@ -75,11 +77,33 @@ const columns: ColumnDef<WorkspaceUserWithUser>[] = [
 ];
 
 function DeleteWorkspaceUser({ row }: { row: Row<WorkspaceUserWithUser> }) {
+  const queryClient = useQueryClient();
+  const deleteUserMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      await client.workspace.user.delete(
+        { userId },
+        { headers: { "flojoy-workspace-id": row.original.workspaceId } },
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: getWorkspaceUsersQueryKey(row.original.workspaceId),
+      });
+      toast.success(`User (${row.original.user.email}) deleted`);
+    },
+  });
+
+  const { user } = useAuth();
+  if (user?.id === row.original.userId) {
+    // no reason to delete urself
+    return null;
+  }
+
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button size="icon" variant="ghost">
-          <Trash className="h-6 w-6" />
+          <Trash2 className="h-5 w-5" />
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
@@ -92,7 +116,11 @@ function DeleteWorkspaceUser({ row }: { row: Row<WorkspaceUserWithUser> }) {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction>Continue</AlertDialogAction>
+          <AlertDialogAction
+            onClick={() => deleteUserMutation.mutateAsync(row.original.userId)}
+          >
+            Continue
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
