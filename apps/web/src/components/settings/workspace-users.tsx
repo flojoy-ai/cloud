@@ -139,13 +139,13 @@ const WorkspaceUsers = ({ workspace, workspaceUsers }: Props) => {
 
   const workspaceUserInviteMutation = useMutation({
     mutationFn: async (values: WorkspaceUserInvite) => {
-      // const { data, error } = await client.workspace.index.patch(values, {
-      //   headers: { "flojoy-workspace-id": workspace.id },
-      // });
-      // if (error) {
-      //   throw error.value;
-      // }
-      // return data;
+      const { data, error } = await client.workspace.invite.post(values, {
+        headers: { "flojoy-workspace-id": workspace.id },
+      });
+      if (error) {
+        throw error.value;
+      }
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
