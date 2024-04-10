@@ -31,3 +31,17 @@ export const workspace = t.Object({
 
 export type CreateWorkspace = Static<typeof createWorkspace>;
 export type UpdateWorkspace = Static<typeof updateWorkspace>;
+
+export const roleType = t.Union([
+  t.Literal("owner"),
+  t.Literal("admin"),
+  t.Literal("member"),
+  t.Literal("pending"),
+]);
+
+export const workspaceUserInvite = t.Object({
+  email: t.String(),
+  role: roleType,
+});
+
+export type WorkspaceUserInvite = Static<typeof workspaceUserInvite>;
