@@ -51,18 +51,18 @@ def assert_in_range(data: ExpectedMeasurementType):
     assert min <= data <= max
 
 
-def assert_greater_than_min(data: ExpectedMeasurementType):
+def assert_greater_or_equal_than_min(data: ExpectedMeasurementType):
     """ Assert that the data is greater than the min value """
     min, _ = get_min_max()
     assert min is not None, "Min value must be set"
-    assert data > min
+    assert data >= min
     
 
-def assert_less_than_max(data: ExpectedMeasurementType):
+def assert_less_or_equal_than_max(data: ExpectedMeasurementType):
     """ Asserts that the data is less than the max value """
     _, max = get_min_max()
     assert max is not None, "Max value must be set"
-    assert data < max
+    assert data <= max
 
 
 def get_min_max() -> Tuple[ExpectedMeasurementType | None, ExpectedMeasurementType | None]:
