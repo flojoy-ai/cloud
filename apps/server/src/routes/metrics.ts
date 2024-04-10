@@ -1,42 +1,62 @@
 import { Elysia, t } from "elysia";
 import {
+  countSessionsOverTime,
+  countUsersOverTime,
   getProjectMetrics,
   getWorkspaceMetrics,
-  getWorkspaceOverTimeMetrics,
 } from "../db/metrics";
 import { getPastStartTime } from "../lib/time";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
 import { checkProjectPerm } from "../lib/perm/project";
-import { timeFilterQueryParams, timePeriod } from "@cloud/shared";
+import { TimePeriod, timeFilterQueryParams, timePeriod } from "@cloud/shared";
+
+const getStartTime = (past: TimePeriod | undefined, from: Date | undefined) =>
+  from ?? (past ? getPastStartTime(past) : undefined);
 
 export const MetricsRoute = new Elysia({
   prefix: "/metrics",
   name: "MetricsRoute",
 })
   .use(WorkspaceMiddleware)
-  .get(
-    "/workspace",
-    async ({ workspace, query: { past, from, to } }) => {
-      const start = from ?? (past ? getPastStartTime(past) : undefined);
-      const end = to;
-      return getWorkspaceMetrics(workspace.id, start, end);
-    },
-    { query: timeFilterQueryParams },
-  )
-  .get(
-    "/workspace/series",
-    async ({ workspace, query: { past, bin, from, to } }) => {
-      const start = from ?? (past ? getPastStartTime(past) : undefined);
-      const end = to;
-
-      return getWorkspaceOverTimeMetrics(workspace.id, bin, start, end);
-    },
-    {
-      query: t.Composite([
-        timeFilterQueryParams,
-        t.Object({ bin: timePeriod }),
-      ]),
-    },
+  .group("/workspace", (app) =>
+    app
+      .get(
+        "/",
+        async ({ workspace, query: { past, from, to } }) => {
+          const start = getStartTime(past, from);
+          const end = to;
+          return getWorkspaceMetrics(workspace.id, start, end);
+        },
+        { query: timeFilterQueryParams },
+      )
+      .get(
+        "/series/session",
+        async ({ workspace, query: { past, bin, from, to } }) => {
+          const start = getStartTime(past, from);
+          const end = to;
+          return await countSessionsOverTime(workspace.id, bin, start, end);
+        },
+        {
+          query: t.Composite([
+            timeFilterQueryParams,
+            t.Object({ bin: timePeriod }),
+          ]),
+        },
+      )
+      .get(
+        "/series/user",
+        async ({ workspace, query: { past, bin, from, to } }) => {
+          const start = getStartTime(past, from);
+          const end = to;
+          return await countUsersOverTime(workspace.id, bin, start, end);
+        },
+        {
+          query: t.Composite([
+            timeFilterQueryParams,
+            t.Object({ bin: timePeriod }),
+          ]),
+        },
+      ),
   )
   .get(
     "/project/:projectId",

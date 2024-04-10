@@ -1,4 +1,4 @@
-import { queryOptions } from "@tanstack/react-query";
+import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 import { client } from "../client";
 import { TimeFilterQueryParams, TimePeriod, Workspace } from "@cloud/shared";
 import { makeQueryParams } from "../utils";
@@ -21,7 +21,7 @@ export function getGlobalMetricsQueryOpts({
 }: GetGlobalMetricsParams) {
   return queryOptions({
     queryFn: async () => {
-      const { data, error } = await client.metrics.workspace.get({
+      const { data, error } = await client.metrics.workspace.index.get({
         query: makeQueryParams({ past, from, to }),
         headers: { "flojoy-workspace-id": context.workspace.id },
       });
@@ -32,34 +32,60 @@ export function getGlobalMetricsQueryOpts({
   });
 }
 
-type GetGlobalMetricsSeriesParams = {
+type GetGlobalMetricsTimeSeriesParams = {
   bin: TimePeriod;
   context: {
     workspace: Workspace;
   };
 } & TimeFilterQueryParams;
 
-export function getGlobalMetricsSeriesQueryKey() {
-  return ["globalMetricsSeries"];
+export function getGlobalMetricsSessionTimeSeriesQueryKey(
+  query: Omit<GetGlobalMetricsTimeSeriesParams, "context">,
+) {
+  return ["globalMetricsSessionTimeSeries", query];
 }
 
-export function getGlobalMetricsSeriesQueryOpts({
-  past,
-  bin,
-  from,
-  to,
-  context,
-}: GetGlobalMetricsSeriesParams) {
+export function getGlobalMetricsSessionTimeSeriesQueryOpts(
+  params: GetGlobalMetricsTimeSeriesParams,
+) {
+  const { context, ...query } = params;
   return queryOptions({
     queryFn: async () => {
-      const { data, error } = await client.metrics.workspace.series.get({
-        query: makeQueryParams({ bin, past, from, to }),
+      const { data, error } = await client.metrics.workspace.series.session.get(
+        {
+          query: makeQueryParams(query),
+          headers: { "flojoy-workspace-id": context.workspace.id },
+        },
+      );
+      if (error) throw error;
+      return data;
+    },
+    queryKey: getGlobalMetricsSessionTimeSeriesQueryKey(query),
+    placeholderData: keepPreviousData,
+  });
+}
+
+export function getGlobalMetricsUserTimeSeriesQueryKey(
+  query: Omit<GetGlobalMetricsTimeSeriesParams, "context">,
+) {
+  return ["globalMetricsUserTimeSeries", query];
+}
+
+export function getGlobalMetricsUserTimeSeriesQueryOpts(
+  params: GetGlobalMetricsTimeSeriesParams,
+) {
+  const { context, ...query } = params;
+  return queryOptions({
+    queryFn: async () => {
+      const { data, error } = await client.metrics.workspace.series.user.get({
+        query: makeQueryParams(query),
         headers: { "flojoy-workspace-id": context.workspace.id },
       });
       if (error) throw error;
       return data;
     },
-    queryKey: getGlobalMetricsSeriesQueryKey(),
+    queryKey: getGlobalMetricsUserTimeSeriesQueryKey(query),
+    placeholderData: keepPreviousData,
   });
 }
 

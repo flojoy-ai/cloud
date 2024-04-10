@@ -27,8 +27,21 @@ export const ParetoChart = ({ labels, values }: Props) => {
         labels,
       }}
       options={{
+        plugins: {
+          legend: {
+            display: false,
+          },
+        },
         scales: {
+          x: {
+            grid: {
+              display: false,
+            },
+          },
           y: {
+            grid: {
+              display: false,
+            },
             beginAtZero: true,
           },
         },

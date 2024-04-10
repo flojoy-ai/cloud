@@ -17,6 +17,9 @@ import {
 } from "@sinclair/typebox/errors";
 import { TString } from "@sinclair/typebox";
 
+import "chart.js/auto";
+import "chartjs-adapter-luxon";
+
 // this should be declared only once
 SetErrorFunction((error) => {
   const errorOverride = error?.schema.error;

@@ -20,3 +20,21 @@ export const prefixSum = (arr: number[]) => {
   }
   return prefix;
 };
+
+export const makeTimeSeriesData = <T, U, V>({
+  data,
+  x,
+  y,
+}: {
+  data: T[];
+  x: (val: T) => U;
+  y: (val: T) => V;
+}): [U[], V[]] => {
+  const xs = [];
+  const ys = [];
+  for (const val of data) {
+    xs.push(x(val));
+    ys.push(y(val));
+  }
+  return [xs, ys];
+};
