@@ -123,4 +123,4 @@ class SessionMeasurement(BaseModel):
     created_at: datetime.datetime | None = None
 
     class Config:
-        arbitrary_types_allowed=True
+        arbitrary_types_allowed = True

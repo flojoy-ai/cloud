@@ -32,7 +32,6 @@ def test_no_output():
     test_sequencer._nuke_output_loc()
 
 
-
 def test_set_output():
     # Set the output location to simulate a test run in the test sequencer
     test_id = f"my_test_id_{randint(0,1000)}"
