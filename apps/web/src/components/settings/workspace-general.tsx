@@ -117,6 +117,7 @@ const WorkspaceGeneral = ({ workspace }: Props) => {
   function onDeleteWorkspaceSubmit() {
     return deleteWorkspaceMutation.mutateAsync();
   }
+
   return (
     <div className="space-y-4">
       <Form {...updateWorkspaceForm}>
