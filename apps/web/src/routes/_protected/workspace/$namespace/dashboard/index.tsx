@@ -13,7 +13,7 @@ import { useState } from "react";
 // TODO: Treeshake
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TimeSeriesBarChart } from "@/components/visualization/time-series-chart";
+import { TimeSeriesChart } from "@/components/visualization/time-series-chart";
 import { makeTimeSeriesData } from "@/lib/stats";
 import { cn } from "@/lib/utils";
 import { Box, Boxes, CircuitBoard, Cpu, LucideIcon, User } from "lucide-react";
@@ -163,7 +163,7 @@ function DashboardPage() {
       <div className="flex">
         <Card className="flex-1 rounded-xl p-4">
           {sessionTimeSeriesData && (
-            <TimeSeriesBarChart
+            <TimeSeriesChart
               bin={sessionBin}
               setBin={setSessionBin}
               title="Sessions over time"
@@ -175,7 +175,7 @@ function DashboardPage() {
         <div className="px-2" />
         <Card className="flex-1 rounded-xl p-4">
           {userTimeSeriesData && (
-            <TimeSeriesBarChart
+            <TimeSeriesChart
               bin={userBin}
               setBin={setUserBin}
               title="Operators over time"
@@ -196,10 +196,16 @@ function DashboardPage() {
             </TabsList>
           </div>
           <TabsContent value="part">
-            <ParetoChart labels={partsFailureX} values={partsFailureY} />
+            <ParetoChart
+              labels={[...partsFailureX, "bruh1", "bruh2", "bruh3", "bruh4"]}
+              values={[...partsFailureY, 10, 20, 5, 3]}
+            />
           </TabsContent>
           <TabsContent value="product">
-            <ParetoChart labels={productsFailureX} values={productsFailureY} />
+            <ParetoChart
+              labels={[...productsFailureX, "bruh1", "bruh2", "bruh3", "bruh4"]}
+              values={[...productsFailureY, 20, 5, 50, 4]}
+            />
           </TabsContent>
         </Tabs>
         <div className="py-2" />

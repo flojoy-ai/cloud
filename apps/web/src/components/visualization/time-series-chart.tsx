@@ -1,6 +1,7 @@
 import { TimePeriod } from "@cloud/shared";
-import { Bar } from "react-chartjs-2";
+import { Line } from "react-chartjs-2";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { prefixSum } from "@/lib/stats";
 
 type Props = {
   title?: string;
@@ -10,12 +11,6 @@ type Props = {
   dates: Date[];
 };
 
-const addDays = (date: Date, days: number) => {
-  const newDate = new Date(date);
-  newDate.setDate(newDate.getDate() + days);
-  return newDate;
-};
-
 const tooltipDisplayFormats = {
   day: "MMM d",
   week: "MMM d",
@@ -23,13 +18,8 @@ const tooltipDisplayFormats = {
   year: "yyyy",
 };
 
-export const TimeSeriesBarChart = ({
-  title,
-  bin,
-  setBin,
-  data,
-  dates,
-}: Props) => {
+export const TimeSeriesChart = ({ title, bin, setBin, data, dates }: Props) => {
+  const cumulative = prefixSum(data);
   return (
     <div>
       <div className="flex justify-between items-center">
@@ -50,9 +40,14 @@ export const TimeSeriesBarChart = ({
         </ToggleGroup>
       </div>
       <div className="py-1" />
-      <Bar
+      <Line
         data={{
-          datasets: [{ data }],
+          datasets: [
+            {
+              data: cumulative,
+              cubicInterpolationMode: "monotone",
+            },
+          ],
           labels: dates,
         }}
         options={{
@@ -87,6 +82,9 @@ export const TimeSeriesBarChart = ({
               },
             },
             y: {
+              ticks: {
+                precision: 0,
+              },
               grid: {
                 display: false,
               },

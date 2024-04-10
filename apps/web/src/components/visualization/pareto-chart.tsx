@@ -8,6 +8,8 @@ type Props = {
 };
 
 export const ParetoChart = ({ labels, values }: Props) => {
+  const cumulative = prefixSum(values);
+  const total = cumulative[cumulative.length - 1];
   return (
     <Chart
       type="bar"
@@ -21,15 +23,36 @@ export const ParetoChart = ({ labels, values }: Props) => {
           {
             type: "line",
             label: "Cumulative",
-            data: prefixSum(values),
+            data: cumulative,
           },
         ],
         labels,
       }}
       options={{
+        interaction: {
+          intersect: false,
+          mode: "index",
+        },
         plugins: {
           legend: {
             display: false,
+          },
+          tooltip: {
+            callbacks: {
+              footer: (tooltipItems) => {
+                let diffPercent: string = "";
+                let cumulativePercent: string = "";
+                for (const item of tooltipItems) {
+                  const val = (((item.raw as number) / total) * 100).toFixed(2);
+                  if (item.datasetIndex === 0) {
+                    diffPercent = val;
+                  } else {
+                    cumulativePercent = val;
+                  }
+                }
+                return `Total: ${cumulativePercent}% (+${diffPercent}%)`;
+              },
+            },
           },
         },
         scales: {
@@ -43,6 +66,17 @@ export const ParetoChart = ({ labels, values }: Props) => {
               display: false,
             },
             beginAtZero: true,
+          },
+          y1: {
+            type: "linear",
+            position: "right",
+            ticks: {
+              callback: (value) => {
+                return value + "%";
+              },
+            },
+            min: 0,
+            max: 100,
           },
         },
       }}
