@@ -27,6 +27,7 @@ import { DataTable } from "@/components/ui/data-table";
 import { columns } from "@/components/station/columns";
 import { getPartVariationQueryOpts } from "@/lib/queries/part-variation";
 import CenterLoadingSpinner from "@/components/center-loading-spinner";
+import { Doughnut } from "react-chartjs-2";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/project/$projectId/",
@@ -94,6 +95,34 @@ function Page() {
       </PageHeader>
 
       <div className="py-4"></div>
+      <Card className="h-48">
+        <div className="h-full relative w-fit">
+          <Doughnut
+            data={{
+              datasets: [
+                {
+                  data: [10, 20, 30],
+                  backgroundColor: ["blue", "green", "red"],
+                },
+              ],
+              labels: ["Aborted", "Passed", "Failed"],
+            }}
+            options={{
+              cutout: "70%",
+              plugins: {
+                legend: {
+                  display: false,
+                },
+              },
+            }}
+          />
+          <div className="absolute z-10 top-1/2 left-1/2 -translate-x-1/2 text-center -translate-y-1/2 mt-1">
+            <span className="text-xl font-semibold">1234</span>
+            <br />
+            <span className="text-muted-foreground">sessions</span>
+          </div>
+        </div>
+      </Card>
 
       <div className="space-x-2">
         <NewStation project={project} />
@@ -110,15 +139,9 @@ function Page() {
             <CardHeader>
               <CardTitle>{partVariation.partNumber}</CardTitle>
               <CardDescription>
-                This is the partVariation being tested in this production line
+                This is the part variation being tested in this production line
               </CardDescription>
             </CardHeader>
-            {/* <CardContent> */}
-            {/*   <p>Card Content</p> */}
-            {/* </CardContent> */}
-            {/* <CardFooter> */}
-            {/*   <p>Card Footer</p> */}
-            {/* </CardFooter> */}
           </Card>
         </div>
       </div>

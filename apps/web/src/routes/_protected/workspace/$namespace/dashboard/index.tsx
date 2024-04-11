@@ -70,13 +70,8 @@ const pastTimeFromBin = (bin: TimePeriod) => {
 function DashboardPage() {
   const [sessionBin, setSessionBin] = useState<TimePeriod>("day");
   const [userBin, setUserBin] = useState<TimePeriod>("day");
-  const [project, setProject] = useState<Project | undefined>(undefined);
 
   const context = Route.useRouteContext();
-
-  const { data: projects } = useSuspenseQuery(
-    getProjectsQueryOpts({ context }),
-  );
 
   const { data: globalMetrics } = useSuspenseQuery(
     getGlobalMetricsQueryOpts({ past: sessionBin, context }),
@@ -210,7 +205,7 @@ function DashboardPage() {
         </Tabs>
         <div className="py-2" />
       </Card>
-      <div className="py-40" />
+      <div className="py-6" />
     </div>
   );
 }
