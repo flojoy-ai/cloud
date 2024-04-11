@@ -67,3 +67,18 @@ export function getWorkspaceUsersQueryOpts({
     queryKey: getWorkspaceUsersQueryKey(context.workspace.id),
   });
 }
+
+export function getWorkspaceInvitesQueryKey() {
+  return ["invites"];
+}
+
+export function getWorkspaceInvitesQueryOpts() {
+  return queryOptions({
+    queryFn: async () => {
+      const { data: workspaces, error } = await client.workspace.invite.get();
+      if (error) throw error.value;
+      return workspaces;
+    },
+    queryKey: getWorkspaceInvitesQueryKey(),
+  });
+}

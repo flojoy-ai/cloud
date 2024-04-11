@@ -27,7 +27,7 @@ export default function WorkspaceCard({ workspace }: Props) {
           to={`/workspace/$namespace`}
           params={{ namespace: workspace.namespace }}
         >
-          <Card className="transition-all duration-300 hover:bg-secondary/80">
+          <Card className="transition-all duration-300 hover:bg-secondary/80 h-full">
             <CardHeader>
               <CardTitle className="overflow-hidden text-ellipsis whitespace-nowrap">
                 {workspace.name}

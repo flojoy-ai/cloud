@@ -147,11 +147,11 @@ const WorkspaceUsers = ({ workspace, workspaceUsers }: Props) => {
       }
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({
         queryKey: getWorkspaceUsersQueryKey(workspace.namespace),
       });
-      toast.success("Workspace updated");
+      toast.success(`Invited ${data.email}`);
     },
   });
 

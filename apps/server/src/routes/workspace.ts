@@ -15,6 +15,7 @@ import { WorkspaceMiddleware } from "../middlewares/workspace";
 import { checkWorkspacePerm } from "../lib/perm/workspace";
 import { jsonObjectFrom } from "kysely/helpers/postgres";
 import { User } from "@cloud/shared/src/schemas/public/User";
+import { Workspace } from "@cloud/shared/src/schemas/public/Workspace";
 
 export const WorkspaceRoute = new Elysia({
   prefix: "/workspace",
@@ -159,6 +160,26 @@ export const WorkspaceRoute = new Elysia({
     }
 
     return workspace;
+  })
+  .get("/invite", async ({ authMethod, user }) => {
+    if (authMethod === "secret") {
+      return error("I'm a teapot");
+    }
+
+    return await db
+      .selectFrom("user_invite as uv")
+      .where("uv.email", "=", user.email)
+      .select((eb) => [
+        jsonObjectFrom(
+          eb
+            .selectFrom("workspace as w")
+            .whereRef("w.id", "=", "uv.workspaceId")
+            .selectAll("w"),
+        ).as("workspace"),
+      ])
+      .selectAll()
+      .$narrowType<{ workspace: Workspace }>()
+      .execute();
   })
   .use(WorkspaceMiddleware)
   .get(
