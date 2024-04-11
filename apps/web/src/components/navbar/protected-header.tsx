@@ -159,41 +159,37 @@ export function ProtectedHeader({ workspaces }: Props) {
           workspaces={workspaces}
           currentWorkspace={currentWorkspace}
         />
-        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+        <nav className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           {currentWorkspace && !isWorkspaceIndexRoute && (
+            <SearchBar
+              workspace={currentWorkspace}
+              className="max-w-72 w-full"
+              small={true}
+            />
+          )}
+          {!user ? (
+            <AuthButtons />
+          ) : (
             <>
-              <div className="px-3" />
-              <SearchBar
-                workspace={currentWorkspace}
-                className="max-w-72 w-full"
-                small={true}
-              />
+              {/*TODO: Add this back*/}
+              {/* {invites.length > 0 && ( */}
+              {/*   <Button */}
+              {/*     className="h-8 rounded-[0.5rem] text-sm font-normal shadow-none" */}
+              {/*     asChild */}
+              {/*   > */}
+              {/*     <Link href="/workspace/invites"> */}
+              {/*       {invites.length} pending invite{invites.length > 1 && "s"} */}
+              {/*     </Link> */}
+              {/*   </Button> */}
+              {/* )} */}
+              {/* <div className="px-1" /> */}
+              {/**/}
+              <UserButton user={user} />
             </>
           )}
-          <nav className="flex items-center">
-            {!user ? (
-              <AuthButtons />
-            ) : (
-              <>
-                {/*TODO: Add this back*/}
-                {/* {invites.length > 0 && ( */}
-                {/*   <Button */}
-                {/*     className="h-8 rounded-[0.5rem] text-sm font-normal shadow-none" */}
-                {/*     asChild */}
-                {/*   > */}
-                {/*     <Link href="/workspace/invites"> */}
-                {/*       {invites.length} pending invite{invites.length > 1 && "s"} */}
-                {/*     </Link> */}
-                {/*   </Button> */}
-                {/* )} */}
-                {/* <div className="px-1" /> */}
-                {/**/}
-                <UserButton user={user} />
-              </>
-            )}
-            <ModeToggle />
-          </nav>
-        </div>
+
+          <ModeToggle />
+        </nav>
       </div>
     </header>
   );
