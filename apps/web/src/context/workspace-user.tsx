@@ -1,8 +1,9 @@
 import { createContext } from "react";
-import { WorkspaceUser } from "@cloud/shared";
+import { Perm, WorkspaceUser, workspaceRoleToPerm } from "@cloud/shared";
 
 export interface WorkspaceUserContext {
   workspaceUser: WorkspaceUser;
+  workspaceUserPerm: Perm;
 }
 
 export const WorkspaceUserContext = createContext<WorkspaceUserContext | null>(
@@ -16,8 +17,9 @@ export function WorkspaceUserProvider({
   children: React.ReactNode;
   workspaceUser: WorkspaceUser;
 }) {
+  const workspaceUserPerm = new Perm(workspaceRoleToPerm(workspaceUser.role));
   return (
-    <WorkspaceUserContext.Provider value={{ workspaceUser }}>
+    <WorkspaceUserContext.Provider value={{ workspaceUser, workspaceUserPerm }}>
       {children}
     </WorkspaceUserContext.Provider>
   );
