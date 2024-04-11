@@ -1,7 +1,6 @@
 import { db } from "../../db/kysely";
 import { Result, err, ok } from "neverthrow";
-import { Perm, projectRoleToPerm } from "../perm";
-import { WorkspaceUser } from "@cloud/shared";
+import { WorkspaceUser, Perm, projectRoleToPerm } from "@cloud/shared";
 
 type GetSessionPermParams = {
   sessionId: string;

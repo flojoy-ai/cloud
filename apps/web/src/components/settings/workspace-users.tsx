@@ -24,11 +24,10 @@ import {
 
 import {
   Workspace,
-  WorkspaceUser,
   WorkspaceUserInvite,
+  WorkspaceUserWithUser,
   workspaceUserInvite,
 } from "@cloud/shared";
-import { User } from "@cloud/shared/src/schemas/public/User";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { DataTable } from "../ui/data-table";
 import { useForm } from "react-hook-form";
@@ -53,8 +52,6 @@ import {
 import { Trash2 } from "lucide-react";
 import { client } from "@/lib/client";
 import { useAuth } from "@/hooks/use-auth";
-
-type WorkspaceUserWithUser = WorkspaceUser & { user: User };
 
 type Props = {
   workspace: Workspace;

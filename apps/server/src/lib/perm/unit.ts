@@ -1,7 +1,6 @@
 import { db } from "../../db/kysely";
 import { Result, err, ok } from "neverthrow";
-import { WorkspaceUser } from "@cloud/shared";
-import { Perm, workspaceRoleToPerm } from "../perm";
+import { WorkspaceUser, Perm, workspaceRoleToPerm } from "@cloud/shared";
 
 type GetUnitPermParams = {
   unitId: string;

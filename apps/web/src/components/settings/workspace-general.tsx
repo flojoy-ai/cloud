@@ -40,12 +40,14 @@ import {
   getWorkspaceQueryKey,
   getWorkspacesQueryKey,
 } from "@/lib/queries/workspace";
+import { Perm } from "@cloud/shared";
 
 type Props = {
   workspace: Workspace;
+  perm: Perm;
 };
 
-const WorkspaceGeneral = ({ workspace }: Props) => {
+const WorkspaceGeneral = ({ workspace, perm }: Props) => {
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -142,6 +144,7 @@ const WorkspaceGeneral = ({ workspace }: Props) => {
                   <CardContent>
                     <FormControl>
                       <Input
+                        disabled={!perm.canAdmin()}
                         placeholder={workspace.name}
                         {...field}
                         data-1p-ignore
@@ -154,7 +157,7 @@ const WorkspaceGeneral = ({ workspace }: Props) => {
                         <Icons.spinner />
                       </Button>
                     ) : (
-                      <Button>Save</Button>
+                      <Button disabled={!perm.canAdmin()}>Save</Button>
                     )}
                     <FormMessage />
                   </CardFooter>
@@ -180,7 +183,11 @@ const WorkspaceGeneral = ({ workspace }: Props) => {
                         <div className="flex h-10 w-min rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground opacity-50 ring-offset-background  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                           fijoy.app/workspace/
                         </div>
-                        <Input placeholder={workspace.namespace} {...field} />
+                        <Input
+                          disabled={!perm.canAdmin()}
+                          placeholder={workspace.namespace}
+                          {...field}
+                        />
                       </div>
                     </FormControl>
                   </CardContent>
@@ -190,7 +197,7 @@ const WorkspaceGeneral = ({ workspace }: Props) => {
                         <Icons.spinner />
                       </Button>
                     ) : (
-                      <Button>Save</Button>
+                      <Button disabled={!perm.canAdmin()}>Save</Button>
                     )}
                     <FormMessage />
                   </CardFooter>
@@ -200,40 +207,41 @@ const WorkspaceGeneral = ({ workspace }: Props) => {
           />
         </form>
       </Form>
-
-      <Card className="border-destructive">
-        <CardHeader>
-          <CardTitle className="text-xl">Delete Workspace</CardTitle>
-          <CardDescription>
-            This will permanently delete your workspace and all its data.
-          </CardDescription>
-        </CardHeader>
-        <CardFooter className="space-x-4 border-t px-6 py-4">
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive">Delete</Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete
-                  your workspace and remove your data from our servers.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={onDeleteWorkspaceSubmit}
-                  className={buttonVariants({ variant: "destructive" })}
-                >
-                  Continue
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </CardFooter>
-      </Card>
+      {perm.isOwner() && (
+        <Card className="border-destructive">
+          <CardHeader>
+            <CardTitle className="text-xl">Delete Workspace</CardTitle>
+            <CardDescription>
+              This will permanently delete your workspace and all its data.
+            </CardDescription>
+          </CardHeader>
+          <CardFooter className="space-x-4 border-t px-6 py-4">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive">Delete</Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    your workspace and remove your data from our servers.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={onDeleteWorkspaceSubmit}
+                    className={buttonVariants({ variant: "destructive" })}
+                  >
+                    Continue
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </CardFooter>
+        </Card>
+      )}
     </div>
   );
 };
