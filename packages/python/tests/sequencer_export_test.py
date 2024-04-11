@@ -31,9 +31,25 @@ def test_no_output():
     test_sequencer._nuke_output_loc()
 
 
+def test_do_not_delete_other_output():
+    test_sequencer._set_output_loc("my_test_id")
+    my_value = randint(0, 1000)
+    test_sequencer.export(my_value)
+
+    test_sequencer._set_output_loc("my_test_id_2")
+    test_sequencer.export(my_value)
+
+    # Try to clean the set output location
+    test_sequencer._set_output_loc("my_test_id", True)
+    assert test_sequencer._get_most_recent_data("my_test_id") is None
+
+    test_sequencer._set_output_loc("my_test_id_2")
+    assert test_sequencer._get_most_recent_data("my_test_id_2") == my_value
+
+
 def test_set_output():
     # Set the output location to simulate a test run in the test sequencer
-    test_id = f"my_test_id_{randint(0,1000)}"
+    test_id = f"my_test_id_{randint(0, 1000)}"
     test_sequencer._set_output_loc(test_id)
 
     # Simulate user export
@@ -41,7 +57,7 @@ def test_set_output():
     test_sequencer.export(my_value)
 
     # Change the output to default
-    new_test_id = f"my_test_id_{randint(1001,2000)}"
+    new_test_id = f"my_test_id_{randint(1001, 2000)}"
     test_sequencer._set_output_loc(new_test_id)
     my_new_value = randint(0, 1000)
     test_sequencer.export(my_new_value)
@@ -56,7 +72,7 @@ def test_set_output():
 
 def test_multiple_data_export():
     """Only the lastest should be retreive"""
-    test_id = f"my_test_id_{randint(0,1000)}"
+    test_id = f"my_test_id_{randint(0, 1000)}"
     test_sequencer._set_output_loc(test_id)
 
     # Simulate user export
@@ -75,7 +91,7 @@ def test_multiple_data_export():
 
 
 def test_export_dataframe():
-    test_id = f"my_test_id_{randint(0,1000)}"
+    test_id = f"my_test_id_{randint(0, 1000)}"
     test_sequencer._set_output_loc(test_id)
     # Simulate user export
     df = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
@@ -86,7 +102,7 @@ def test_export_dataframe():
 
 
 def test_export_bool():
-    test_id = f"my_test_id_{randint(0,1000)}"
+    test_id = f"my_test_id_{randint(0, 1000)}"
     test_sequencer._set_output_loc(test_id)
     # Simulate user export
     test_sequencer.export(True)
@@ -96,7 +112,7 @@ def test_export_bool():
 
 
 def test_export_int():
-    test_id = f"my_test_id_{randint(0,1000)}"
+    test_id = f"my_test_id_{randint(0, 1000)}"
     test_sequencer._set_output_loc(test_id)
     # Simulate user export
     test_sequencer.export(1)

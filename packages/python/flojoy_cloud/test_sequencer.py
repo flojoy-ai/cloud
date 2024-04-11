@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 from typing import Tuple
 import pandas as pd
 import tempfile
@@ -110,7 +111,14 @@ def _get_most_recent_data(
 
 
 def _set_output_loc(prefix: str | None, rm_existing_data: bool = False):
-    """Set the output location for the data when launching a test in the test sequencer."""
+    """
+    Set the output location for the data when launching a test in the test sequencer.
+    @prefix: The prefix to use for the data files and directory.
+    - If None, the default prefix is used.
+    @rm_existing_data: If True, all existing data in the output directory is deleted.
+    - Warning: If the prefixis None, everything is deleted.
+
+    """
     if prefix is not None:
         os.environ[OPTIONAL_NAME_ENV] = prefix
     else:
@@ -122,14 +130,12 @@ def _set_output_loc(prefix: str | None, rm_existing_data: bool = False):
 def _nuke_output_loc():
     """
     Delete data files in the output directory.
+    - Warning: If the output loc is not set, everything is deleted
     """
-    output_dir, prefix = __get_location()
+    output_dir, _ = __get_location()
     if not os.path.exists(output_dir):
         return
-    for file in os.listdir(output_dir):
-        if prefix in file:
-            file_path = os.path.join(output_dir, file)
-            os.remove(file_path)
+    shutil.rmtree(output_dir)
 
 
 # ------ Private ------
