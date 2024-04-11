@@ -94,7 +94,7 @@ function DeleteWorkspaceUser({ row }: { row: Row<WorkspaceUserWithUser> }) {
   });
 
   const { user } = useAuth();
-  if (user?.id === row.original.userId) {
+  if (user?.id === row.original.userId || row.original.role === "owner") {
     // no reason to delete urself
     return null;
   }
