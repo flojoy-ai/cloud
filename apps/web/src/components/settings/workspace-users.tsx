@@ -151,7 +151,9 @@ const WorkspaceUsers = ({ workspace, workspaceUsers }: Props) => {
       queryClient.invalidateQueries({
         queryKey: getWorkspaceUsersQueryKey(workspace.namespace),
       });
-      toast.success(`Invited ${data.email}`);
+      toast.success(
+        `Invited ${data.email}, this user needs to login to accept the invite.`,
+      );
     },
   });
 
@@ -222,7 +224,7 @@ const WorkspaceUsers = ({ workspace, workspaceUsers }: Props) => {
               <div className="flex gap-2">
                 {workspaceUserInviteForm.formState.isSubmitting ? (
                   <Button disabled={true}>
-                    <Icons.spinner />
+                    <Icons.spinner className="h-6 w-6" />
                   </Button>
                 ) : (
                   <Button type="submit" form="workspace-user-invite">
