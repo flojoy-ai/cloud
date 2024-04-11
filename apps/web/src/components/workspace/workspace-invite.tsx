@@ -14,14 +14,52 @@ import {
 import CopyIdContextMenuItem from "@/components/copy-id-context-menu-item";
 import { Workspace } from "@cloud/shared";
 import { UserInvite } from "@cloud/shared/src/schemas/public/UserInvite";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { client } from "@/lib/client";
+import {
+  getWorkspaceInvitesQueryKey,
+  getWorkspacesQueryKey,
+} from "@/lib/queries/workspace";
 
 type Props = {
   invite: UserInvite & { workspace: Workspace };
 };
 
+type InviteMutation = {
+  workspaceId: string;
+  accept: boolean;
+};
+
 export default function WorkspaceInvite({ invite }: Props) {
-  function onJoin() {}
-  function onDecline() {}
+  const queryClient = useQueryClient();
+
+  const inviteMutation = useMutation({
+    mutationFn: async (values: InviteMutation) => {
+      await client.workspace.invite.patch(values);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: getWorkspacesQueryKey(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: getWorkspaceInvitesQueryKey(),
+      });
+    },
+  });
+
+  function onJoin() {
+    inviteMutation.mutateAsync({
+      workspaceId: invite.workspace.id,
+      accept: true,
+    });
+  }
+
+  function onDecline() {
+    inviteMutation.mutateAsync({
+      workspaceId: invite.workspace.id,
+      accept: false,
+    });
+  }
 
   return (
     <ContextMenu>
