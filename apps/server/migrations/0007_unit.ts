@@ -32,9 +32,6 @@ export async function up(db: Kysely<unknown>): Promise<void> {
 
   await db.schema
     .createTable("unit_relation")
-    .addColumn("workspace_id", "text", (col) =>
-      col.notNull().references("workspace.id").onDelete("cascade"),
-    )
     .addColumn("parent_unit_id", "text", (col) =>
       col.notNull().references("unit.id").onDelete("cascade"),
     )
