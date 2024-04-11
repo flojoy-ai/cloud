@@ -7,6 +7,9 @@ import {
 } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import CenterLoadingSpinner from "@/components/center-loading-spinner";
+import { WorkspaceUserProvider } from "@/context/workspace-user";
+import { getWorkspaceUserQueryOpts } from "@/lib/queries/user";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_protected/workspace/$namespace")({
   component: Page,
@@ -31,8 +34,20 @@ export const Route = createFileRoute("/_protected/workspace/$namespace")({
     );
     return { workspace };
   },
+  loader: ({ context }) => {
+    context.queryClient.ensureQueryData(getWorkspaceUserQueryOpts({ context }));
+  },
 });
 
 function Page() {
-  return <Outlet />;
+  const context = Route.useRouteContext();
+  const { data: workspaceUser } = useSuspenseQuery(
+    getWorkspaceUserQueryOpts({ context }),
+  );
+
+  return (
+    <WorkspaceUserProvider workspaceUser={workspaceUser}>
+      <Outlet />
+    </WorkspaceUserProvider>
+  );
 }
