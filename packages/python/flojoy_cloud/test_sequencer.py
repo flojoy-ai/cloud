@@ -27,8 +27,6 @@ __all__ = [
 def export(data: MeasurementData):
     """Export data so it can be retrieved by the test sequencer"""
     output_dir, prefix_file = __get_location()
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
     if isinstance(data, pd.DataFrame):
         data.to_csv(os.path.join(output_dir, prefix_file + DATAFRAME))
     elif isinstance(data, bool):
@@ -80,8 +78,6 @@ def _set_min_max(
      - The use of `_set_output_loc` prior to calling this is highly recommended.
     """
     output_dir, postfix_file = __get_location()
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
     min_max_file = os.path.join(output_dir, f"min_{postfix_file}.json")
     data = {"min": min_val, "max": max_val}
     with open(min_max_file, "w") as f:
@@ -153,8 +149,11 @@ FLOAT = "_float.txt"
 def __get_location():
     output_dir = DEFAULT_PATH
     prefix_file = os.environ.get(OPTIONAL_NAME_ENV)
+    output_dir = os.path.join(output_dir, f"{prefix_file}/")
     if prefix_file is None:
         prefix_file = DEFAULT_NAME
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
     return output_dir, prefix_file
 
