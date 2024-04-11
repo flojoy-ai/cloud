@@ -13,11 +13,11 @@ export default interface PartVariationRelationTable {
   /** Database type: pg_catalog.text */
   childPartVariationId: ColumnType<PartVariationId, PartVariationId, PartVariationId>;
 
-  /** Database type: pg_catalog.text */
-  workspaceId: ColumnType<WorkspaceId, WorkspaceId, WorkspaceId>;
-
   /** Database type: pg_catalog.int4 */
   count: ColumnType<number, number, number>;
+
+  /** Database type: pg_catalog.text */
+  workspaceId: ColumnType<WorkspaceId, WorkspaceId, WorkspaceId>;
 }
 
 export type PartVariationRelation = Selectable<PartVariationRelationTable>;
