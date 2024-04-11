@@ -119,30 +119,30 @@ def test_export_float():
 def test_min_value_expected():
     test_sequencer._set_min_max(10, None)
 
-    test_sequencer.assert_greater_than_min(11)
+    assert test_sequencer.is_in_range(11)
     with pytest.raises(Exception):
-        test_sequencer.assert_greater_than_min(10)
+        assert test_sequencer.is_in_range(9.8)
 
 
 def test_max_value_expected():
     test_sequencer._set_min_max(None, 10)
 
-    test_sequencer.assert_less_than_max(9)
+    assert test_sequencer.is_in_range(9)
     with pytest.raises(Exception):
-        test_sequencer.assert_less_than_max(10)
+        assert test_sequencer.is_in_range(11)
 
 
 def test_min_max_value_expected():
     test_sequencer._set_min_max(10, 15)
 
-    test_sequencer.assert_in_range(11)
-    test_sequencer.assert_in_range(14.99)
+    assert test_sequencer.is_in_range(11)
+    assert test_sequencer.is_in_range(14.99)
     with pytest.raises(Exception):
-        test_sequencer.assert_in_range(15.001)
+        assert test_sequencer.is_in_range(15.001)
 
 
 def test_min_max_setter():
-    test_id = f"my_test_id_{randint(0,1000)}"
+    test_id = f"my_test_id_{randint(0, 1000)}"
     test_sequencer._set_output_loc(test_id)
     test_sequencer._set_min_max(10, 15)
 
