@@ -80,7 +80,7 @@ function DeleteWorkspaceUser({ row }: { row: Row<WorkspaceUserWithUser> }) {
   const queryClient = useQueryClient();
   const deleteUserMutation = useMutation({
     mutationFn: async (userId: string) => {
-      await client.workspace.user.delete(
+      await client.workspace.user.index.delete(
         { userId },
         { headers: { "flojoy-workspace-id": row.original.workspaceId } },
       );
