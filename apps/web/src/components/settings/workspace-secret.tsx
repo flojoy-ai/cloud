@@ -15,7 +15,7 @@ import { getSecretQueryKey } from "@/lib/queries/secret";
 import { UserSession } from "@cloud/shared/src/schemas/public/UserSession";
 import { Input } from "../ui/input";
 import { toast } from "sonner";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Icons } from "../icons";
 
 type Props = {
@@ -25,6 +25,7 @@ type Props = {
 
 const WorkspaceSecret = ({ workspace, secret }: Props) => {
   const queryClient = useQueryClient();
+  const passwordRef = useRef<HTMLInputElement>(null);
   const generateSecret = useMutation({
     mutationFn: async () => {
       await client.secret.index.post(
@@ -77,14 +78,30 @@ const WorkspaceSecret = ({ workspace, secret }: Props) => {
           <CardDescription>
             This is used to authenticate Flojoy Studio with your cloud
             workspace.
+            <br /> If you click &quot;Regenerate&quot;, the old secret will be
+            invalidated.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex gap-2">
           <Input
-            placeholder={secret?.id ?? "Loading..."}
+            ref={passwordRef}
+            value={secret?.id ?? "Loading..."}
+            type="password"
             disabled
             data-1p-ignore
           />
+          <Button
+            variant="secondary"
+            id="togglePassword"
+            onClick={() => {
+              const input = passwordRef.current;
+              if (input) {
+                input.type = input.type === "password" ? "text" : "password";
+              }
+            }}
+          >
+            👁️
+          </Button>
         </CardContent>
         <CardFooter className="space-x-4 border-t px-6 py-4">
           <Button onClick={handleGenerate} disabled={!secret}>
