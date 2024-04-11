@@ -1,4 +1,6 @@
 import { t, Static } from "elysia";
+import { WorkspaceUser } from "../schemas/public/WorkspaceUser";
+import { User } from "../schemas/public/User";
 
 export type { Workspace } from "../schemas/public/Workspace";
 export type { WorkspaceUser } from "../schemas/public/WorkspaceUser";
@@ -45,3 +47,5 @@ export const workspaceUserInvite = t.Object({
 });
 
 export type WorkspaceUserInvite = Static<typeof workspaceUserInvite>;
+
+export type WorkspaceUserWithUser = WorkspaceUser & { user: User };
