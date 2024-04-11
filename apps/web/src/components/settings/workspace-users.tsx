@@ -139,7 +139,7 @@ const WorkspaceUsers = ({ workspace, workspaceUsers }: Props) => {
 
   const workspaceUserInviteMutation = useMutation({
     mutationFn: async (values: WorkspaceUserInvite) => {
-      const { data, error } = await client.workspace.invite.post(values, {
+      const { data, error } = await client.workspace.invite.index.post(values, {
         headers: { "flojoy-workspace-id": workspace.id },
       });
       if (error) {
