@@ -1,6 +1,5 @@
 import { Result, ok } from "neverthrow";
-import { WorkspaceUser } from "@cloud/shared";
-import { Perm, workspaceRoleToPerm } from "../perm";
+import { WorkspaceUser, Perm, workspaceRoleToPerm } from "@cloud/shared";
 
 type GetWorkspacePermParams = {
   workspaceUser: WorkspaceUser;
