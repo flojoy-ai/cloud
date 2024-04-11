@@ -35,7 +35,7 @@ export default function WorkspaceInvite({ invite }: Props) {
 
   const inviteMutation = useMutation({
     mutationFn: async (values: InviteMutation) => {
-      await client.workspace.invite.patch(values);
+      await client.workspace.invite.index.patch(values);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({

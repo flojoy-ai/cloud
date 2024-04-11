@@ -56,11 +56,13 @@ export function getWorkspaceUsersQueryOpts({
 }: getWorkspaceUsersProps) {
   return queryOptions({
     queryFn: async () => {
-      const { data: workspaces, error } = await client.workspace.user.get({
-        headers: {
-          "flojoy-workspace-id": context.workspace.id,
+      const { data: workspaces, error } = await client.workspace.user.index.get(
+        {
+          headers: {
+            "flojoy-workspace-id": context.workspace.id,
+          },
         },
-      });
+      );
       if (error) throw error.value;
       return workspaces;
     },
@@ -75,7 +77,8 @@ export function getWorkspaceInvitesQueryKey() {
 export function getWorkspaceInvitesQueryOpts() {
   return queryOptions({
     queryFn: async () => {
-      const { data: workspaces, error } = await client.workspace.invite.get();
+      const { data: workspaces, error } =
+        await client.workspace.invite.index.get();
       if (error) throw error.value;
       return workspaces;
     },
