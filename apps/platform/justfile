@@ -1,5 +1,0 @@
-branch := `git branch --show-current`
-
-env:
-  bun run vercel env pull --environment=preview --git-branch={{branch}}
-
