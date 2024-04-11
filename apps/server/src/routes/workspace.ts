@@ -181,6 +181,44 @@ export const WorkspaceRoute = new Elysia({
       .$narrowType<{ workspace: Workspace }>()
       .execute();
   })
+  .patch(
+    "/invite",
+    async ({ authMethod, user, body: { accept, workspaceId } }) => {
+      if (authMethod === "secret") {
+        return error("I'm a teapot");
+      }
+
+      await db.transaction().execute(async (tx) => {
+        const invite = await tx
+          .deleteFrom("user_invite as uv")
+          .where("uv.workspaceId", "=", workspaceId)
+          .where("uv.email", "=", user.email)
+          .returningAll()
+          .executeTakeFirstOrThrow(
+            () => new InternalServerError("Failed to find invite"),
+          );
+
+        if (!accept) {
+          return;
+        }
+
+        await tx
+          .insertInto("workspace_user")
+          .values({
+            workspaceId,
+            userId: user.id,
+            role: invite.role,
+          })
+          .execute();
+      });
+    },
+    {
+      body: t.Object({
+        workspaceId: t.String(),
+        accept: t.Boolean(),
+      }),
+    },
+  )
   .use(WorkspaceMiddleware)
   .get(
     "/user",
@@ -230,6 +268,7 @@ export const WorkspaceRoute = new Elysia({
         .selectFrom("workspace_user as wu")
         .selectAll("wu")
         .where("wu.userId", "=", userId)
+        .where("wu.workspaceId", "=", workspaceUser.workspaceId)
         .executeTakeFirstOrThrow(
           () => new InternalServerError("Failed to find user"),
         );
