@@ -16,14 +16,11 @@ export class Perm {
       case "admin":
       case "owner":
         return true;
-      case "pending":
-        return false;
     }
   }
 
   canWrite(): boolean {
     switch (this._permission) {
-      case "pending":
       case "read":
         return false;
       case "write":
@@ -34,7 +31,6 @@ export class Perm {
   }
   canAdmin(): boolean {
     switch (this._permission) {
-      case "pending":
       case "read":
       case "write":
         return false;
@@ -42,9 +38,6 @@ export class Perm {
       case "owner":
         return true;
     }
-  }
-  isPending(): boolean {
-    return this._permission === "pending";
   }
   isOwner(): boolean {
     return this._permission === "owner";
@@ -61,9 +54,6 @@ export function workspaceRoleToPerm(workspaceRole: WorkspaceRole): Permission {
 
     case "member":
       return "read" satisfies Permission;
-
-    case "pending":
-      return "pending" satisfies Permission;
   }
 }
 
@@ -74,8 +64,5 @@ export function projectRoleToPerm(projectRole: ProjectRole): Permission {
 
     case "dev":
       return "write" satisfies Permission;
-
-    case "pending":
-      return "pending" satisfies Permission;
   }
 }
