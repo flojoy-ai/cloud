@@ -102,6 +102,21 @@ export const WorkspaceRoute = new Elysia({
             return error("I'm a teapot");
           }
 
+          const existingUser = await db
+            .selectFrom("user as u")
+            .where("u.email", "=", email)
+            .innerJoin("workspace_user as wu", (join) =>
+              join
+                .onRef("wu.userId", "=", "u.id")
+                .on("wu.workspaceId", "=", workspaceUser.workspaceId),
+            )
+            .selectAll("wu")
+            .executeTakeFirst();
+
+          if (existingUser) {
+            return error(400, "User already exists in workspace");
+          }
+
           await db
             .deleteFrom("user_invite")
             .where("email", "=", email)
