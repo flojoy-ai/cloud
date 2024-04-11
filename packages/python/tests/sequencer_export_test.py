@@ -5,7 +5,6 @@ import pandas as pd
 import os
 import shutil
 import pytest
-import pytest
 
 
 def test_no_output():
