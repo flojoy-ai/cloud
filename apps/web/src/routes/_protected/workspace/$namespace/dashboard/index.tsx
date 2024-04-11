@@ -6,7 +6,7 @@ import {
   getGlobalMetricsUserTimeSeriesQueryOpts,
 } from "@/lib/queries/metrics";
 import { getProjectsQueryOpts } from "@/lib/queries/project";
-import { Project, TimePeriod } from "@cloud/shared";
+import { TimePeriod } from "@cloud/shared";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";

@@ -1,3 +1,5 @@
+import _ from "lodash";
+
 export const median = (arr: number[]) => {
   const mid = Math.floor(arr.length / 2),
     nums = [...arr].sort((a, b) => a - b);
@@ -10,7 +12,13 @@ export const mode = (arr: number[]) => {
     new Map<number, number>(),
   );
   const max = Math.max(...freq.values());
-  return [...freq.keys()].filter((key) => freq.get(key) === max);
+  if (max === 1) {
+    return undefined;
+  }
+  return _.take(
+    [...freq.keys()].filter((key) => freq.get(key) === max),
+    3,
+  );
 };
 
 export const prefixSum = (arr: number[]) => {

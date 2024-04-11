@@ -1,6 +1,11 @@
 import { Kysely } from "kysely";
 import { generateDatabaseId } from "../lib/db-utils";
-import { DB, InsertTest } from "@cloud/shared";
+import {
+  DB,
+  InsertTest,
+  MeasurementData,
+  measurementData,
+} from "@cloud/shared";
 import { err, ok } from "neverthrow";
 
 export async function createTest(db: Kysely<DB>, input: InsertTest) {
@@ -20,12 +25,21 @@ export async function createTest(db: Kysely<DB>, input: InsertTest) {
   return ok(test);
 }
 
-export async function getTest(db: Kysely<DB>, test: string) {
+export async function getTest(db: Kysely<DB>, testId: string) {
   return await db
     .selectFrom("test")
-    .selectAll("test")
-    .where("test.id", "=", test)
+    .selectAll()
+    .where("test.id", "=", testId)
     .executeTakeFirst();
+}
+
+export async function getTestMeasurements(db: Kysely<DB>, testId: string) {
+  return await db
+    .selectFrom("measurement")
+    .selectAll()
+    .where("testId", "=", testId)
+    .$narrowType<{ data: MeasurementData }>()
+    .execute();
 }
 
 export async function getTestByName(db: Kysely<DB>, name: string) {

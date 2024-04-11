@@ -6,9 +6,8 @@ import { BadRequestError, NotFoundError } from "../lib/error";
 import { median, mode } from "../lib/stats";
 import { countWhere } from "../lib/utils";
 import { db } from "./kysely";
-import { getTestMeasurements } from "./measurement";
 import { withStatus } from "./session";
-import { getTest } from "./test";
+import { getTestMeasurements, getTest } from "./test";
 
 export function workspaceCounter(
   workspaceId: string,
@@ -325,17 +324,6 @@ export async function testYield(projectId: string) {
 
 export async function getProjectMetrics(projectId: string) {
   return {
-    // testSessionCount: 0,
-    // unitCount: 0,
-    // meanSessionsPerUnit: 0,
-    // sessionPassedCount: 0,
-    // sessionFailedCount: 0,
-    // sessionAbortedCount: 0,
-    // meanCycleTime: 0,
-    // meanSessionTime: 0,
-    // totalFailedTestTime: 0,
-    // firstPassYield: 0,
-    // testYield: 0,
     testSessionCount: await projectCount("session", projectId),
     unitCount: await projectCount("project_unit", projectId),
     meanSessionsPerUnit: await projectMeanTestSessions(projectId),

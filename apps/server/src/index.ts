@@ -20,6 +20,7 @@ import { AuthEntraRoute } from "./routes/auth/entra";
 import { SessionRoute } from "./routes/session";
 import { SecretRoute } from "./routes/secret";
 import { MetricsRoute } from "./routes/metrics";
+import { TestRoute } from "./routes/test";
 
 const encoder = new TextEncoder();
 
@@ -96,6 +97,7 @@ const app = new Elysia()
   .use(WorkspaceRoute)
   .use(SecretRoute)
   .use(ProjectRoute)
+  .use(TestRoute)
   .use(SearchRoute)
   .use(ProductRoute)
   .use(PartRoute)

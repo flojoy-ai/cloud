@@ -1,6 +1,6 @@
 import { fromPromise } from "neverthrow";
 import { db } from "../db/kysely";
-import { createProject } from "../db/project";
+import { createProject, getProject } from "../db/project";
 import { checkProjectPerm } from "../lib/perm/project";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
 import { CreateProjectSchema } from "@cloud/shared";
@@ -98,12 +98,8 @@ export const ProjectRoute = new Elysia({
   )
   .get(
     "/:projectId",
-    async ({ params }) => {
-      const project = await db
-        .selectFrom("project as p")
-        .selectAll()
-        .where("p.id", "=", params.projectId)
-        .executeTakeFirst();
+    async ({ params: { projectId } }) => {
+      const project = await getProject(db, projectId);
 
       if (!project) {
         return error(404, "project not found or you do not have access");
