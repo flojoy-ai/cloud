@@ -171,7 +171,7 @@ export const ProjectRoute = new Elysia({
       )
       .delete(
         "/",
-        async ({  authMethod, params: { projectId } }) => {
+        async ({ authMethod, params: { projectId } }) => {
           if (authMethod === "secret") {
             return error("I'm a teapot");
           }
