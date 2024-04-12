@@ -52,6 +52,7 @@ import {
 import { Trash2 } from "lucide-react";
 import { client } from "@/lib/client";
 import { useAuth } from "@/hooks/use-auth";
+import { useWorkspaceUser } from "@/hooks/use-workspace-user";
 
 type Props = {
   workspace: Workspace;
@@ -90,8 +91,13 @@ function DeleteWorkspaceUser({ row }: { row: Row<WorkspaceUserWithUser> }) {
     },
   });
 
+  const { workspaceUserPerm } = useWorkspaceUser();
   const { user } = useAuth();
-  if (user?.id === row.original.userId || row.original.role === "owner") {
+  if (
+    user?.id === row.original.userId ||
+    row.original.role === "owner" ||
+    !workspaceUserPerm.canAdmin()
+  ) {
     // no reason to delete urself
     return null;
   }
