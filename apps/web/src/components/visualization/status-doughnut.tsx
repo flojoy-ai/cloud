@@ -20,7 +20,7 @@ export const StatusDoughnut = ({
           datasets: [
             {
               data: [passed, failed, aborted],
-              backgroundColor: ["green", "red", "blue"],
+              backgroundColor: ["#4ade80", "#f87171", "#94a3b8"],
             },
           ],
           labels: ["Passed", "Failed", "Aborted"],
