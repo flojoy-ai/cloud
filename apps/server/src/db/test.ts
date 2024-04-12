@@ -1,12 +1,7 @@
+import { DB, InsertTest, MeasurementData } from "@cloud/shared";
 import { Kysely } from "kysely";
-import { generateDatabaseId } from "../lib/db-utils";
-import {
-  DB,
-  InsertTest,
-  MeasurementData,
-  measurementData,
-} from "@cloud/shared";
 import { err, ok } from "neverthrow";
+import { generateDatabaseId } from "../lib/db-utils";
 
 export async function createTest(db: Kysely<DB>, input: InsertTest) {
   const test = await db

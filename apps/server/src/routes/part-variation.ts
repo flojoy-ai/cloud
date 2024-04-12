@@ -1,14 +1,13 @@
-import { db } from "../db/kysely";
+import { insertPartVariation } from "@cloud/shared";
 import Elysia, { t } from "elysia";
+import { db } from "../db/kysely";
 import {
   createPartVariation,
   getPartVariationTree,
 } from "../db/part-variation";
-import { PartVariation, insertPartVariation } from "@cloud/shared";
-import { WorkspaceMiddleware } from "../middlewares/workspace";
-import { jsonObjectFrom } from "kysely/helpers/postgres";
-import { checkWorkspacePerm } from "../lib/perm/workspace";
 import { withUnitParent } from "../db/unit";
+import { checkWorkspacePerm } from "../lib/perm/workspace";
+import { WorkspaceMiddleware } from "../middlewares/workspace";
 
 export const PartVariationRoute = new Elysia({
   prefix: "/partVariation",

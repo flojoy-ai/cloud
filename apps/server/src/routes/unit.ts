@@ -1,22 +1,19 @@
-import {
-  createUnit,
-  doUnitComponentSwap,
-  getUnit,
-  getUnitRevisions,
-  getUnitTree,
-  notInUse,
-  withUnitParent,
-  withUnitPartVariation,
-} from "../db/unit";
-import { db } from "../db/kysely";
-import { WorkspaceMiddleware } from "../middlewares/workspace";
-import { insertUnit, swapUnitComponent } from "@cloud/shared";
-import { PartVariation } from "@cloud/shared";
-import { queryBool } from "@cloud/shared";
+import { PartVariation, insertUnit, queryBool, swapUnitComponent } from "@cloud/shared";
 import { Elysia, error, t } from "elysia";
-import { jsonObjectFrom } from "kysely/helpers/postgres";
-import { checkWorkspacePerm } from "../lib/perm/workspace";
+import { db } from "../db/kysely";
+import {
+    createUnit,
+    doUnitComponentSwap,
+    getUnit,
+    getUnitRevisions,
+    getUnitTree,
+    notInUse,
+    withUnitParent,
+    withUnitPartVariation,
+} from "../db/unit";
 import { checkUnitPerm } from "../lib/perm/unit";
+import { checkWorkspacePerm } from "../lib/perm/workspace";
+import { WorkspaceMiddleware } from "../middlewares/workspace";
 
 export const UnitRoute = new Elysia({ prefix: "/unit", name: "UnitRoute" })
   .use(WorkspaceMiddleware)

@@ -1,9 +1,7 @@
 import { DB, TimePeriod } from "@cloud/shared";
 import { sql } from "kysely";
-import { countWhere } from "../lib/utils";
 import { db } from "./kysely";
 import { withStatus, withStatusUnaliased } from "./session";
-import { prefixSum } from "../lib/stats";
 
 export function workspaceCounter(
   workspaceId: string,
