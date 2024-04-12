@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/form";
 
 import {
+  Perm,
   ProjectUserWithUser,
   Workspace,
   WorkspaceUserInvite,
@@ -55,6 +56,9 @@ import { client } from "@/lib/client";
 type Props = {
   workspace: Workspace;
   projectUsers: ProjectUserWithUser[];
+
+  workspacePerm: Perm;
+  projectPerm: Perm;
 };
 
 const columns: ColumnDef<ProjectUserWithUser>[] = [
@@ -155,11 +159,12 @@ const ProjectUsers = ({ workspace, projectUsers }: Props) => {
     <div>
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl">Workspace Users</CardTitle>
+          <CardTitle className="text-xl">Production Line Users</CardTitle>
           <CardDescription>
-            Here you can manage all the users in your workspace.
+            Here you can manage all the users in this production line.
           </CardDescription>
         </CardHeader>
+
         <CardContent>
           <Form {...workspaceUserInviteForm}>
             <form
@@ -218,7 +223,7 @@ const ProjectUsers = ({ workspace, projectUsers }: Props) => {
                   </Button>
                 ) : (
                   <Button type="submit" form="workspace-user-invite">
-                    Invite
+                    Add
                   </Button>
                 )}
               </div>

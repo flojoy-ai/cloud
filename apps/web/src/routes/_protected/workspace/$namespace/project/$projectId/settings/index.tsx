@@ -43,13 +43,20 @@ function Page() {
       {tab === "general" && (
         <ProjectGeneral
           workspace={workspace}
+          // FIXME: use the right perm
           workspacePerm={workspacePerm}
           projectPerm={workspacePerm}
           project={project}
         />
       )}
       {tab === "users" && (
-        <ProjectUsers workspace={workspace} projectUsers={projectUsers} />
+        <ProjectUsers
+          workspace={workspace}
+          projectUsers={projectUsers}
+          // FIXME: use the right perm
+          workspacePerm={workspacePerm}
+          projectPerm={workspacePerm}
+        />
       )}
     </div>
   );
