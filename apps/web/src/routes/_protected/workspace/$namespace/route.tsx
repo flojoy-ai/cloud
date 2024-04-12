@@ -1,5 +1,8 @@
 import { Link, Outlet, createFileRoute } from "@tanstack/react-router";
-import { getWorkspaceQueryOpts } from "@/lib/queries/workspace";
+import {
+  getWorkspaceQueryOpts,
+  getWorkspacesQueryOpts,
+} from "@/lib/queries/workspace";
 import {
   PageHeader,
   PageHeaderDescription,
@@ -10,6 +13,7 @@ import CenterLoadingSpinner from "@/components/center-loading-spinner";
 import { WorkspaceUserProvider } from "@/context/workspace-user";
 import { getWorkspaceUserQueryOpts } from "@/lib/queries/user";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { ProtectedHeader } from "@/components/navbar/protected-header";
 
 export const Route = createFileRoute("/_protected/workspace/$namespace")({
   component: Page,
@@ -38,11 +42,16 @@ export const Route = createFileRoute("/_protected/workspace/$namespace")({
     return { workspace };
   },
   loader: ({ context }) => {
+    context.queryClient.ensureQueryData(getWorkspacesQueryOpts());
+
     context.queryClient.ensureQueryData(getWorkspaceUserQueryOpts({ context }));
   },
 });
 
 function Page() {
+  const workspacesQuery = useSuspenseQuery(getWorkspacesQueryOpts());
+  const { data: workspaces } = workspacesQuery;
+
   const context = Route.useRouteContext();
   const { data: workspaceUser } = useSuspenseQuery(
     getWorkspaceUserQueryOpts({ context }),
@@ -50,6 +59,7 @@ function Page() {
 
   return (
     <WorkspaceUserProvider workspaceUser={workspaceUser}>
+      <ProtectedHeader workspaces={workspaces} workspaceUser={workspaceUser} />
       <Outlet />
     </WorkspaceUserProvider>
   );

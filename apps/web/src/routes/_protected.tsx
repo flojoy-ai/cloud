@@ -1,6 +1,4 @@
 import CenterLoadingSpinner from "@/components/center-loading-spinner";
-import { ProtectedHeader } from "@/components/navbar/protected-header";
-import { getWorkspacesQueryOpts } from "@/lib/queries/workspace";
 import {
   Navigate,
   Outlet,
@@ -17,7 +15,6 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/_protected")({
   component: Protected,
   loader: ({ context }) => {
-    context.queryClient.ensureQueryData(getWorkspacesQueryOpts());
     context.queryClient.ensureQueryData(getWorkspaceInvitesQueryOpts());
   },
   pendingComponent: CenterLoadingSpinner,
@@ -25,9 +22,6 @@ export const Route = createFileRoute("/_protected")({
 });
 
 function Protected() {
-  const workspacesQuery = useSuspenseQuery(getWorkspacesQueryOpts());
-  const { data: workspaces } = workspacesQuery;
-
   const { data: invites } = useSuspenseQuery(getWorkspaceInvitesQueryOpts());
 
   const matchRoute = useMatchRoute();
@@ -56,10 +50,5 @@ function Protected() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return (
-    <div>
-      <ProtectedHeader workspaces={workspaces} />
-      <Outlet />
-    </div>
-  );
+  return <Outlet />;
 }
