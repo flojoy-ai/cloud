@@ -8,6 +8,7 @@ import { PartVariation, insertPartVariation } from "@cloud/shared";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
 import { jsonObjectFrom } from "kysely/helpers/postgres";
 import { checkWorkspacePerm } from "../lib/perm/workspace";
+import { withUnitParent } from "../db/unit";
 
 export const PartVariationRoute = new Elysia({
   prefix: "/partVariation",
@@ -85,28 +86,7 @@ export const PartVariationRoute = new Elysia({
             .selectAll("unit")
             .where("unit.workspaceId", "=", workspace.id)
             .where("unit.partVariationId", "=", partVariationId)
-            .leftJoin("unit_relation", "unit.id", "unit_relation.childUnitId")
-            .select((eb) =>
-              jsonObjectFrom(
-                eb
-                  .selectFrom("unit as h")
-                  .selectAll("h")
-                  .select((eb) =>
-                    jsonObjectFrom(
-                      eb
-                        .selectFrom("part_variation")
-                        .selectAll("part_variation")
-                        .whereRef(
-                          "part_variation.id",
-                          "=",
-                          "h.partVariationId",
-                        ),
-                    ).as("partVariation"),
-                  )
-                  .$narrowType<{ partVariation: PartVariation }>()
-                  .whereRef("h.id", "=", "unit_relation.parentUnitId"),
-              ).as("parent"),
-            )
+            .select((eb) => withUnitParent(eb))
             .execute();
 
           return partVariations;

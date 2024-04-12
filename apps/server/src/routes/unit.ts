@@ -5,6 +5,7 @@ import {
   getUnitRevisions,
   getUnitTree,
   notInUse,
+  withUnitParent,
   withUnitPartVariation,
 } from "../db/unit";
 import { db } from "../db/kysely";
@@ -82,33 +83,11 @@ export const UnitRoute = new Elysia({ prefix: "/unit", name: "UnitRoute" })
             .selectAll("unit")
             .where("id", "=", unitId)
             .where("workspaceId", "=", workspace.id)
-            .select((eb) => withUnitPartVariation(eb))
-            .leftJoin("unit_relation", "unit.id", "unit_relation.childUnitId")
-            .select((eb) =>
-              jsonObjectFrom(
-                eb
-                  .selectFrom("unit as h")
-                  .selectAll("h")
-                  .select((eb) =>
-                    jsonObjectFrom(
-                      eb
-                        .selectFrom("part_variation")
-                        .selectAll("part_variation")
-                        .whereRef(
-                          "part_variation.id",
-                          "=",
-                          "h.partVariationId",
-                        ),
-                    ).as("partVariation"),
-                  )
-                  .$narrowType<{ partVariation: PartVariation }>()
-                  .whereRef("h.id", "=", "unit_relation.parentUnitId"),
-              ).as("parent"),
-            )
+            .select((eb) => [withUnitPartVariation(eb), withUnitParent(eb)])
             .$narrowType<{ partVariation: PartVariation }>()
             .executeTakeFirst();
           if (unit === undefined) {
-            return error(404, "PartVariation not found");
+            return error(404, "Unit not found");
           }
 
           return await getUnitTree(unit);
