@@ -49,7 +49,7 @@ type Props = {
 
 const ProjectGeneral = ({
   workspace,
-  workspacePerm: workspacePerm,
+  workspacePerm,
   projectPerm,
   project,
 }: Props) => {
