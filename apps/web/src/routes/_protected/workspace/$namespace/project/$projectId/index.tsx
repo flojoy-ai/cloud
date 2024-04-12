@@ -27,6 +27,7 @@ import { DataTable } from "@/components/ui/data-table";
 import { columns } from "@/components/station/columns";
 import { getPartVariationQueryOpts } from "@/lib/queries/part-variation";
 import CenterLoadingSpinner from "@/components/center-loading-spinner";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/project/$projectId/",
@@ -106,6 +107,15 @@ function Page() {
           <DataTable columns={columns} data={stations} />
         </div>
         <div className="col-span-1">
+          <Button className="w-full" variant="secondary" asChild>
+            <Link
+              from={Route.fullPath}
+              to={"/workspace/$namespace/project/$projectId/settings"}
+            >
+              Settings
+            </Link>
+          </Button>
+          <div className="py-2"></div>
           <Card>
             <CardHeader>
               <CardTitle>{partVariation.partNumber}</CardTitle>
