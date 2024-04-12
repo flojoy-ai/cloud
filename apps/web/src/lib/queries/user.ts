@@ -40,3 +40,32 @@ export function getWorkspaceUserQueryOpts({ context }: getWorkspaceUserProps) {
     queryKey: getWorkspaceUserQueryKey(context.workspace.id),
   });
 }
+
+type getProjectUserProps = {
+  projectId: string;
+  context: {
+    workspace: Workspace;
+  };
+};
+
+export function getProjectUserQueryKey(projectId: string) {
+  return ["user", "project", projectId];
+}
+
+export function getProjectUserQueryOpts({
+  context,
+  projectId,
+}: getProjectUserProps) {
+  return queryOptions({
+    queryFn: async () => {
+      const { data: user, error } = await client.user
+        .project({ projectId })
+        .get({
+          headers: { "flojoy-workspace-id": context.workspace.id },
+        });
+      if (error) throw error.value;
+      return user;
+    },
+    queryKey: getProjectUserQueryKey(context.workspace.id),
+  });
+}
