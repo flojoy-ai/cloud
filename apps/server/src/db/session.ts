@@ -30,7 +30,6 @@ export async function getSessionsByUnitId(
         .onRef("pu.projectId", "=", "session.projectId")
         .on("pu.userId", "=", workspaceUser.userId),
     )
-    .where("pu.role", "!=", "pending")
     .select((eb) => withStatus(eb))
     .where("session.unitId", "=", unitId)
     .execute();

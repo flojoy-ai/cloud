@@ -38,7 +38,6 @@ export const roleType = t.Union([
   t.Literal("owner"),
   t.Literal("admin"),
   t.Literal("member"),
-  t.Literal("pending"),
 ]);
 
 export const workspaceUserInvite = t.Object({
