@@ -18,6 +18,8 @@ import {
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { projectSettingsTabSchema } from "@/types/setting";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { getProjectQueryOpts } from "@/lib/queries/project";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/project/$projectId/settings",
@@ -30,8 +32,11 @@ export const Route = createFileRoute(
 
 function Page() {
   const context = Route.useRouteContext();
-  const { workspace, project } = context;
+  const { workspace } = context;
   const { tab } = Route.useSearch();
+  const { data: project } = useSuspenseQuery(
+    getProjectQueryOpts({ projectId: context.project.id, context }),
+  );
 
   return (
     <div className="container max-w-screen-2xl">

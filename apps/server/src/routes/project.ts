@@ -3,7 +3,12 @@ import { db } from "../db/kysely";
 import { createProject } from "../db/project";
 import { checkProjectPerm } from "../lib/perm/project";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
-import { CreateProjectSchema, Perm, projectRoleToPerm } from "@cloud/shared";
+import {
+  CreateProjectSchema,
+  Perm,
+  UpdateProjectSchema,
+  projectRoleToPerm,
+} from "@cloud/shared";
 import { Elysia, InternalServerError, error, t } from "elysia";
 import { DatabaseError } from "pg";
 import { checkWorkspacePerm } from "../lib/perm/workspace";
@@ -129,6 +134,73 @@ export const ProjectRoute = new Elysia({
           },
         },
       )
+      .patch(
+        "/",
+        async ({ body, authMethod, params: { projectId } }) => {
+          if (authMethod === "secret") {
+            return error("I'm a teapot");
+          }
+
+          const project = await db
+            .updateTable("project")
+            .set({
+              ...body,
+            })
+            .where("project.id", "=", projectId)
+            .returningAll()
+            .executeTakeFirstOrThrow(
+              () => new InternalServerError("Failed to update production line"),
+            );
+
+          return project;
+        },
+        {
+          body: UpdateProjectSchema,
+          async beforeHandle({ workspaceUser, params }) {
+            const perm = await checkProjectPerm({
+              projectId: params.projectId,
+              workspaceUser,
+            });
+
+            return perm.match(
+              (perm) => (perm.canAdmin() ? undefined : error("Forbidden")),
+              (err) => error(403, err),
+            );
+          },
+        },
+      )
+      .delete(
+        "/",
+        async ({  authMethod, params: { projectId } }) => {
+          if (authMethod === "secret") {
+            return error("I'm a teapot");
+          }
+
+          const project = await db
+            .deleteFrom("project")
+            .where("project.id", "=", projectId)
+            .returningAll()
+            .executeTakeFirstOrThrow(
+              () => new InternalServerError("Failed to update production line"),
+            );
+
+          return project;
+        },
+        {
+          async beforeHandle({ workspaceUser, params }) {
+            const perm = await checkProjectPerm({
+              projectId: params.projectId,
+              workspaceUser,
+            });
+
+            return perm.match(
+              (perm) => (perm.canAdmin() ? undefined : error("Forbidden")),
+              (err) => error(403, err),
+            );
+          },
+        },
+      )
+
       .group("/user", (app) =>
         app
           .get(

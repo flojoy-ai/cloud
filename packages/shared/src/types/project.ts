@@ -13,4 +13,10 @@ export const CreateProjectSchema = t.Object({
 
 export type CreateProjectSchema = Static<typeof CreateProjectSchema>;
 
+export const UpdateProjectSchema = t.Object({
+  name: t.String({ minLength: 1 }),
+});
+
+export type UpdateProjectSchema = Static<typeof UpdateProjectSchema>;
+
 export type ProjectUserWithUser = ProjectUser & { user: User };

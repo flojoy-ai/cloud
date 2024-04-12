@@ -32,7 +32,7 @@ function Page() {
 
   const { workspaceUser } = useWorkspaceUser();
 
-  const perm = new Perm(workspaceRoleToPerm(workspaceUser.role));
+  const workspacePerm = new Perm(workspaceRoleToPerm(workspaceUser.role));
 
   const { data: projectUsers } = useSuspenseQuery(
     getProjectUsersQueryOpts({ context, projectId: project.id }),
@@ -41,7 +41,12 @@ function Page() {
   return (
     <div className="">
       {tab === "general" && (
-        <ProjectGeneral workspace={workspace} perm={perm} project={project} />
+        <ProjectGeneral
+          workspace={workspace}
+          workspacePerm={workspacePerm}
+          projectPerm={workspacePerm}
+          project={project}
+        />
       )}
       {tab === "users" && (
         <ProjectUsers workspace={workspace} projectUsers={projectUsers} />

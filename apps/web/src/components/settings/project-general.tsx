@@ -1,4 +1,4 @@
-import { UpdateWorkspace, Workspace, updateWorkspace } from "@cloud/shared";
+import { UpdateProjectSchema, Workspace } from "@cloud/shared";
 
 import {
   Card,
@@ -36,170 +36,133 @@ import { useForm } from "react-hook-form";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { client } from "@/lib/client";
-import {
-  getWorkspaceQueryKey,
-  getWorkspacesQueryKey,
-} from "@/lib/queries/workspace";
 import { Perm } from "@cloud/shared";
 import { Project } from "@cloud/shared/src/schemas/public/Project";
+import { getProjectQueryKey, getProjectsQueryKey } from "@/lib/queries/project";
 
 type Props = {
   workspace: Workspace;
   project: Project;
-  perm: Perm;
+  workspacePerm: Perm;
+  projectPerm: Perm;
 };
 
-const ProjectGeneral = ({ workspace, perm, project }: Props) => {
+const ProjectGeneral = ({
+  workspace,
+  workspacePerm: workspacePerm,
+  projectPerm,
+  project,
+}: Props) => {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const updateWorkspaceForm = useForm<UpdateWorkspace>({
-    resolver: typeboxResolver(updateWorkspace),
+  const updateProjectForm = useForm<UpdateProjectSchema>({
+    resolver: typeboxResolver(UpdateProjectSchema),
     defaultValues: {
-      name: workspace.name,
-      namespace: workspace.namespace,
+      name: project.name,
     },
   });
 
-  const updateWorkspaceMutation = useMutation({
-    mutationFn: async (values: UpdateWorkspace) => {
-      const { data, error } = await client.workspace.index.patch(values, {
-        headers: { "flojoy-workspace-id": workspace.id },
-      });
+  const updateProjectMutation = useMutation({
+    mutationFn: async (values: UpdateProjectSchema) => {
+      const { data, error } = await client
+        .project({ projectId: project.id })
+        .index.patch(values, {
+          headers: { "flojoy-workspace-id": workspace.id },
+        });
       if (error) {
         throw error.value;
       }
       return data;
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: getWorkspacesQueryKey(),
+        queryKey: getProjectQueryKey(project.id),
       });
       queryClient.invalidateQueries({
-        queryKey: getWorkspaceQueryKey(data.namespace),
+        queryKey: getProjectsQueryKey(),
       });
-      router.navigate({
-        to: "/workspace/$namespace/settings/",
-        params: { namespace: data.namespace },
-        search: { tab: "general" },
-      });
-      toast.success("Workspace updated");
+      toast.success("Production line updated");
     },
   });
 
-  function onUpdateWorkspaceFormSubmit(values: UpdateWorkspace) {
-    return updateWorkspaceMutation.mutateAsync(values);
+  function onUpdateProjectFormSubmit(values: UpdateProjectSchema) {
+    return updateProjectMutation.mutateAsync(values);
   }
 
-  const deleteWorkspaceMutation = useMutation({
+  const deleteProjectMutation = useMutation({
     mutationFn: async () => {
-      const { data, error } = await client.workspace.index.delete(
-        {},
-        {
-          headers: { "flojoy-workspace-id": workspace.id },
-        },
-      );
+      const { data, error } = await client
+        .project({ projectId: project.id })
+        .index.delete(
+          {},
+          {
+            headers: { "flojoy-workspace-id": workspace.id },
+          },
+        );
       if (error) {
         throw error.value;
       }
       return data;
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: getWorkspacesQueryKey(),
+        queryKey: getProjectQueryKey(project.id),
       });
       queryClient.invalidateQueries({
-        queryKey: getWorkspaceQueryKey(data.namespace),
+        queryKey: getProjectsQueryKey(),
       });
       router.navigate({
-        to: "/workspace/",
+        to: "/workspace/$namespace/project",
+        params: { namespace: workspace.namespace },
       });
-      toast.success("Workspace deleted");
+      toast.success("Production line deleted");
     },
   });
 
   function onDeleteWorkspaceSubmit() {
-    return deleteWorkspaceMutation.mutateAsync();
+    return deleteProjectMutation.mutateAsync();
   }
 
   return (
     <div className="space-y-4">
-      <Form {...updateWorkspaceForm}>
+      <Form {...updateProjectForm}>
         <form
-          onSubmit={updateWorkspaceForm.handleSubmit(
-            onUpdateWorkspaceFormSubmit,
-          )}
+          onSubmit={updateProjectForm.handleSubmit(onUpdateProjectFormSubmit)}
           className="space-y-8"
         >
           <FormField
-            control={updateWorkspaceForm.control}
+            control={updateProjectForm.control}
             name="name"
             render={({ field }) => (
               <FormItem>
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-xl">Workspace Name</CardTitle>
+                    <CardTitle className="text-xl">
+                      Production Line Name
+                    </CardTitle>
                     <CardDescription>
-                      This is your workspace&apos;s visible name within Flojoy.
+                      This is your production line&apos;s visible name within
+                      Flojoy.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <FormControl>
                       <Input
-                        disabled={!perm.canAdmin()}
-                        placeholder={workspace.name}
+                        disabled={!projectPerm.canAdmin()}
+                        placeholder={project.name}
                         {...field}
                         data-1p-ignore
                       />
                     </FormControl>
                   </CardContent>
                   <CardFooter className="space-x-4 border-t px-6 py-4">
-                    {updateWorkspaceForm.formState.isSubmitting ? (
+                    {updateProjectForm.formState.isSubmitting ? (
                       <Button disabled={true}>
-                        <Icons.spinner />
+                        <Icons.spinner className="h-6 w-6" />
                       </Button>
                     ) : (
-                      <Button disabled={!perm.canAdmin()}>Save</Button>
-                    )}
-                    <FormMessage />
-                  </CardFooter>
-                </Card>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={updateWorkspaceForm.control}
-            name="namespace"
-            render={({ field }) => (
-              <FormItem>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-xl">Workspace URL</CardTitle>
-                    <CardDescription>
-                      This is your workspace’s URL namespace on Flojoy.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <FormControl>
-                      <div className="flex gap-1.5">
-                        <div className="flex h-10 w-min rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground opacity-50 ring-offset-background  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-                          fijoy.app/workspace/
-                        </div>
-                        <Input
-                          disabled={!perm.canAdmin()}
-                          placeholder={workspace.namespace}
-                          {...field}
-                        />
-                      </div>
-                    </FormControl>
-                  </CardContent>
-                  <CardFooter className="space-x-4 border-t px-6 py-4">
-                    {updateWorkspaceForm.formState.isSubmitting ? (
-                      <Button disabled={true}>
-                        <Icons.spinner />
-                      </Button>
-                    ) : (
-                      <Button disabled={!perm.canAdmin()}>Save</Button>
+                      <Button disabled={!projectPerm.canAdmin()}>Save</Button>
                     )}
                     <FormMessage />
                   </CardFooter>
@@ -209,12 +172,13 @@ const ProjectGeneral = ({ workspace, perm, project }: Props) => {
           />
         </form>
       </Form>
-      {perm.isOwner() && (
+      {workspacePerm.canAdmin() && (
         <Card className="border-destructive">
           <CardHeader>
-            <CardTitle className="text-xl">Delete Workspace</CardTitle>
+            <CardTitle className="text-xl">Delete Production Line</CardTitle>
             <CardDescription>
-              This will permanently delete your workspace and all its data.
+              This will permanently delete your production line and all its
+              data.
             </CardDescription>
           </CardHeader>
           <CardFooter className="space-x-4 border-t px-6 py-4">
@@ -227,7 +191,7 @@ const ProjectGeneral = ({ workspace, perm, project }: Props) => {
                   <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                   <AlertDialogDescription>
                     This action cannot be undone. This will permanently delete
-                    your workspace and remove your data from our servers.
+                    your production line and remove your data from our servers.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
