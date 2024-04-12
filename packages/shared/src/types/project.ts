@@ -1,4 +1,6 @@
 import { t, Static } from "elysia";
+import { ProjectUser } from "../schemas/public/ProjectUser";
+import { User } from "../schemas/public/User";
 
 export type { Project } from "../schemas/public/Project";
 
@@ -10,3 +12,5 @@ export const CreateProjectSchema = t.Object({
 });
 
 export type CreateProjectSchema = Static<typeof CreateProjectSchema>;
+
+export type ProjectUserWithUser = ProjectUser & { user: User };
