@@ -1,6 +1,11 @@
 import { db } from "../../db/kysely";
 import { Result, err, ok } from "neverthrow";
-import { WorkspaceUser, Perm, projectRoleToPerm } from "@cloud/shared";
+import {
+  WorkspaceUser,
+  Perm,
+  projectRoleToPerm,
+  workspaceRoleToPerm,
+} from "@cloud/shared";
 
 type GetProjectPermParams = {
   projectId: string;
@@ -11,6 +16,11 @@ export async function checkProjectPerm({
   projectId,
   workspaceUser,
 }: GetProjectPermParams): Promise<Result<Perm, string>> {
+  const workspacePerm = new Perm(workspaceRoleToPerm(workspaceUser.role));
+  if (workspacePerm.canAdmin()) {
+    return ok(workspacePerm);
+  }
+
   const projectUser = await db
     .selectFrom("project_user as pu")
     .selectAll()

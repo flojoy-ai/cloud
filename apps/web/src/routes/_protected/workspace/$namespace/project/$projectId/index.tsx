@@ -111,6 +111,7 @@ function Page() {
             <Link
               from={Route.fullPath}
               to={"/workspace/$namespace/project/$projectId/settings"}
+              search={{ tab: "general" }}
             >
               Settings
             </Link>
