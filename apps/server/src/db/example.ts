@@ -299,13 +299,11 @@ export async function populateExample(
               durationMs: 1000,
               testId: booleanTest.id,
               createdAt: new Date(new Date().getTime() + i * 20000),
-              durationMs: 1000,
               data: { type: "boolean" as const, value: val },
               pass: val,
             },
             {
               name: "Data Point",
-              durationMs: 1000,
               testId: dataframeTest.id,
               createdAt: new Date(new Date().getTime() + i * 20000),
               durationMs: 1566,
