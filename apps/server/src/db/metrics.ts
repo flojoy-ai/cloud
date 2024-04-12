@@ -220,7 +220,7 @@ export async function countProjectSessionsOverTime(
     .selectFrom("session")
     .select((eb) => [
       sql<Date>`DATE_TRUNC(${bin}, session.created_at)`.as("bin"),
-      eb.fn.countAll<number>().as("count"),
+      eb.fn.countAll<number>().as("val"),
     ])
     .where("session.projectId", "=", projectId)
     .groupBy("bin")
@@ -239,7 +239,7 @@ export async function countProjectUnitsOverTime(
     .select((eb) => [
       // FIXME: Put a created at on project_unit instead?
       sql<Date>`DATE_TRUNC(${bin}, unit.created_at)`.as("bin"),
-      eb.fn.countAll<number>().as("count"),
+      eb.fn.countAll<number>().as("val"),
     ])
     .groupBy("bin")
     .orderBy("bin")
@@ -258,14 +258,14 @@ export async function projectMeanTestSessionsOverTime(
 ) {
   const unitCount = await countProjectUnitsOverTime(projectId, bin);
   for (let i = 1; i < unitCount.length; i++) {
-    unitCount[i].count += unitCount[i - 1].count;
+    unitCount[i].val += unitCount[i - 1].val;
   }
   const sessionCount = await countProjectSessionsOverTime(projectId, bin);
 
   const result = [];
 
   let i = 0;
-  for (const { bin, count } of sessionCount) {
+  for (const { bin, val } of sessionCount) {
     // Make sure we're always at the latest group of units before/same time as the session group
     while (
       i < unitCount.length - 1 &&
@@ -274,12 +274,12 @@ export async function projectMeanTestSessionsOverTime(
       i++;
     }
 
-    if (unitCount[i].count === 0) {
-      result.push({ bin, avg: 0 });
+    if (unitCount[i].val === 0) {
+      result.push({ bin, val: 0 });
     } else {
       result.push({
         bin,
-        avg: count / unitCount[i].count,
+        val: val / unitCount[i].val,
       });
     }
   }
@@ -309,7 +309,7 @@ export async function sessionCountWithStatusOverTime(
     .selectFrom("session")
     .select((eb) => [
       sql<Date>`DATE_TRUNC(${bin}, session.created_at)`.as("bin"),
-      eb.fn.countAll<number>().as("count"),
+      eb.fn.countAll<number>().as("val"),
     ])
     .where("session.projectId", "=", projectId)
     .where((eb) => withStatusUnaliased(eb), "=", status)
@@ -337,7 +337,7 @@ export async function abortedSessionCountOverTime(
     .selectFrom("session")
     .select((eb) => [
       sql<Date>`DATE_TRUNC(${bin}, session.created_at)`.as("bin"),
-      eb.fn.countAll<number>().as("count"),
+      eb.fn.countAll<number>().as("val"),
     ])
     .where("session.projectId", "=", projectId)
     .where("session.aborted", "=", true)
@@ -395,7 +395,7 @@ export async function meanCycleTimeOverTime(
     .selectFrom("cycle_averages")
     .select((eb) => [
       sql<Date>`DATE_TRUNC(${bin}, cycle_averages.created_at)`.as("bin"),
-      eb.fn.avg<number>("avgCycleTime").as("avg"),
+      eb.fn.avg<number>("avgCycleTime").as("val"),
     ])
     .groupBy("bin")
     .orderBy("bin")
@@ -422,7 +422,7 @@ export async function averageSessionTimeOverTime(
     .where("session.projectId", "=", projectId)
     .select((eb) => [
       sql<Date>`DATE_TRUNC(${bin}, session.created_at)`.as("bin"),
-      eb.fn.avg<number>("durationMs").as("avg"),
+      eb.fn.avg<number>("durationMs").as("val"),
     ])
     .groupBy("bin")
     .orderBy("bin")
@@ -451,7 +451,7 @@ export async function totalFailedTestTimeOverTime(
     .where("pass", "=", false)
     .select((eb) => [
       sql<Date>`DATE_TRUNC(${bin}, measurement.created_at)`.as("bin"),
-      eb.fn.sum<number>("durationMs").as("sum"),
+      eb.fn.sum<number>("durationMs").as("val"),
     ])
     .groupBy("bin")
     .orderBy("bin")
@@ -524,11 +524,12 @@ export async function firstPassYieldOverTime(
         ]),
     )
     .selectFrom("first")
-    .select(
+    .select([
+      "bin",
       sql<number>`COUNT(CASE WHEN status = true THEN 1 ELSE NULL END) / SUM(COUNT(*)) OVER ()`.as(
-        "firstPassYield",
+        "val",
       ),
-    )
+    ])
     .groupBy("bin")
     .orderBy("bin")
     .execute();
@@ -552,11 +553,11 @@ export async function testYieldOverTime(projectId: string, bin: TimePeriod) {
   let i = 0;
   const result = [];
   // passCount must necessarily be sparser than sessionCount
-  for (const { bin, count } of sessionCount) {
+  for (const { bin, val } of sessionCount) {
     if (passCount[i].bin.getTime() !== bin.getTime()) {
       result.push({ bin, val: 0 });
     } else {
-      result.push({ bin, val: passCount[i].count / count });
+      result.push({ bin, val: passCount[i].val / val });
       i++;
     }
   }

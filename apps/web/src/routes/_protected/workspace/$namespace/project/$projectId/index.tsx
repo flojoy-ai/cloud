@@ -28,7 +28,14 @@ import { getPartVariationQueryOpts } from "@/lib/queries/part-variation";
 import { getStationsQueryOpts } from "@/lib/queries/station";
 import { cn } from "@/lib/utils";
 import { Test, TimePeriod, Unit } from "@cloud/shared";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
 import {
@@ -41,6 +48,7 @@ import {
   Timer,
 } from "lucide-react";
 import { useState } from "react";
+import { makeTimeSeriesData } from "@/lib/stats";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/project/$projectId/",
@@ -170,6 +178,22 @@ const msToSecondsString = (ms: number) => `${(ms / 1000).toFixed(3)}s`;
 const decimalToPercentString = (decimal: number) =>
   `${(decimal * 100).toFixed(2)}%`;
 
+const SERIES_OPTIONS = {
+  testSessionCount: "Session Count",
+  unitCount: "Unit Count",
+  meanSessionsPerUnit: "Mean Sessions Per Unit",
+  sessionPassedCount: "Sessions Passed",
+  sessionFailedCount: "Sessions Failed",
+  sessionAbortedCount: "Sessions Aborted",
+  meanCycleTime: "Mean Cycle Time",
+  meanSessionTime: "Mean Session Time",
+  totalFailedTestTime: "Total Failed Test Time",
+  firstPassYield: "First Pass Yield",
+  testYield: "Test Yield",
+};
+
+type SeriesOption = keyof typeof SERIES_OPTIONS;
+
 function Page() {
   const { workspace, project } = Route.useRouteContext();
   const { projectId } = Route.useParams();
@@ -191,15 +215,24 @@ function Page() {
     getProjectMetricsQueryOpts({ context: { workspace }, projectId }),
   );
 
-  const { data: metricsSeries } = useSuspenseQuery(
+  const { data: metricsSeries } = useQuery(
     getProjectMetricsSeriesQueryOpts({
       context: { workspace },
       projectId,
       bin,
     }),
   );
-
   console.log(metricsSeries);
+
+  const [series, setSeries] = useState<SeriesOption>("testSessionCount");
+
+  const seriesData = metricsSeries
+    ? makeTimeSeriesData({
+        data: metricsSeries[series],
+        x: (d) => d.bin,
+        y: (d) => d.val,
+      })
+    : undefined;
 
   return (
     <div className="container max-w-screen-2xl">
@@ -325,10 +358,31 @@ function Page() {
           </div>
           <Card className="col-span-7 p-6">
             <div className="flex justify-between items-center">
-              <div className="text-sm font-semibold">Over time</div>
+              <Select
+                defaultValue={series}
+                onValueChange={(val) => setSeries(val as SeriesOption)}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(SERIES_OPTIONS).map(([key, name]) => (
+                    <SelectItem key={key} value={key}>
+                      {name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <DateBinSelect bin={bin} setBin={setBin} />
             </div>
-            <TimeSeriesBarChart bin={bin} />
+            <div className="py-6" />
+            {seriesData && (
+              <TimeSeriesBarChart
+                bin={bin}
+                dates={seriesData[0]}
+                data={seriesData[1]}
+              />
+            )}
           </Card>
         </div>
 
