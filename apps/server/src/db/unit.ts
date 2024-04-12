@@ -255,9 +255,9 @@ export const notInUse = ({
 export function withUnitPartVariation(eb: ExpressionBuilder<DB, "unit">) {
   return jsonObjectFrom(
     eb
-      .selectFrom("part_variation")
-      .selectAll("part_variation")
-      .whereRef("part_variation.id", "=", "unit.partVariationId"),
+      .selectFrom("part_variation as pv")
+      .selectAll("pv")
+      .whereRef("pv.id", "=", "unit.partVariationId"),
   ).as("partVariation");
 }
 
