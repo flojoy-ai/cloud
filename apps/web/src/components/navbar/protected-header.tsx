@@ -21,7 +21,7 @@ import {
 import { siteConfig } from "@/config/site";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
-import { Workspace } from "@cloud/shared";
+import { Workspace, WorkspaceUser } from "@cloud/shared";
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { CheckIcon, ChevronsUpDown, PlusCircleIcon } from "lucide-react";
 import { useState } from "react";
@@ -139,9 +139,10 @@ export function ProtectedNav({ workspaces, currentWorkspace }: NavProps) {
 
 type Props = {
   workspaces: Workspace[];
+  workspaceUser?: WorkspaceUser;
 };
 
-export function ProtectedHeader({ workspaces }: Props) {
+export function ProtectedHeader({ workspaces, workspaceUser }: Props) {
   const { user } = useAuth();
 
   const pathname = useRouterState().location.pathname;
@@ -167,25 +168,11 @@ export function ProtectedHeader({ workspaces }: Props) {
               small={true}
             />
           )}
+
           {!user ? (
             <AuthButtons />
           ) : (
-            <>
-              {/*TODO: Add this back*/}
-              {/* {invites.length > 0 && ( */}
-              {/*   <Button */}
-              {/*     className="h-8 rounded-[0.5rem] text-sm font-normal shadow-none" */}
-              {/*     asChild */}
-              {/*   > */}
-              {/*     <Link href="/workspace/invites"> */}
-              {/*       {invites.length} pending invite{invites.length > 1 && "s"} */}
-              {/*     </Link> */}
-              {/*   </Button> */}
-              {/* )} */}
-              {/* <div className="px-1" /> */}
-              {/**/}
-              <UserButton user={user} />
-            </>
+            <UserButton user={user} workspaceUser={workspaceUser} />
           )}
 
           <ModeToggle />
