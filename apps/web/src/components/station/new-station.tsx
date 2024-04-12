@@ -32,6 +32,7 @@ import { typeboxResolver } from "@hookform/resolvers/typebox";
 import { useMutation } from "@tanstack/react-query";
 import { client } from "@/lib/client";
 import { Project, InsertStation } from "@cloud/shared";
+import { Plus } from "lucide-react";
 
 type Props = {
   project: Project;
@@ -91,16 +92,15 @@ export default function NewStationButton({ project }: Props) {
         onOpenChange={(open) => setIsDialogOpen(open)}
       >
         <DialogTrigger asChild>
-          <Button variant="default" size="sm">
-            New Test Station
+          <Button variant="secondary" size="icon">
+            <Plus />
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Create your new test station</DialogTitle>
             <DialogDescription>
-              A test station runs a series of tests on a given unit
-              partVariation.
+              A test station runs a series of tests on a part variation.
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>

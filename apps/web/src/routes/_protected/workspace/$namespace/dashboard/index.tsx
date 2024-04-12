@@ -11,7 +11,7 @@ import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 // TODO: Treeshake
-import { Card } from "@/components/ui/card";
+import { Card, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TimeSeriesChart } from "@/components/visualization/time-series-chart";
 import { makeTimeSeriesData } from "@/lib/stats";
@@ -125,7 +125,7 @@ function DashboardPage() {
     <div className="max-w-4xl mx-auto">
       <div className="py-2" />
       <Card className="rounded-xl h-fit mx-auto">
-        <h1 className="pl-6 pt-6 text-2xl font-semibold">Overview</h1>
+        <CardTitle className="pl-6 pt-6">Overview</CardTitle>
         <div className="grid grid-cols-5">
           <Metric
             title="Test sessions run"
@@ -182,7 +182,7 @@ function DashboardPage() {
       </div>
       <div className="py-2" />
       <Card className="p-6">
-        <h2 className="text-2xl font-semibold">Failures</h2>
+        <CardTitle>Failures</CardTitle>
         <Tabs defaultValue="part" className="w-full">
           <div className="text-center">
             <TabsList>

@@ -1,7 +1,7 @@
+import { prefixSum } from "@/lib/stats";
 import { TimePeriod } from "@cloud/shared";
 import { Line } from "react-chartjs-2";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { prefixSum } from "@/lib/stats";
+import { DateBinSelect } from "./date-bin-select";
 
 type Props = {
   title?: string;
@@ -24,20 +24,7 @@ export const TimeSeriesChart = ({ title, bin, setBin, data, dates }: Props) => {
     <div>
       <div className="flex justify-between items-center">
         <div className="text-sm font-semibold">{title}</div>
-        <ToggleGroup size="sm" type="single" value={bin} onValueChange={setBin}>
-          <ToggleGroupItem className="text-muted-foreground" value="day">
-            D
-          </ToggleGroupItem>
-          <ToggleGroupItem className="text-muted-foreground" value="week">
-            W
-          </ToggleGroupItem>
-          <ToggleGroupItem className="text-muted-foreground" value="month">
-            M
-          </ToggleGroupItem>
-          <ToggleGroupItem className="text-muted-foreground" value="year">
-            Y
-          </ToggleGroupItem>
-        </ToggleGroup>
+        <DateBinSelect bin={bin} setBin={setBin} />
       </div>
       <div className="py-1" />
       <Line

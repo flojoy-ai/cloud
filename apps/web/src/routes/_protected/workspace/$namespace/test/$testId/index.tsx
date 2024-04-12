@@ -4,7 +4,7 @@ import {
   PageHeaderHeading,
   PageHeaderDescription,
 } from "@/components/page-header";
-import { Card } from "@/components/ui/card";
+import { Card, CardTitle } from "@/components/ui/card";
 import { ParetoChart } from "@/components/visualization/pareto-chart";
 import { StatusDoughnut } from "@/components/visualization/status-doughnut";
 import { getTestMeasurementsQueryOpts } from "@/lib/queries/test";
@@ -118,7 +118,7 @@ function TestPage() {
       ) : (
         <div className="flex h-96">
           <Card className="flex-1 p-6 pb-20 rounded-xl">
-            <h1 className="text-2xl font-semibold">{test.name}</h1>
+            <CardTitle>{test.name}</CardTitle>
             <div className="py-2" />
             <Scatter
               data={{ datasets: [{ data: distribution }], labels: time }}
@@ -181,7 +181,7 @@ function TestPage() {
       )}
       <div className="py-3" />
       <Card className="p-6">
-        <h2 className="text-xl font-semibold">Failures</h2>
+        <CardTitle>Failures</CardTitle>
         <div className="py-2" />
         <ParetoChart labels={SERIAL_NUMBERS} values={counts} />
       </Card>

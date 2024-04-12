@@ -86,7 +86,7 @@ export function withSessionMeasurements(eb: ExpressionBuilder<DB, "session">) {
   ).as("measurements");
 }
 
-export function withStatus(eb: ExpressionBuilder<DB, "session">) {
+export function withStatusUnaliased(eb: ExpressionBuilder<DB, "session">) {
   return (
     eb
       .selectFrom("measurement as m")
@@ -101,8 +101,11 @@ export function withStatus(eb: ExpressionBuilder<DB, "session">) {
 `.as("pass"),
       )
       .whereRef("m.sessionId", "=", "session.id")
-      .as("status")
   );
+}
+
+export function withStatus(eb: ExpressionBuilder<DB, "session">) {
+  return withStatusUnaliased(eb).as("status");
 }
 
 export async function getSession(db: Kysely<DB>, sessionId: string) {

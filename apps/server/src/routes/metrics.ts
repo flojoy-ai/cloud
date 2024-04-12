@@ -1,16 +1,15 @@
-import { Elysia, t } from "elysia";
-import {
-  countSessionsOverTime,
-  countUsersOverTime,
-  getProjectMetrics,
-  getWorkspaceMetrics,
-} from "../db/metrics";
-import { getPastStartTime } from "../lib/time";
-import { WorkspaceMiddleware } from "../middlewares/workspace";
-import { checkProjectPerm } from "../lib/perm/project";
 import { TimePeriod, timeFilterQueryParams, timePeriod } from "@cloud/shared";
 import { faker } from "@faker-js/faker";
+import { Elysia, t } from "elysia";
 import _ from "lodash";
+import {
+  getProjectMetrics,
+  getProjectMetricsOverTime,
+  getWorkspaceMetrics,
+} from "../db/metrics";
+import { checkProjectPerm } from "../lib/perm/project";
+import { getPastStartTime } from "../lib/time";
+import { WorkspaceMiddleware } from "../middlewares/workspace";
 
 const getStartTime = (past: TimePeriod | undefined, from: Date | undefined) =>
   from ?? (past ? getPastStartTime(past) : undefined);
@@ -101,23 +100,34 @@ export const MetricsRoute = new Elysia({
         },
       ),
   )
-  .get(
-    "/project/:projectId",
-    async ({ params: { projectId } }) => {
-      return getProjectMetrics(projectId);
-    },
-    {
-      query: timeFilterQueryParams,
-      async beforeHandle({ params: { projectId }, workspaceUser, error }) {
-        const perm = await checkProjectPerm({
-          projectId,
-          workspaceUser,
-        });
+  .group("/project/:projectId", (app) =>
+    app
+      .get(
+        "/",
+        async ({ params: { projectId } }) => {
+          return getProjectMetrics(projectId);
+        },
+        {
+          async beforeHandle({ params: { projectId }, workspaceUser, error }) {
+            const perm = await checkProjectPerm({
+              projectId,
+              workspaceUser,
+            });
 
-        return perm.match(
-          (perm) => (perm.canRead() ? undefined : error("Forbidden")),
-          (err) => error(403, err),
-        );
-      },
-    },
+            return perm.match(
+              (perm) => (perm.canRead() ? undefined : error("Forbidden")),
+              (err) => error(403, err),
+            );
+          },
+        },
+      )
+      .get(
+        "/series",
+        async ({ params: { projectId }, query: { bin } }) => {
+          return getProjectMetricsOverTime(projectId, bin);
+        },
+        {
+          query: t.Object({ bin: timePeriod }),
+        },
+      ),
   );

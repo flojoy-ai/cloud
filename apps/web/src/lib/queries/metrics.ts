@@ -109,13 +109,51 @@ export function getProjectMetricsQueryOpts({
 }: GetProjectMetricsParams) {
   return queryOptions({
     queryFn: async () => {
-      const { data, error } = await client.metrics.project({ projectId }).get({
-        query: makeQueryParams({ past, from, to }),
-        headers: { "flojoy-workspace-id": context.workspace.id },
-      });
+      const { data, error } = await client.metrics
+        .project({ projectId })
+        .index.get({
+          query: makeQueryParams({ past, from, to }),
+          headers: { "flojoy-workspace-id": context.workspace.id },
+        });
       if (error) throw error;
       return data;
     },
     queryKey: getProjectMetricsQueryKey(projectId),
+  });
+}
+
+type GetProjectMetricsSeriesParams = {
+  projectId: string;
+  bin: TimePeriod;
+  context: {
+    workspace: Workspace;
+  };
+};
+
+export function getProjectMetricsSeriesQueryKey(
+  projectId: string,
+  bin: TimePeriod,
+) {
+  return ["projectMetricsSeries", projectId, bin];
+}
+
+export function getProjectMetricsSeriesQueryOpts({
+  projectId,
+  bin,
+  context,
+}: GetProjectMetricsSeriesParams) {
+  return queryOptions({
+    queryFn: async () => {
+      const { data, error } = await client.metrics
+        .project({ projectId })
+        .series.get({
+          query: makeQueryParams({ bin }),
+          headers: { "flojoy-workspace-id": context.workspace.id },
+        });
+      if (error) throw error;
+      return data;
+    },
+    queryKey: getProjectMetricsSeriesQueryKey(projectId, bin),
+    placeholderData: keepPreviousData,
   });
 }

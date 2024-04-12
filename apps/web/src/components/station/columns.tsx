@@ -11,10 +11,10 @@ export const columns: ColumnDef<Station>[] = [
     accessorKey: "name",
     header: "Name",
   },
-  {
-    accessorKey: "id",
-    header: "ID",
-  },
+  // {
+  //   accessorKey: "id",
+  //   header: "ID",
+  // },
   {
     id: "actions",
     cell: ({ row }) => {
