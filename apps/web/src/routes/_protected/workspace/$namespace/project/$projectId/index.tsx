@@ -17,6 +17,13 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Card } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { DateBinSelect } from "@/components/visualization/date-bin-select";
 import { StatusDoughnut } from "@/components/visualization/status-doughnut";
 import { TimeSeriesBarChart } from "@/components/visualization/time-series-bar-chart";
@@ -26,15 +33,9 @@ import {
 } from "@/lib/queries/metrics";
 import { getPartVariationQueryOpts } from "@/lib/queries/part-variation";
 import { getStationsQueryOpts } from "@/lib/queries/station";
+import { makeTimeSeriesData } from "@/lib/stats";
 import { cn } from "@/lib/utils";
 import { Test, TimePeriod, Unit } from "@cloud/shared";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
@@ -45,10 +46,10 @@ import {
   LucideIcon,
   PercentSquare,
   SigmaSquare,
+  SquareCheck,
   Timer,
 } from "lucide-react";
 import { useState } from "react";
-import { makeTimeSeriesData } from "@/lib/stats";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/project/$projectId/",
@@ -222,7 +223,6 @@ function Page() {
       bin,
     }),
   );
-  console.log(metricsSeries);
 
   const [series, setSeries] = useState<SeriesOption>("testSessionCount");
 
@@ -300,7 +300,7 @@ function Page() {
                 <Metric
                   variant="large"
                   title="Test yield"
-                  icon={PercentSquare}
+                  icon={SquareCheck}
                   className="col-start-1 col-end-1 row-start-2 row-end-2"
                 >
                   {decimalToPercentString(metrics.testYield)}
