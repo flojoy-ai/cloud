@@ -387,7 +387,7 @@ export const WorkspaceRoute = new Elysia({
         .where("workspace.id", "=", workspaceUser.workspaceId)
         .returningAll()
         .executeTakeFirstOrThrow(
-          () => new InternalServerError("Failed to create workspace"),
+          () => new InternalServerError("Failed to update workspace"),
         );
 
       return workspace;
