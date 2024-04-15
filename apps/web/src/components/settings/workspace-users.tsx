@@ -19,6 +19,7 @@ import {
   FormControl,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 
@@ -170,7 +171,10 @@ const WorkspaceUsers = ({ workspace, workspaceUsers }: Props) => {
         <CardHeader>
           <CardTitle className="text-xl">Workspace Users</CardTitle>
           <CardDescription>
-            Here you can manage all the users in your workspace.
+            Here you can manage all the users in your workspace. <br />
+            <div className="py-1" />
+            Note that by default, a member will not have access to any of the
+            production line, and an admin will have access to everything.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -195,6 +199,7 @@ const WorkspaceUsers = ({ workspace, workspaceUsers }: Props) => {
                         data-1p-ignore
                       />
                     </FormControl>
+
                     <FormMessage />
                   </FormItem>
                 )}

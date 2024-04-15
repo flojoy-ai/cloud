@@ -49,7 +49,6 @@ import { DataTable } from "../ui/data-table";
 import { useForm } from "react-hook-form";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { getWorkspaceUsersQueryKey } from "@/lib/queries/workspace";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { Icons } from "../icons";
