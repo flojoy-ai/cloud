@@ -23,18 +23,20 @@ export const MetricsRoute = new Elysia({
     app
       .get(
         "/",
-        async ({ workspace, query: { past, from, to } }) => {
+        async ({ log, workspace, query: { past, from, to } }) => {
           const start = getStartTime(past, from);
           const end = to;
+          log.info("Start: ", start);
           return getWorkspaceMetrics(workspace.id, start, end);
         },
         { query: timeFilterQueryParams },
       )
       .get(
         "/series/session",
-        async ({ workspace, query: { past, bin, from, to } }) => {
+        async ({ log, workspace, query: { past, bin, from, to } }) => {
           const start = getStartTime(past, from);
           const end = to;
+          log.info("Start: ", start);
           return await countSessionsOverTime(workspace.id, bin, start, end);
         },
         {

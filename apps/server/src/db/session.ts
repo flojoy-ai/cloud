@@ -150,6 +150,7 @@ export async function createSession(
     notes: body.notes,
     commitHash: body.commitHash,
     durationMs: totalTime,
+    createdAt: body.createdAt,
   };
 
   const res = await tryQuery(

@@ -11,6 +11,7 @@ export const insertSession = t.Object({
   notes: t.Optional(t.String()),
   commitHash: t.Optional(t.String()),
   measurements: t.Array(sessionMeasurement),
+  createdAt: t.Optional(t.Date()),
 });
 
 export type InsertSession = Static<typeof insertSession>;

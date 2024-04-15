@@ -1,8 +1,9 @@
-import { prefixSum } from "@/lib/stats";
+import { prefixSum, suffixSum } from "@/lib/stats";
 import { TimePeriod } from "@cloud/shared";
 import { Line } from "react-chartjs-2";
 import { DateBinSelect } from "./date-bin-select";
 import { getChartColors } from "@/lib/style";
+import { useMemo } from "react";
 
 type Props = {
   title?: string;
@@ -10,6 +11,7 @@ type Props = {
   setBin: (bin: TimePeriod) => void;
   data: number[];
   dates: Date[];
+  totalCount: number;
 };
 
 const tooltipDisplayFormats = {
@@ -19,9 +21,21 @@ const tooltipDisplayFormats = {
   year: "yyyy",
 };
 
-export const TimeSeriesChart = ({ title, bin, setBin, data, dates }: Props) => {
-  const cumulative = prefixSum(data);
+export const TimeSeriesChart = ({
+  title,
+  bin,
+  setBin,
+  data,
+  dates,
+  totalCount,
+}: Props) => {
   const { accent, accentLight } = getChartColors();
+
+  const cumulativeData = useMemo(() => {
+    const arr = data.slice(1);
+    arr.push(0);
+    return suffixSum(arr).map((x) => totalCount - x);
+  }, [data, totalCount]);
 
   return (
     <div>
@@ -34,7 +48,7 @@ export const TimeSeriesChart = ({ title, bin, setBin, data, dates }: Props) => {
         data={{
           datasets: [
             {
-              data: cumulative,
+              data: cumulativeData,
               cubicInterpolationMode: "monotone",
             },
           ],

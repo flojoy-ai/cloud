@@ -29,6 +29,7 @@ export function getGlobalMetricsQueryOpts({
       return data;
     },
     queryKey: getGlobalMetricsQueryKey(),
+    placeholderData: keepPreviousData,
   });
 }
 

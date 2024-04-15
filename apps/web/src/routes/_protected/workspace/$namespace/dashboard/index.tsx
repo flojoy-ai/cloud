@@ -6,7 +6,7 @@ import {
   getGlobalMetricsUserTimeSeriesQueryOpts,
 } from "@/lib/queries/metrics";
 import { getProjectsQueryOpts } from "@/lib/queries/project";
-import { TimePeriod } from "@cloud/shared";
+import { TimePeriod, workspace } from "@cloud/shared";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
@@ -17,6 +17,16 @@ import { TimeSeriesChart } from "@/components/visualization/time-series-chart";
 import { makeTimeSeriesData } from "@/lib/stats";
 import { cn } from "@/lib/utils";
 import { Box, Boxes, CircuitBoard, Cpu, LucideIcon, User } from "lucide-react";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
+  BreadcrumbPage,
+} from "@/components/ui/breadcrumb";
+import { Link } from "@tanstack/react-router";
+import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/dashboard/",
@@ -72,9 +82,10 @@ function DashboardPage() {
   const [userBin, setUserBin] = useState<TimePeriod>("day");
 
   const context = Route.useRouteContext();
+  const { workspace } = context;
 
   const { data: globalMetrics } = useSuspenseQuery(
-    getGlobalMetricsQueryOpts({ past: sessionBin, context }),
+    getGlobalMetricsQueryOpts({ context }),
   );
 
   const { data: sessionTimeSeries } = useQuery(
@@ -122,90 +133,107 @@ function DashboardPage() {
     : undefined;
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="container max-w-screen-2xl">
       <div className="py-2" />
-      <Card className="rounded-xl h-fit mx-auto">
-        <CardTitle className="pl-6 pt-6">Overview</CardTitle>
-        <div className="grid grid-cols-5">
-          <Metric
-            title="Test sessions run"
-            value={globalMetrics.testSessionCount}
-            icon={Boxes}
-          />
-          <Metric
-            title="Test results"
-            value={globalMetrics.measurementCount}
-            icon={Box}
-          />
-          <Metric
-            title="Parts designed"
-            value={globalMetrics.partVariationCount}
-            icon={Cpu}
-          />
-          <Metric
-            title="Units produced"
-            value={globalMetrics.unitCount}
-            icon={CircuitBoard}
-          />
-          <Metric
-            title="Operators"
-            value={globalMetrics.userCount}
-            icon={User}
-          />
-        </div>
-      </Card>
-      <div className="py-2" />
-      <div className="flex">
-        <Card className="flex-1 rounded-xl p-4">
-          {sessionTimeSeriesData && (
-            <TimeSeriesChart
-              bin={sessionBin}
-              setBin={setSessionBin}
-              title="Sessions over time"
-              dates={sessionTimeSeriesData[0]}
-              data={sessionTimeSeriesData[1]}
-            />
-          )}
-        </Card>
-        <div className="px-2" />
-        <Card className="flex-1 rounded-xl p-4">
-          {userTimeSeriesData && (
-            <TimeSeriesChart
-              bin={userBin}
-              setBin={setUserBin}
-              title="Operators over time"
-              dates={userTimeSeriesData[0]}
-              data={userTimeSeriesData[1]}
-            />
-          )}
-        </Card>
-      </div>
-      <div className="py-2" />
-      <Card className="p-6">
-        <CardTitle>Failures</CardTitle>
-        <Tabs defaultValue="part" className="w-full">
-          <div className="text-center">
-            <TabsList>
-              <TabsTrigger value="part">By Part</TabsTrigger>
-              <TabsTrigger value="product">By Product</TabsTrigger>
-            </TabsList>
-          </div>
-          <TabsContent value="part">
-            <ParetoChart
-              labels={[...partsFailureX, "bruh1", "bruh2", "bruh3", "bruh4"]}
-              values={[...partsFailureY, 10, 20, 5, 3]}
-            />
-          </TabsContent>
-          <TabsContent value="product">
-            <ParetoChart
-              labels={[...productsFailureX, "bruh1", "bruh2", "bruh3", "bruh4"]}
-              values={[...productsFailureY, 20, 5, 50, 4]}
-            />
-          </TabsContent>
-        </Tabs>
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link from={WorkspaceIndexRoute.fullPath} to=".">
+                {workspace.name}
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Dashboard</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <div className="max-w-4xl mx-auto">
         <div className="py-2" />
-      </Card>
-      <div className="py-6" />
+        <Card className="rounded-xl h-fit mx-auto">
+          <CardTitle className="pl-6 pt-6">Overview</CardTitle>
+          <div className="grid grid-cols-5">
+            <Metric
+              title="Test sessions run"
+              value={globalMetrics.testSessionCount}
+              icon={Boxes}
+            />
+            <Metric
+              title="Test results"
+              value={globalMetrics.measurementCount}
+              icon={Box}
+            />
+            <Metric
+              title="Parts designed"
+              value={globalMetrics.partVariationCount}
+              icon={Cpu}
+            />
+            <Metric
+              title="Units produced"
+              value={globalMetrics.unitCount}
+              icon={CircuitBoard}
+            />
+            <Metric
+              title="Operators"
+              value={globalMetrics.userCount}
+              icon={User}
+            />
+          </div>
+        </Card>
+        <div className="py-2" />
+        <div className="flex">
+          <Card className="flex-1 rounded-xl p-4">
+            {sessionTimeSeriesData && (
+              <TimeSeriesChart
+                bin={sessionBin}
+                setBin={setSessionBin}
+                title="Sessions over time"
+                dates={sessionTimeSeriesData[0]}
+                data={sessionTimeSeriesData[1]}
+                totalCount={globalMetrics.testSessionCount}
+              />
+            )}
+          </Card>
+          <div className="px-2" />
+          <Card className="flex-1 rounded-xl p-4">
+            {userTimeSeriesData && (
+              <TimeSeriesChart
+                bin={userBin}
+                setBin={setUserBin}
+                title="Operators over time"
+                dates={userTimeSeriesData[0]}
+                data={userTimeSeriesData[1]}
+                totalCount={globalMetrics.userCount}
+              />
+            )}
+          </Card>
+        </div>
+        <div className="py-2" />
+        <Card className="p-6">
+          <CardTitle>Failures</CardTitle>
+          <Tabs defaultValue="part" className="w-full">
+            <div className="text-center">
+              <TabsList>
+                <TabsTrigger value="part">By Part</TabsTrigger>
+                <TabsTrigger value="product">By Product</TabsTrigger>
+              </TabsList>
+            </div>
+            <TabsContent value="part">
+              <ParetoChart labels={partsFailureX} values={partsFailureY} />
+            </TabsContent>
+            <TabsContent value="product">
+              <ParetoChart
+                labels={productsFailureX}
+                values={productsFailureY}
+              />
+            </TabsContent>
+          </Tabs>
+          <div className="py-2" />
+        </Card>
+        <div className="py-6" />
+      </div>
     </div>
   );
 }

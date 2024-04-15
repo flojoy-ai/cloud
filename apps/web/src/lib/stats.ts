@@ -29,6 +29,14 @@ export const prefixSum = (arr: number[]) => {
   return prefix;
 };
 
+export const suffixSum = (arr: number[]) => {
+  const suffix = arr.slice();
+  for (let i = arr.length - 2; i >= 0; i--) {
+    suffix[i] += suffix[i + 1];
+  }
+  return suffix;
+};
+
 export const makeTimeSeriesData = <T, U, V>({
   data,
   x,

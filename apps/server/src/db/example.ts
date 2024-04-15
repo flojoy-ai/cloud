@@ -23,6 +23,8 @@ const generateRandomNumbers = () => {
   return randomNumbers;
 };
 
+const ONE_DAY = 24 * 60 * 60 * 1000;
+
 export async function populateExample(
   db: Kysely<DB>,
   workspaceUser: WorkspaceUser,
@@ -294,7 +296,7 @@ export async function populateExample(
             {
               name: "Did Light Up",
               testId: booleanTest.id,
-              createdAt: new Date(new Date().getTime() + i * 20000),
+              createdAt: new Date(new Date().getTime() - i * i * 5 * ONE_DAY),
               durationMs: 1000,
               data: { type: "boolean" as const, value: val },
               pass: val,
@@ -302,7 +304,7 @@ export async function populateExample(
             {
               name: "Data Point",
               testId: dataframeTest.id,
-              createdAt: new Date(new Date().getTime() + i * 20000),
+              createdAt: new Date(new Date().getTime() - i * i * 5 * ONE_DAY),
               durationMs: 1566,
               data: {
                 type: "dataframe" as const,
@@ -314,6 +316,7 @@ export async function populateExample(
               pass: Math.random() < 0.7 ? true : null,
             },
           ],
+          createdAt: new Date(new Date().getTime() - i * i * 5 * ONE_DAY),
         })
       ).safeUnwrap();
     }
