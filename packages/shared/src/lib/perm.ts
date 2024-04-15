@@ -59,10 +59,10 @@ export function workspaceRoleToPerm(workspaceRole: WorkspaceRole): Permission {
 
 export function projectRoleToPerm(projectRole: ProjectRole): Permission {
   switch (projectRole) {
-    case "test":
+    case "operator":
       return "read" satisfies Permission;
 
-    case "dev":
+    case "developer":
       return "write" satisfies Permission;
   }
 }

@@ -163,7 +163,7 @@ const ProjectUsers = ({
   const projectUserInviteForm = useForm<ProjectUserInvite>({
     resolver: typeboxResolver(projectUserInvite),
     defaultValues: {
-      role: "test",
+      role: "operator",
     },
   });
 
