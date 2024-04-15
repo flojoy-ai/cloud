@@ -73,7 +73,7 @@ export const ProjectRoute = new Elysia({
             .values({
               projectId: project.value.id,
               userId: workspaceUser.userId,
-              role: "dev",
+              role: "developer",
               workspaceId: workspaceUser.workspaceId,
             })
             .executeTakeFirstOrThrow(

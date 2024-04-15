@@ -155,7 +155,7 @@ export async function populateExample(
       .values({
         projectId: pi5Project.id,
         userId: workspaceUser.userId,
-        role: "dev",
+        role: "developer",
         workspaceId: workspaceUser.workspaceId,
       })
       .executeTakeFirstOrThrow();
