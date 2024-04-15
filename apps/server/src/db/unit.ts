@@ -110,6 +110,7 @@ export async function createUnit(
           .values(
             components.map((c) => ({
               parentUnitId: created.id,
+              workspaceId,
               childUnitId: c,
             })),
           )
@@ -210,6 +211,7 @@ export async function doUnitComponentSwap(
         .values({
           parentUnitId: unit.id,
           childUnitId: input.newUnitComponentId,
+          workspaceId: unit.workspaceId,
         })
         .execute();
 
@@ -254,9 +256,9 @@ export const notInUse = ({
 export function withUnitPartVariation(eb: ExpressionBuilder<DB, "unit">) {
   return jsonObjectFrom(
     eb
-      .selectFrom("part_variation")
-      .selectAll("part_variation")
-      .whereRef("part_variation.id", "=", "unit.partVariationId"),
+      .selectFrom("part_variation as pv")
+      .selectAll("pv")
+      .whereRef("pv.id", "=", "unit.partVariationId"),
   ).as("partVariation");
 }
 

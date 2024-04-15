@@ -32,7 +32,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
 
   await db.schema
     .createType("project_role")
-    .asEnum(["test", "dev", "pending"])
+    .asEnum(["operator", "developer"])
     .execute();
 
   await db.schema

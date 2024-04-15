@@ -15,5 +15,8 @@ export * from "./types/utils";
 export * from "./types/workspace";
 export * from "./types/metrics";
 
+export * from "./lib/perm";
+export * from "./types/perm";
+
 import DB from "./schemas/Database";
 export type { DB };

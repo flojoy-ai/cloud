@@ -36,6 +36,7 @@ const app = new Elysia()
     // NOTE: https://github.com/elysiajs/elysia-cors/issues/41
     cors({
       credentials: true,
+      methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
       origin: [env.WEB_URI],
       allowedHeaders: [
         "content-type",

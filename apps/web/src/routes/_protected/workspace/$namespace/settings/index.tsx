@@ -5,6 +5,9 @@ import WorkspaceUsers from "@/components/settings/workspace-users";
 import WorkspaceSecret from "@/components/settings/workspace-secret";
 import { getSecretQueryOpts } from "@/lib/queries/secret";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { getWorkspaceUsersQueryOpts } from "@/lib/queries/workspace";
+import { Perm, workspaceRoleToPerm } from "@cloud/shared";
+import { useWorkspaceUser } from "@/hooks/use-workspace-user";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/settings/",
@@ -23,12 +26,24 @@ function Page() {
   const { workspace } = context;
 
   const { data: secret } = useSuspenseQuery(getSecretQueryOpts({ context }));
+  const { data: workspaceUsers } = useSuspenseQuery(
+    getWorkspaceUsersQueryOpts({ context }),
+  );
 
   const { tab } = Route.useSearch();
+
+  const { workspaceUser } = useWorkspaceUser();
+
+  const perm = new Perm(workspaceRoleToPerm(workspaceUser.role));
+
   return (
     <div className="">
-      {tab === "general" && <WorkspaceGeneral workspace={workspace} />}
-      {tab === "users" && <WorkspaceUsers workspace={workspace} />}
+      {tab === "general" && (
+        <WorkspaceGeneral workspace={workspace} perm={perm} />
+      )}
+      {tab === "users" && (
+        <WorkspaceUsers workspace={workspace} workspaceUsers={workspaceUsers} />
+      )}
       {tab === "secret" && (
         <WorkspaceSecret workspace={workspace} secret={secret} />
       )}

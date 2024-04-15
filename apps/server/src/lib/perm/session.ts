@@ -1,7 +1,11 @@
 import { db } from "../../db/kysely";
 import { Result, err, ok } from "neverthrow";
-import { Perm, projectRoleToPerm } from "../perm";
-import { WorkspaceUser } from "@cloud/shared";
+import {
+  WorkspaceUser,
+  Perm,
+  projectRoleToPerm,
+  workspaceRoleToPerm,
+} from "@cloud/shared";
 
 type GetSessionPermParams = {
   sessionId: string;
@@ -12,6 +16,11 @@ export async function checkSessionPerm({
   sessionId,
   workspaceUser,
 }: GetSessionPermParams): Promise<Result<Perm, string>> {
+  const workspacePerm = new Perm(workspaceRoleToPerm(workspaceUser.role));
+  if (workspacePerm.canAdmin()) {
+    return ok(workspacePerm);
+  }
+
   const session = await db
     .selectFrom("session as s")
     .selectAll()

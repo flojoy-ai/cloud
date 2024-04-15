@@ -191,7 +191,11 @@ function UnitPage() {
             {sessions.length === 0 ? (
               <div className="text-muted-foreground">
                 No test sessions found, go upload one using the test sequencer
-                in Flojoy Studio!
+                in{" "}
+                <a href="https://docs.flojoy.ai/studio/installation/">
+                  Flojoy Studio
+                </a>
+                !
               </div>
             ) : (
               <DataTable

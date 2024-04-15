@@ -31,7 +31,6 @@ export async function getSessionsByUnitId(
         .onRef("pu.projectId", "=", "session.projectId")
         .on("pu.userId", "=", workspaceUser.userId),
     )
-    .where("pu.role", "!=", "pending")
     .select((eb) => withStatus(eb))
     .innerJoin("user", "user.id", "session.userId")
     .select("user.email as userEmail")

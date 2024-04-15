@@ -1,8 +1,20 @@
 import logging
 import os
-import pandas as pd
+import shutil
 import tempfile
+from typing import Tuple
+
+import pandas as pd
+from pydantic import BaseModel
+
 from .measurement import MeasurementData
+
+ExpectedMeasurementType = int | float
+
+
+class ExpectedMeasurement(BaseModel):
+    min: ExpectedMeasurementType | None = None
+    max: ExpectedMeasurementType | None = None
 
 
 # ------ Public ------
@@ -17,8 +29,6 @@ __all__ = [
 def export(data: MeasurementData):
     """Export data so it can be retrieved by the test sequencer"""
     output_dir, prefix_file = __get_location()
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
     if isinstance(data, pd.DataFrame):
         data.to_csv(os.path.join(output_dir, prefix_file + DATAFRAME))
     elif isinstance(data, bool):
@@ -34,7 +44,47 @@ def export(data: MeasurementData):
         raise TypeError(f"Unsupported data type: {type(data)}")
 
 
+def is_in_range(data: ExpectedMeasurementType):
+    """Assert that the data is within the min and max values"""
+    min, max = get_min_max()
+    if min is not None and max is not None:
+        return min <= data <= max
+    elif min is not None:
+        return min <= data
+    elif max is not None:
+        return data <= max
+    raise ValueError("Min and max values not set")
+
+
+def get_min_max() -> (
+    Tuple[ExpectedMeasurementType | None, ExpectedMeasurementType | None]
+):
+    output_dir, postfix_file = __get_location()
+    min_max_file = os.path.join(output_dir, f"min_max_{postfix_file}.json")
+    if os.path.exists(min_max_file):
+        with open(min_max_file, "r") as f:
+            data = ExpectedMeasurement.model_validate_json(f.read())
+            return data.min, data.max
+    logging.warn("Min and max values not found")
+    return None, None
+
+
 # ------ Protected ------
+
+
+def _set_min_max(
+    min_val: ExpectedMeasurementType | None, max_val: ExpectedMeasurementType | None
+):
+    """
+    Set the min and max values for a test from within the test sequencer.
+     - The use of `_set_output_loc` prior to calling this is highly recommended.
+    """
+    output_dir, postfix_file = __get_location()
+    min_max_file = os.path.join(output_dir, f"min_max_{postfix_file}.json")
+    data = {"min": min_val, "max": max_val}
+    with open(min_max_file, "w") as f:
+        f.write(ExpectedMeasurement(**data).model_dump_json())
+        logging.info(f"Min and max values set to {min_max_file}")
 
 
 def _get_most_recent_data(
@@ -61,12 +111,32 @@ def _get_most_recent_data(
     return __extract_data(output_dir + output_file)
 
 
-def _set_output_loc(prefix: str | None):
-    """Set the output location for the data when launching a test in the test sequencer."""
+def _set_output_loc(prefix: str | None, rm_existing_data: bool = False):
+    """
+    Set the output location for the data when launching a test in the test sequencer.
+    @prefix: The prefix to use for the data files and directory.
+    - If None, the default prefix is used.
+    @rm_existing_data: If True, all existing data in the output directory is deleted.
+    - Warning: If the prefixis None, everything is deleted.
+
+    """
     if prefix is not None:
         os.environ[OPTIONAL_NAME_ENV] = prefix
     else:
         os.environ.pop(OPTIONAL_NAME_ENV)
+    if rm_existing_data:
+        _nuke_output_loc()
+
+
+def _nuke_output_loc():
+    """
+    Delete data files in the output directory.
+    - Warning: If the output loc is not set, everything is deleted
+    """
+    output_dir, _ = __get_location()
+    if not os.path.exists(output_dir):
+        return
+    shutil.rmtree(output_dir)
 
 
 # ------ Private ------
@@ -86,8 +156,11 @@ FLOAT = "_float.txt"
 def __get_location():
     output_dir = DEFAULT_PATH
     prefix_file = os.environ.get(OPTIONAL_NAME_ENV)
+    output_dir = os.path.join(output_dir, f"{prefix_file}/")
     if prefix_file is None:
         prefix_file = DEFAULT_NAME
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
     return output_dir, prefix_file
 
@@ -98,7 +171,6 @@ def __get_most_recent_file(output_dir: str, prefix_file: str):
     if not os.path.exists(output_dir):
         return None
     for file in os.listdir(output_dir):
-        logging.info(f"Available data: {file}")
         if file.startswith(prefix_file):
             file_path = os.path.join(output_dir, file)
             file_time = os.path.getmtime(file_path)

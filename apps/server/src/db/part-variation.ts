@@ -36,6 +36,7 @@ export async function createPartVariation(
         components.map((c) => ({
           parentPartVariationId: partVariation.id,
           childPartVariationId: c.partVariationId,
+          workspaceId: input.workspaceId,
           count: c.count,
         })),
       )

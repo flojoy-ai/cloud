@@ -33,6 +33,7 @@ import {
 import { DateBinSelect } from "@/components/visualization/date-bin-select";
 import { StatusDoughnut } from "@/components/visualization/status-doughnut";
 import { TimeSeriesBarChart } from "@/components/visualization/time-series-bar-chart";
+import { useProjectUser } from "@/hooks/use-project-user";
 import {
   getProjectMetricsQueryOpts,
   getProjectMetricsSeriesQueryOpts,
@@ -231,6 +232,7 @@ function Page() {
   const { projectId } = Route.useParams();
 
   const [bin, setBin] = useState<TimePeriod>("day");
+  const { projectUser } = useProjectUser();
 
   const { data: stations } = useSuspenseQuery(
     getStationsQueryOpts({ projectId, context: { workspace } }),
@@ -294,7 +296,11 @@ function Page() {
       </Breadcrumb>
       <PageHeader>
         <PageHeaderHeading className="">{project.name}</PageHeaderHeading>
-        <PageHeaderDescription></PageHeaderDescription>
+        <PageHeaderDescription>
+          <div className="items-center flex gap-2">
+            Role: <Badge>{projectUser.role}</Badge>
+          </div>
+        </PageHeaderDescription>
       </PageHeader>
 
       <div className="py-4"></div>
@@ -320,7 +326,6 @@ function Page() {
                     {partVariation.partNumber}
                   </Link>
                 </Metric>
-
                 <Metric
                   variant="large"
                   title="Total number of units"
@@ -351,7 +356,7 @@ function Page() {
               </div>
             </Card>
             <div className="py-3" />
-            <Card className="h-56 p-6 flex items-center xl:gap-x-12 lg:gap-x-6 gap-x-2">
+            <Card className="h-56 p-6 flex items-center lg:gap-x-6 gap-x-2">
               <StatusDoughnut
                 passed={metrics.sessionPassedCount}
                 failed={metrics.sessionFailedCount}

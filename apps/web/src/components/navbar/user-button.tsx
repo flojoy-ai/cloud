@@ -16,13 +16,16 @@ import { env } from "@/env";
 import { siteConfig } from "@/config/site";
 import { Icons } from "../icons";
 import { BookText } from "lucide-react";
+import { WorkspaceUser } from "@cloud/shared";
+import { Badge } from "../ui/badge";
 
 // TODO: Fix user type here
 type Props = {
   user: User;
+  workspaceUser?: WorkspaceUser;
 };
 
-function UserButton({ user }: Props) {
+function UserButton({ user, workspaceUser }: Props) {
   const router = useRouter();
 
   async function handleLogout() {
@@ -36,7 +39,7 @@ function UserButton({ user }: Props) {
         <Button
           variant="outline"
           className={cn(
-            "h-8 justify-start gap-2 rounded-[0.5rem] bg-background text-sm font-normal shadow-none",
+            "justify-start gap-2 rounded-[0.5rem] bg-background text-sm font-normal shadow-none",
           )}
         >
           <Avatar className="h-5 w-5">
@@ -48,17 +51,18 @@ function UserButton({ user }: Props) {
             <AvatarFallback>SC</AvatarFallback>
           </Avatar>
           <div>{user.email}</div>
+          {workspaceUser && <Badge>{workspaceUser?.role}</Badge>}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onSelect={() => router.navigate({ to: "/profile" })}
-        >
-          Profile
-        </DropdownMenuItem>
+        {/* <DropdownMenuSeparator /> */}
+        {/* <DropdownMenuItem */}
+        {/*   className="cursor-pointer" */}
+        {/*   onSelect={() => router.navigate({ to: "/profile" })} */}
+        {/* > */}
+        {/*   Profile */}
+        {/* </DropdownMenuItem> */}
         <DropdownMenuSeparator />
         <DropdownMenuItem className="cursor-pointer">
           <a href={"https://rest.flojoy.ai"} target="_blank">

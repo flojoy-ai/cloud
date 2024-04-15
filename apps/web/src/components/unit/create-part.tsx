@@ -98,10 +98,8 @@ const CreatePart = ({ workspaceId, products }: Props) => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Register a new unit part</DialogTitle>
-          <DialogDescription>
-            What hardware part are you working on?
-          </DialogDescription>
+          <DialogTitle>Register a new part</DialogTitle>
+          <DialogDescription>What part are you working on?</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -115,7 +113,8 @@ const CreatePart = ({ workspaceId, products }: Props) => {
                     <Input placeholder="M1234" {...field} data-1p-ignore />
                   </FormControl>
                   <FormDescription>
-                    What are you calling this part?
+                    What are you calling this part? All variations of the part
+                    will begin with this name.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

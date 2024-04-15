@@ -1,4 +1,10 @@
 import { toast } from "sonner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -40,6 +46,8 @@ import { typeboxResolver } from "@hookform/resolvers/typebox";
 import { Link, useRouter } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
 import { client } from "@/lib/client";
+import { useWorkspaceUser } from "@/hooks/use-workspace-user";
+import { Info } from "lucide-react";
 
 type Props = {
   workspace: Workspace;
@@ -93,17 +101,38 @@ export default function NewProjectButton({ workspace, partVariations }: Props) {
     );
   }
 
+  const { workspaceUserPerm } = useWorkspaceUser();
+
   return (
     <>
       <Dialog
         open={isDialogOpen}
         onOpenChange={(open) => setIsDialogOpen(open)}
       >
-        <DialogTrigger asChild>
-          <Button variant="default" size="sm">
-            New Test Profile
-          </Button>
-        </DialogTrigger>
+        <div className="flex gap-2">
+          <DialogTrigger asChild>
+            <Button
+              variant="default"
+              disabled={!workspaceUserPerm.canWrite()}
+              size="sm"
+            >
+              New Test Profile
+            </Button>
+          </DialogTrigger>
+          {!workspaceUserPerm.canWrite() && (
+            <TooltipProvider>
+              <Tooltip delayDuration={0}>
+                <TooltipTrigger>
+                  <Info className="h-5 w-5" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  Please contact your workspace admin to create a test profile
+                  :)
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Create your new test profile</DialogTitle>

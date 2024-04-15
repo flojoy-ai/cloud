@@ -19,7 +19,6 @@ import { Route as PublicSignupImport } from './routes/_public/signup'
 import { Route as PublicLoginImport } from './routes/_public/login'
 import { Route as ProtectedSetupImport } from './routes/_protected/setup'
 import { Route as ProtectedWorkspaceIndexImport } from './routes/_protected/workspace/index'
-import { Route as ProtectedProfileIndexImport } from './routes/_protected/profile/index'
 import { Route as ProtectedWorkspaceNamespaceRouteImport } from './routes/_protected/workspace/$namespace/route'
 import { Route as ProtectedWorkspaceNamespaceIndexImport } from './routes/_protected/workspace/$namespace/index'
 import { Route as ProtectedWorkspaceNamespaceUnitRouteImport } from './routes/_protected/workspace/$namespace/unit/route'
@@ -43,6 +42,8 @@ import { Route as ProtectedWorkspaceNamespaceStationStationIdIndexImport } from 
 import { Route as ProtectedWorkspaceNamespaceSessionSessionIdIndexImport } from './routes/_protected/workspace/$namespace/session/$sessionId/index'
 import { Route as ProtectedWorkspaceNamespaceProjectProjectIdIndexImport } from './routes/_protected/workspace/$namespace/project/$projectId/index'
 import { Route as ProtectedWorkspaceNamespacePartPartIdIndexImport } from './routes/_protected/workspace/$namespace/part/$partId/index'
+import { Route as ProtectedWorkspaceNamespaceProjectProjectIdSettingsRouteImport } from './routes/_protected/workspace/$namespace/project/$projectId/settings/route'
+import { Route as ProtectedWorkspaceNamespaceProjectProjectIdSettingsIndexImport } from './routes/_protected/workspace/$namespace/project/$projectId/settings/index'
 
 // Create Virtual Routes
 
@@ -82,11 +83,6 @@ const ProtectedSetupRoute = ProtectedSetupImport.update({
 
 const ProtectedWorkspaceIndexRoute = ProtectedWorkspaceIndexImport.update({
   path: '/workspace/',
-  getParentRoute: () => ProtectedRoute,
-} as any)
-
-const ProtectedProfileIndexRoute = ProtectedProfileIndexImport.update({
-  path: '/profile/',
   getParentRoute: () => ProtectedRoute,
 } as any)
 
@@ -229,6 +225,19 @@ const ProtectedWorkspaceNamespacePartPartIdIndexRoute =
     getParentRoute: () => ProtectedWorkspaceNamespacePartPartIdRouteRoute,
   } as any)
 
+const ProtectedWorkspaceNamespaceProjectProjectIdSettingsRouteRoute =
+  ProtectedWorkspaceNamespaceProjectProjectIdSettingsRouteImport.update({
+    path: '/settings',
+    getParentRoute: () => ProtectedWorkspaceNamespaceProjectProjectIdRouteRoute,
+  } as any)
+
+const ProtectedWorkspaceNamespaceProjectProjectIdSettingsIndexRoute =
+  ProtectedWorkspaceNamespaceProjectProjectIdSettingsIndexImport.update({
+    path: '/',
+    getParentRoute: () =>
+      ProtectedWorkspaceNamespaceProjectProjectIdSettingsRouteRoute,
+  } as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -259,10 +268,6 @@ declare module '@tanstack/react-router' {
     }
     '/_protected/workspace/$namespace': {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceRouteImport
-      parentRoute: typeof ProtectedImport
-    }
-    '/_protected/profile/': {
-      preLoaderRoute: typeof ProtectedProfileIndexImport
       parentRoute: typeof ProtectedImport
     }
     '/_protected/workspace/': {
@@ -329,6 +334,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceSettingsIndexImport
       parentRoute: typeof ProtectedWorkspaceNamespaceSettingsRouteImport
     }
+    '/_protected/workspace/$namespace/project/$projectId/settings': {
+      preLoaderRoute: typeof ProtectedWorkspaceNamespaceProjectProjectIdSettingsRouteImport
+      parentRoute: typeof ProtectedWorkspaceNamespaceProjectProjectIdRouteImport
+    }
     '/_protected/workspace/$namespace/part/$partId/': {
       preLoaderRoute: typeof ProtectedWorkspaceNamespacePartPartIdIndexImport
       parentRoute: typeof ProtectedWorkspaceNamespacePartPartIdRouteImport
@@ -357,6 +366,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceVariationPartVariationIdIndexImport
       parentRoute: typeof ProtectedWorkspaceNamespaceVariationPartVariationIdRouteImport
     }
+    '/_protected/workspace/$namespace/project/$projectId/settings/': {
+      preLoaderRoute: typeof ProtectedWorkspaceNamespaceProjectProjectIdSettingsIndexImport
+      parentRoute: typeof ProtectedWorkspaceNamespaceProjectProjectIdSettingsRouteImport
+    }
   }
 }
 
@@ -368,6 +381,9 @@ export const routeTree = rootRoute.addChildren([
     ProtectedWorkspaceNamespaceRouteRoute.addChildren([
       ProtectedWorkspaceNamespaceProjectRouteRoute.addChildren([
         ProtectedWorkspaceNamespaceProjectProjectIdRouteRoute.addChildren([
+          ProtectedWorkspaceNamespaceProjectProjectIdSettingsRouteRoute.addChildren(
+            [ProtectedWorkspaceNamespaceProjectProjectIdSettingsIndexRoute],
+          ),
           ProtectedWorkspaceNamespaceProjectProjectIdIndexRoute,
         ]),
         ProtectedWorkspaceNamespaceProjectIndexRoute,
@@ -399,7 +415,6 @@ export const routeTree = rootRoute.addChildren([
       ProtectedWorkspaceNamespacePartIndexRoute,
       ProtectedWorkspaceNamespaceSessionSessionIdIndexRoute,
     ]),
-    ProtectedProfileIndexRoute,
     ProtectedWorkspaceIndexRoute,
   ]),
   PublicRoute.addChildren([

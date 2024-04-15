@@ -157,7 +157,7 @@ export async function populateExample(
       .values({
         projectId: pi5Project.id,
         userId: workspaceUser.userId,
-        role: "dev",
+        role: "developer",
         workspaceId: workspaceUser.workspaceId,
       })
       .executeTakeFirstOrThrow();
@@ -248,6 +248,7 @@ export async function populateExample(
         pis.map((pi, i) => ({
           parentUnitId: pi.id,
           childUnitId: cpus[i].id,
+          workspaceId,
         })),
       )
       .execute();
@@ -258,6 +259,7 @@ export async function populateExample(
         pis.map((pi, i) => ({
           parentUnitId: pi.id,
           childUnitId: rams[i].id,
+          workspaceId,
         })),
       )
       .execute();
@@ -268,6 +270,7 @@ export async function populateExample(
         pis.map((pi, i) => ({
           parentUnitId: pi.id,
           childUnitId: disks[i].id,
+          workspaceId,
         })),
       )
       .execute();
@@ -314,9 +317,9 @@ export async function populateExample(
             },
             {
               name: "Did Light Up",
+              durationMs: 1000,
               testId: booleanTest.id,
               createdAt: new Date(new Date().getTime() - i * i * 5 * ONE_DAY),
-              durationMs: 1000,
               data: { type: "boolean" as const, value: val },
               pass: val,
             },

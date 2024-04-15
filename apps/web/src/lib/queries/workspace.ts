@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { client } from "../client";
+import { Workspace } from "@cloud/shared";
 
 export function getWorkspacesQueryKey() {
   return ["workspaces"];
@@ -37,5 +38,50 @@ export function getWorkspaceQueryOpts({ namespace }: getProjectProps) {
       return workspaceQuery.data;
     },
     queryKey: getWorkspaceQueryKey(namespace),
+  });
+}
+
+type getWorkspaceUsersProps = {
+  context: {
+    workspace: Workspace;
+  };
+};
+
+export function getWorkspaceUsersQueryKey(workspaceId: string) {
+  return ["workspace", workspaceId, "users"];
+}
+
+export function getWorkspaceUsersQueryOpts({
+  context,
+}: getWorkspaceUsersProps) {
+  return queryOptions({
+    queryFn: async () => {
+      const { data: workspaces, error } = await client.workspace.user.index.get(
+        {
+          headers: {
+            "flojoy-workspace-id": context.workspace.id,
+          },
+        },
+      );
+      if (error) throw error.value;
+      return workspaces;
+    },
+    queryKey: getWorkspaceUsersQueryKey(context.workspace.id),
+  });
+}
+
+export function getWorkspaceInvitesQueryKey() {
+  return ["invites"];
+}
+
+export function getWorkspaceInvitesQueryOpts() {
+  return queryOptions({
+    queryFn: async () => {
+      const { data: workspaces, error } =
+        await client.workspace.invite.index.get();
+      if (error) throw error.value;
+      return workspaces;
+    },
+    queryKey: getWorkspaceInvitesQueryKey(),
   });
 }
