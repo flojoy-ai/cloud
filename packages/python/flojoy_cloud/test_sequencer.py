@@ -1,12 +1,13 @@
 import logging
 import os
 import shutil
-from typing import Tuple
-import pandas as pd
 import tempfile
-from .measurement import MeasurementData
+from typing import Tuple
+
+import pandas as pd
 from pydantic import BaseModel
 
+from .measurement import MeasurementData
 
 ExpectedMeasurementType = int | float
 
