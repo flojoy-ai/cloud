@@ -326,6 +326,8 @@ function Page() {
                 aborted={metrics.sessionAbortedCount}
                 innerText="sessions"
                 className="w-1/2 h-full"
+                numberClassName="lg:text-xl text-lg font-semibold"
+                innerTextClassName="lg:text-base text-sm"
               />
               <div className="flex flex-col gap-y-2">
                 <Metric

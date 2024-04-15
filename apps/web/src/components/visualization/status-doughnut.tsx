@@ -11,6 +11,8 @@ type Props = {
   aborted: number;
   innerText: string;
   className?: string;
+  numberClassName?: string;
+  innerTextClassName?: string;
 };
 
 export const StatusDoughnut = ({
@@ -19,6 +21,8 @@ export const StatusDoughnut = ({
   aborted,
   innerText,
   className,
+  numberClassName,
+  innerTextClassName,
 }: Props) => {
   const ref = useRef<Chart<"doughnut", number[], string> | undefined>(null);
   const passColor = getCssVariable("--chart-pass");
@@ -59,11 +63,13 @@ export const StatusDoughnut = ({
         }}
       />
       <div className="absolute z-10 top-1/2 left-1/2 -translate-x-1/2 text-center -translate-y-1/2 mt-1">
-        <span className="text-xl font-semibold">
+        <span className={cn(numberClassName ?? "text-xl font-semibold")}>
           {passed + failed + aborted}
         </span>
         <br />
-        <span className="text-muted-foreground">{innerText}</span>
+        <span className={cn("text-muted-foreground", innerTextClassName)}>
+          {innerText}
+        </span>
       </div>
     </div>
   );
