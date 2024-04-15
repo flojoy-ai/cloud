@@ -28,6 +28,9 @@ import { columns } from "@/components/station/columns";
 import { getPartVariationQueryOpts } from "@/lib/queries/part-variation";
 import CenterLoadingSpinner from "@/components/center-loading-spinner";
 import { Button } from "@/components/ui/button";
+import { getProjectUserQueryOpts } from "@/lib/queries/user";
+import { ProjectUserProvider } from "@/context/project-user";
+import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/project/$projectId/",
@@ -36,6 +39,10 @@ export const Route = createFileRoute(
   loader: ({ context, params: { projectId } }) => {
     context.queryClient.ensureQueryData(
       getStationsQueryOpts({ projectId, context }),
+    );
+
+    context.queryClient.ensureQueryData(
+      getProjectUserQueryOpts({ projectId, context }),
     );
 
     context.queryClient.ensureQueryData(
@@ -56,6 +63,10 @@ function Page() {
     getStationsQueryOpts({ projectId, context: { workspace } }),
   );
 
+  const { data: projectUser } = useSuspenseQuery(
+    getProjectUserQueryOpts({ projectId, context: { workspace } }),
+  );
+
   const { data: partVariation } = useSuspenseQuery(
     getPartVariationQueryOpts({
       context: { workspace },
@@ -64,75 +75,81 @@ function Page() {
   );
 
   return (
-    <div className="container max-w-screen-2xl">
-      <div className="py-2"></div>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link from={Route.fullPath} to="../..">
-                {workspace.name}
-              </Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link from={Route.fullPath} to="..">
-                Production Lines
-              </Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>{project.name}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-      <PageHeader>
-        <PageHeaderHeading className="">{project.name}</PageHeaderHeading>
-        <PageHeaderDescription></PageHeaderDescription>
-      </PageHeader>
+    <ProjectUserProvider projectUser={projectUser}>
+      <div className="container max-w-screen-2xl">
+        <div className="py-2"></div>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link from={Route.fullPath} to="../..">
+                  {workspace.name}
+                </Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link from={Route.fullPath} to="..">
+                  Production Lines
+                </Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{project.name}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <PageHeader>
+          <PageHeaderHeading className="">{project.name}</PageHeaderHeading>
+          <PageHeaderDescription>
+            <div className="items-center flex gap-2">
+              Role: <Badge>{projectUser.role}</Badge>
+            </div>
+          </PageHeaderDescription>
+        </PageHeader>
 
-      <div className="py-4"></div>
+        <div className="py-4"></div>
 
-      <div className="space-x-2">
-        <NewStation project={project} />
-      </div>
-
-      <div className="py-4"></div>
-
-      <div className="grid grid-cols-4 gap-4">
-        <div className="col-span-3">
-          <DataTable columns={columns} data={stations} />
+        <div className="space-x-2">
+          <NewStation project={project} />
         </div>
-        <div className="col-span-1">
-          <Button className="w-full" variant="secondary" asChild>
-            <Link
-              from={Route.fullPath}
-              to={"/workspace/$namespace/project/$projectId/settings"}
-              search={{ tab: "general" }}
-            >
-              Settings
-            </Link>
-          </Button>
-          <div className="py-2"></div>
-          <Card>
-            <CardHeader>
-              <CardTitle>{partVariation.partNumber}</CardTitle>
-              <CardDescription>
-                This is the partVariation being tested in this production line
-              </CardDescription>
-            </CardHeader>
-            {/* <CardContent> */}
-            {/*   <p>Card Content</p> */}
-            {/* </CardContent> */}
-            {/* <CardFooter> */}
-            {/*   <p>Card Footer</p> */}
-            {/* </CardFooter> */}
-          </Card>
+
+        <div className="py-4"></div>
+
+        <div className="grid grid-cols-4 gap-4">
+          <div className="col-span-3">
+            <DataTable columns={columns} data={stations} />
+          </div>
+          <div className="col-span-1">
+            <Button className="w-full" variant="secondary" asChild>
+              <Link
+                from={Route.fullPath}
+                to={"/workspace/$namespace/project/$projectId/settings"}
+                search={{ tab: "general" }}
+              >
+                Settings
+              </Link>
+            </Button>
+            <div className="py-2"></div>
+            <Card>
+              <CardHeader>
+                <CardTitle>{partVariation.partNumber}</CardTitle>
+                <CardDescription>
+                  This is the partVariation being tested in this production line
+                </CardDescription>
+              </CardHeader>
+              {/* <CardContent> */}
+              {/*   <p>Card Content</p> */}
+              {/* </CardContent> */}
+              {/* <CardFooter> */}
+              {/*   <p>Card Footer</p> */}
+              {/* </CardFooter> */}
+            </Card>
+          </div>
         </div>
       </div>
-    </div>
+    </ProjectUserProvider>
   );
 }

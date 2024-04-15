@@ -18,6 +18,7 @@ export const UserRoute = new Elysia({ prefix: "/user", name: "UserRoute" })
     async ({ params: { projectId }, workspaceUser }) => {
       return await db
         .selectFrom("project_user as pu")
+        .selectAll("pu")
         .where("pu.projectId", "=", projectId)
         .where("pu.workspaceId", "=", workspaceUser.workspaceId)
         .where("pu.userId", "=", workspaceUser.userId)
