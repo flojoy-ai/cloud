@@ -26,6 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { Session } from "@cloud/shared/src/schemas/public/Session";
 import CenterLoadingSpinner from "@/components/center-loading-spinner";
 import { getSessionsByUnitIdQueryOpts } from "@/lib/queries/session";
+import { DateTime } from "luxon";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/unit/$unitId/",
@@ -49,10 +50,17 @@ const columns: ColumnDef<Session & { status: boolean | null }>[] = [
   {
     accessorKey: "createdAt",
     header: "Date",
+    cell: ({ row }) => {
+      return (
+        DateTime.fromJSDate(row.original.createdAt, {
+          zone: "Etc/GMT",
+        }).toLocaleString(DateTime.DATETIME_MED) + " UTC"
+      );
+    },
   },
   {
-    accessorKey: "userId",
-    header: "User",
+    accessorKey: "userEmail",
+    header: "Operator",
   },
   {
     header: "Status",
@@ -156,7 +164,8 @@ function UnitPage() {
           </div>
         </PageHeaderHeading>
         <PageHeaderDescription>
-          All tests that have been performed on &quot;{unit.serialNumber}
+          All test sessions that have been performed on &quot;
+          {unit.serialNumber}
           &quot; are listed here.
         </PageHeaderDescription>
       </PageHeader>

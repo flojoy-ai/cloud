@@ -1,5 +1,6 @@
 import { useTheme } from "@/hooks/use-theme";
 import { getCssVariable } from "@/lib/style";
+import { cn } from "@/lib/utils";
 import { Chart } from "chart.js";
 import { useEffect, useRef } from "react";
 import { Doughnut } from "react-chartjs-2";
@@ -9,6 +10,7 @@ type Props = {
   failed: number;
   aborted: number;
   innerText: string;
+  className?: string;
 };
 
 export const StatusDoughnut = ({
@@ -16,6 +18,7 @@ export const StatusDoughnut = ({
   failed,
   aborted,
   innerText,
+  className,
 }: Props) => {
   const ref = useRef<Chart<"doughnut", number[], string> | undefined>(null);
   const passColor = getCssVariable("--chart-pass");
@@ -29,7 +32,7 @@ export const StatusDoughnut = ({
   }, [theme]);
 
   return (
-    <div className="h-full relative w-fit">
+    <div className={cn("relative", className)}>
       <Doughnut
         ref={ref}
         data={{
@@ -52,6 +55,7 @@ export const StatusDoughnut = ({
               display: false,
             },
           },
+          maintainAspectRatio: false,
         }}
       />
       <div className="absolute z-10 top-1/2 left-1/2 -translate-x-1/2 text-center -translate-y-1/2 mt-1">

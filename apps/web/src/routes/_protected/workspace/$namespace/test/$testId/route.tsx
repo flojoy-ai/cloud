@@ -1,6 +1,7 @@
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 import CenterLoadingSpinner from "@/components/center-loading-spinner";
 import { getTestQueryOpts } from "@/lib/queries/test";
+import { getProjectQueryOpts } from "@/lib/queries/project";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/test/$testId",
@@ -10,7 +11,10 @@ export const Route = createFileRoute(
     const test = await context.queryClient.ensureQueryData(
       getTestQueryOpts({ testId, context }),
     );
-    return { test };
+    const project = await context.queryClient.ensureQueryData(
+      getProjectQueryOpts({ projectId: test.projectId, context }),
+    );
+    return { test, project };
   },
   component: Page,
 });

@@ -110,14 +110,6 @@ function Page() {
         <div className="col-span-3">
           <DataTable columns={columns} data={sessions} />
         </div>
-        <div className="col-span-1">
-          <Card>
-            <CardHeader>
-              <CardTitle>Pass</CardTitle>
-              <CardDescription>Global Statistics</CardDescription>
-            </CardHeader>
-          </Card>
-        </div>
       </div>
     </div>
   );

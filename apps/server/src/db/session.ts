@@ -33,6 +33,8 @@ export async function getSessionsByUnitId(
     )
     .where("pu.role", "!=", "pending")
     .select((eb) => withStatus(eb))
+    .innerJoin("user", "user.id", "session.userId")
+    .select("user.email as userEmail")
     .where("session.unitId", "=", unitId)
     .execute();
 }

@@ -152,12 +152,12 @@ const Metric = ({
 }: MetricProps) => {
   return (
     <div className={cn("min-w-fit", className)}>
-      <div className="flex gap-x-2 items-center">
+      <div className="flex gap-x-2 items-center text-nowrap">
         <Icon size={16} className="stroke-muted-foreground" />
         <h3
           className={cn(
             "text-muted-foreground",
-            variant === "small" ? "text-xs" : "text-sm",
+            variant === "small" ? "text-xs" : "lg:text-sm text-xs",
           )}
         >
           {title}
@@ -166,8 +166,8 @@ const Metric = ({
       {variant === "large" && <div className="py-0.5" />}
       <div
         className={cn(
-          "font-semibold",
-          variant === "small" ? "text-sm" : "text-2xl",
+          "font-semibold text-nowrap",
+          variant === "small" ? "text-sm" : "lg:text-2xl text-lg",
         )}
       >
         {children}
@@ -319,12 +319,13 @@ function Page() {
               </div>
             </Card>
             <div className="py-3" />
-            <Card className="h-56 p-6 flex items-center gap-x-12">
+            <Card className="h-56 p-6 flex items-center xl:gap-x-12 lg:gap-x-6 gap-x-2">
               <StatusDoughnut
                 passed={metrics.sessionPassedCount}
                 failed={metrics.sessionFailedCount}
                 aborted={metrics.sessionAbortedCount}
                 innerText="sessions"
+                className="w-1/2 h-full"
               />
               <div className="flex flex-col gap-y-2">
                 <Metric
