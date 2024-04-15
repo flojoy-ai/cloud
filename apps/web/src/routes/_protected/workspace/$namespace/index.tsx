@@ -4,8 +4,6 @@ import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 import SearchBar from "@/components/workspace/search-bar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { LineChart } from "lucide-react";
 
 export const Route = createFileRoute("/_protected/workspace/$namespace/")({
   component: Page,
@@ -32,16 +30,6 @@ function Page() {
         </div>
 
         <div className="py-4" />
-        <div className="w-full">
-          <Link from={Route.fullPath} to="dashboard">
-            <Button variant="secondary" className="flex items-center mx-auto">
-              <LineChart size={20} className="stroke-muted-foreground" />
-              <div className="px-1" />
-              <span>Dashboard</span>
-            </Button>
-          </Link>
-        </div>
-        <div className="py-2" />
         <div className="flex gap-x-6">
           <Link
             from={Route.fullPath}
@@ -61,6 +49,15 @@ function Page() {
           >
             Inventory
           </Link>
+          <Link
+            from={Route.fullPath}
+            to="dashboard"
+            className={cn(
+              "text-foreground/60 transition-colors hover:text-foreground/80",
+            )}
+          >
+            Dashboard
+          </Link>
 
           <Link
             from={Route.fullPath}
@@ -70,7 +67,7 @@ function Page() {
               "text-foreground/60 transition-colors hover:text-foreground/80",
             )}
           >
-            Workspace Settings
+            Settings
           </Link>
         </div>
 
