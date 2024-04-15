@@ -1,4 +1,4 @@
-import { prefixSum, suffixSum } from "@/lib/stats";
+import { suffixSum } from "@/lib/stats";
 import { TimePeriod } from "@cloud/shared";
 import { Line } from "react-chartjs-2";
 import { DateBinSelect } from "./date-bin-select";
