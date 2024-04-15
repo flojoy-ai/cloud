@@ -170,6 +170,14 @@ export async function populateExample(
       })
     ).safeUnwrap();
 
+    const scalarTest = yield* (
+      await createTest(db, {
+        name: "Voltage Test",
+        projectId: pi5Project.id,
+        measurementType: "scalar",
+      })
+    ).safeUnwrap();
+
     const dataframeTest = yield* (
       await createTest(db, {
         name: "Expected vs Measured",
@@ -293,6 +301,17 @@ export async function populateExample(
           integrity: true,
           aborted: false,
           measurements: [
+            {
+              name: "Voltage Test",
+              testId: scalarTest.id,
+              createdAt: new Date(new Date().getTime() - i * ONE_DAY),
+              durationMs: 1000,
+              data: {
+                type: "scalar" as const,
+                value: Math.round((5 + Math.random()) * 100) / 100,
+              },
+              pass: val,
+            },
             {
               name: "Did Light Up",
               testId: booleanTest.id,
