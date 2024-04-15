@@ -90,22 +90,24 @@ const columns: ColumnDef<ProjectUserWithUser>[] = [
   },
   {
     id: "actions",
-    cell: DeleteWorkspaceUser,
+    cell: DeleteProjectUser,
   },
 ];
 
-function DeleteWorkspaceUser({ row }: { row: Row<ProjectUserWithUser> }) {
+function DeleteProjectUser({ row }: { row: Row<ProjectUserWithUser> }) {
   const queryClient = useQueryClient();
   const deleteUserMutation = useMutation({
     mutationFn: async (userId: string) => {
-      await client.workspace.user.index.delete(
-        { userId },
-        { headers: { "flojoy-workspace-id": row.original.workspaceId } },
-      );
+      await client
+        .project({ projectId: row.original.projectId })
+        .user.index.delete(
+          { userId },
+          { headers: { "flojoy-workspace-id": row.original.workspaceId } },
+        );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: getWorkspaceUsersQueryKey(row.original.workspaceId),
+        queryKey: getProjectUsersQueryKey(row.original.projectId),
       });
       toast.success(`User (${row.original.user.email}) deleted`);
     },
