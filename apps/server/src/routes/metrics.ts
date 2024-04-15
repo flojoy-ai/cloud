@@ -1,8 +1,8 @@
 import { TimePeriod, timeFilterQueryParams, timePeriod } from "@cloud/shared";
-import { faker } from "@faker-js/faker";
 import { Elysia, t } from "elysia";
-import _ from "lodash";
 import {
+  countSessionsOverTime,
+  countUsersOverTime,
   getProjectMetrics,
   getProjectMetricsOverTime,
   getWorkspaceMetrics,
@@ -10,48 +10,10 @@ import {
 import { checkProjectPerm } from "../lib/perm/project";
 import { getPastStartTime } from "../lib/time";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
+import { fakeTimeSeries } from "../lib/mock";
 
 const getStartTime = (past: TimePeriod | undefined, from: Date | undefined) =>
   from ?? (past ? getPastStartTime(past) : undefined);
-
-const truncateDate = (date: Date, bin: TimePeriod) => {
-  switch (bin) {
-    case "day":
-      return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    case "week":
-      return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    case "month":
-      return new Date(date.getFullYear(), date.getMonth());
-    case "year":
-      return new Date(date.getFullYear(), 0);
-  }
-};
-
-const fakeTimeSeries = (bin: TimePeriod) => {
-  const fakeData = _.uniqBy(
-    _.sortBy(
-      _.range(100).map(() => ({
-        count: faker.number.int({ min: 0, max: 1000 }),
-        bin: truncateDate(
-          faker.date.recent({
-            days:
-              bin === "day"
-                ? 7
-                : bin === "week"
-                  ? 60
-                  : bin === "month"
-                    ? 365
-                    : 2000,
-          }),
-          bin,
-        ),
-      })),
-      (d) => d.bin,
-    ),
-    (d) => d.bin.getTime(),
-  );
-  return fakeData;
-};
 
 export const MetricsRoute = new Elysia({
   prefix: "/metrics",
@@ -72,10 +34,10 @@ export const MetricsRoute = new Elysia({
       .get(
         "/series/session",
         async ({ workspace, query: { past, bin, from, to } }) => {
-          // const start = getStartTime(past, from);
-          // const end = to;
-          // return await countSessionsOverTime(workspace.id, bin, start, end);
           return fakeTimeSeries(bin);
+          const start = getStartTime(past, from);
+          const end = to;
+          return await countSessionsOverTime(workspace.id, bin, start, end);
         },
         {
           query: t.Composite([
@@ -87,10 +49,9 @@ export const MetricsRoute = new Elysia({
       .get(
         "/series/user",
         async ({ workspace, query: { past, bin, from, to } }) => {
-          return fakeTimeSeries(bin);
-          // const start = getStartTime(past, from);
-          // const end = to;
-          // return await countUsersOverTime(workspace.id, bin, start, end);
+          const start = getStartTime(past, from);
+          const end = to;
+          return await countUsersOverTime(workspace.id, bin, start, end);
         },
         {
           query: t.Composite([

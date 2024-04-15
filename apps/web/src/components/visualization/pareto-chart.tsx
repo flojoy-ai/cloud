@@ -1,6 +1,7 @@
 import { Chart } from "react-chartjs-2";
 import "chart.js/auto";
 import { prefixSum } from "@/lib/stats";
+import { getChartColors } from "@/lib/style";
 
 type Props = {
   labels: string[];
@@ -10,6 +11,8 @@ type Props = {
 export const ParetoChart = ({ labels, values }: Props) => {
   const cumulative = prefixSum(values);
   const total = cumulative[cumulative.length - 1];
+  const { accent, accentLight, accent2 } = getChartColors();
+
   return (
     <Chart
       type="bar"
@@ -19,11 +22,15 @@ export const ParetoChart = ({ labels, values }: Props) => {
             type: "bar",
             label: "Individual",
             data: values,
+            backgroundColor: `hsl(${accent} / 80%)`,
+            borderColor: `hsl(${accentLight})`,
           },
           {
             type: "line",
             label: "Cumulative",
             data: cumulative,
+            backgroundColor: `hsl(${accent2})`,
+            borderColor: `hsl(${accent2})`,
           },
         ],
         labels,

@@ -2,6 +2,7 @@ import { prefixSum } from "@/lib/stats";
 import { TimePeriod } from "@cloud/shared";
 import { Line } from "react-chartjs-2";
 import { DateBinSelect } from "./date-bin-select";
+import { getCssVariable, getChartColors } from "@/lib/style";
 
 type Props = {
   title?: string;
@@ -20,6 +21,8 @@ const tooltipDisplayFormats = {
 
 export const TimeSeriesChart = ({ title, bin, setBin, data, dates }: Props) => {
   const cumulative = prefixSum(data);
+  const { accent, accentLight } = getChartColors();
+
   return (
     <div>
       <div className="flex justify-between items-center">
@@ -38,6 +41,8 @@ export const TimeSeriesChart = ({ title, bin, setBin, data, dates }: Props) => {
           labels: dates,
         }}
         options={{
+          backgroundColor: `hsl(${accentLight})`,
+          borderColor: `hsl(${accent})`,
           elements: {
             point: {
               radius: 0,

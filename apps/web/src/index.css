@@ -33,6 +33,11 @@
     --ring: 240 10% 3.9%;
 
     --radius: 0.5rem;
+    
+    --chart-accent: 250 100% 69%;
+    --chart-accent-light: 250 100% 90%;
+
+    --chart-accent2: 347 100% 69%;
   }
 
   .dark {
@@ -54,7 +59,7 @@
     --muted: 240 3.7% 15.9%;
     --muted-foreground: 240 5% 64.9%;
 
-    --accent: 240 3.7% 15.9%;
+    --accent: 217 100% 50%;
     --accent-foreground: 0 0% 98%;
 
     --destructive: 0 62.8% 30.6%;
@@ -63,6 +68,11 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
+
+    --chart-accent: 250 100% 69%;
+    --chart-accent-light: 250 100% 90%;
+
+    --chart-accent2: 347 100% 69%;
   }
 }
 

@@ -1,7 +1,20 @@
-import { PastTimePeriod } from "@cloud/shared";
+import { TimePeriod } from "@cloud/shared";
 import { match } from "ts-pattern";
 
-export const getPastStartTime = (past: PastTimePeriod) => {
+export const truncateDate = (date: Date, bin: TimePeriod) => {
+  switch (bin) {
+    case "day":
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    case "week":
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    case "month":
+      return new Date(date.getFullYear(), date.getMonth());
+    case "year":
+      return new Date(date.getFullYear(), 0);
+  }
+};
+
+export const getPastStartTime = (past: TimePeriod) => {
   const now = new Date();
   // TODO: verify that this is actually correct
   match(past)
