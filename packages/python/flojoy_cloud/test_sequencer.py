@@ -59,7 +59,7 @@ def get_min_max() -> (
     Tuple[ExpectedMeasurementType | None, ExpectedMeasurementType | None]
 ):
     output_dir, postfix_file = __get_location()
-    min_max_file = os.path.join(output_dir, f"min_{postfix_file}.json")
+    min_max_file = os.path.join(output_dir, f"min_max_{postfix_file}.json")
     if os.path.exists(min_max_file):
         with open(min_max_file, "r") as f:
             data = ExpectedMeasurement.model_validate_json(f.read())
@@ -79,7 +79,7 @@ def _set_min_max(
      - The use of `_set_output_loc` prior to calling this is highly recommended.
     """
     output_dir, postfix_file = __get_location()
-    min_max_file = os.path.join(output_dir, f"min_{postfix_file}.json")
+    min_max_file = os.path.join(output_dir, f"min_max_{postfix_file}.json")
     data = {"min": min_val, "max": max_val}
     with open(min_max_file, "w") as f:
         f.write(ExpectedMeasurement(**data).model_dump_json())
