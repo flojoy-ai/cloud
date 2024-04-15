@@ -57,7 +57,6 @@ type Props = {
   workspace: Workspace;
   projectUsers: ProjectUserWithUser[];
 
-  workspacePerm: Perm;
   projectPerm: Perm;
 };
 

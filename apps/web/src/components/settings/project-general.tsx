@@ -43,16 +43,10 @@ import { getProjectQueryKey, getProjectsQueryKey } from "@/lib/queries/project";
 type Props = {
   workspace: Workspace;
   project: Project;
-  workspacePerm: Perm;
   projectPerm: Perm;
 };
 
-const ProjectGeneral = ({
-  workspace,
-  workspacePerm,
-  projectPerm,
-  project,
-}: Props) => {
+const ProjectGeneral = ({ workspace, projectPerm, project }: Props) => {
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -172,7 +166,7 @@ const ProjectGeneral = ({
           />
         </form>
       </Form>
-      {workspacePerm.canAdmin() && (
+      {projectPerm.canAdmin() && (
         <Card className="border-destructive">
           <CardHeader>
             <CardTitle className="text-xl">Delete Production Line</CardTitle>
