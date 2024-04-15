@@ -6,7 +6,7 @@ import {
   getGlobalMetricsUserTimeSeriesQueryOpts,
 } from "@/lib/queries/metrics";
 import { getProjectsQueryOpts } from "@/lib/queries/project";
-import { TimePeriod, workspace } from "@cloud/shared";
+import { TimePeriod } from "@cloud/shared";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Link } from "@tanstack/react-router";
 import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
+import { pastTimeFromBin } from "@/lib/time";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/dashboard/",
@@ -62,19 +63,6 @@ const Metric = ({ title, value, icon: Icon, className }: MetricProps) => {
       <div className="font-bold text-4xl text-center mt-2">{value}</div>
     </div>
   );
-};
-
-const pastTimeFromBin = (bin: TimePeriod) => {
-  switch (bin) {
-    case "day":
-      return "week";
-    case "week":
-      return "month";
-    case "month":
-      return "year";
-    case "year":
-      return undefined;
-  }
 };
 
 function DashboardPage() {

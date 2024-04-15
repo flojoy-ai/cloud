@@ -34,6 +34,7 @@ import {
 import { getPartVariationQueryOpts } from "@/lib/queries/part-variation";
 import { getStationsQueryOpts } from "@/lib/queries/station";
 import { makeTimeSeriesData } from "@/lib/stats";
+import { pastTimeFromBin } from "@/lib/time";
 import { cn } from "@/lib/utils";
 import { Test, TimePeriod, Unit } from "@cloud/shared";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
@@ -220,6 +221,7 @@ function Page() {
     getProjectMetricsSeriesQueryOpts({
       context: { workspace },
       projectId,
+      past: pastTimeFromBin(bin),
       bin,
     }),
   );

@@ -313,7 +313,7 @@ export async function populateExample(
                   y: generateRandomNumbers(),
                 },
               },
-              pass: Math.random() < 0.7 ? true : null,
+              pass: Math.random() < 0.7 ? true : false,
             },
           ],
           createdAt: new Date(new Date().getTime() - i * i * 5 * ONE_DAY),

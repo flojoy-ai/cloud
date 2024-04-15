@@ -126,6 +126,7 @@ export function getProjectMetricsQueryOpts({
 type GetProjectMetricsSeriesParams = {
   projectId: string;
   bin: TimePeriod;
+  past: TimePeriod | undefined;
   context: {
     workspace: Workspace;
   };
@@ -134,13 +135,15 @@ type GetProjectMetricsSeriesParams = {
 export function getProjectMetricsSeriesQueryKey(
   projectId: string,
   bin: TimePeriod,
+  past: TimePeriod | undefined,
 ) {
-  return ["projectMetricsSeries", projectId, bin];
+  return ["projectMetricsSeries", projectId, bin, past];
 }
 
 export function getProjectMetricsSeriesQueryOpts({
   projectId,
   bin,
+  past,
   context,
 }: GetProjectMetricsSeriesParams) {
   return queryOptions({
@@ -148,13 +151,13 @@ export function getProjectMetricsSeriesQueryOpts({
       const { data, error } = await client.metrics
         .project({ projectId })
         .series.get({
-          query: makeQueryParams({ bin }),
+          query: makeQueryParams({ bin, past }),
           headers: { "flojoy-workspace-id": context.workspace.id },
         });
       if (error) throw error;
       return data;
     },
-    queryKey: getProjectMetricsSeriesQueryKey(projectId, bin),
+    queryKey: getProjectMetricsSeriesQueryKey(projectId, bin, past),
     placeholderData: keepPreviousData,
   });
 }

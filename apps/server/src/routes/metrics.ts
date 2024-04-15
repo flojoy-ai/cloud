@@ -23,20 +23,18 @@ export const MetricsRoute = new Elysia({
     app
       .get(
         "/",
-        async ({ log, workspace, query: { past, from, to } }) => {
+        async ({ workspace, query: { past, from, to } }) => {
           const start = getStartTime(past, from);
           const end = to;
-          log.info("Start: ", start);
           return getWorkspaceMetrics(workspace.id, start, end);
         },
         { query: timeFilterQueryParams },
       )
       .get(
         "/series/session",
-        async ({ log, workspace, query: { past, bin, from, to } }) => {
+        async ({ workspace, query: { past, bin, from, to } }) => {
           const start = getStartTime(past, from);
           const end = to;
-          log.info("Start: ", start);
           return await countSessionsOverTime(workspace.id, bin, start, end);
         },
         {
@@ -84,11 +82,16 @@ export const MetricsRoute = new Elysia({
       )
       .get(
         "/series",
-        async ({ params: { projectId }, query: { bin } }) => {
-          return getProjectMetricsOverTime(projectId, bin);
+        async ({ params: { projectId }, query: { past, bin, from, to } }) => {
+          const start = getStartTime(past, from);
+          const end = to;
+          return getProjectMetricsOverTime(projectId, bin, start, end);
         },
         {
-          query: t.Object({ bin: timePeriod }),
+          query: t.Composite([
+            timeFilterQueryParams,
+            t.Object({ bin: timePeriod }),
+          ]),
         },
       ),
   );
