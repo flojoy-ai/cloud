@@ -113,9 +113,12 @@ function DeleteProjectUser({ row }: { row: Row<ProjectUserWithUser> }) {
     },
   });
 
-  const { projectUser } = useProjectUser();
+  const { projectUser, projectUserPerm } = useProjectUser();
 
-  if (row.original.userId === projectUser.userId) {
+  if (
+    row.original.userId === projectUser.userId ||
+    !projectUserPerm.canAdmin()
+  ) {
     return null;
   }
 
