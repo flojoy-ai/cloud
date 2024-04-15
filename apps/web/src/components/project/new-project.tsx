@@ -109,7 +109,7 @@ export default function NewProjectButton({ workspace, partVariations }: Props) {
             <DialogTitle>Create your new production line</DialogTitle>
             <DialogDescription>
               A production line groups a set of test stations that run tests on
-              a specific unit partVariation.
+              a specific unit part variation.
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
@@ -178,8 +178,8 @@ export default function NewProjectButton({ workspace, partVariations }: Props) {
                       )}
                     </FormControl>
                     <FormDescription>
-                      Which unit partVariation is this production line testing?{" "}
-                      <br /> Don&apos;t see your unit partVariation?{" "}
+                      Which part variation is this production line testing?{" "}
+                      <br /> Don&apos;t see your part variation?{" "}
                       <Link
                         to="/workspace"
                         className="underline hover:text-primary"
