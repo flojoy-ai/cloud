@@ -3,6 +3,7 @@ import { ProjectUser } from "../schemas/public/ProjectUser";
 import { User } from "../schemas/public/User";
 
 export type { Project } from "../schemas/public/Project";
+export type { ProjectUser } from "../schemas/public/ProjectUser";
 
 export const CreateProjectSchema = t.Object({
   name: t.String({ minLength: 1 }),
