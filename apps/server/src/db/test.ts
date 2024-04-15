@@ -39,10 +39,15 @@ export async function getTestMeasurements(db: Kysely<DB>, testId: string) {
     .execute();
 }
 
-export async function getTestByName(db: Kysely<DB>, name: string) {
+export async function getTestByName(
+  db: Kysely<DB>,
+  name: string,
+  projectId: string,
+) {
   return await db
     .selectFrom("test")
     .selectAll("test")
     .where("test.name", "=", name)
+    .where("test.projectId", "=", projectId)
     .executeTakeFirst();
 }

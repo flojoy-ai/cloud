@@ -164,7 +164,7 @@ export async function populateExample(
 
     const booleanTest = yield* (
       await createTest(db, {
-        name: "Pass/Fail Test",
+        name: "Did Light Up",
         projectId: pi5Project.id,
         measurementType: "boolean",
       })
@@ -321,7 +321,7 @@ export async function populateExample(
               pass: val,
             },
             {
-              name: "Data Point",
+              name: "Expected vs Measured",
               testId: dataframeTest.id,
               createdAt: new Date(new Date().getTime() - i * i * 5 * ONE_DAY),
               durationMs: 1566,

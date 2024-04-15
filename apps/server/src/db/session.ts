@@ -173,7 +173,7 @@ export async function createSession(
 
   for (const meas of measurements) {
     // NOTE: TestId should be provided in the DS
-    let test = await getTestByName(db, meas.name);
+    let test = await getTestByName(db, meas.name, station.projectId);
     if (test === undefined) {
       const testResult = await createTest(db, {
         name: meas.name,
