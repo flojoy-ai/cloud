@@ -195,6 +195,7 @@ const ProjectUsers = ({
     workspaceUsers.filter(
       (wu) => !projectUsers.find((pu) => wu.userId === pu.userId),
     ) ?? [];
+  const { projectUserPerm } = useProjectUser();
 
   return (
     <div>
@@ -206,118 +207,120 @@ const ProjectUsers = ({
           </CardDescription>
         </CardHeader>
 
-        <CardContent>
-          <Form {...projectUserInviteForm}>
-            <form
-              onSubmit={projectUserInviteForm.handleSubmit(
-                onProjectUserInviteSubmit,
-              )}
-              id="workspace-user-invite"
-              className="flex gap-2"
-            >
-              <FormField
-                control={projectUserInviteForm.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem className="grow">
-                    <FormControl>
-                      <Popover
-                        open={popoverOpen}
-                        onOpenChange={(open) => setPopoverOpen(open)}
-                      >
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              role="combobox"
-                              className={cn(
-                                "w-full justify-between",
-                                !field.value && "text-muted-foreground",
-                              )}
-                            >
-                              {field.value ?? "Select user"}
-                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="p-0">
-                          <Command>
-                            <CommandList>
-                              <CommandInput placeholder="Search user..." />
-                              <CommandEmpty>No user found.</CommandEmpty>
-                              <CommandGroup>
-                                {usersNotInProject.map(({ user }) => (
-                                  <CommandItem
-                                    value={user.email}
-                                    key={user.email}
-                                    onSelect={() => {
-                                      projectUserInviteForm.setValue(
-                                        "email",
-                                        user.email,
-                                      );
-                                      setPopoverOpen(false);
-                                    }}
-                                  >
-                                    <Check
-                                      className={cn(
-                                        "mr-2 h-4 w-4",
-                                        user.email === field.value
-                                          ? "opacity-100"
-                                          : "opacity-0",
-                                      )}
-                                    />
-                                    {user.email}
-                                  </CommandItem>
-                                ))}
-                              </CommandGroup>
-                            </CommandList>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+        {projectUserPerm.canAdmin() && (
+          <CardContent>
+            <Form {...projectUserInviteForm}>
+              <form
+                onSubmit={projectUserInviteForm.handleSubmit(
+                  onProjectUserInviteSubmit,
                 )}
-              />
-              <FormField
-                control={projectUserInviteForm.control}
-                name="role"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="flex gap-2">
+                id="workspace-user-invite"
+                className="flex gap-2"
+              >
+                <FormField
+                  control={projectUserInviteForm.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem className="grow">
                       <FormControl>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
+                        <Popover
+                          open={popoverOpen}
+                          onOpenChange={(open) => setPopoverOpen(open)}
                         >
-                          <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Select role" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="dev">dev</SelectItem>
-                            <SelectItem value="test">test</SelectItem>
-                          </SelectContent>
-                        </Select>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                className={cn(
+                                  "w-full justify-between",
+                                  !field.value && "text-muted-foreground",
+                                )}
+                              >
+                                {field.value ?? "Select user"}
+                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="p-0">
+                            <Command>
+                              <CommandList>
+                                <CommandInput placeholder="Search user..." />
+                                <CommandEmpty>No user found.</CommandEmpty>
+                                <CommandGroup>
+                                  {usersNotInProject.map(({ user }) => (
+                                    <CommandItem
+                                      value={user.email}
+                                      key={user.email}
+                                      onSelect={() => {
+                                        projectUserInviteForm.setValue(
+                                          "email",
+                                          user.email,
+                                        );
+                                        setPopoverOpen(false);
+                                      }}
+                                    >
+                                      <Check
+                                        className={cn(
+                                          "mr-2 h-4 w-4",
+                                          user.email === field.value
+                                            ? "opacity-100"
+                                            : "opacity-0",
+                                        )}
+                                      />
+                                      {user.email}
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
                       </FormControl>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="flex gap-2">
-                {projectUserInviteForm.formState.isSubmitting ? (
-                  <Button disabled={true}>
-                    <Icons.spinner className="h-6 w-6" />
-                  </Button>
-                ) : (
-                  <Button type="submit" form="workspace-user-invite">
-                    Add
-                  </Button>
-                )}
-              </div>
-            </form>
-          </Form>
-        </CardContent>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={projectUserInviteForm.control}
+                  name="role"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex gap-2">
+                        <FormControl>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <SelectTrigger className="w-[180px]">
+                              <SelectValue placeholder="Select role" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="dev">dev</SelectItem>
+                              <SelectItem value="test">test</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="flex gap-2">
+                  {projectUserInviteForm.formState.isSubmitting ? (
+                    <Button disabled={true}>
+                      <Icons.spinner className="h-6 w-6" />
+                    </Button>
+                  ) : (
+                    <Button type="submit" form="workspace-user-invite">
+                      Add
+                    </Button>
+                  )}
+                </div>
+              </form>
+            </Form>
+          </CardContent>
+        )}
         <CardFooter className="space-x-4 px-6 py-4 ">
           <div className="w-full">
             <DataTable columns={columns} data={projectUsers} />
