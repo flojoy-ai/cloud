@@ -1,4 +1,17 @@
 import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -24,10 +37,12 @@ import {
 
 import {
   Perm,
+  Project,
+  ProjectUserInvite,
   ProjectUserWithUser,
   Workspace,
-  WorkspaceUserInvite,
-  workspaceUserInvite,
+  WorkspaceUserWithUser,
+  projectUserInvite,
 } from "@cloud/shared";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { DataTable } from "../ui/data-table";
@@ -36,7 +51,6 @@ import { typeboxResolver } from "@hookform/resolvers/typebox";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getWorkspaceUsersQueryKey } from "@/lib/queries/workspace";
 import { toast } from "sonner";
-import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Icons } from "../icons";
 import {
@@ -50,12 +64,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Trash2 } from "lucide-react";
+import { Check, ChevronsUpDown, Trash2 } from "lucide-react";
 import { client } from "@/lib/client";
+import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { getProjectUsersQueryKey } from "@/lib/queries/project";
 
 type Props = {
   workspace: Workspace;
+  project: Project;
   projectUsers: ProjectUserWithUser[];
+  workspaceUsers: WorkspaceUserWithUser[];
 
   projectPerm: Perm;
 };
@@ -120,39 +139,51 @@ function DeleteWorkspaceUser({ row }: { row: Row<ProjectUserWithUser> }) {
   );
 }
 
-const ProjectUsers = ({ workspace, projectUsers }: Props) => {
+const ProjectUsers = ({
+  workspace,
+  projectUsers,
+  project,
+  workspaceUsers,
+}: Props) => {
   const queryClient = useQueryClient();
 
-  const workspaceUserInviteForm = useForm<WorkspaceUserInvite>({
-    resolver: typeboxResolver(workspaceUserInvite),
+  const [popoverOpen, setPopoverOpen] = useState(false);
+
+  const projectUserInviteForm = useForm<ProjectUserInvite>({
+    resolver: typeboxResolver(projectUserInvite),
     defaultValues: {
-      role: "member",
+      role: "test",
     },
   });
 
-  const workspaceUserInviteMutation = useMutation({
-    mutationFn: async (values: WorkspaceUserInvite) => {
-      const { data, error } = await client.workspace.invite.index.post(values, {
-        headers: { "flojoy-workspace-id": workspace.id },
-      });
+  const projectUserInviteMutation = useMutation({
+    mutationFn: async (values: ProjectUserInvite) => {
+      const { data, error } = await client
+        .project({ projectId: project.id })
+        .user.index.post(values, {
+          headers: { "flojoy-workspace-id": workspace.id },
+        });
       if (error) {
         throw error.value;
       }
       return data;
     },
-    onSuccess: (data) => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: getWorkspaceUsersQueryKey(workspace.namespace),
+        queryKey: getProjectUsersQueryKey(project.id),
       });
-      toast.success(
-        `Invited ${data.email}, this user needs to login to accept the invite.`,
-      );
+      toast.success(`Added ${variables.email} to ${project.name}!`);
     },
   });
 
-  function onWorkspaceUserInviteSubmit(values: WorkspaceUserInvite) {
-    return workspaceUserInviteMutation.mutateAsync(values);
+  function onProjectUserInviteSubmit(values: ProjectUserInvite) {
+    return projectUserInviteMutation.mutateAsync(values);
   }
+
+  const usersNotInProject =
+    workspaceUsers.filter(
+      (wu) => !projectUsers.find((pu) => wu.userId === pu.userId),
+    ) ?? [];
 
   return (
     <div>
@@ -165,33 +196,80 @@ const ProjectUsers = ({ workspace, projectUsers }: Props) => {
         </CardHeader>
 
         <CardContent>
-          <Form {...workspaceUserInviteForm}>
+          <Form {...projectUserInviteForm}>
             <form
-              onSubmit={workspaceUserInviteForm.handleSubmit(
-                onWorkspaceUserInviteSubmit,
+              onSubmit={projectUserInviteForm.handleSubmit(
+                onProjectUserInviteSubmit,
               )}
               id="workspace-user-invite"
               className="flex gap-2"
             >
               <FormField
-                control={workspaceUserInviteForm.control}
+                control={projectUserInviteForm.control}
                 name="email"
                 render={({ field }) => (
                   <FormItem className="grow">
                     <FormControl>
-                      <Input
-                        type="email"
-                        placeholder={"Email address"}
-                        {...field}
-                        data-1p-ignore
-                      />
+                      <Popover
+                        open={popoverOpen}
+                        onOpenChange={(open) => setPopoverOpen(open)}
+                      >
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              className={cn(
+                                "w-full justify-between",
+                                !field.value && "text-muted-foreground",
+                              )}
+                            >
+                              {field.value ?? "Select user"}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="p-0">
+                          <Command>
+                            <CommandList>
+                              <CommandInput placeholder="Search user..." />
+                              <CommandEmpty>No user found.</CommandEmpty>
+                              <CommandGroup>
+                                {usersNotInProject.map(({ user }) => (
+                                  <CommandItem
+                                    value={user.email}
+                                    key={user.email}
+                                    onSelect={() => {
+                                      projectUserInviteForm.setValue(
+                                        "email",
+                                        user.email,
+                                      );
+                                      setPopoverOpen(false);
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        user.email === field.value
+                                          ? "opacity-100"
+                                          : "opacity-0",
+                                      )}
+                                    />
+                                    {user.email}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField
-                control={workspaceUserInviteForm.control}
+                control={projectUserInviteForm.control}
                 name="role"
                 render={({ field }) => (
                   <FormItem>
@@ -205,8 +283,8 @@ const ProjectUsers = ({ workspace, projectUsers }: Props) => {
                             <SelectValue placeholder="Select role" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="admin">admin</SelectItem>
-                            <SelectItem value="member">member</SelectItem>
+                            <SelectItem value="dev">dev</SelectItem>
+                            <SelectItem value="test">test</SelectItem>
                           </SelectContent>
                         </Select>
                       </FormControl>
@@ -216,7 +294,7 @@ const ProjectUsers = ({ workspace, projectUsers }: Props) => {
                 )}
               />
               <div className="flex gap-2">
-                {workspaceUserInviteForm.formState.isSubmitting ? (
+                {projectUserInviteForm.formState.isSubmitting ? (
                   <Button disabled={true}>
                     <Icons.spinner className="h-6 w-6" />
                   </Button>

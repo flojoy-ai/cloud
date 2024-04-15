@@ -8,6 +8,7 @@ import {
   Perm,
   UpdateProjectSchema,
   projectRoleToPerm,
+  projectUserInvite,
 } from "@cloud/shared";
 import { Elysia, InternalServerError, error, t } from "elysia";
 import { DatabaseError } from "pg";
@@ -237,6 +238,55 @@ export const ProjectRoute = new Elysia({
 
                 return perm.match(
                   (perm) => (perm.canRead() ? undefined : error("Forbidden")),
+                  (err) => error(403, err),
+                );
+              },
+            },
+          )
+          .post(
+            "/",
+            async ({
+              workspaceUser,
+              authMethod,
+              body: { email, role },
+              params: { projectId },
+            }) => {
+              if (authMethod === "secret") {
+                return error("I'm a teapot");
+              }
+
+              const targetWorkspaceUser = await db
+                .selectFrom("workspace_user as wu")
+                .selectAll("wu")
+                .where("wu.workspaceId", "=", workspaceUser.workspaceId)
+                .innerJoin("user as u", "u.id", "wu.userId")
+                .where("u.email", "=", email)
+                .executeTakeFirstOrThrow(
+                  () => new InternalServerError("Failed to find user"),
+                );
+
+              return await db
+                .insertInto("project_user")
+                .values({
+                  userId: targetWorkspaceUser.userId,
+                  workspaceId: workspaceUser.workspaceId,
+                  projectId: projectId,
+                  role: role,
+                })
+                .returningAll()
+                .executeTakeFirst();
+            },
+            {
+              body: projectUserInvite,
+
+              async beforeHandle({ workspaceUser, params: { projectId } }) {
+                const perm = await checkProjectPerm({
+                  projectId,
+                  workspaceUser,
+                });
+
+                return perm.match(
+                  (perm) => (perm.canAdmin() ? undefined : error("Forbidden")),
                   (err) => error(403, err),
                 );
               },
