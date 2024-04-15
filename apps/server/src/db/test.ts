@@ -31,7 +31,9 @@ export async function getTest(db: Kysely<DB>, testId: string) {
 export async function getTestMeasurements(db: Kysely<DB>, testId: string) {
   return await db
     .selectFrom("measurement")
-    .selectAll()
+    .selectAll("measurement")
+    .innerJoin("unit", "unit.id", "measurement.unitId")
+    .select("unit.serialNumber")
     .where("testId", "=", testId)
     .$narrowType<{ data: MeasurementData }>()
     .execute();

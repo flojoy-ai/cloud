@@ -1,3 +1,4 @@
+import { getChartColors } from "@/lib/style";
 import { TimePeriod } from "@cloud/shared";
 import { Bar } from "react-chartjs-2";
 
@@ -16,6 +17,7 @@ const tooltipDisplayFormats = {
 };
 
 export const TimeSeriesBarChart = ({ bin, data, dates }: Props) => {
+  const { accent, accentLight } = getChartColors();
   return (
     <Bar
       data={{
@@ -23,6 +25,8 @@ export const TimeSeriesBarChart = ({ bin, data, dates }: Props) => {
         labels: dates,
       }}
       options={{
+        backgroundColor: `hsl(${accent})`,
+        borderColor: `hsl(${accentLight})`,
         elements: {
           point: {
             radius: 0,

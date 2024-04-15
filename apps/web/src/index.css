@@ -38,6 +38,10 @@
     --chart-accent-light: 250 100% 90%;
 
     --chart-accent2: 347 100% 69%;
+
+    --chart-pass: 142 69% 58%;
+    --chart-fail: 0 91% 71%;
+    --chart-abort: 215 20% 65%;
   }
 
   .dark {
@@ -59,7 +63,7 @@
     --muted: 240 3.7% 15.9%;
     --muted-foreground: 240 5% 64.9%;
 
-    --accent: 217 100% 50%;
+    --accent: 250 100% 69%;
     --accent-foreground: 0 0% 98%;
 
     --destructive: 0 62.8% 30.6%;
@@ -73,6 +77,10 @@
     --chart-accent-light: 250 100% 90%;
 
     --chart-accent2: 347 100% 69%;
+
+    --chart-pass: 142 71% 30%;
+    --chart-fail: 0 60% 55%;
+    --chart-abort: 215 16% 47%;
   }
 }
 

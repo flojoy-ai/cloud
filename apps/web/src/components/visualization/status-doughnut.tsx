@@ -1,3 +1,7 @@
+import { useTheme } from "@/hooks/use-theme";
+import { getCssVariable } from "@/lib/style";
+import { Chart } from "chart.js";
+import { useEffect, useRef } from "react";
 import { Doughnut } from "react-chartjs-2";
 
 type Props = {
@@ -13,14 +17,30 @@ export const StatusDoughnut = ({
   aborted,
   innerText,
 }: Props) => {
+  const ref = useRef<Chart<"doughnut", number[], string> | undefined>(null);
+  const passColor = getCssVariable("--chart-pass");
+  const failColor = getCssVariable("--chart-fail");
+  const abortColor = getCssVariable("--chart-abort");
+
+  const { theme } = useTheme();
+
+  useEffect(() => {
+    ref.current?.update();
+  }, [theme]);
+
   return (
     <div className="h-full relative w-fit">
       <Doughnut
+        ref={ref}
         data={{
           datasets: [
             {
               data: [passed, failed, aborted],
-              backgroundColor: ["#4ade80", "#f87171", "#94a3b8"],
+              backgroundColor: [
+                `hsl(${passColor})`,
+                `hsl(${failColor})`,
+                `hsl(${abortColor})`,
+              ],
             },
           ],
           labels: ["Passed", "Failed", "Aborted"],

@@ -2,7 +2,7 @@ import { prefixSum } from "@/lib/stats";
 import { TimePeriod } from "@cloud/shared";
 import { Line } from "react-chartjs-2";
 import { DateBinSelect } from "./date-bin-select";
-import { getCssVariable, getChartColors } from "@/lib/style";
+import { getChartColors } from "@/lib/style";
 
 type Props = {
   title?: string;

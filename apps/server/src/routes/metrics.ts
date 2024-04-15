@@ -10,7 +10,6 @@ import {
 import { checkProjectPerm } from "../lib/perm/project";
 import { getPastStartTime } from "../lib/time";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
-import { fakeTimeSeries } from "../lib/mock";
 
 const getStartTime = (past: TimePeriod | undefined, from: Date | undefined) =>
   from ?? (past ? getPastStartTime(past) : undefined);
@@ -34,7 +33,6 @@ export const MetricsRoute = new Elysia({
       .get(
         "/series/session",
         async ({ workspace, query: { past, bin, from, to } }) => {
-          return fakeTimeSeries(bin);
           const start = getStartTime(past, from);
           const end = to;
           return await countSessionsOverTime(workspace.id, bin, start, end);

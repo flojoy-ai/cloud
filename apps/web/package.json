@@ -71,6 +71,7 @@
     "@faker-js/faker": "^8.4.1",
     "@tanstack/router-vite-plugin": "^1.25.0",
     "@total-typescript/ts-reset": "^0.5.1",
+    "@types/luxon": "^3.4.2",
     "@types/react": "^18.2.73",
     "@types/react-dom": "^18.2.23",
     "@vitejs/plugin-react": "^4.2.1",

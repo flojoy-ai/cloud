@@ -293,6 +293,7 @@ export async function sessionCountWithStatus(
     .selectFrom("session")
     .select((eb) => eb.fn.countAll<number>().as("count"))
     .where("session.projectId", "=", projectId)
+    .where("session.aborted", "=", false)
     .where((eb) => withStatusUnaliased(eb), "=", status)
     .executeTakeFirstOrThrow();
   return sessions.count;
@@ -310,6 +311,7 @@ export async function sessionCountWithStatusOverTime(
       eb.fn.countAll<number>().as("val"),
     ])
     .where("session.projectId", "=", projectId)
+    .where("session.aborted", "=", false)
     .where((eb) => withStatusUnaliased(eb), "=", status)
     .groupBy("bin")
     .orderBy("bin")

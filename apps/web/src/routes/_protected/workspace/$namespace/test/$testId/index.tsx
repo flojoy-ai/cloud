@@ -1,21 +1,16 @@
 import CenterLoadingSpinner from "@/components/center-loading-spinner";
-import {
-  PageHeader,
-  PageHeaderHeading,
-  PageHeaderDescription,
-} from "@/components/page-header";
 import { Card, CardTitle } from "@/components/ui/card";
 import { ParetoChart } from "@/components/visualization/pareto-chart";
 import { StatusDoughnut } from "@/components/visualization/status-doughnut";
 import { getTestMeasurementsQueryOpts } from "@/lib/queries/test";
 import { median, mode } from "@/lib/stats";
-import { Test, Measurement } from "@cloud/shared";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { getChartColors } from "@/lib/style";
 import { createFileRoute } from "@tanstack/react-router";
 import _ from "lodash";
 import { useMemo } from "react";
-import { Line, Scatter } from "react-chartjs-2";
-import { faker } from "@faker-js/faker";
+import { Scatter } from "react-chartjs-2";
+import { DateTime } from "luxon";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/test/$testId/",
@@ -29,13 +24,7 @@ export const Route = createFileRoute(
   component: TestPage,
 });
 
-const getDistribution = (measurements: Measurement[]) => {
-  return measurements.map((m) => m.data.value as number);
-};
-
-const calculateStats = (test: Test, distribution: number[]) => {
-  // if (test.measurementType !== "scalar") return undefined;
-
+const calculateStats = (distribution: number[]) => {
   return {
     mean: _.mean(distribution),
     median: median(distribution),
@@ -43,12 +32,6 @@ const calculateStats = (test: Test, distribution: number[]) => {
     min: _.min(distribution),
     max: _.max(distribution),
   };
-};
-
-const addDays = (date: Date, days: number) => {
-  const copy = new Date(date);
-  copy.setDate(copy.getDate() + days);
-  return copy;
 };
 
 const Stat = ({ name, value }: { name: string; value: React.ReactNode }) => {
@@ -60,72 +43,99 @@ const Stat = ({ name, value }: { name: string; value: React.ReactNode }) => {
   );
 };
 
-const SERIAL_NUMBERS = _.range(10).map(() => faker.word.noun());
-
-function randn_bm() {
-  let u = 0,
-    v = 0;
-  while (u === 0) u = Math.random(); //Converting [0,1) to (0,1)
-  while (v === 0) v = Math.random();
-  let num = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
-  num = num / 10.0 + 0.5; // Translate to 0 -> 1
-  if (num > 1 || num < 0) return randn_bm(); // resample between 0 and 1
-  return num;
-}
-
-const measurements = _.range(400).map(() => ({
-  serialNumber: faker.helpers.arrayElements(SERIAL_NUMBERS),
-  data: { value: randn_bm() },
-  pass: faker.helpers.arrayElement([true, false, null]),
-  aborted: faker.helpers.arrayElement([true, false]),
-  createdAt: faker.date.recent(),
-}));
-
 function TestPage() {
   const { test, workspace } = Route.useRouteContext();
-  // const { data: measurements } = useSuspenseQuery(
-  //   getTestMeasurementsQueryOpts({
-  //     testId: test.id,
-  //     context: { workspace },
-  //   }),
-  // );
-  const distribution = useMemo(
-    () => measurements.map((m) => m.data.value as number),
-    [],
+  const { data: measurements } = useSuspenseQuery(
+    getTestMeasurementsQueryOpts({
+      testId: test.id,
+      context: { workspace },
+    }),
   );
-  const time = measurements.map((m) => m.createdAt).sort();
-  const failed = measurements.filter((m) => m.pass === false);
 
-  const passCount = measurements.filter((m) => m.pass === true).length;
-  const failCount = failed.length;
-  const abortedCount = measurements.filter((m) => m.aborted).length;
+  const {
+    measurementSerialNumbers,
+    distribution,
+    time,
+    passCount,
+    failCount,
+    serialNumbers,
+    counts,
+    stats,
+  } = useMemo(() => {
+    const sortedMeasurements = _.sortBy(measurements, (m) => m.createdAt);
+    const measurementSerialNumbers = sortedMeasurements.map(
+      (m) => m.serialNumber,
+    );
+    const distribution =
+      test.measurementType === "scalar"
+        ? measurements.map((m) => m.data.value as number)
+        : undefined;
+    const time = sortedMeasurements.map((m) => m.createdAt);
 
-  const groups = _.groupBy(failed, (f) => f.serialNumber);
-  const counts = SERIAL_NUMBERS.map((sn) => groups[sn]?.length ?? 0);
+    const failed = measurements.filter((m) => m.pass === false);
 
-  const stats = useMemo(
-    () => calculateStats(test, distribution),
-    [test, distribution],
-  );
+    const passCount = measurements.filter((m) => m.pass === true).length;
+    const failCount = failed.length;
+
+    const groups = _.groupBy(failed, (f) => f.serialNumber);
+    const serialNumbers = Object.keys(groups);
+    const counts = Object.values(groups).map((g) => g.length);
+
+    const stats = distribution ? calculateStats(distribution) : undefined;
+    return {
+      measurementSerialNumbers,
+      distribution,
+      time,
+      passCount,
+      failCount,
+      serialNumbers,
+      counts,
+      stats,
+    };
+  }, [test, measurements]);
+
+  const { accent, accentLight } = getChartColors();
 
   return (
     <div className="max-w-4xl mx-auto">
       <div className="py-3" />
-      {!stats ? (
-        <Card className="text-center text-2xl font-semibold p-6">
-          Overview is not supported for this data type yet
-        </Card>
-      ) : (
-        <div className="flex h-96">
-          <Card className="flex-1 p-6 pb-20 rounded-xl">
-            <CardTitle>{test.name}</CardTitle>
-            <div className="py-2" />
+      <div className="flex h-96">
+        <Card className="flex-1 p-6 pb-20 rounded-xl">
+          <CardTitle>{test.name}</CardTitle>
+          <div className="py-2" />
+          {!distribution ? (
+            <div className="text-lg font-medium p-6 text-muted-foreground h-full flex items-center justify-center">
+              Overview is not yet supported for this data type (
+              {test.measurementType})
+            </div>
+          ) : (
             <Scatter
               data={{ datasets: [{ data: distribution }], labels: time }}
               options={{
+                backgroundColor: `hsl(${accent})`,
+                borderColor: `hsl(${accentLight})`,
                 plugins: {
                   legend: {
                     display: false,
+                  },
+                  tooltip: {
+                    callbacks: {
+                      title: (items) => {
+                        const date = items[0].label as unknown as Date;
+                        return DateTime.fromJSDate(date, {
+                          zone: "Etc/GMT",
+                        }).toFormat("FF");
+                      },
+                      label: (context) => {
+                        const val = (context.raw as number).toFixed(4);
+                        const sn = measurementSerialNumbers[context.dataIndex];
+                        const time = DateTime.fromJSDate(
+                          context.label as unknown as Date,
+                          { zone: "Etc/GMT" },
+                        ).toFormat("yyyy-MM-dd HH:mm:ss");
+                        return `${val} (${sn}, ${time})`;
+                      },
+                    },
                   },
                 },
                 scales: {
@@ -138,6 +148,9 @@ function TestPage() {
                     type: "time",
                     ticks: {
                       autoSkip: false,
+                    },
+                    time: {
+                      tooltipFormat: "MMM d",
                     },
                     grid: {
                       display: false,
@@ -154,36 +167,36 @@ function TestPage() {
                 },
               }}
             />
-          </Card>
-          <div className="px-2" />
-          <Card className="w-56 p-6">
-            <div className="w-full h-1/2 flex justify-center">
-              <StatusDoughnut
-                passed={passCount}
-                failed={failCount}
-                aborted={abortedCount}
-                innerText="Results"
-              />
-            </div>
-            <div className="py-3" />
-            <div className="flex flex-col gap-y-1">
-              <Stat name="Mean" value={stats.mean.toFixed(4)} />
-              <Stat name="Median" value={stats.median.toFixed(4)} />
-              <Stat
-                name="Mode"
-                value={stats.mode?.map((m) => m.toString()).join("; ") ?? "N/A"}
-              />
-              <Stat name="Min" value={stats.min?.toFixed(4) ?? "N/A"} />
-              <Stat name="Max" value={stats.max?.toFixed(4) ?? "N/A"} />
-            </div>
-          </Card>
-        </div>
-      )}
+          )}
+        </Card>
+        <div className="px-2" />
+        <Card className="w-56 p-6">
+          <div className="w-full h-1/2 flex justify-center">
+            <StatusDoughnut
+              passed={passCount}
+              failed={failCount}
+              aborted={0}
+              innerText="Results"
+            />
+          </div>
+          <div className="py-3" />
+          <div className="flex flex-col gap-y-1">
+            <Stat name="Mean" value={stats?.mean.toFixed(4) ?? "N/A"} />
+            <Stat name="Median" value={stats?.median.toFixed(4) ?? "N/A"} />
+            <Stat
+              name="Mode"
+              value={stats?.mode?.map((m) => m.toString()).join("; ") ?? "N/A"}
+            />
+            <Stat name="Min" value={stats?.min?.toFixed(4) ?? "N/A"} />
+            <Stat name="Max" value={stats?.max?.toFixed(4) ?? "N/A"} />
+          </div>
+        </Card>
+      </div>
       <div className="py-3" />
       <Card className="p-6">
         <CardTitle>Failures</CardTitle>
         <div className="py-2" />
-        <ParetoChart labels={SERIAL_NUMBERS} values={counts} />
+        <ParetoChart labels={serialNumbers} values={counts} />
       </Card>
       <div className="py-3" />
     </div>
