@@ -21,9 +21,9 @@ A part is hardware component that is tested. (e.g. "Pi-5")
 This is a concrete instance of a part variation (including assembly which is basically
 a part variation). (e.g. "Raspberry Pi 5 8GB RSP-PI-001")
 
-## Production Line
+## Test Profile
 
-Where your product is being assembled and your part test stations are located.
+Groups together a set of test stations that run tests on a specific part variation.
 
 ### Test Station
 

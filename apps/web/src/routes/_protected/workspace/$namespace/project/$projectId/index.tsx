@@ -252,7 +252,7 @@ function Page() {
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
               <Link from={Route.fullPath} to="..">
-                Production Lines
+                Test Profiles
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>

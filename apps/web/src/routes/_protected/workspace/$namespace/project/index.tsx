@@ -60,14 +60,14 @@ function Page() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Production Lines</BreadcrumbPage>
+            <BreadcrumbPage>Test Profiles</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
       <PageHeader>
-        <PageHeaderHeading className="">Production Lines</PageHeaderHeading>
+        <PageHeaderHeading className="">Test Profiles</PageHeaderHeading>
         <PageHeaderDescription>
-          A production line groups a set of test stations that run tests on a
+          A test profile groups a set of test stations that run tests on a
           specific part variation.
         </PageHeaderDescription>
       </PageHeader>

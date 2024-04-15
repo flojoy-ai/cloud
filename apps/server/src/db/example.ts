@@ -146,7 +146,7 @@ export async function populateExample(
 
     const pi5Project = yield* (
       await createProject(db, {
-        name: "Pi-5 Production Line",
+        name: "Pi-5 Test Profile",
         partVariationId: pi58GB.id,
         workspaceId,
       })

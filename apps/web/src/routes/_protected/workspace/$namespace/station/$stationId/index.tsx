@@ -73,7 +73,7 @@ function Page() {
                 to="/workspace/$namespace/project"
                 params={{ namespace: workspace.namespace }}
               >
-                Production Lines
+                Test Profiles
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>

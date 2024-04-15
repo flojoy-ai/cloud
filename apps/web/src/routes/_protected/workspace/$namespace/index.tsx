@@ -38,7 +38,7 @@ function Page() {
               "text-foreground/60 transition-colors hover:text-foreground/80",
             )}
           >
-            Production Lines
+            Test Profiles
           </Link>
           <Link
             from={Route.fullPath}
