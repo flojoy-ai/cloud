@@ -296,8 +296,10 @@ const ProjectUsers = ({
                               <SelectValue placeholder="Select role" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="dev">dev</SelectItem>
-                              <SelectItem value="test">test</SelectItem>
+                              <SelectItem value="developer">
+                                developer
+                              </SelectItem>
+                              <SelectItem value="operator">operator</SelectItem>
                             </SelectContent>
                           </Select>
                         </FormControl>

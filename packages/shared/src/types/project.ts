@@ -22,7 +22,10 @@ export type UpdateProjectSchema = Static<typeof UpdateProjectSchema>;
 
 export type ProjectUserWithUser = ProjectUser & { user: User };
 
-export const projectRoleType = t.Union([t.Literal("test"), t.Literal("dev")]);
+export const projectRoleType = t.Union([
+  t.Literal("operator"),
+  t.Literal("developer"),
+]);
 
 export const projectUserInvite = t.Object({
   email: t.String(),
