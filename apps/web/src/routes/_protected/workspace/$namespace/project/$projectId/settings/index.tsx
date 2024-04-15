@@ -1,10 +1,9 @@
 import ProjectGeneral from "@/components/settings/project-general";
 import ProjectUsers from "@/components/settings/project-users";
-import { useWorkspaceUser } from "@/hooks/use-workspace-user";
+import { useProjectUser } from "@/hooks/use-project-user";
 import { getProjectUsersQueryOpts } from "@/lib/queries/project";
 import { getProjectUserQueryOpts } from "@/lib/queries/user";
 import { projectSettingsTabSchema } from "@/types/setting";
-import { Perm, workspaceRoleToPerm } from "@cloud/shared";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
@@ -30,9 +29,7 @@ function Page() {
   const context = Route.useRouteContext();
   const { workspace, project } = context;
 
-  const { workspaceUser } = useWorkspaceUser();
-
-  const workspacePerm = new Perm(workspaceRoleToPerm(workspaceUser.role));
+  const { projectUserPerm } = useProjectUser();
 
   const { data: projectUsers } = useSuspenseQuery(
     getProjectUsersQueryOpts({ context, projectId: project.id }),
@@ -43,9 +40,7 @@ function Page() {
       {tab === "general" && (
         <ProjectGeneral
           workspace={workspace}
-          // FIXME: use the right perm
-          workspacePerm={workspacePerm}
-          projectPerm={workspacePerm}
+          projectPerm={projectUserPerm}
           project={project}
         />
       )}
@@ -53,9 +48,7 @@ function Page() {
         <ProjectUsers
           workspace={workspace}
           projectUsers={projectUsers}
-          // FIXME: use the right perm
-          workspacePerm={workspacePerm}
-          projectPerm={workspacePerm}
+          projectPerm={projectUserPerm}
         />
       )}
     </div>
