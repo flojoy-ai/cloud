@@ -52,6 +52,8 @@ export async function getSessionsByStation(
         .on("pu.userId", "=", workspaceUser.userId),
     )
     .select((eb) => withStatus(eb))
+    .innerJoin("user", "user.id", "session.userId")
+    .select("user.email as userEmail")
     .where("stationId", "=", stationId)
     .execute();
 }
