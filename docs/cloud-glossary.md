@@ -13,7 +13,7 @@
 
 | Testing                | Definition                                                                                                     |
 | :--------------------- | :------------------------------------------------------------------------------------------------------------- |
-| **Test Profile**       | Groups together a set of test stations that run tests on a specific part variation.                                          |
+| **Test Profile**       | Groups together a set of test stations that run tests on a specific part variation.                            |
 | **Test Station**       | A physical space on a manufacturing line where tests and measurements are performed on an instance of a part.  |
 | **Test Session**       | A group of tests that are performed at the same time, at the same test station, by the same operator.          |
 | **Test / Measurement** | A single measurement or action with an expected and obtain value. (The simplest element with `pass` or `fail`) |
