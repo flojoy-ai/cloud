@@ -68,6 +68,7 @@ import { client } from "@/lib/client";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { getProjectUsersQueryKey } from "@/lib/queries/project";
+import { useProjectUser } from "@/hooks/use-project-user";
 
 type Props = {
   workspace: Workspace;
@@ -111,6 +112,12 @@ function DeleteProjectUser({ row }: { row: Row<ProjectUserWithUser> }) {
       toast.success(`User (${row.original.user.email}) deleted`);
     },
   });
+
+  const { projectUser } = useProjectUser();
+
+  if (row.original.userId === projectUser.userId) {
+    return null;
+  }
 
   return (
     <AlertDialog>
