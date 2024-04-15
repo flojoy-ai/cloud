@@ -75,10 +75,18 @@ export default function WorkspaceInvite({ invite }: Props) {
             <div className="flex items-end space-x-1">
               <Badge>{invite.workspace.planType}</Badge>
               <div className="grow"></div>
-              <Badge variant="red" onClick={onDecline}>
+              <Badge
+                variant="red"
+                onClick={onDecline}
+                className="cursor-pointer"
+              >
                 Decline
               </Badge>
-              <Badge variant="green" onClick={onJoin}>
+              <Badge
+                variant="green"
+                onClick={onJoin}
+                className="cursor-pointer"
+              >
                 Join
               </Badge>
             </div>
