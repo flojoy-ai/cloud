@@ -24,6 +24,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { DateBinSelect } from "@/components/visualization/date-bin-select";
 import { StatusDoughnut } from "@/components/visualization/status-doughnut";
 import { TimeSeriesBarChart } from "@/components/visualization/time-series-bar-chart";
@@ -42,6 +48,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   ArrowRight,
+  CircleHelp,
   Cpu,
   Hash,
   LucideIcon,
@@ -80,6 +87,7 @@ export const Route = createFileRoute(
         context,
         projectId: context.project.id,
         bin: "day",
+        past: pastTimeFromBin("day"),
       }),
     );
   },
@@ -140,6 +148,7 @@ type MetricProps = {
   title: string;
   children: React.ReactNode;
   variant: "small" | "large";
+  description?: string;
   className?: string;
 };
 
@@ -148,21 +157,42 @@ const Metric = ({
   title,
   children,
   variant,
+  description,
   className,
 }: MetricProps) => {
+  const titleContent = (
+    <div className="flex gap-x-2 items-center text-nowrap">
+      <Icon size={16} className="stroke-muted-foreground" />
+      <h3
+        className={cn(
+          "text-muted-foreground",
+          variant === "small" ? "text-xs" : "lg:text-sm text-xs",
+        )}
+      >
+        {title}
+      </h3>
+    </div>
+  );
   return (
     <div className={cn("min-w-fit", className)}>
-      <div className="flex gap-x-2 items-center text-nowrap">
-        <Icon size={16} className="stroke-muted-foreground" />
-        <h3
-          className={cn(
-            "text-muted-foreground",
-            variant === "small" ? "text-xs" : "lg:text-sm text-xs",
-          )}
-        >
-          {title}
-        </h3>
-      </div>
+      {description ? (
+        <TooltipProvider>
+          <Tooltip delayDuration={500}>
+            <TooltipTrigger className="flex items-center gap-x-2">
+              <div>{titleContent}</div>
+              <CircleHelp
+                size={variant === "large" ? 16 : 13}
+                className="stroke-muted-foreground"
+              />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="text-muted-foreground max-w-48">{description}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      ) : (
+        titleContent
+      )}
       {variant === "large" && <div className="py-0.5" />}
       <div
         className={cn(
@@ -304,14 +334,16 @@ function Page() {
                   title="Test yield"
                   icon={SquareCheck}
                   className="col-start-1 col-end-1 row-start-2 row-end-2"
+                  description="The ratio of passed tests to total tests."
                 >
                   {decimalToPercentString(metrics.testYield)}
                 </Metric>
                 <Metric
                   variant="large"
-                  title="Mean sessions per unit"
+                  title="Avg. sessions per unit"
                   icon={SigmaSquare}
                   className="col-start-2 col-end-2 row-start-2 row-end-2"
+                  description="The average number of test sessions run per unit."
                 >
                   {metrics.meanSessionsPerUnit}
                 </Metric>
@@ -334,6 +366,7 @@ function Page() {
                   icon={PercentSquare}
                   title="First pass yield"
                   variant="small"
+                  description="The ratio of passed 'first' sessions for a serial number to the number of units. ('first' meaning the first ever session for a unit.)"
                 >
                   {decimalToPercentString(metrics.firstPassYield)}
                 </Metric>
@@ -341,6 +374,7 @@ function Page() {
                   icon={Timer}
                   title="Avg. cycle time per session"
                   variant="small"
+                  description="The average execution time for a single cycle within a session."
                 >
                   {msToSecondsString(metrics.meanCycleTime)}
                 </Metric>
@@ -348,6 +382,7 @@ function Page() {
                   icon={Timer}
                   title="Avg. time per session"
                   variant="small"
+                  description="The average execution time for a session."
                 >
                   {msToSecondsString(metrics.meanSessionTime)}
                 </Metric>
@@ -355,6 +390,7 @@ function Page() {
                   icon={Timer}
                   title="Total failed test time"
                   variant="small"
+                  description="The sum of all execution times for failed tests."
                 >
                   {msToSecondsString(metrics.totalFailedTestTime)}
                 </Metric>
