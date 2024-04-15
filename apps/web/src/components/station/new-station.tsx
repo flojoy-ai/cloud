@@ -32,6 +32,14 @@ import { typeboxResolver } from "@hookform/resolvers/typebox";
 import { useMutation } from "@tanstack/react-query";
 import { client } from "@/lib/client";
 import { Project, InsertStation } from "@cloud/shared";
+import { useProjectUser } from "@/hooks/use-project-user";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
+import { Info } from "lucide-react";
 
 type Props = {
   project: Project;
@@ -84,17 +92,38 @@ export default function NewStationButton({ project }: Props) {
     );
   }
 
+  const { projectUserPerm } = useProjectUser();
+
   return (
     <>
       <Dialog
         open={isDialogOpen}
         onOpenChange={(open) => setIsDialogOpen(open)}
       >
-        <DialogTrigger asChild>
-          <Button variant="default" size="sm">
-            New Test Station
-          </Button>
-        </DialogTrigger>
+        <div className="flex gap-2">
+          <DialogTrigger asChild>
+            <Button
+              variant="default"
+              disabled={!projectUserPerm.canWrite()}
+              size="sm"
+            >
+              New Test Station
+            </Button>
+          </DialogTrigger>
+          {!projectUserPerm.canWrite() && (
+            <TooltipProvider>
+              <Tooltip delayDuration={0}>
+                <TooltipTrigger>
+                  <Info className="h-5 w-5" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  Please contact your workspace or project admin to create a
+                  test station :)
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Create your new test station</DialogTitle>
