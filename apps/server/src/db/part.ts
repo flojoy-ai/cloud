@@ -5,6 +5,14 @@ import { Kysely } from "kysely";
 import { err, ok, safeTry } from "neverthrow";
 import { createProduct } from "./product";
 
+export async function getPart(db: Kysely<DB>, partId: string) {
+  return await db
+    .selectFrom("part")
+    .selectAll()
+    .where("id", "=", partId)
+    .executeTakeFirst();
+}
+
 export async function createPart(db: Kysely<DB>, part: InsertPart) {
   const { productName, ...rest } = part;
 
