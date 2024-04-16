@@ -274,6 +274,8 @@ function Page() {
     : undefined;
 
   const onRepoUrlCopy = () => {
+    if (project.repoUrl === null) return;
+
     toast.promise(navigator.clipboard.writeText(project.repoUrl), {
       success: "Copied git repository URL to clipboard.",
       error: "Failed to copy git repository URL.",
