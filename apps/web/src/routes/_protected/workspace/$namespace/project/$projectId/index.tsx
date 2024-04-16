@@ -316,12 +316,12 @@ function Page() {
           <div className="flex items-center gap-x-2">
             <div>{project.name}</div>
             <Link
-              className="text-muted-foreground hover:bg-muted-foreground/5 p-2 rounded-md transition duration-200"
+              className="text-muted-foreground hover:bg-muted-foreground/5 md:p-2 p-1 rounded-md transition duration-200"
               from={Route.fullPath}
               to="settings"
               search={{ tab: "general" }}
             >
-              <Settings size={32} />
+              <Settings className="md:h-8 md:w-8 h-6 w-6" />
             </Link>
           </div>
         </PageHeaderHeading>
