@@ -265,6 +265,9 @@ export async function countProjectUnitsOverTime(
 export async function projectMeanTestSessions(projectId: string) {
   const sessionCount = await projectCount("session", projectId);
   const unitCount = await projectCount("project_unit", projectId);
+
+  if (unitCount === 0) return 0;
+
   return sessionCount / unitCount;
 }
 
@@ -549,7 +552,7 @@ export async function firstPassYield(projectId: string) {
     )
     .selectFrom("first")
     .select(
-      sql<number>`COUNT(CASE WHEN status = true THEN 1 ELSE NULL END) / SUM(COUNT(*)) OVER ()`.as(
+      sql<number>`COALESCE(COUNT(CASE WHEN status = true THEN 1 ELSE NULL END) / NULLIF(SUM(COUNT(*)) OVER (), 0), 0)`.as(
         "firstPassYield",
       ),
     )
@@ -599,7 +602,7 @@ export async function firstPassYieldOverTime(
     .selectFrom("first")
     .select([
       "bin",
-      sql<number>`COUNT(CASE WHEN status = true THEN 1 ELSE NULL END) / SUM(COUNT(*)) OVER ()`.as(
+      sql<number>`COALESCE(COUNT(CASE WHEN status = true THEN 1 ELSE NULL END) / NULLIF(SUM(COUNT(*)) OVER (), 0), 0)`.as(
         "val",
       ),
     ])
