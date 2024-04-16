@@ -148,7 +148,7 @@ function PartVariationPage() {
           Product: {part.productName}
         </div>
         <PageHeaderDescription>
-          Here you can find all of the units of this part variant.
+          Here you can find all of the units of this part variation.
           <br />
         </PageHeaderDescription>
       </PageHeader>
@@ -166,7 +166,7 @@ function PartVariationPage() {
         <div className="w-3/5">
           {unit.length === 0 ? (
             <div className="text-muted-foreground">
-              No unit found for this partVariation, go register one!
+              No units found for this part variation, go register one!
             </div>
           ) : (
             <ScrollArea className="h-[379px]">
