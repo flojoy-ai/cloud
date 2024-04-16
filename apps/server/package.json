@@ -21,6 +21,7 @@
     "@cloud/tsconfig": "workspace:*",
     "@elysiajs/cors": "^1.0.2",
     "@elysiajs/swagger": "^1.0.3",
+    "@faker-js/faker": "^8.4.1",
     "@lucia-auth/adapter-postgresql": "^3.1.2",
     "@paralleldrive/cuid2": "^2.2.2",
     "@t3-oss/env-core": "^0.9.2",

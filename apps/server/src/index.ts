@@ -19,8 +19,16 @@ import { StationRoute } from "./routes/station";
 import { AuthEntraRoute } from "./routes/auth/entra";
 import { SessionRoute } from "./routes/session";
 import { SecretRoute } from "./routes/secret";
+import { MetricsRoute } from "./routes/metrics";
+import { TestRoute } from "./routes/test";
 
 const encoder = new TextEncoder();
+
+const isElysiaErr = (
+  res: unknown,
+): res is { [ELYSIA_RESPONSE]: number; response: unknown } => {
+  return typeof res === "object" && res !== null && ELYSIA_RESPONSE in res;
+};
 
 const app = new Elysia()
   .derive((ctx) => fixCtxRequest(ctx.request))
@@ -34,38 +42,13 @@ const app = new Elysia()
         "content-type",
         "flojoy-workspace-id",
         "use-superjson",
+        "superjson-meta",
         "flojoy-workspace-personal-secret",
       ],
+      exposedHeaders: ["superjson-meta"],
     }),
   )
   .use(swagger())
-  .mapResponse(({ request, response, set }) => {
-    const isJson = typeof response === "object";
-    if (!isJson) return response as Response;
-
-    const status =
-      response !== null && ELYSIA_RESPONSE in response
-        ? (response[ELYSIA_RESPONSE] as number)
-        : (set.status as number);
-
-    if (status >= 300 || status < 200) {
-      return response as Response;
-    }
-
-    const wantSuperJson = request.headers.get("use-superjson") === "true";
-
-    const text = wantSuperJson
-      ? SuperJSON.stringify(response)
-      : JSON.stringify(response);
-
-    return new Response(Bun.gzipSync(encoder.encode(text)), {
-      headers: {
-        "Content-Type": "application/json; charset=utf-8",
-        "Content-Encoding": "gzip",
-      },
-      status,
-    });
-  })
   .use(
     logger({
       transport: {
@@ -76,6 +59,33 @@ const app = new Elysia()
       },
     }),
   )
+  .mapResponse(({ request, response, set }) => {
+    const isJson = typeof response === "object";
+    if (!isJson) return response as Response;
+
+    const status = isElysiaErr(response)
+      ? (response[ELYSIA_RESPONSE] as number)
+      : (set.status as number);
+
+    const wantSuperJson = request.headers.get("use-superjson") === "true";
+
+    const { json, meta } = wantSuperJson
+      ? SuperJSON.serialize(response)
+      : { json: JSON.stringify(response), meta: undefined };
+
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json; charset=utf-8",
+      "Content-Encoding": "gzip",
+    };
+    if (meta) {
+      headers["superjson-meta"] = JSON.stringify(meta);
+    }
+
+    return new Response(Bun.gzipSync(encoder.encode(JSON.stringify(json))), {
+      headers,
+      status,
+    });
+  })
   .onError(({ log, error }) => {
     // NOTE: the onError hook only catches errors that have been thrown
     // it won't catch errors that are simply returned.
@@ -88,6 +98,7 @@ const app = new Elysia()
   .use(WorkspaceRoute)
   .use(SecretRoute)
   .use(ProjectRoute)
+  .use(TestRoute)
   .use(SearchRoute)
   .use(ProductRoute)
   .use(PartRoute)
@@ -95,6 +106,7 @@ const app = new Elysia()
   .use(StationRoute)
   .use(UnitRoute)
   .use(SessionRoute)
+  .use(MetricsRoute)
   .get("/health", () => "ok")
   .get("/error", ({ error }) => error("I'm a teapot"))
   .listen(env.PORT);

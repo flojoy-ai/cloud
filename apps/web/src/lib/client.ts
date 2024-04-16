@@ -8,12 +8,15 @@ export const queryClient = new QueryClient();
 
 export const client = treaty<App>(env.VITE_SERVER_URL, {
   async onResponse(response) {
-    const val = SuperJSON.parse(await response.text());
-    if (response.ok) {
-      return val;
-    } else {
+    const json = await response.json();
+    const superjsonMeta = response.headers.get("superjson-meta");
+    const val = superjsonMeta
+      ? SuperJSON.deserialize({ json, meta: JSON.parse(superjsonMeta) })
+      : json;
+    if (!response.ok) {
       throw val;
     }
+    return val;
   },
   headers: {
     Origin: env.VITE_SERVER_URL,

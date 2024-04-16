@@ -89,7 +89,7 @@ function Page() {
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
               <Link from={WorkspaceIndexRoute.fullPath} to="project">
-                Production Lines
+                Test Profiles
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>

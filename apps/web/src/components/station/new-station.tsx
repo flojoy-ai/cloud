@@ -32,6 +32,7 @@ import { typeboxResolver } from "@hookform/resolvers/typebox";
 import { useMutation } from "@tanstack/react-query";
 import { client } from "@/lib/client";
 import { Project, InsertStation } from "@cloud/shared";
+import { Plus } from "lucide-react";
 import { useProjectUser } from "@/hooks/use-project-user";
 import {
   Tooltip,
@@ -103,11 +104,11 @@ export default function NewStationButton({ project }: Props) {
         <div className="flex gap-2">
           <DialogTrigger asChild>
             <Button
-              variant="default"
+              variant="secondary"
               disabled={!projectUserPerm.canWrite()}
-              size="sm"
+              size="icon"
             >
-              New Test Station
+              <Plus />
             </Button>
           </DialogTrigger>
           {!projectUserPerm.canWrite() && (
@@ -128,8 +129,7 @@ export default function NewStationButton({ project }: Props) {
           <DialogHeader>
             <DialogTitle>Create your new test station</DialogTitle>
             <DialogDescription>
-              A test station runs a series of tests on a given unit
-              partVariation.
+              A test station runs a series of tests on a part variation.
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>

@@ -16,6 +16,7 @@ import { createMeasurement } from "./measurement";
 import { getStation } from "./station";
 import { createTest, getTestByName } from "./test";
 import { getUnitBySerialNumber } from "./unit";
+import _ from "lodash";
 
 export async function getSessionsByUnitId(
   unitId: string,
@@ -31,6 +32,8 @@ export async function getSessionsByUnitId(
         .on("pu.userId", "=", workspaceUser.userId),
     )
     .select((eb) => withStatus(eb))
+    .innerJoin("user", "user.id", "session.userId")
+    .select("user.email as userEmail")
     .where("session.unitId", "=", unitId)
     .execute();
 }
@@ -49,6 +52,8 @@ export async function getSessionsByStation(
         .on("pu.userId", "=", workspaceUser.userId),
     )
     .select((eb) => withStatus(eb))
+    .innerJoin("user", "user.id", "session.userId")
+    .select("user.email as userEmail")
     .where("stationId", "=", stationId)
     .execute();
 }
@@ -84,7 +89,7 @@ export function withSessionMeasurements(eb: ExpressionBuilder<DB, "session">) {
   ).as("measurements");
 }
 
-export function withStatus(eb: ExpressionBuilder<DB, "session">) {
+export function withStatusUnaliased(eb: ExpressionBuilder<DB, "session">) {
   return (
     eb
       .selectFrom("measurement as m")
@@ -99,8 +104,11 @@ export function withStatus(eb: ExpressionBuilder<DB, "session">) {
 `.as("pass"),
       )
       .whereRef("m.sessionId", "=", "session.id")
-      .as("status")
   );
+}
+
+export function withStatus(eb: ExpressionBuilder<DB, "session">) {
+  return withStatusUnaliased(eb).as("status");
 }
 
 export async function getSession(db: Kysely<DB>, sessionId: string) {
@@ -133,6 +141,8 @@ export async function createSession(
     );
   }
 
+  const totalTime = _.sumBy(measurements, (m) => m.durationMs);
+
   const toInsert = {
     unitId: unit.id,
     userId: userId,
@@ -142,6 +152,8 @@ export async function createSession(
     aborted: body.aborted,
     notes: body.notes,
     commitHash: body.commitHash,
+    durationMs: totalTime,
+    createdAt: body.createdAt,
   };
 
   const res = await tryQuery(
@@ -162,16 +174,17 @@ export async function createSession(
 
   for (const meas of measurements) {
     // NOTE: TestId should be provided in the DS
-    let test = await getTestByName(db, meas.name);
+    let test = await getTestByName(db, meas.name, station.projectId);
     if (test === undefined) {
       const testResult = await createTest(db, {
         name: meas.name,
         projectId: station.projectId,
         measurementType: meas.data.type,
       });
-      if (testResult.isErr()) {
+
+      if (testResult.isErr())
         return err(new InternalServerError(testResult.error));
-      }
+
       test = testResult.value;
     }
 

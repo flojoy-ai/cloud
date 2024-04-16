@@ -14,6 +14,7 @@ import {
   UnitTreeRoot,
   InsertUnit,
   SwapUnitComponent,
+  PartVariation,
 } from "@cloud/shared";
 import { ExpressionBuilder, Kysely } from "kysely";
 import { jsonObjectFrom } from "kysely/helpers/postgres";
@@ -368,4 +369,23 @@ export async function getUnitBySerialNumber(
     .where("unit.serialNumber", "=", serialNumber)
     .where("unit.workspaceId", "=", workspaceId)
     .executeTakeFirst();
+}
+
+export function withUnitParent(eb: ExpressionBuilder<DB, "unit">) {
+  return jsonObjectFrom(
+    eb
+      .selectFrom("unit as h")
+      .leftJoin("unit_relation", "unit.id", "unit_relation.childUnitId")
+      .selectAll("h")
+      .select((eb) =>
+        jsonObjectFrom(
+          eb
+            .selectFrom("part_variation")
+            .selectAll("part_variation")
+            .whereRef("part_variation.id", "=", "h.partVariationId"),
+        ).as("partVariation"),
+      )
+      .$narrowType<{ partVariation: PartVariation }>()
+      .whereRef("h.id", "=", "unit_relation.parentUnitId"),
+  ).as("parent");
 }

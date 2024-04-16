@@ -7,7 +7,9 @@ import { Badge } from "../ui/badge";
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 
-export const columns: ColumnDef<Session & { status: boolean | null }>[] = [
+export const columns: ColumnDef<
+  Session & { status: boolean | null; userEmail: string }
+>[] = [
   {
     accessorKey: "id",
     header: "ID",
@@ -44,8 +46,8 @@ export const columns: ColumnDef<Session & { status: boolean | null }>[] = [
     },
   },
   {
-    accessorKey: "userId",
-    header: "User",
+    accessorKey: "userEmail",
+    header: "Operator",
   },
   {
     id: "actions",

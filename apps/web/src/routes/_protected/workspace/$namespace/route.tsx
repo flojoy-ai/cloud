@@ -10,6 +10,7 @@ import {
 } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import CenterLoadingSpinner from "@/components/center-loading-spinner";
+import { handleError } from "@/lib/utils";
 import { WorkspaceUserProvider } from "@/context/workspace-user";
 import { getWorkspaceUserQueryOpts } from "@/lib/queries/user";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -18,17 +19,16 @@ import { ProtectedHeader } from "@/components/navbar/protected-header";
 export const Route = createFileRoute("/_protected/workspace/$namespace")({
   component: Page,
 
-  errorComponent: (error) => {
-    console.error(error);
+  errorComponent: ({ error, reset }) => {
     return (
       <PageHeader>
         <PageHeaderHeading>Oops!</PageHeaderHeading>
-        <PageHeaderDescription>
-          You do not have access to this workspace :(
-        </PageHeaderDescription>
+        <PageHeaderDescription>An error occurred :(</PageHeaderDescription>
         <div className="py-2"></div>
-        <Button asChild>
-          <Link to={"/workspace"}>Go Back</Link>
+        <div className="text-red-500">{handleError(error)}</div>
+        <div className="py-2"></div>
+        <Button asChild onClick={reset}>
+          <Link to="/workspace">Go back</Link>
         </Button>
       </PageHeader>
     );

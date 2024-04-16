@@ -13,7 +13,7 @@
 
 | Testing                | Definition                                                                                                     |
 | :--------------------- | :------------------------------------------------------------------------------------------------------------- |
-| **Production Line**    | Where a product is being assembled and the test stations are located.                                          |
+| **Test Profile**       | Groups together a set of test stations that run tests on a specific part variation.                            |
 | **Test Station**       | A physical space on a manufacturing line where tests and measurements are performed on an instance of a part.  |
 | **Test Session**       | A group of tests that are performed at the same time, at the same test station, by the same operator.          |
 | **Test / Measurement** | A single measurement or action with an expected and obtain value. (The simplest element with `pass` or `fail`) |
@@ -36,7 +36,7 @@ Precision:
 - There can exist multiple variations and revisions of a part, all with their unique Part Number, but starting with the same root (e.g., _PCB-CTR065-001_, _PCB-CTR065-002_, _PCB-CTR065-002V2_).
   - Thus, the `Part variation` is introduced, representing a specific version of a part. (For the part _PCB-CTR065_, a variant is _PCB-CTR065-001_.)
   - To save the relation between those parts, the information is split into two different database tables: e.g., `part` and `part_variant`.
-  - **Unit** can thus only be an instance of a `part_variant`. (And the final **Product** in the user perspective also needs its part and its variant to create a final unit)
+  - **Unit** can thus only be an instance of a `part_variation`. (And the final **Product** in the user perspective also needs its part and its variant to create a final unit)
 
 ## Example
 

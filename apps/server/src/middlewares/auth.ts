@@ -111,20 +111,10 @@ export const AuthMiddleware = new Elysia()
     },
   )
   .propagate()
-  .derive(
-    async ({
-      user,
-      session,
-      authMethod,
-    }): Promise<{
-      user: User;
-      session: Session;
-      authMethod: AuthMethod;
-    }> => {
-      if (!user || !session || !authMethod) {
-        throw new Error("Unauthorized");
-      }
-      return { user, session, authMethod };
-    },
-  )
+  .derive(async ({ user, session, authMethod, error }) => {
+    if (!user || !session || !authMethod) {
+      return error("Unauthorized");
+    }
+    return { user, session, authMethod };
+  })
   .propagate();

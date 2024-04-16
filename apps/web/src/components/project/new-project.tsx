@@ -116,7 +116,7 @@ export default function NewProjectButton({ workspace, partVariations }: Props) {
               disabled={!workspaceUserPerm.canWrite()}
               size="sm"
             >
-              New Production Line
+              New Test Profile
             </Button>
           </DialogTrigger>
           {!workspaceUserPerm.canWrite() && (
@@ -126,20 +126,19 @@ export default function NewProjectButton({ workspace, partVariations }: Props) {
                   <Info className="h-5 w-5" />
                 </TooltipTrigger>
                 <TooltipContent>
-                  Please contact your workspace admin to create a production
-                  line :)
+                  Please contact your workspace admin to create a test profile
+                  :)
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           )}
         </div>
-
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Create your new production line</DialogTitle>
+            <DialogTitle>Create your new test profile</DialogTitle>
             <DialogDescription>
-              A production line groups a set of test stations that run tests on
-              a specific unit partVariation.
+              A test profile groups a set of test stations that run tests on a
+              specific part variation.
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
@@ -158,7 +157,7 @@ export default function NewProjectButton({ workspace, partVariations }: Props) {
                       />
                     </FormControl>
                     <FormDescription>
-                      How do you want to call your production line?
+                      What do you want to call your test profile?
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -208,8 +207,8 @@ export default function NewProjectButton({ workspace, partVariations }: Props) {
                       )}
                     </FormControl>
                     <FormDescription>
-                      Which unit partVariation is this production line testing?{" "}
-                      <br /> Don&apos;t see your unit partVariation?{" "}
+                      Which part variation is this test profile testing? <br />{" "}
+                      Don&apos;t see your part variation?{" "}
                       <Link
                         to="/workspace"
                         className="underline hover:text-primary"

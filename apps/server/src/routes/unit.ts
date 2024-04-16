@@ -1,21 +1,24 @@
 import {
+  PartVariation,
+  insertUnit,
+  queryBool,
+  swapUnitComponent,
+} from "@cloud/shared";
+import { Elysia, error, t } from "elysia";
+import { db } from "../db/kysely";
+import {
   createUnit,
   doUnitComponentSwap,
   getUnit,
   getUnitRevisions,
   getUnitTree,
   notInUse,
+  withUnitParent,
   withUnitPartVariation,
 } from "../db/unit";
-import { db } from "../db/kysely";
-import { WorkspaceMiddleware } from "../middlewares/workspace";
-import { insertUnit, swapUnitComponent } from "@cloud/shared";
-import { PartVariation } from "@cloud/shared";
-import { queryBool } from "@cloud/shared";
-import { Elysia, error, t } from "elysia";
-import { jsonObjectFrom } from "kysely/helpers/postgres";
-import { checkWorkspacePerm } from "../lib/perm/workspace";
 import { checkUnitPerm } from "../lib/perm/unit";
+import { checkWorkspacePerm } from "../lib/perm/workspace";
+import { WorkspaceMiddleware } from "../middlewares/workspace";
 
 export const UnitRoute = new Elysia({ prefix: "/unit", name: "UnitRoute" })
   .use(WorkspaceMiddleware)
@@ -81,34 +84,12 @@ export const UnitRoute = new Elysia({ prefix: "/unit", name: "UnitRoute" })
             .selectFrom("unit")
             .selectAll("unit")
             .where("id", "=", unitId)
-            .where("unit.workspaceId", "=", workspace.id)
-            .select((eb) => withUnitPartVariation(eb))
-            .leftJoin("unit_relation as ur", "unit.id", "ur.childUnitId")
-            .select((eb) =>
-              jsonObjectFrom(
-                eb
-                  .selectFrom("unit as h")
-                  .selectAll("h")
-                  .select((eb) =>
-                    jsonObjectFrom(
-                      eb
-                        .selectFrom("part_variation")
-                        .selectAll("part_variation")
-                        .whereRef(
-                          "part_variation.id",
-                          "=",
-                          "h.partVariationId",
-                        ),
-                    ).as("partVariation"),
-                  )
-                  .$narrowType<{ partVariation: PartVariation }>()
-                  .whereRef("h.id", "=", "ur.parentUnitId"),
-              ).as("parent"),
-            )
+            .where("workspaceId", "=", workspace.id)
+            .select((eb) => [withUnitPartVariation(eb), withUnitParent(eb)])
             .$narrowType<{ partVariation: PartVariation }>()
             .executeTakeFirst();
           if (unit === undefined) {
-            return error(404, "PartVariation not found");
+            return error(404, "Unit not found");
           }
 
           return await getUnitTree(unit);

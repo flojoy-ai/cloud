@@ -13,6 +13,7 @@ export * from "./types/tag";
 export * from "./types/test";
 export * from "./types/utils";
 export * from "./types/workspace";
+export * from "./types/metrics";
 
 export * from "./lib/perm";
 export * from "./types/perm";

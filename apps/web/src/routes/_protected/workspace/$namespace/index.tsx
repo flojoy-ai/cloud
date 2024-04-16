@@ -30,7 +30,6 @@ function Page() {
         </div>
 
         <div className="py-4" />
-
         <div className="flex gap-x-6">
           <Link
             from={Route.fullPath}
@@ -39,7 +38,7 @@ function Page() {
               "text-foreground/60 transition-colors hover:text-foreground/80",
             )}
           >
-            Production Lines
+            Test Profiles
           </Link>
           <Link
             from={Route.fullPath}
@@ -50,6 +49,15 @@ function Page() {
           >
             Inventory
           </Link>
+          <Link
+            from={Route.fullPath}
+            to="dashboard"
+            className={cn(
+              "text-foreground/60 transition-colors hover:text-foreground/80",
+            )}
+          >
+            Dashboard
+          </Link>
 
           <Link
             from={Route.fullPath}
@@ -59,7 +67,7 @@ function Page() {
               "text-foreground/60 transition-colors hover:text-foreground/80",
             )}
           >
-            Workspace Settings
+            Settings
           </Link>
         </div>
 

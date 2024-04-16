@@ -1,6 +1,6 @@
 import { fromPromise } from "neverthrow";
 import { db } from "../db/kysely";
-import { createProject } from "../db/project";
+import { createProject, getProject } from "../db/project";
 import { checkProjectPerm } from "../lib/perm/project";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
 import {
@@ -109,11 +109,7 @@ export const ProjectRoute = new Elysia({
       .get(
         "/",
         async ({ params }) => {
-          const project = await db
-            .selectFrom("project as p")
-            .selectAll()
-            .where("p.id", "=", params.projectId)
-            .executeTakeFirst();
+          const project = await getProject(db, params.projectId);
 
           if (!project) {
             return error(404, "project not found or you do not have access");
@@ -150,7 +146,7 @@ export const ProjectRoute = new Elysia({
             .where("project.id", "=", projectId)
             .returningAll()
             .executeTakeFirstOrThrow(
-              () => new InternalServerError("Failed to update production line"),
+              () => new InternalServerError("Failed to update test profile"),
             );
 
           return project;
@@ -182,7 +178,7 @@ export const ProjectRoute = new Elysia({
             .where("project.id", "=", projectId)
             .returningAll()
             .executeTakeFirstOrThrow(
-              () => new InternalServerError("Failed to update production line"),
+              () => new InternalServerError("Failed to update test profile"),
             );
 
           return project;

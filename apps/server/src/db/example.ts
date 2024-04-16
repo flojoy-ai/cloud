@@ -23,6 +23,8 @@ const generateRandomNumbers = () => {
   return randomNumbers;
 };
 
+const ONE_DAY = 24 * 60 * 60 * 1000;
+
 export async function populateExample(
   db: Kysely<DB>,
   workspaceUser: WorkspaceUser,
@@ -144,7 +146,7 @@ export async function populateExample(
 
     const pi5Project = yield* (
       await createProject(db, {
-        name: "Pi-5 Production Line",
+        name: "Pi-5 Test Profile",
         partVariationId: pi58GB.id,
         workspaceId,
       })
@@ -162,9 +164,17 @@ export async function populateExample(
 
     const booleanTest = yield* (
       await createTest(db, {
-        name: "Pass/Fail Test",
+        name: "Did Light Up",
         projectId: pi5Project.id,
         measurementType: "boolean",
+      })
+    ).safeUnwrap();
+
+    const scalarTest = yield* (
+      await createTest(db, {
+        name: "Voltage Test",
+        projectId: pi5Project.id,
+        measurementType: "scalar",
       })
     ).safeUnwrap();
 
@@ -295,17 +305,28 @@ export async function populateExample(
           aborted: false,
           measurements: [
             {
+              name: "Voltage Test",
+              testId: scalarTest.id,
+              createdAt: new Date(new Date().getTime() - i * ONE_DAY),
+              durationMs: 1000,
+              data: {
+                type: "scalar" as const,
+                value: Math.round((5 + Math.random()) * 100) / 100,
+              },
+              pass: val,
+            },
+            {
               name: "Did Light Up",
               durationMs: 1000,
               testId: booleanTest.id,
-              createdAt: new Date(new Date().getTime() + i * 20000),
+              createdAt: new Date(new Date().getTime() - i * i * 5 * ONE_DAY),
               data: { type: "boolean" as const, value: val },
               pass: val,
             },
             {
-              name: "Data Point",
+              name: "Expected vs Measured",
               testId: dataframeTest.id,
-              createdAt: new Date(new Date().getTime() + i * 20000),
+              createdAt: new Date(new Date().getTime() - i * i * 5 * ONE_DAY),
               durationMs: 1566,
               data: {
                 type: "dataframe" as const,
@@ -314,9 +335,10 @@ export async function populateExample(
                   y: generateRandomNumbers(),
                 },
               },
-              pass: Math.random() < 0.7 ? true : null,
+              pass: Math.random() < 0.7 ? true : false,
             },
           ],
+          createdAt: new Date(new Date().getTime() - i * i * 5 * ONE_DAY),
         })
       ).safeUnwrap();
     }

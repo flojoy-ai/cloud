@@ -1,6 +1,7 @@
 import { Elysia, error, t } from "elysia";
 import { AuthMiddleware } from "./auth";
 import { db } from "../db/kysely";
+import { logger } from "@bogeychan/elysia-logger";
 
 export const WorkspaceMiddleware = new Elysia({ name: "WorkspaceMiddleware" })
   .guard({
@@ -10,6 +11,16 @@ export const WorkspaceMiddleware = new Elysia({ name: "WorkspaceMiddleware" })
       "flojoy-workspace-id": t.String(),
     }),
   })
+  .use(
+    logger({
+      transport: {
+        target: "pino-pretty",
+        options: {
+          colorize: true,
+        },
+      },
+    }),
+  )
   .use(AuthMiddleware)
   .derive(async ({ headers: { "flojoy-workspace-id": workspaceId }, user }) => {
     const workspace = await db

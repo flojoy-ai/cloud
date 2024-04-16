@@ -1,15 +1,15 @@
-import { generateDatabaseId } from "../lib/db-utils";
-import { markUpdatedAt } from "../db/query";
-import { Result, err, ok } from "neverthrow";
 import {
   DB,
-  PartVariation,
   InsertPartVariation,
+  PartVariation,
   PartVariationTreeNode,
   PartVariationTreeRoot,
 } from "@cloud/shared";
-import { db } from "./kysely";
 import { Kysely } from "kysely";
+import { Result, err, ok } from "neverthrow";
+import { markUpdatedAt } from "../db/query";
+import { generateDatabaseId } from "../lib/db-utils";
+import { db } from "./kysely";
 
 export async function createPartVariation(
   db: Kysely<DB>,

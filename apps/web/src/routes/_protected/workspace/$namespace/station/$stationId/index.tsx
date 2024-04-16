@@ -13,12 +13,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
 import { getProjectQueryOpts } from "@/lib/queries/project";
 import { getSessionsByStationQueryOpts } from "@/lib/queries/session";
@@ -73,7 +67,7 @@ function Page() {
                 to="/workspace/$namespace/project"
                 params={{ namespace: workspace.namespace }}
               >
-                Production Lines
+                Test Profiles
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
@@ -109,14 +103,6 @@ function Page() {
       <div className="grid grid-cols-4 gap-4">
         <div className="col-span-3">
           <DataTable columns={columns} data={sessions} />
-        </div>
-        <div className="col-span-1">
-          <Card>
-            <CardHeader>
-              <CardTitle>Pass</CardTitle>
-              <CardDescription>Global Statistics</CardDescription>
-            </CardHeader>
-          </Card>
         </div>
       </div>
     </div>
