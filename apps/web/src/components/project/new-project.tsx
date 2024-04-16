@@ -168,7 +168,7 @@ export default function NewProjectButton({ workspace, partVariations }: Props) {
                 name="partVariationId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>PartVariation</FormLabel>
+                    <FormLabel>Part Variation</FormLabel>
                     <FormControl>
                       {partVariations.length > 0 ? (
                         <Select
