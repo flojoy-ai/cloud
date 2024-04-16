@@ -146,8 +146,12 @@ const CreatePartVariation = ({
     remove(i);
   };
 
+  const partNamePrefix = part.name + "-";
+
   function onSubmit(values: FormSchema) {
     const { hasComponents, ...rest } = values;
+    rest.partNumber = partNamePrefix + rest.partNumber;
+
     if (!hasComponents) {
       toast.promise(
         createPartVariation.mutateAsync({
@@ -208,8 +212,8 @@ const CreatePartVariation = ({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit, (e) => {
-              console.log(e);
-              console.log(form.getValues());
+              console.error(e);
+              console.error(form.getValues());
             })}
             className="space-y-4"
           >
@@ -220,7 +224,12 @@ const CreatePartVariation = ({
                 <FormItem>
                   <FormLabel>Part Number</FormLabel>
                   <FormControl>
-                    <Input placeholder="M1234" {...field} data-1p-ignore />
+                    <div className="flex gap-x-1.5">
+                      <div className="h-10 w-fit whitespace-nowrap rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground opacity-50 ring-offset-background  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-not-allowed">
+                        {partNamePrefix}
+                      </div>
+                      <Input placeholder="M1234" {...field} data-1p-ignore />
+                    </div>
                   </FormControl>
                   <FormDescription>
                     An identifier for this part variation. This will always be
