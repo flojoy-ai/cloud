@@ -15,8 +15,10 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -42,23 +44,30 @@ import { getPartVariationQueryOpts } from "@/lib/queries/part-variation";
 import { getStationsQueryOpts } from "@/lib/queries/station";
 import { makeTimeSeriesData } from "@/lib/stats";
 import { pastTimeFromBin } from "@/lib/time";
-import { cn } from "@/lib/utils";
+import { cn, handleError } from "@/lib/utils";
 import { Test, TimePeriod, Unit } from "@cloud/shared";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   ArrowRight,
+  Check,
   CircleHelp,
+  Copy,
   Cpu,
+  Edit,
+  GitPullRequest,
   Hash,
   LucideIcon,
   PercentSquare,
+  Settings,
   SigmaSquare,
   SquareCheck,
   Timer,
+  X,
 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/project/$projectId/",
@@ -268,6 +277,13 @@ function Page() {
       })
     : undefined;
 
+  const onRepoUrlCopy = () => {
+    toast.promise(navigator.clipboard.writeText(project.repoUrl), {
+      success: "Copied git repository URL to clipboard.",
+      error: "Failed to copy git repository URL.",
+    });
+  };
+
   return (
     <div className="container max-w-screen-2xl">
       <div className="py-2"></div>
@@ -295,10 +311,47 @@ function Page() {
         </BreadcrumbList>
       </Breadcrumb>
       <PageHeader>
-        <PageHeaderHeading className="">{project.name}</PageHeaderHeading>
+        <PageHeaderHeading>
+          <div className="flex items-center gap-x-2">
+            <div>{project.name}</div>
+            <Link
+              className="text-muted-foreground hover:bg-muted-foreground/5 p-2 rounded-md transition duration-200"
+              from={Route.fullPath}
+              to="settings"
+              search={{ tab: "general" }}
+            >
+              <Settings size={32} />
+            </Link>
+          </div>
+        </PageHeaderHeading>
         <PageHeaderDescription>
-          <div className="items-center flex gap-2">
-            Role: <Badge>{projectUser.role}</Badge>
+          <Badge>{projectUser.role}</Badge>
+          <div className="py-1" />
+          <div className="items-center flex text-sm font-medium">
+            <GitPullRequest size={20} />
+            <div className="px-1" />
+            {project.repoUrl ? (
+              <>
+                <a
+                  target="_blank"
+                  className="hover:cursor-pointer underline"
+                  href={project.repoUrl}
+                >
+                  {project.repoUrl}
+                </a>
+                <div className="px-0.5" />
+                <Button
+                  className="text-muted-foreground h-8 w-8"
+                  size="icon"
+                  variant="ghost"
+                  onClick={onRepoUrlCopy}
+                >
+                  <Copy size={16} />
+                </Button>
+              </>
+            ) : (
+              <span>Git upstream not set</span>
+            )}
           </div>
         </PageHeaderDescription>
       </PageHeader>

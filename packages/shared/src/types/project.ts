@@ -15,7 +15,8 @@ export const CreateProjectSchema = t.Object({
 export type CreateProjectSchema = Static<typeof CreateProjectSchema>;
 
 export const UpdateProjectSchema = t.Object({
-  name: t.String({ minLength: 1 }),
+  name: t.Optional(t.String({ minLength: 1 })),
+  repoUrl: t.Optional(t.String()),
 });
 
 export type UpdateProjectSchema = Static<typeof UpdateProjectSchema>;

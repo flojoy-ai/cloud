@@ -54,7 +54,7 @@ function Page() {
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
               <Link from={Route.fullPath} to="../..">
-                Production Lines
+                Test Profiles
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
@@ -68,14 +68,14 @@ function Page() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Production Line Settings</BreadcrumbPage>
+            <BreadcrumbPage>Test Profile Settings</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
       <PageHeader>
-        <PageHeaderHeading>Production Line Settings</PageHeaderHeading>
+        <PageHeaderHeading>Test Profile Settings</PageHeaderHeading>
         <PageHeaderDescription>
-          Configure your production line.
+          Configure your test profile.
         </PageHeaderDescription>
       </PageHeader>
       <div className="py-4" />
@@ -84,9 +84,7 @@ function Page() {
 
       <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
         <aside className="-mx-4 lg:w-1/5">
-          <nav
-            className={"flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1"}
-          >
+          <nav className="flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1">
             <Link
               from={Route.fullPath}
               to={Route.fullPath}

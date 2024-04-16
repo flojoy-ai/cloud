@@ -25,8 +25,10 @@ import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { toast } from "sonner";
@@ -54,6 +56,7 @@ const ProjectGeneral = ({ workspace, projectPerm, project }: Props) => {
     resolver: typeboxResolver(UpdateProjectSchema),
     defaultValues: {
       name: project.name,
+      repoUrl: project.repoUrl ?? undefined,
     },
   });
 
@@ -76,7 +79,7 @@ const ProjectGeneral = ({ workspace, projectPerm, project }: Props) => {
       queryClient.invalidateQueries({
         queryKey: getProjectsQueryKey(),
       });
-      toast.success("Production line updated");
+      toast.success("Test profile updated");
     },
   });
 
@@ -110,7 +113,7 @@ const ProjectGeneral = ({ workspace, projectPerm, project }: Props) => {
         to: "/workspace/$namespace/project",
         params: { namespace: workspace.namespace },
       });
-      toast.success("Production line deleted");
+      toast.success("Test profile deleted");
     },
   });
 
@@ -123,47 +126,59 @@ const ProjectGeneral = ({ workspace, projectPerm, project }: Props) => {
       <Form {...updateProjectForm}>
         <form
           onSubmit={updateProjectForm.handleSubmit(onUpdateProjectFormSubmit)}
-          className="space-y-8"
         >
-          <FormField
-            control={updateProjectForm.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-xl">
-                      Production Line Name
-                    </CardTitle>
-                    <CardDescription>
-                      This is your production line&apos;s visible name within
-                      Flojoy.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <FormControl>
-                      <Input
-                        disabled={!projectPerm.canAdmin()}
-                        placeholder={project.name}
-                        {...field}
-                        data-1p-ignore
-                      />
-                    </FormControl>
-                  </CardContent>
-                  <CardFooter className="space-x-4 border-t px-6 py-4">
-                    {updateProjectForm.formState.isSubmitting ? (
-                      <Button disabled={true}>
-                        <Icons.spinner className="h-6 w-6" />
-                      </Button>
-                    ) : (
-                      <Button disabled={!projectPerm.canAdmin()}>Save</Button>
-                    )}
-                    <FormMessage />
-                  </CardFooter>
-                </Card>
-              </FormItem>
+          <Card className="space-y-8 p-6">
+            <FormField
+              control={updateProjectForm.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xl">Test Profile Name</FormLabel>
+                  <FormDescription>
+                    This is your test profile&apos;s visible name within Flojoy.
+                  </FormDescription>
+                  <FormControl>
+                    <Input
+                      disabled={!projectPerm.canAdmin()}
+                      placeholder={project.name}
+                      {...field}
+                      data-1p-ignore
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={updateProjectForm.control}
+              name="repoUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xl">Git repository URL</FormLabel>
+                  <FormDescription>
+                    This is the URL of your upstream test profile git repository
+                    including the test sequencer files and test code.
+                  </FormDescription>
+                  <FormControl>
+                    <Input
+                      disabled={!projectPerm.canAdmin()}
+                      placeholder={"https://example.com/repo.git"}
+                      {...field}
+                      data-1p-ignore
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {updateProjectForm.formState.isSubmitting ? (
+              <Button disabled={true}>
+                <Icons.spinner className="h-6 w-6" />
+              </Button>
+            ) : (
+              <Button disabled={!projectPerm.canAdmin()}>Save</Button>
             )}
-          />
+          </Card>
         </form>
       </Form>
       {projectPerm.canAdmin() && (
