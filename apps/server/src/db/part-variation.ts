@@ -10,12 +10,33 @@ import { Result, err, ok } from "neverthrow";
 import { markUpdatedAt } from "../db/query";
 import { generateDatabaseId } from "../lib/db-utils";
 import { db } from "./kysely";
+import { getPart } from "./part";
+import {
+  InternalServerError,
+  NotFoundError,
+  BadRequestError,
+  RouteError,
+} from "../lib/error";
 
 export async function createPartVariation(
   db: Kysely<DB>,
   input: InsertPartVariation,
-): Promise<Result<PartVariation, string>> {
+): Promise<Result<PartVariation, RouteError>> {
   const { components, ...newPartVariation } = input;
+
+  const part = await getPart(db, input.partId);
+  if (!part) {
+    return err(new NotFoundError("Part not found"));
+  }
+  const requiredPrefix = part.name + "-";
+  if (!newPartVariation.partNumber.startsWith(requiredPrefix)) {
+    return err(
+      new BadRequestError(
+        `Part number must start with "${requiredPrefix}" for part ${part.name}`,
+      ),
+    );
+  }
+
   const partVariation = await db
     .insertInto("part_variation")
     .values({
@@ -26,7 +47,7 @@ export async function createPartVariation(
     .executeTakeFirst();
 
   if (partVariation === undefined) {
-    return err("Failed to create partVariation");
+    return err(new InternalServerError("Failed to create part variation"));
   }
 
   if (components.length > 0) {

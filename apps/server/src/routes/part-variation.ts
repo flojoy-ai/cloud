@@ -8,6 +8,7 @@ import {
 import { withUnitParent } from "../db/unit";
 import { checkWorkspacePerm } from "../lib/perm/workspace";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
+import { fromTransaction } from "../lib/db-utils";
 
 export const PartVariationRoute = new Elysia({
   prefix: "/partVariation",
@@ -29,10 +30,11 @@ export const PartVariationRoute = new Elysia({
   .post(
     "/",
     async ({ body, error }) => {
-      const res = await createPartVariation(db, body);
-      if (res.isErr()) {
-        return error(500, res.error);
-      }
+      const res = await fromTransaction(async (tx) => {
+        return await createPartVariation(tx, body);
+      });
+      if (res.isErr()) return error(res.error.code, res.error);
+
       return res.value;
     },
     {
