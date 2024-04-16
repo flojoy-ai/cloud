@@ -7,6 +7,7 @@ type Props = {
   bin: TimePeriod;
   data: number[];
   dates: Date[];
+  className?: string;
 };
 
 const tooltipDisplayFormats = {
@@ -16,15 +17,17 @@ const tooltipDisplayFormats = {
   year: "yyyy",
 };
 
-export const TimeSeriesBarChart = ({ bin, data, dates }: Props) => {
+export const TimeSeriesBarChart = ({ className, bin, data, dates }: Props) => {
   const { accent, accentLight } = getChartColors();
   return (
     <Bar
+      className={className}
       data={{
         datasets: [{ data }],
         labels: dates,
       }}
       options={{
+        maintainAspectRatio: false,
         backgroundColor: `hsl(${accent})`,
         borderColor: `hsl(${accentLight})`,
         elements: {

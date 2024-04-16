@@ -358,10 +358,10 @@ function Page() {
       </PageHeader>
 
       <div className="py-4"></div>
-      <div className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-12 gap-x-4">
-          <div className="col-span-5">
-            <Card className="h-48 p-6">
+      <div className="">
+        <div className="flex gap-x-4">
+          <div className="max-w-fit">
+            <Card className="p-6">
               <div className="grid grid-cols-2 grid-rows-2 gap-6">
                 <Metric
                   variant="large"
@@ -406,17 +406,16 @@ function Page() {
                 >
                   {metrics.meanSessionsPerUnit}
                 </Metric>
-                <div className="py-3" />
               </div>
             </Card>
-            <div className="py-3" />
-            <Card className="h-56 p-6 flex items-center lg:gap-x-6 gap-x-2">
+            <div className="lg:py-3 py-2" />
+            <Card className="h-56 lg:p-6 p-4 flex items-center lg:gap-x-6 gap-x-4">
               <StatusDoughnut
                 passed={metrics.sessionPassedCount}
                 failed={metrics.sessionFailedCount}
                 aborted={metrics.sessionAbortedCount}
                 innerText="sessions"
-                className="w-1/2 h-full"
+                className="lg:h-full w-40"
                 numberClassName="lg:text-xl text-lg font-semibold"
                 innerTextClassName="lg:text-base text-sm"
               />
@@ -456,7 +455,7 @@ function Page() {
               </div>
             </Card>
           </div>
-          <Card className="col-span-7 p-6">
+          <Card className="flex-1 p-6 flex flex-col">
             <div className="flex justify-between items-center">
               <Select
                 defaultValue={series}
@@ -476,20 +475,30 @@ function Page() {
               <DateBinSelect bin={bin} setBin={setBin} />
             </div>
             <div className="py-6" />
-            {seriesData && (
-              <TimeSeriesBarChart
-                bin={bin}
-                dates={seriesData[0]}
-                data={seriesData[1]}
-              />
-            )}
+            <div className="w-full flex-1">
+              {seriesData && (
+                <TimeSeriesBarChart
+                  bin={bin}
+                  dates={seriesData[0]}
+                  data={seriesData[1]}
+                  className="max-w-full"
+                />
+              )}
+            </div>
           </Card>
         </div>
 
         <div className="py-3" />
 
-        <div className="flex">
-          <div className="w-1/3">
+        <div className="flex gap-x-6">
+          <div className="flex-1">
+            <div className="h-10 flex items-center">
+              <h2 className="text-xl font-semibold">Tests</h2>
+            </div>
+            <div className="py-1" />
+            <DataTable columns={testColumns} data={project.tests} />
+          </div>
+          <div className="max-w-fit lg:min-w-64 min-w-56">
             <div className="flex items-center gap-x-2">
               <h2 className="text-xl font-semibold">Stations</h2>
               <NewStation project={project} />
@@ -498,16 +507,7 @@ function Page() {
             <DataTable columns={columns} data={stations} />
             <div className="col-span-3"></div>
           </div>
-          <div className="px-3" />
-          <div className="w-1/3">
-            <div className="h-10 flex items-center">
-              <h2 className="text-xl font-semibold">Tests</h2>
-            </div>
-            <div className="py-1" />
-            <DataTable columns={testColumns} data={project.tests} />
-          </div>
-          <div className="px-3" />
-          <div className="w-1/3">
+          <div className="max-w-fit lg:min-w-64 min-w-56">
             <div className="h-10 flex items-center">
               <h2 className="text-xl font-semibold">Units</h2>
             </div>
