@@ -16,7 +16,6 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .addColumn("station_id", "text", (col) =>
       col.notNull().references("station.id").onDelete("cascade"),
     )
-    .addColumn("duration_ms", "integer", (col) => col.notNull())
     .addColumn("commit_hash", "text")
     .addColumn("integrity", "boolean", (col) => col.notNull())
     .addColumn("aborted", "boolean", (col) => col.notNull())
