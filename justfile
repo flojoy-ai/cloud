@@ -3,6 +3,11 @@
 dev:
   bun dev
 
+# ----- build -----
+
+build:
+  bun run build
+
 # ----- install -----
 
 install: install-bun && install-poetry
