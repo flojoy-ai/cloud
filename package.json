@@ -14,14 +14,14 @@
     "packages/*"
   ],
   "devDependencies": {
-    "@commitlint/cli": "^19.2.1",
-    "@commitlint/config-conventional": "^19.1.0",
+    "@commitlint/cli": "^19.2.2",
+    "@commitlint/config-conventional": "^19.2.2",
     "eslint": "^8.57.0",
     "husky": "^9.0.11",
     "prettier": "^3.2.5",
-    "prettier-plugin-tailwindcss": "^0.5.13",
-    "turbo": "^1.13.0",
-    "vercel": "^33.6.2"
+    "prettier-plugin-tailwindcss": "^0.5.14",
+    "turbo": "^1.13.2",
+    "vercel": "^33.7.1"
   },
   "commitlint": {
     "extends": [
