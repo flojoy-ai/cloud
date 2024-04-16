@@ -6,7 +6,7 @@ import {
   Route,
   ShoppingCart,
 } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   Command,
   CommandGroup,
@@ -66,9 +66,15 @@ type SearchResultProps = {
   result: SearchResult;
   query: string;
   workspace: Workspace;
+  setSelected: (val: boolean) => void;
 };
 
-const SearchResultItem = ({ result, query, workspace }: SearchResultProps) => {
+const SearchResultItem = ({
+  result,
+  query,
+  workspace,
+  setSelected,
+}: SearchResultProps) => {
   const type = result.type;
   const Icon = typeIcons[type];
   const router = useRouter();
@@ -77,6 +83,7 @@ const SearchResultItem = ({ result, query, workspace }: SearchResultProps) => {
       className="flex cursor-pointer"
       value={`${result.name}-${type}`}
       onSelect={() => {
+        setSelected(false);
         switch (result.type) {
           case "product":
             throw new Error("not implemented");
@@ -149,6 +156,7 @@ const SearchBar = ({
 }: Props) => {
   const [value, setValue] = useState("");
   const [selected, setSelected] = useState(false);
+  const cmdRef = useRef<HTMLDivElement | null>(null);
   const query = useDebounce(value, 200);
 
   const { data, isFetching } = useQuery({
@@ -185,14 +193,19 @@ const SearchBar = ({
             ? cn("rounded-lg border", emptyClassName)
             : cn("rounded-b-none border border-b-0", activeClassName),
         )}
+        ref={cmdRef}
       >
         <CommandInput
           placeholder={small ? "Search" : "Type a command or search..."}
           onValueChange={setValue}
           className={small ? "py-0 h-8" : ""}
-          // FIXME: this hack to allow the links to be clicked properly before the component unmounts
-          onBlur={() => setTimeout(() => setSelected(false), 75)}
           onFocus={() => setSelected(true)}
+          onBlur={(e) => {
+            if (e.relatedTarget === cmdRef.current) {
+              return;
+            }
+            setSelected(false);
+          }}
         />
         {/* TODO: Fix z-index for this */}
         <CommandList
@@ -215,6 +228,7 @@ const SearchBar = ({
                     result={r}
                     query={query}
                     workspace={workspace}
+                    setSelected={setSelected}
                   />
                 ))}
               </CommandGroup>
