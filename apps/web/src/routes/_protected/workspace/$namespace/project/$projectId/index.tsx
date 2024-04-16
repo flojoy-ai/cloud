@@ -404,7 +404,7 @@ function Page() {
                   className="col-start-2 col-end-2 row-start-2 row-end-2"
                   description="The average number of test sessions run per unit."
                 >
-                  {metrics.meanSessionsPerUnit}
+                  {metrics.meanSessionsPerUnit.toFixed(3)}
                 </Metric>
                 <div className="py-3" />
               </div>
