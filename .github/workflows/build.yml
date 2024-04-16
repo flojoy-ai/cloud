@@ -15,6 +15,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
       - uses: extractions/setup-just@v1
 
       - name: Install
