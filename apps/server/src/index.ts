@@ -71,7 +71,7 @@ const app = new Elysia()
 
     const { json, meta } = wantSuperJson
       ? SuperJSON.serialize(response)
-      : { json: JSON.stringify(response), meta: undefined };
+      : { json: response, meta: undefined };
 
     const headers: Record<string, string> = {
       "Content-Type": "application/json; charset=utf-8",
