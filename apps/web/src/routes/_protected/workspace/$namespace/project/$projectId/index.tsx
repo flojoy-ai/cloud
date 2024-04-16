@@ -18,7 +18,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -44,18 +43,16 @@ import { getPartVariationQueryOpts } from "@/lib/queries/part-variation";
 import { getStationsQueryOpts } from "@/lib/queries/station";
 import { makeTimeSeriesData } from "@/lib/stats";
 import { pastTimeFromBin } from "@/lib/time";
-import { cn, handleError } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { Test, TimePeriod, Unit } from "@cloud/shared";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   ArrowRight,
-  Check,
   CircleHelp,
   Copy,
   Cpu,
-  Edit,
   GitPullRequest,
   Hash,
   LucideIcon,
@@ -64,7 +61,6 @@ import {
   SigmaSquare,
   SquareCheck,
   Timer,
-  X,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
