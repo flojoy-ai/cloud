@@ -1,8 +1,14 @@
 import { ExpressionBuilder, Kysely } from "kysely";
-import { generateDatabaseId } from "../lib/db-utils";
-import { DB, Project, CreateProjectSchema } from "@cloud/shared";
+import { generateDatabaseId, tryQuery } from "../lib/db-utils";
+import {
+  DB,
+  Project,
+  CreateProjectSchema,
+  UpdateProjectSchema,
+} from "@cloud/shared";
 import { Result, err, ok } from "neverthrow";
 import { jsonArrayFrom } from "kysely/helpers/postgres";
+import { InternalServerError } from "../lib/error";
 
 export async function createProject(
   db: Kysely<DB>,
@@ -50,4 +56,23 @@ export async function getProject(db: Kysely<DB>, projectId: string) {
     .select((eb) => [withProjectTests(eb), withProjectUnits(eb)])
     .where("project.id", "=", projectId)
     .executeTakeFirst();
+}
+
+export async function updateProject(
+  db: Kysely<DB>,
+  projectId: string,
+  body: UpdateProjectSchema,
+) {
+  return await tryQuery(
+    db
+      .updateTable("project")
+      .set({
+        ...body,
+      })
+      .where("project.id", "=", projectId)
+      .returningAll()
+      .executeTakeFirstOrThrow(
+        () => new InternalServerError("Failed to update test profile"),
+      ),
+  );
 }

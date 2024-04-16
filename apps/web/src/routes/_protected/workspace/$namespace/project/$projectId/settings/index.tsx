@@ -44,7 +44,7 @@ function Page() {
   );
 
   return (
-    <div className="">
+    <div className="pl-8 border-l">
       {tab === "general" && (
         <ProjectGeneral
           workspace={workspace}

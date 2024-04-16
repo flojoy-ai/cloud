@@ -1,6 +1,6 @@
 import { fromPromise } from "neverthrow";
 import { db } from "../db/kysely";
-import { createProject, getProject } from "../db/project";
+import { createProject, getProject, updateProject } from "../db/project";
 import { checkProjectPerm } from "../lib/perm/project";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
 import {
@@ -137,19 +137,11 @@ export const ProjectRoute = new Elysia({
           if (authMethod === "secret") {
             return error("I'm a teapot");
           }
-
-          const project = await db
-            .updateTable("project")
-            .set({
-              ...body,
-            })
-            .where("project.id", "=", projectId)
-            .returningAll()
-            .executeTakeFirstOrThrow(
-              () => new InternalServerError("Failed to update test profile"),
-            );
-
-          return project;
+          const res = await updateProject(db, projectId, body);
+          if (res.isErr()) {
+            return error(res.error.code, res.error);
+          }
+          return res.value;
         },
         {
           body: UpdateProjectSchema,
