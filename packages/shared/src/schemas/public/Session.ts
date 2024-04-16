@@ -26,9 +26,6 @@ export default interface SessionTable {
   /** Database type: pg_catalog.text */
   stationId: ColumnType<StationId, StationId, StationId>;
 
-  /** Database type: pg_catalog.int4 */
-  durationMs: ColumnType<number, number, number>;
-
   /** Database type: pg_catalog.text */
   commitHash: ColumnType<string | null, string | null, string | null>;
 
@@ -43,6 +40,9 @@ export default interface SessionTable {
 
   /** Database type: pg_catalog.timestamptz */
   createdAt: ColumnType<Date, Date | string | undefined, Date | string>;
+
+  /** Database type: pg_catalog.int4 */
+  durationMs: ColumnType<number, number, number>;
 }
 
 export type Session = Selectable<SessionTable>;

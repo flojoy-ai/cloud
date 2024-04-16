@@ -29,6 +29,7 @@ export async function createPartVariation(
     return err(new NotFoundError("Part not found"));
   }
   const requiredPrefix = part.name + "-";
+
   if (!newPartVariation.partNumber.startsWith(requiredPrefix)) {
     return err(
       new BadRequestError(

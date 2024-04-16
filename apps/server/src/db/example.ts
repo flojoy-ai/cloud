@@ -42,7 +42,7 @@ export async function populateExample(
 
     const piPart = yield* (
       await createPart(db, {
-        name: "Pi-5",
+        name: "PI-5",
         workspaceId,
         productName: product.name,
         description: "The Raspberry Pi 5",
