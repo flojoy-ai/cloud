@@ -2,13 +2,13 @@ import { UpdateProjectSchema, Workspace } from "@cloud/shared";
 
 import {
   Card,
-  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 
+import { Icons } from "@/components/icons";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,7 +21,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
@@ -31,16 +30,16 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { toast } from "sonner";
-import { Icons } from "@/components/icons";
-import { useRouter } from "@tanstack/react-router";
-import { useForm } from "react-hook-form";
-import { typeboxResolver } from "@hookform/resolvers/typebox";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Input } from "@/components/ui/input";
 import { client } from "@/lib/client";
+import { getProjectQueryKey, getProjectsQueryKey } from "@/lib/queries/project";
 import { Perm } from "@cloud/shared";
 import { Project } from "@cloud/shared/src/schemas/public/Project";
-import { getProjectQueryKey, getProjectsQueryKey } from "@/lib/queries/project";
+import { typeboxResolver } from "@hookform/resolvers/typebox";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "@tanstack/react-router";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 type Props = {
   workspace: Workspace;
