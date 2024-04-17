@@ -26,6 +26,12 @@ export default interface PartVariationTable {
 
   /** Database type: pg_catalog.timestamptz */
   createdAt: ColumnType<Date, Date | string | undefined, Date | string>;
+
+  /** Database type: pg_catalog.text */
+  type: ColumnType<string | null, string | null, string | null>;
+
+  /** Database type: pg_catalog.text */
+  market: ColumnType<string | null, string | null, string | null>;
 }
 
 export type PartVariation = Selectable<PartVariationTable>;
