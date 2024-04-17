@@ -42,6 +42,7 @@ import {
 import { getPartVariationQueryOpts } from "@/lib/queries/part-variation";
 import { getStationsQueryOpts } from "@/lib/queries/station";
 import { makeTimeSeriesData } from "@/lib/stats";
+import { pluralize } from "@/lib/string";
 import { pastTimeFromBin } from "@/lib/time";
 import { cn } from "@/lib/utils";
 import { Test, TimePeriod, Unit } from "@cloud/shared";
@@ -55,6 +56,7 @@ import {
   Cpu,
   GitPullRequest,
   Hash,
+  IterationCcw,
   LucideIcon,
   PercentSquare,
   Settings,
@@ -353,6 +355,16 @@ function Page() {
             ) : (
               <span>Git upstream not set</span>
             )}
+          </div>
+          <div className="py-1" />
+          <div className="items-center flex text-sm font-medium">
+            <IterationCcw size={20} />
+            <div className="px-1" />
+            <div>
+              {project.numCycles === -1
+                ? "Infinite"
+                : `${project.numCycles} ${pluralize("cycle", project.numCycles)}`}
+            </div>
           </div>
         </PageHeaderDescription>
       </PageHeader>

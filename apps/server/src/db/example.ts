@@ -149,6 +149,7 @@ export async function populateExample(
         name: "Pi-5 Test Profile",
         partVariationId: pi58GB.id,
         workspaceId,
+        numCycles: 1,
       })
     ).safeUnwrap();
 

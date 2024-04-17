@@ -29,6 +29,9 @@ export default interface ProjectTable {
 
   /** Database type: pg_catalog.text */
   repoUrl: ColumnType<string | null, string | null, string | null>;
+
+  /** Database type: pg_catalog.int4 */
+  cycles: ColumnType<number, number | undefined, number>;
 }
 
 export type Project = Selectable<ProjectTable>;

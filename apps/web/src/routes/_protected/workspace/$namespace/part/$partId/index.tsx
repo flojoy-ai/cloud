@@ -38,7 +38,7 @@ import {
   getPartVariationQueryOpts,
   getPartVariationsQueryOpts,
 } from "@/lib/queries/part-variation";
-import { removePrefix } from "@/lib/utils";
+import { removePrefix } from "@/lib/string";
 import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
 import { PartVariation, PartVariationTreeNode } from "@cloud/shared";
 import {
