@@ -338,7 +338,9 @@ function PartPage() {
           ) : (
             partVariationTree && (
               <>
-                <h1 className="text-xl font-bold">Sub-assemblies</h1>
+                <h1 className="text-xl font-bold">
+                  Sub-assemblies for {partVariationTree.partNumber}
+                </h1>
                 <div className="py-2" />
                 <div className="flex">
                   <div className="w-3/5">
