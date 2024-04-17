@@ -84,6 +84,14 @@ const partVariationColumns: (
     header: "Description",
   },
   {
+    accessorKey: "type",
+    header: "Type",
+  },
+  {
+    accessorKey: "market",
+    header: "Market",
+  },
+  {
     accessorKey: "unitCount",
     header: "Number of units",
     cell: ({ row }) => {

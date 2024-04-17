@@ -257,6 +257,38 @@ const CreatePartVariation = ({
             />
             <FormField
               control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Type</FormLabel>
+                  <FormControl>
+                    <Input {...field} data-1p-ignore />
+                  </FormControl>
+                  <FormDescription>
+                    (Optional) What type of part is this? (e.g. PCB)
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="market"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Market</FormLabel>
+                  <FormControl>
+                    <Input {...field} data-1p-ignore />
+                  </FormControl>
+                  <FormDescription>
+                    (Optional) The targeting market of this part. (e.g. Medical)
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="hasComponents"
               render={({ field }) => (
                 <FormItem>
