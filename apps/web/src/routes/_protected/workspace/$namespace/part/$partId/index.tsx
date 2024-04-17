@@ -83,8 +83,8 @@ const partVariationColumns: (
 ) => ColumnDef<
   PartVariation & {
     unitCount: number;
-    market?: PartVariationMarket;
-    type?: PartVariationType;
+    market?: PartVariationMarket | null;
+    type?: PartVariationType | null;
   }
 >[] = (openCreateDialog: (variant: PartVariation) => Promise<void>) => [
   {
