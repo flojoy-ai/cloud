@@ -38,6 +38,7 @@ import {
   getPartVariationQueryOpts,
   getPartVariationsQueryOpts,
 } from "@/lib/queries/part-variation";
+import { removePrefix } from "@/lib/utils";
 import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
 import { PartVariation, PartVariationTreeNode } from "@cloud/shared";
 import {
@@ -236,7 +237,7 @@ function PartPage() {
           }),
         );
         setDefaultValues({
-          partNumber: tree.partNumber,
+          partNumber: removePrefix(tree.partNumber, part.name + "-"),
           hasComponents: tree.components.length > 0,
           components: tree.components.map((c) => ({
             count: c.count,
@@ -250,7 +251,7 @@ function PartPage() {
 
       setCreateOpen(true);
     },
-    [queryClient, workspace],
+    [queryClient, workspace, part.name],
   );
 
   const columns = useMemo(
