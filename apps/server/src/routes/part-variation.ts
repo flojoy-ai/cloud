@@ -27,6 +27,9 @@ export const PartVariationRoute = new Elysia({
 
     return partVariations;
   })
+  .get("/type", async ({ workspace }) => {
+    return await db.selectFrom("part_variation_type");
+  })
   .post(
     "/",
     async ({ body, error }) => {

@@ -33,8 +33,8 @@ export async function up(db: Kysely<unknown>): Promise<void> {
 export async function down(db: Kysely<unknown>): Promise<void> {
   await db.schema
     .alterTable("part_variation")
-    .dropColumn("type")
-    .dropColumn("market")
+    .dropColumn("type_id")
+    .dropColumn("market_id")
     .execute();
 
   await db.schema.dropTable("part_variation_type").execute();
