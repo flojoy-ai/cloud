@@ -28,7 +28,18 @@ export const PartVariationRoute = new Elysia({
     return partVariations;
   })
   .get("/type", async ({ workspace }) => {
-    return await db.selectFrom("part_variation_type");
+    return await db
+      .selectFrom("part_variation_type as pvt")
+      .selectAll("pvt")
+      .where("pvt.workspaceId", "=", workspace.id)
+      .execute();
+  })
+  .get("/market", async ({ workspace }) => {
+    return await db
+      .selectFrom("part_variation_market as pvm")
+      .selectAll("pvm")
+      .where("pvm.workspaceId", "=", workspace.id)
+      .execute();
   })
   .post(
     "/",
