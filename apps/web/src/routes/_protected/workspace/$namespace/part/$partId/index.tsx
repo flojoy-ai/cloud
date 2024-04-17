@@ -74,7 +74,7 @@ const partVariationColumns: (
 ) => [
   {
     accessorKey: "name",
-    header: "Name",
+    header: "Part Number",
     cell: ({ row }) => {
       return <Badge>{row.original.partNumber}</Badge>;
     },
@@ -152,7 +152,7 @@ const partVariationComponentColumns: ColumnDef<
 >[] = [
   {
     accessorKey: "name",
-    header: "Name",
+    header: "Part Number",
     cell: ({ row }) => {
       return <Badge>{row.original.partNumber}</Badge>;
     },
@@ -316,7 +316,7 @@ function PartPage() {
         </>
       )}
       <div className="py-2" />
-      <h1 className="text-xl font-bold">Variations</h1>
+      <h1 className="text-xl font-bold">Part Variations</h1>
       <div className="py-2" />
 
       {partVariations.length === 0 ? (
