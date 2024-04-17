@@ -262,7 +262,14 @@ const CreatePartVariation = ({
                 <FormItem>
                   <FormLabel>Type</FormLabel>
                   <FormControl>
-                    <Input {...field} data-1p-ignore />
+                    <Autocomplete
+                      options={products.map((p) => p.name)}
+                      {...field}
+                      value={field.value}
+                      onChange={(val) => form.setValue("productName", val)}
+                      placeholder="Search or create new..."
+                      data-1p-ignore
+                    />
                   </FormControl>
                   <FormDescription>
                     (Optional) What type of part is this? (e.g. PCB)
@@ -278,7 +285,14 @@ const CreatePartVariation = ({
                 <FormItem>
                   <FormLabel>Market</FormLabel>
                   <FormControl>
-                    <Input {...field} data-1p-ignore />
+                    <Autocomplete
+                      options={products.map((p) => p.name)}
+                      {...field}
+                      value={field.value}
+                      onChange={(val) => form.setValue("productName", val)}
+                      placeholder="Search or create new..."
+                      data-1p-ignore
+                    />
                   </FormControl>
                   <FormDescription>
                     (Optional) The targeting market of this part. (e.g. Medical)

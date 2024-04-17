@@ -3,6 +3,8 @@
 
 import { type WorkspaceId } from './Workspace';
 import { type PartId } from './Part';
+import { type PartVariationTypeId } from './PartVariationType';
+import { type PartVariationMarketId } from './PartVariationMarket';
 import { type ColumnType, type Selectable, type Insertable, type Updateable } from 'kysely';
 
 export type PartVariationId = string;
@@ -28,10 +30,10 @@ export default interface PartVariationTable {
   createdAt: ColumnType<Date, Date | string | undefined, Date | string>;
 
   /** Database type: pg_catalog.text */
-  type: ColumnType<string | null, string | null, string | null>;
+  typeId: ColumnType<PartVariationTypeId | null, PartVariationTypeId | null, PartVariationTypeId | null>;
 
   /** Database type: pg_catalog.text */
-  market: ColumnType<string | null, string | null, string | null>;
+  marketId: ColumnType<PartVariationMarketId | null, PartVariationMarketId | null, PartVariationMarketId | null>;
 }
 
 export type PartVariation = Selectable<PartVariationTable>;
