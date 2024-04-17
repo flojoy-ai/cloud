@@ -1,24 +1,24 @@
 import CenterLoadingSpinner from "@/components/center-loading-spinner";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Card, CardTitle } from "@/components/ui/card";
 import { ParetoChart } from "@/components/visualization/pareto-chart";
 import { StatusDoughnut } from "@/components/visualization/status-doughnut";
 import { getTestMeasurementsQueryOpts } from "@/lib/queries/test";
 import { median, mode } from "@/lib/stats";
 import { getChartColors } from "@/lib/style";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import _ from "lodash";
+import { DateTime } from "luxon";
 import { useMemo } from "react";
 import { Scatter } from "react-chartjs-2";
-import { DateTime } from "luxon";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbSeparator,
-  BreadcrumbPage,
-} from "@/components/ui/breadcrumb";
 
 export const Route = createFileRoute(
   "/_protected/workspace/$namespace/test/$testId/",
@@ -103,6 +103,12 @@ function TestPage() {
   }, [test, measurements]);
 
   const { accent, accentLight } = getChartColors();
+
+  const formatValue = (num: number | undefined) => {
+    if (num === undefined) return "N/A";
+
+    return num.toFixed(4) + (test.unit ?? "");
+  };
 
   return (
     <div className="container max-w-screen-2xl">
@@ -226,7 +232,9 @@ function TestPage() {
                       },
                       title: {
                         display: true,
-                        text: "Measured Value",
+                        text:
+                          "Measured Value" +
+                          (test.unit ? ` (${test.unit})` : ""),
                       },
                     },
                   },
@@ -250,16 +258,18 @@ function TestPage() {
             <h2 className="text-muted-foreground font-semibold">Values</h2>
             <div className="py-1" />
             <div className="flex flex-col gap-y-1">
-              <Stat name="Mean" value={stats?.mean.toFixed(4) ?? "N/A"} />
-              <Stat name="Median" value={stats?.median.toFixed(4) ?? "N/A"} />
+              <Stat name="Mean" value={formatValue(stats?.mean)} />
+              <Stat name="Median" value={formatValue(stats?.median)} />
               <Stat
                 name="Mode"
                 value={
-                  stats?.mode?.map((m) => m.toString()).join("; ") ?? "N/A"
+                  stats?.mode
+                    ?.map((m) => m.toString() + (test.unit ?? ""))
+                    .join("; ") ?? "N/A"
                 }
               />
-              <Stat name="Min" value={stats?.min?.toFixed(4) ?? "N/A"} />
-              <Stat name="Max" value={stats?.max?.toFixed(4) ?? "N/A"} />
+              <Stat name="Min" value={formatValue(stats?.min)} />
+              <Stat name="Max" value={formatValue(stats?.max)} />
             </div>
           </Card>
         </div>

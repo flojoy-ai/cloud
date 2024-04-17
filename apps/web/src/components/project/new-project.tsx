@@ -85,6 +85,7 @@ export default function NewProjectButton({ workspace, partVariations }: Props) {
     resolver: typeboxResolver(CreateProjectSchema),
     defaultValues: {
       workspaceId: workspace.id,
+      numCycles: 1,
     },
   });
 
@@ -215,6 +216,32 @@ export default function NewProjectButton({ workspace, partVariations }: Props) {
                       >
                         Register it here.
                       </Link>
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="numCycles"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Number of Cycles</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        value={field.value}
+                        min={-1}
+                        onChange={(e) =>
+                          form.setValue("numCycles", parseInt(e.target.value))
+                        }
+                        className="w-32"
+                        data-1p-ignore
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      How many cycles will you run each test session for? (-1
+                      for infinite)
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

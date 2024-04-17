@@ -56,6 +56,7 @@ const ProjectGeneral = ({ workspace, projectPerm, project }: Props) => {
     defaultValues: {
       name: project.name,
       repoUrl: project.repoUrl ?? undefined,
+      numCycles: project.numCycles,
     },
   });
 
@@ -170,6 +171,35 @@ const ProjectGeneral = ({ workspace, projectPerm, project }: Props) => {
                 </FormItem>
               )}
             />
+            <FormField
+              control={updateProjectForm.control}
+              name="numCycles"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xl">Number of Cycles</FormLabel>
+                  <FormDescription>
+                    The default number of cycles to run for each test session
+                    (-1 for infinite).
+                  </FormDescription>
+                  <FormControl>
+                    <Input
+                      disabled={!projectPerm.canAdmin()}
+                      type="number"
+                      value={field.value}
+                      className="w-32"
+                      onChange={(e) =>
+                        updateProjectForm.setValue(
+                          "numCycles",
+                          parseInt(e.target.value),
+                        )
+                      }
+                      data-1p-ignore
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             {updateProjectForm.formState.isSubmitting ? (
               <Button disabled={true}>
                 <Icons.spinner className="h-6 w-6" />
@@ -183,10 +213,9 @@ const ProjectGeneral = ({ workspace, projectPerm, project }: Props) => {
       {projectPerm.canAdmin() && (
         <Card className="border-destructive">
           <CardHeader>
-            <CardTitle className="text-xl">Delete Production Line</CardTitle>
+            <CardTitle className="text-xl">Delete Test Profile</CardTitle>
             <CardDescription>
-              This will permanently delete your production line and all its
-              data.
+              This will permanently delete your test profile and all its data.
             </CardDescription>
           </CardHeader>
           <CardFooter className="space-x-4 border-t px-6 py-4">
@@ -199,7 +228,7 @@ const ProjectGeneral = ({ workspace, projectPerm, project }: Props) => {
                   <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                   <AlertDialogDescription>
                     This action cannot be undone. This will permanently delete
-                    your production line and remove your data from our servers.
+                    your test profile and remove your data from our servers.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

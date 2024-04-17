@@ -44,6 +44,7 @@ export type DataframeData = Static<typeof dataframeData>;
 const scalarData = t.Object({
   type: t.Literal("scalar"),
   value: t.Number(),
+  unit: t.Optional(t.String()),
 });
 
 export type ScalarData = Static<typeof scalarData>;

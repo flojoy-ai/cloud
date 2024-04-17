@@ -149,6 +149,7 @@ export async function populateExample(
         name: "Pi-5 Test Profile",
         partVariationId: pi58GB.id,
         workspaceId,
+        numCycles: 1,
       })
     ).safeUnwrap();
 
@@ -175,6 +176,7 @@ export async function populateExample(
         name: "Voltage Test",
         projectId: pi5Project.id,
         measurementType: "scalar",
+        unit: "V",
       })
     ).safeUnwrap();
 
@@ -312,6 +314,7 @@ export async function populateExample(
               data: {
                 type: "scalar" as const,
                 value: Math.round((5 + Math.random()) * 100) / 100,
+                unit: "V",
               },
               pass: val,
             },

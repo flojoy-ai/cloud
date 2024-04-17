@@ -42,6 +42,3 @@ export const makeQueryParams = <T extends Record<PropertyKey, unknown>>(
   typedObjectFromEntries(
     typedObjectEntries(params).filter(([, v]) => v !== undefined),
   );
-
-export const removePrefix = (value: string, prefix: string) =>
-  value.startsWith(prefix) ? value.slice(prefix.length) : value;
