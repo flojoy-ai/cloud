@@ -20,7 +20,6 @@ export function getPartVariationsQueryOpts({
       const partVariationsQuery = await client.partVariation.index.get({
         headers: { "flojoy-workspace-id": context.workspace.id },
       });
-      console.log(partVariationsQuery);
       if (partVariationsQuery.error) throw partVariationsQuery.error;
       return partVariationsQuery.data;
     },
