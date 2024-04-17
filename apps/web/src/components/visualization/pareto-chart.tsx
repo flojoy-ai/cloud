@@ -73,6 +73,9 @@ export const ParetoChart = ({ labels, values }: Props) => {
               display: false,
             },
             beginAtZero: true,
+            ticks: {
+              precision: 0,
+            },
           },
           y1: {
             type: "linear",
