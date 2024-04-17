@@ -5,6 +5,9 @@ import { insertPart } from "@cloud/shared";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
 import { checkPartPerm } from "../lib/perm/part";
 import { checkWorkspacePerm } from "../lib/perm/workspace";
+import { jsonObjectFrom } from "kysely/helpers/postgres";
+import { PartVariationType } from "@cloud/shared/src/schemas/public/PartVariationType";
+import { PartVariationMarket } from "@cloud/shared/src/schemas/public/PartVariationMarket";
 
 export const PartRoute = new Elysia({ prefix: "/part", name: "PartRoute" })
   .use(WorkspaceMiddleware)
@@ -38,6 +41,7 @@ export const PartRoute = new Elysia({ prefix: "/part", name: "PartRoute" })
             .where("part.id", "=", partId)
             .innerJoin("product", "product.id", "part.productId")
             .select("product.name as productName")
+
             .executeTakeFirst();
           if (part === undefined) return error(404, "Part not found");
           return part;
@@ -65,6 +69,24 @@ export const PartRoute = new Elysia({ prefix: "/part", name: "PartRoute" })
             .selectAll("part_variation")
             .where("part_variation.workspaceId", "=", workspace.id)
             .where("part_variation.partId", "=", partId)
+            .select((eb) => [
+              jsonObjectFrom(
+                eb
+                  .selectFrom("part_variation_type as pvt")
+                  .selectAll("pvt")
+                  .whereRef("pvt.id", "=", "part_variation.typeId"),
+              ).as("type"),
+            ])
+            .$narrowType<{ type: PartVariationType }>()
+            .select((eb) => [
+              jsonObjectFrom(
+                eb
+                  .selectFrom("part_variation_market as pvm")
+                  .selectAll("pvm")
+                  .whereRef("pvm.id", "=", "part_variation.marketId"),
+              ).as("market"),
+            ])
+            .$narrowType<{ market: PartVariationMarket }>()
             .leftJoin("unit", "part_variation.id", "unit.partVariationId")
             .select(({ fn }) => fn.count<number>("unit.id").as("unitCount"))
             .groupBy("part_variation.id")

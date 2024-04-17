@@ -15,7 +15,7 @@ export default interface PartVariationMarketTable {
   workspaceId: ColumnType<WorkspaceId, WorkspaceId, WorkspaceId>;
 
   /** Database type: pg_catalog.text */
-  name: ColumnType<string | null, string | null, string | null>;
+  name: ColumnType<string, string, string>;
 }
 
 export type PartVariationMarket = Selectable<PartVariationMarketTable>;

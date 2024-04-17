@@ -17,6 +17,77 @@ import {
   BadRequestError,
   RouteError,
 } from "../lib/error";
+import { PartVariationType } from "@cloud/shared/src/schemas/public/PartVariationType";
+import { jsonObjectFrom } from "kysely/helpers/postgres";
+import { PartVariationMarket } from "@cloud/shared/src/schemas/public/PartVariationMarket";
+
+async function getOrCreateType(
+  db: Kysely<DB>,
+  typeName: string,
+  workspaceId: string,
+): Promise<Result<PartVariationType, RouteError>> {
+  const type = await db
+    .selectFrom("part_variation_type as pvt")
+    .selectAll("pvt")
+    .where("pvt.name", "=", typeName)
+    .where("pvt.workspaceId", "=", workspaceId)
+    .executeTakeFirst();
+
+  if (!type) {
+    const insertResult = await db
+      .insertInto("part_variation_type")
+      .values({
+        id: generateDatabaseId("part_variation_type"),
+        workspaceId,
+        name: typeName,
+      })
+      .returningAll()
+      .executeTakeFirst();
+
+    if (insertResult === undefined) {
+      return err(
+        new InternalServerError("Failed to create part variation type"),
+      );
+    }
+
+    return ok(insertResult);
+  }
+  return ok(type);
+}
+
+async function getOrCreateMarket(
+  db: Kysely<DB>,
+  marketName: string,
+  workspaceId: string,
+): Promise<Result<PartVariationType, RouteError>> {
+  const market = await db
+    .selectFrom("part_variation_market as pvt")
+    .selectAll("pvt")
+    .where("pvt.name", "=", marketName)
+    .where("pvt.workspaceId", "=", workspaceId)
+    .executeTakeFirst();
+
+  if (!market) {
+    const insertResult = await db
+      .insertInto("part_variation_market")
+      .values({
+        id: generateDatabaseId("part_variation_market"),
+        workspaceId,
+        name: marketName,
+      })
+      .returningAll()
+      .executeTakeFirst();
+
+    if (insertResult === undefined) {
+      return err(
+        new InternalServerError("Failed to create part variation market"),
+      );
+    }
+
+    return ok(insertResult);
+  }
+  return ok(market);
+}
 
 export async function createPartVariation(
   db: Kysely<DB>,
@@ -36,12 +107,35 @@ export async function createPartVariation(
       ),
     );
   }
+  const { type: typeName, market: marketName, ...data } = newPartVariation;
+
+  let typeId: string | undefined = undefined;
+  let marketId: string | undefined = undefined;
+
+  if (typeName) {
+    const type = await getOrCreateType(db, typeName, input.workspaceId);
+    if (type.isOk()) {
+      typeId = type.value.id;
+    } else {
+      return err(type.error);
+    }
+  }
+  if (marketName) {
+    const market = await getOrCreateMarket(db, marketName, input.workspaceId);
+    if (market.isOk()) {
+      marketId = market.value.id;
+    } else {
+      return err(market.error);
+    }
+  }
 
   const partVariation = await db
     .insertInto("part_variation")
     .values({
       id: generateDatabaseId("part_variation"),
-      ...newPartVariation,
+      ...data,
+      typeId,
+      marketId,
     })
     .returningAll()
     .executeTakeFirst();
@@ -74,6 +168,7 @@ export async function getPartVariation(partVariationId: string) {
     .selectFrom("part_variation")
     .selectAll()
     .where("part_variation.id", "=", partVariationId)
+
     .executeTakeFirst();
 }
 

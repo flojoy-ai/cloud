@@ -7,7 +7,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .addColumn("workspace_id", "text", (col) =>
       col.notNull().references("workspace.id").onDelete("cascade"),
     )
-    .addColumn("name", "text")
+    .addColumn("name", "text", (col) => col.notNull())
     .execute();
 
   await db.schema
@@ -16,7 +16,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .addColumn("workspace_id", "text", (col) =>
       col.notNull().references("workspace.id").onDelete("cascade"),
     )
-    .addColumn("name", "text")
+    .addColumn("name", "text", (col) => col.notNull())
     .execute();
 
   await db.schema

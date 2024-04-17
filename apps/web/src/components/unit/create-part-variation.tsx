@@ -41,6 +41,9 @@ import { useCallback, useEffect } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Checkbox } from "../ui/checkbox";
+import { Autocomplete } from "../ui/autocomplete";
+import { PartVariationType } from "@cloud/shared/src/schemas/public/PartVariationType";
+import { PartVariationMarket } from "@cloud/shared/src/schemas/public/PartVariationMarket";
 
 const partVariationFormSchema = t.Composite([
   insertPartVariation,
@@ -65,6 +68,8 @@ type Props = {
   open: boolean;
   setOpen: (open: boolean) => void;
   openDialog: () => void;
+  partVariationTypes: PartVariationType[];
+  partVariationMarkets: PartVariationMarket[];
 };
 
 const CreatePartVariation = ({
@@ -76,6 +81,8 @@ const CreatePartVariation = ({
   openDialog,
   defaultValues,
   setDefaultValues,
+  partVariationTypes,
+  partVariationMarkets,
 }: Props) => {
   const queryClient = useQueryClient();
 
@@ -263,10 +270,10 @@ const CreatePartVariation = ({
                   <FormLabel>Type</FormLabel>
                   <FormControl>
                     <Autocomplete
-                      options={products.map((p) => p.name)}
+                      options={partVariationTypes.map((p) => p.name)}
                       {...field}
-                      value={field.value}
-                      onChange={(val) => form.setValue("productName", val)}
+                      value={field.value ?? ""}
+                      onChange={(val) => form.setValue("type", val)}
                       placeholder="Search or create new..."
                       data-1p-ignore
                     />
@@ -286,10 +293,10 @@ const CreatePartVariation = ({
                   <FormLabel>Market</FormLabel>
                   <FormControl>
                     <Autocomplete
-                      options={products.map((p) => p.name)}
+                      options={partVariationMarkets.map((p) => p.name)}
                       {...field}
-                      value={field.value}
-                      onChange={(val) => form.setValue("productName", val)}
+                      value={field.value ?? ""}
+                      onChange={(val) => form.setValue("market", val)}
                       placeholder="Search or create new..."
                       data-1p-ignore
                     />

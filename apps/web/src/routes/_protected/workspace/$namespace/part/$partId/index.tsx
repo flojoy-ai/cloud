@@ -34,12 +34,16 @@ import { client } from "@/lib/client";
 import { getPartQueryOpts } from "@/lib/queries/part";
 import {
   getPartPartVariationsQueryOpts,
+  getPartVariationMarketsQueryOpts,
   getPartVariationQueryKey,
   getPartVariationQueryOpts,
+  getPartVariationTypesQueryOpts,
   getPartVariationsQueryOpts,
 } from "@/lib/queries/part-variation";
 import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
 import { PartVariation, PartVariationTreeNode } from "@cloud/shared";
+import { PartVariationMarket } from "@cloud/shared/src/schemas/public/PartVariationMarket";
+import { PartVariationType } from "@cloud/shared/src/schemas/public/PartVariationType";
 import {
   useQuery,
   useQueryClient,
@@ -63,15 +67,26 @@ export const Route = createFileRoute(
     context.queryClient.ensureQueryData(
       getPartVariationsQueryOpts({ context }),
     );
+
+    context.queryClient.ensureQueryData(
+      getPartVariationTypesQueryOpts({ context }),
+    );
+    context.queryClient.ensureQueryData(
+      getPartVariationMarketsQueryOpts({ context }),
+    );
     context.queryClient.ensureQueryData(getPartQueryOpts({ partId, context }));
   },
 });
 
 const partVariationColumns: (
   openCreateDialog: (variant: PartVariation) => Promise<void>,
-) => ColumnDef<PartVariation & { unitCount: number }>[] = (
-  openCreateDialog: (variant: PartVariation) => Promise<void>,
-) => [
+) => ColumnDef<
+  PartVariation & {
+    unitCount: number;
+    market?: PartVariationMarket;
+    type?: PartVariationType;
+  }
+>[] = (openCreateDialog: (variant: PartVariation) => Promise<void>) => [
   {
     accessorKey: "name",
     header: "Part Number",
@@ -84,11 +99,11 @@ const partVariationColumns: (
     header: "Description",
   },
   {
-    accessorKey: "type",
+    accessorKey: "type.name",
     header: "Type",
   },
   {
-    accessorKey: "market",
+    accessorKey: "market.name",
     header: "Market",
   },
   {
@@ -207,6 +222,13 @@ function PartPage() {
     getPartVariationsQueryOpts({ context: { workspace } }),
   );
 
+  const { data: partVariationTypes } = useSuspenseQuery(
+    getPartVariationTypesQueryOpts({ context: { workspace } }),
+  );
+  const { data: partVariationMarkets } = useSuspenseQuery(
+    getPartVariationMarketsQueryOpts({ context: { workspace } }),
+  );
+
   const { data: part } = useSuspenseQuery(
     getPartQueryOpts({ partId, context: { workspace } }),
   );
@@ -320,6 +342,8 @@ function PartPage() {
             openDialog={openCreateDialog}
             defaultValues={defaultValues}
             setDefaultValues={setDefaultValues}
+            partVariationTypes={partVariationTypes}
+            partVariationMarkets={partVariationMarkets}
           />
         </>
       )}
