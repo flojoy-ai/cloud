@@ -4,12 +4,18 @@ export async function up(db: Kysely<unknown>): Promise<void> {
   await db.schema
     .createTable("part_variation_type")
     .addColumn("id", "text", (col) => col.primaryKey())
+    .addColumn("workspace_id", "text", (col) =>
+      col.notNull().references("workspace.id").onDelete("cascade"),
+    )
     .addColumn("name", "text")
     .execute();
 
   await db.schema
     .createTable("part_variation_market")
     .addColumn("id", "text", (col) => col.primaryKey())
+    .addColumn("workspace_id", "text", (col) =>
+      col.notNull().references("workspace.id").onDelete("cascade"),
+    )
     .addColumn("name", "text")
     .execute();
 
