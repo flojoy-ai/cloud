@@ -5,7 +5,7 @@ import {
   PartVariationTreeNode,
   PartVariationTreeRoot,
 } from "@cloud/shared";
-import { Kysely } from "kysely";
+import { ExpressionBuilder, Kysely } from "kysely";
 import { Result, err, ok } from "neverthrow";
 import { markUpdatedAt } from "../db/query";
 import { generateDatabaseId } from "../lib/db-utils";
@@ -18,6 +18,7 @@ import {
   RouteError,
 } from "../lib/error";
 import { PartVariationType } from "@cloud/shared/src/schemas/public/PartVariationType";
+import { jsonObjectFrom } from "kysely/helpers/postgres";
 
 async function getOrCreateType(
   db: Kysely<DB>,
@@ -31,26 +32,24 @@ async function getOrCreateType(
     .where("pvt.workspaceId", "=", workspaceId)
     .executeTakeFirst();
 
-  if (!type) {
-    const insertResult = await db
-      .insertInto("part_variation_type")
-      .values({
-        id: generateDatabaseId("part_variation_type"),
-        workspaceId,
-        name: typeName,
-      })
-      .returningAll()
-      .executeTakeFirst();
-
-    if (insertResult === undefined) {
-      return err(
-        new InternalServerError("Failed to create part variation type"),
-      );
-    }
-
-    return ok(insertResult);
+  if (type) {
+    return ok(type);
   }
-  return ok(type);
+  const insertResult = await db
+    .insertInto("part_variation_type")
+    .values({
+      id: generateDatabaseId("part_variation_type"),
+      workspaceId,
+      name: typeName,
+    })
+    .returningAll()
+    .executeTakeFirst();
+
+  if (!insertResult) {
+    return err(new InternalServerError("Failed to create part variation type"));
+  }
+
+  return ok(insertResult);
 }
 
 async function getOrCreateMarket(
@@ -65,26 +64,27 @@ async function getOrCreateMarket(
     .where("pvt.workspaceId", "=", workspaceId)
     .executeTakeFirst();
 
-  if (!market) {
-    const insertResult = await db
-      .insertInto("part_variation_market")
-      .values({
-        id: generateDatabaseId("part_variation_market"),
-        workspaceId,
-        name: marketName,
-      })
-      .returningAll()
-      .executeTakeFirst();
-
-    if (insertResult === undefined) {
-      return err(
-        new InternalServerError("Failed to create part variation market"),
-      );
-    }
-
-    return ok(insertResult);
+  if (market) {
+    return ok(market);
   }
-  return ok(market);
+
+  const insertResult = await db
+    .insertInto("part_variation_market")
+    .values({
+      id: generateDatabaseId("part_variation_market"),
+      workspaceId,
+      name: marketName,
+    })
+    .returningAll()
+    .executeTakeFirst();
+
+  if (!insertResult) {
+    return err(
+      new InternalServerError("Failed to create part variation market"),
+    );
+  }
+
+  return ok(insertResult);
 }
 
 export async function createPartVariation(
@@ -256,4 +256,26 @@ function buildPartVariationTree(
   }
 
   return root;
+}
+
+export function withPartVariationType(
+  eb: ExpressionBuilder<DB, "part_variation">,
+) {
+  return jsonObjectFrom(
+    eb
+      .selectFrom("part_variation_type as pvt")
+      .selectAll("pvt")
+      .whereRef("pvt.id", "=", "part_variation.typeId"),
+  ).as("type");
+}
+
+export function withPartVariationMarket(
+  eb: ExpressionBuilder<DB, "part_variation">,
+) {
+  return jsonObjectFrom(
+    eb
+      .selectFrom("part_variation_market as pvm")
+      .selectAll("pvm")
+      .whereRef("pvm.id", "=", "part_variation.marketId"),
+  ).as("market");
 }

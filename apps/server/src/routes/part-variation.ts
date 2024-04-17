@@ -4,6 +4,8 @@ import { db } from "../db/kysely";
 import {
   createPartVariation,
   getPartVariationTree,
+  withPartVariationMarket,
+  withPartVariationType,
 } from "../db/part-variation";
 import { withUnitParent } from "../db/unit";
 import { checkWorkspacePerm } from "../lib/perm/workspace";
@@ -90,30 +92,13 @@ export const PartVariationRoute = new Elysia({
         "/",
         async ({ workspace, params: { partVariationId }, error }) => {
           const partVariation = await db
-            .selectFrom("part_variation as pv")
-            .selectAll("pv")
-            .where("pv.id", "=", partVariationId)
-            .where("pv.workspaceId", "=", workspace.id)
-            .select((eb) => [
-              jsonObjectFrom(
-                eb
-                  .selectFrom("part_variation_type as pvt")
-                  .selectAll("pvt")
-                  .whereRef("pvt.id", "=", "pv.typeId"),
-              ).as("type"),
-            ])
-            .$narrowType<{ type: PartVariationType }>()
-            .select((eb) => [
-              jsonObjectFrom(
-                eb
-                  .selectFrom("part_variation_market as pvm")
-                  .selectAll("pvm")
-                  .whereRef("pvm.id", "=", "pv.marketId"),
-              ).as("market"),
-            ])
-            .$narrowType<{ market: PartVariationMarket }>()
+            .selectFrom("part_variation")
+            .selectAll("part_variation")
+            .where("part_variation.id", "=", partVariationId)
+            .where("part_variation.workspaceId", "=", workspace.id)
+            .select((eb) => [withPartVariationType(eb)])
+            .select((eb) => [withPartVariationMarket(eb)])
             .executeTakeFirst();
-          console.log(partVariation);
 
           if (partVariation === undefined) {
             return error(404, "PartVariation not found");
