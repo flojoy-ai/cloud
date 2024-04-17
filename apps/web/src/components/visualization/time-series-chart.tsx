@@ -59,8 +59,7 @@ export const TimeSeriesChart = ({
           borderColor: `hsl(${accent})`,
           elements: {
             point: {
-              radius: 0,
-              hitRadius: 20,
+              hitRadius: 16,
             },
           },
           plugins: {
