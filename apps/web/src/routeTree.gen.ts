@@ -13,8 +13,8 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as PublicImport } from './routes/_public'
-import { Route as ProtectedImport } from './routes/_protected'
+import { Route as PublicRouteImport } from './routes/_public/route'
+import { Route as ProtectedRouteImport } from './routes/_protected/route'
 import { Route as PublicSignupImport } from './routes/_public/signup'
 import { Route as PublicLoginImport } from './routes/_public/login'
 import { Route as ProtectedSetupImport } from './routes/_protected/setup'
@@ -51,45 +51,45 @@ const PublicIndexLazyImport = createFileRoute('/_public/')()
 
 // Create/Update Routes
 
-const PublicRoute = PublicImport.update({
+const PublicRouteRoute = PublicRouteImport.update({
   id: '/_public',
   getParentRoute: () => rootRoute,
 } as any)
 
-const ProtectedRoute = ProtectedImport.update({
+const ProtectedRouteRoute = ProtectedRouteImport.update({
   id: '/_protected',
   getParentRoute: () => rootRoute,
 } as any)
 
 const PublicIndexLazyRoute = PublicIndexLazyImport.update({
   path: '/',
-  getParentRoute: () => PublicRoute,
+  getParentRoute: () => PublicRouteRoute,
 } as any).lazy(() => import('./routes/_public/index.lazy').then((d) => d.Route))
 
 const PublicSignupRoute = PublicSignupImport.update({
   path: '/signup',
-  getParentRoute: () => PublicRoute,
+  getParentRoute: () => PublicRouteRoute,
 } as any)
 
 const PublicLoginRoute = PublicLoginImport.update({
   path: '/login',
-  getParentRoute: () => PublicRoute,
+  getParentRoute: () => PublicRouteRoute,
 } as any)
 
 const ProtectedSetupRoute = ProtectedSetupImport.update({
   path: '/setup',
-  getParentRoute: () => ProtectedRoute,
+  getParentRoute: () => ProtectedRouteRoute,
 } as any)
 
 const ProtectedWorkspaceIndexRoute = ProtectedWorkspaceIndexImport.update({
   path: '/workspace/',
-  getParentRoute: () => ProtectedRoute,
+  getParentRoute: () => ProtectedRouteRoute,
 } as any)
 
 const ProtectedWorkspaceNamespaceRouteRoute =
   ProtectedWorkspaceNamespaceRouteImport.update({
     path: '/workspace/$namespace',
-    getParentRoute: () => ProtectedRoute,
+    getParentRoute: () => ProtectedRouteRoute,
   } as any)
 
 const ProtectedWorkspaceNamespaceIndexRoute =
@@ -243,36 +243,36 @@ const ProtectedWorkspaceNamespaceProjectProjectIdSettingsIndexRoute =
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
     '/_protected': {
-      preLoaderRoute: typeof ProtectedImport
+      preLoaderRoute: typeof ProtectedRouteImport
       parentRoute: typeof rootRoute
     }
     '/_public': {
-      preLoaderRoute: typeof PublicImport
+      preLoaderRoute: typeof PublicRouteImport
       parentRoute: typeof rootRoute
     }
     '/_protected/setup': {
       preLoaderRoute: typeof ProtectedSetupImport
-      parentRoute: typeof ProtectedImport
+      parentRoute: typeof ProtectedRouteImport
     }
     '/_public/login': {
       preLoaderRoute: typeof PublicLoginImport
-      parentRoute: typeof PublicImport
+      parentRoute: typeof PublicRouteImport
     }
     '/_public/signup': {
       preLoaderRoute: typeof PublicSignupImport
-      parentRoute: typeof PublicImport
+      parentRoute: typeof PublicRouteImport
     }
     '/_public/': {
       preLoaderRoute: typeof PublicIndexLazyImport
-      parentRoute: typeof PublicImport
+      parentRoute: typeof PublicRouteImport
     }
     '/_protected/workspace/$namespace': {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceRouteImport
-      parentRoute: typeof ProtectedImport
+      parentRoute: typeof ProtectedRouteImport
     }
     '/_protected/workspace/': {
       preLoaderRoute: typeof ProtectedWorkspaceIndexImport
-      parentRoute: typeof ProtectedImport
+      parentRoute: typeof ProtectedRouteImport
     }
     '/_protected/workspace/$namespace/project': {
       preLoaderRoute: typeof ProtectedWorkspaceNamespaceProjectRouteImport
@@ -376,7 +376,7 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 export const routeTree = rootRoute.addChildren([
-  ProtectedRoute.addChildren([
+  ProtectedRouteRoute.addChildren([
     ProtectedSetupRoute,
     ProtectedWorkspaceNamespaceRouteRoute.addChildren([
       ProtectedWorkspaceNamespaceProjectRouteRoute.addChildren([
@@ -417,7 +417,7 @@ export const routeTree = rootRoute.addChildren([
     ]),
     ProtectedWorkspaceIndexRoute,
   ]),
-  PublicRoute.addChildren([
+  PublicRouteRoute.addChildren([
     PublicLoginRoute,
     PublicSignupRoute,
     PublicIndexLazyRoute,
