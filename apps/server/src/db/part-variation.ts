@@ -18,8 +18,6 @@ import {
   RouteError,
 } from "../lib/error";
 import { PartVariationType } from "@cloud/shared/src/schemas/public/PartVariationType";
-import { jsonObjectFrom } from "kysely/helpers/postgres";
-import { PartVariationMarket } from "@cloud/shared/src/schemas/public/PartVariationMarket";
 
 async function getOrCreateType(
   db: Kysely<DB>,
