@@ -1,12 +1,14 @@
 import {
   DB,
   InsertSession,
+  InsertTest,
   MeasurementData,
   Session,
   WorkspaceUser,
 } from "@cloud/shared";
 import { ExpressionBuilder, Kysely, sql } from "kysely";
 import { jsonArrayFrom } from "kysely/helpers/postgres";
+import _ from "lodash";
 import { Result, err, ok } from "neverthrow";
 import { generateDatabaseId, tryQuery } from "../lib/db-utils";
 import { DBError, InternalServerError, NotFoundError } from "../lib/error";
@@ -16,7 +18,6 @@ import { createMeasurement } from "./measurement";
 import { getStation } from "./station";
 import { createTest, getTestByName } from "./test";
 import { getUnitBySerialNumber } from "./unit";
-import _ from "lodash";
 
 export async function getSessionsByUnitId(
   unitId: string,
@@ -175,12 +176,18 @@ export async function createSession(
   for (const meas of measurements) {
     // NOTE: TestId should be provided in the DS
     let test = await getTestByName(db, meas.name, station.projectId);
+
     if (test === undefined) {
-      const testResult = await createTest(db, {
+      const payload: InsertTest = {
         name: meas.name,
         projectId: station.projectId,
         measurementType: meas.data.type,
-      });
+      };
+      if (meas.data.type === "scalar" && payload.measurementType === "scalar") {
+        payload.unit = meas.data.unit;
+      }
+
+      const testResult = await createTest(db, payload);
 
       if (testResult.isErr())
         return err(new InternalServerError(testResult.error));

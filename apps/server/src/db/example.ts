@@ -176,6 +176,7 @@ export async function populateExample(
         name: "Voltage Test",
         projectId: pi5Project.id,
         measurementType: "scalar",
+        unit: "V",
       })
     ).safeUnwrap();
 
@@ -313,6 +314,7 @@ export async function populateExample(
               data: {
                 type: "scalar" as const,
                 value: Math.round((5 + Math.random()) * 100) / 100,
+                unit: "V",
               },
               pass: val,
             },

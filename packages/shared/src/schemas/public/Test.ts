@@ -26,6 +26,9 @@ export default interface TestTable {
 
   /** Database type: pg_catalog.timestamptz */
   updatedAt: ColumnType<Date, Date | string | undefined, Date | string>;
+
+  /** Database type: pg_catalog.text */
+  unit: ColumnType<string | null, string | null, string | null>;
 }
 
 export type Test = Selectable<TestTable>;
