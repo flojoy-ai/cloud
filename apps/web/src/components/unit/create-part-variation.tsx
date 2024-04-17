@@ -41,6 +41,9 @@ import { useCallback, useEffect } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Checkbox } from "../ui/checkbox";
+import { Autocomplete } from "../ui/autocomplete";
+import { PartVariationType } from "@cloud/shared/src/schemas/public/PartVariationType";
+import { PartVariationMarket } from "@cloud/shared/src/schemas/public/PartVariationMarket";
 
 const partVariationFormSchema = t.Composite([
   insertPartVariation,
@@ -65,6 +68,8 @@ type Props = {
   open: boolean;
   setOpen: (open: boolean) => void;
   openDialog: () => void;
+  partVariationTypes: PartVariationType[];
+  partVariationMarkets: PartVariationMarket[];
 };
 
 const CreatePartVariation = ({
@@ -76,6 +81,8 @@ const CreatePartVariation = ({
   openDialog,
   defaultValues,
   setDefaultValues,
+  partVariationTypes,
+  partVariationMarkets,
 }: Props) => {
   const queryClient = useQueryClient();
 
@@ -250,6 +257,52 @@ const CreatePartVariation = ({
                   </FormControl>
                   <FormDescription>
                     (Optional) A human readable description of what the part is.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Type</FormLabel>
+                  <FormControl>
+                    <Autocomplete
+                      options={partVariationTypes.map((p) => p.name)}
+                      {...field}
+                      value={field.value ?? ""}
+                      onChange={(val) => form.setValue("type", val)}
+                      placeholder="Search or create new..."
+                      data-1p-ignore
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    (Optional) What type of part is this? (e.g. PCB)
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="market"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Market</FormLabel>
+                  <FormControl>
+                    <Autocomplete
+                      options={partVariationMarkets.map((p) => p.name)}
+                      {...field}
+                      value={field.value ?? ""}
+                      onChange={(val) => form.setValue("market", val)}
+                      placeholder="Search or create new..."
+                      data-1p-ignore
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    (Optional) The targeting market of this part. (e.g. Medical)
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

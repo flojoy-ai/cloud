@@ -4,6 +4,8 @@ import { db } from "../db/kysely";
 import {
   createPartVariation,
   getPartVariationTree,
+  withPartVariationMarket,
+  withPartVariationType,
 } from "../db/part-variation";
 import { withUnitParent } from "../db/unit";
 import { checkWorkspacePerm } from "../lib/perm/workspace";
@@ -22,10 +24,26 @@ export const PartVariationRoute = new Elysia({
       .where("part_variation.workspaceId", "=", workspace.id)
       .leftJoin("unit", "part_variation.id", "unit.partVariationId")
       .select(({ fn }) => fn.count<number>("unit.id").as("unitCount"))
+      .select((eb) => [withPartVariationType(eb)])
+      .select((eb) => [withPartVariationMarket(eb)])
       .groupBy("part_variation.id")
       .execute();
 
     return partVariations;
+  })
+  .get("/type", async ({ workspace }) => {
+    return await db
+      .selectFrom("part_variation_type as pvt")
+      .selectAll("pvt")
+      .where("pvt.workspaceId", "=", workspace.id)
+      .execute();
+  })
+  .get("/market", async ({ workspace }) => {
+    return await db
+      .selectFrom("part_variation_market as pvm")
+      .selectAll("pvm")
+      .where("pvm.workspaceId", "=", workspace.id)
+      .execute();
   })
   .post(
     "/",
@@ -56,9 +74,11 @@ export const PartVariationRoute = new Elysia({
         async ({ workspace, params: { partVariationId }, error }) => {
           const partVariation = await db
             .selectFrom("part_variation")
-            .selectAll()
-            .where("id", "=", partVariationId)
-            .where("workspaceId", "=", workspace.id)
+            .selectAll("part_variation")
+            .where("part_variation.id", "=", partVariationId)
+            .where("part_variation.workspaceId", "=", workspace.id)
+            .select((eb) => [withPartVariationType(eb)])
+            .select((eb) => [withPartVariationMarket(eb)])
             .executeTakeFirst();
 
           if (partVariation === undefined) {

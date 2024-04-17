@@ -5,6 +5,10 @@ import { insertPart } from "@cloud/shared";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
 import { checkPartPerm } from "../lib/perm/part";
 import { checkWorkspacePerm } from "../lib/perm/workspace";
+import {
+  withPartVariationMarket,
+  withPartVariationType,
+} from "../db/part-variation";
 
 export const PartRoute = new Elysia({ prefix: "/part", name: "PartRoute" })
   .use(WorkspaceMiddleware)
@@ -38,6 +42,7 @@ export const PartRoute = new Elysia({ prefix: "/part", name: "PartRoute" })
             .where("part.id", "=", partId)
             .innerJoin("product", "product.id", "part.productId")
             .select("product.name as productName")
+
             .executeTakeFirst();
           if (part === undefined) return error(404, "Part not found");
           return part;
@@ -65,6 +70,8 @@ export const PartRoute = new Elysia({ prefix: "/part", name: "PartRoute" })
             .selectAll("part_variation")
             .where("part_variation.workspaceId", "=", workspace.id)
             .where("part_variation.partId", "=", partId)
+            .select((eb) => [withPartVariationType(eb)])
+            .select((eb) => [withPartVariationMarket(eb)])
             .leftJoin("unit", "part_variation.id", "unit.partVariationId")
             .select(({ fn }) => fn.count<number>("unit.id").as("unitCount"))
             .groupBy("part_variation.id")

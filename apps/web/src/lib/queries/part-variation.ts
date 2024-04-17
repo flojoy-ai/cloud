@@ -27,6 +27,56 @@ export function getPartVariationsQueryOpts({
   });
 }
 
+type GetPartVariationMarketsParams = {
+  context: {
+    workspace: Workspace;
+  };
+};
+
+export function getPartVariationMarketsQueryKey() {
+  return ["partVariationMarkets"];
+}
+
+export function getPartVariationMarketsQueryOpts({
+  context,
+}: GetPartVariationMarketsParams) {
+  return queryOptions({
+    queryFn: async () => {
+      const result = await client.partVariation.market.get({
+        headers: { "flojoy-workspace-id": context.workspace.id },
+      });
+      if (result.error) throw result.error;
+      return result.data;
+    },
+    queryKey: getPartVariationMarketsQueryKey(),
+  });
+}
+
+type GetPartVariationTypesParams = {
+  context: {
+    workspace: Workspace;
+  };
+};
+
+export function getPartVariationTypesQueryKey() {
+  return ["partVariationTypes"];
+}
+
+export function getPartVariationTypesQueryOpts({
+  context,
+}: GetPartVariationTypesParams) {
+  return queryOptions({
+    queryFn: async () => {
+      const result = await client.partVariation.type.get({
+        headers: { "flojoy-workspace-id": context.workspace.id },
+      });
+      if (result.error) throw result.error;
+      return result.data;
+    },
+    queryKey: getPartVariationTypesQueryKey(),
+  });
+}
+
 type GetPartVariationParams = {
   partVariationId: string;
   context: {

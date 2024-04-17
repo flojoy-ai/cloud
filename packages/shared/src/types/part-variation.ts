@@ -12,6 +12,8 @@ export const partVariationComponent = t.Object({
 export const insertPartVariation = t.Object({
   workspaceId: t.String(),
   partId: t.String(),
+  type: t.Optional(t.String()),
+  market: t.Optional(t.String()),
   partNumber: t.String({ minLength: 1 }),
   description: t.Optional(t.String()),
   components: t.Array(t.Omit(partVariationComponent, ["partNumber"]), {

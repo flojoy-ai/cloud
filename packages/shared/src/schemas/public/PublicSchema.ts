@@ -27,6 +27,8 @@ import { type default as MeasurementTable } from './Measurement';
 import { type default as TagTable } from './Tag';
 import { type default as MeasurementTagTable } from './MeasurementTag';
 import { type default as UnitRevisionTable } from './UnitRevision';
+import { type default as PartVariationTypeTable } from './PartVariationType';
+import { type default as PartVariationMarketTable } from './PartVariationMarket';
 
 export default interface PublicSchema {
   kysely_migration: KyselyMigrationTable;
@@ -80,4 +82,8 @@ export default interface PublicSchema {
   measurement_tag: MeasurementTagTable;
 
   unit_revision: UnitRevisionTable;
+
+  part_variation_type: PartVariationTypeTable;
+
+  part_variation_market: PartVariationMarketTable;
 }
