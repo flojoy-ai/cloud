@@ -44,14 +44,14 @@ type PartEntry = Part & { partVariationCount: number; unitCount: number };
 const partColumns: ColumnDef<PartEntry>[] = [
   {
     accessorKey: "name",
-    header: "Name",
+    header: "Part ID",
     cell: ({ row }) => {
       return <Badge>{row.original.name}</Badge>;
     },
   },
   {
     accessorKey: "partVariationCount",
-    header: "Variants",
+    header: "Total number of part variations",
     cell: ({ row }) => {
       return <div className="font-bold">{row.original.partVariationCount}</div>;
     },
