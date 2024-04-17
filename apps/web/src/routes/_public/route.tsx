@@ -13,4 +13,3 @@ function Public() {
     </div>
   );
 }
-

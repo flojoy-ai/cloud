@@ -52,4 +52,3 @@ function Protected() {
 
   return <Outlet />;
 }
-
