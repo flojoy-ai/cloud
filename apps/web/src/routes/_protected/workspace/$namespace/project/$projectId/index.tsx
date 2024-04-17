@@ -16,7 +16,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
 import {
   Select,
@@ -362,6 +362,10 @@ function Page() {
         <div className="flex gap-x-4">
           <div className="max-w-fit">
             <Card className="p-6">
+              <CardTitle className="text-muted-foreground lg:text-2xl text-xl">
+                Part Stats
+              </CardTitle>
+              <div className="lg:py-3 py-2" />
               <div className="grid grid-cols-2 grid-rows-2 gap-6">
                 <Metric
                   variant="large"
@@ -382,7 +386,7 @@ function Page() {
                 </Metric>
                 <Metric
                   variant="large"
-                  title="Total number of units"
+                  title="Units under test"
                   icon={Hash}
                   className="col-start-2 col-end-2 row-start-1 row-end-1"
                 >
@@ -409,53 +413,63 @@ function Page() {
               </div>
             </Card>
             <div className="lg:py-3 py-2" />
-            <Card className="h-56 lg:p-6 p-4 flex items-center lg:gap-x-6 gap-x-4">
-              <StatusDoughnut
-                passed={metrics.sessionPassedCount}
-                failed={metrics.sessionFailedCount}
-                aborted={metrics.sessionAbortedCount}
-                innerText="sessions"
-                className="lg:h-full w-40"
-                numberClassName="lg:text-xl text-lg font-semibold"
-                innerTextClassName="lg:text-base text-sm"
-              />
-              <div className="flex flex-col gap-y-2">
-                <Metric
-                  icon={PercentSquare}
-                  title="First pass yield"
-                  variant="small"
-                  description="The ratio of passed 'first' sessions for a serial number to the number of units. ('first' meaning the first ever session for a unit.)"
-                >
-                  {decimalToPercentString(metrics.firstPassYield)}
-                </Metric>
-                <Metric
-                  icon={Timer}
-                  title="Avg. cycle time per session"
-                  variant="small"
-                  description="The average execution time for a single cycle within a session."
-                >
-                  {msToSecondsString(metrics.meanCycleTime)}
-                </Metric>
-                <Metric
-                  icon={Timer}
-                  title="Avg. time per session"
-                  variant="small"
-                  description="The average execution time for a session."
-                >
-                  {msToSecondsString(metrics.meanSessionTime)}
-                </Metric>
-                <Metric
-                  icon={Timer}
-                  title="Total failed test time"
-                  variant="small"
-                  description="The sum of all execution times for failed tests."
-                >
-                  {msToSecondsString(metrics.totalFailedTestTime)}
-                </Metric>
+            <Card className="lg:p-6 p-4">
+              <CardTitle className="text-muted-foreground lg:text-2xl text-xl">
+                Test Session Stats
+              </CardTitle>
+              <div className="lg:py-3 py-2" />
+              <div className="h-48 flex items-center lg:gap-x-6 gap-x-4">
+                <StatusDoughnut
+                  passed={metrics.sessionPassedCount}
+                  failed={metrics.sessionFailedCount}
+                  aborted={metrics.sessionAbortedCount}
+                  innerText="sessions"
+                  className="lg:h-full w-40"
+                  numberClassName="lg:text-xl text-lg font-semibold"
+                  innerTextClassName="lg:text-base text-sm"
+                />
+                <div className="flex flex-col gap-y-2">
+                  <Metric
+                    icon={PercentSquare}
+                    title="First pass yield"
+                    variant="small"
+                    description="The ratio of passed 'first' sessions for a serial number to the number of units. ('first' meaning the first ever session for a unit.)"
+                  >
+                    {decimalToPercentString(metrics.firstPassYield)}
+                  </Metric>
+                  <Metric
+                    icon={Timer}
+                    title="Avg. cycle time per session"
+                    variant="small"
+                    description="The average execution time for a single cycle within a session."
+                  >
+                    {msToSecondsString(metrics.meanCycleTime)}
+                  </Metric>
+                  <Metric
+                    icon={Timer}
+                    title="Avg. time per session"
+                    variant="small"
+                    description="The average execution time for a session."
+                  >
+                    {msToSecondsString(metrics.meanSessionTime)}
+                  </Metric>
+                  <Metric
+                    icon={Timer}
+                    title="Total failed test time"
+                    variant="small"
+                    description="The sum of all execution times for failed tests."
+                  >
+                    {msToSecondsString(metrics.totalFailedTestTime)}
+                  </Metric>
+                </div>
               </div>
             </Card>
           </div>
           <Card className="flex-1 p-6 flex flex-col">
+            <CardTitle className="text-muted-foreground lg:text-2xl text-xl">
+              Stats Over Time
+            </CardTitle>
+            <div className="lg:py-3 py-2" />
             <div className="flex justify-between items-center">
               <Select
                 defaultValue={series}

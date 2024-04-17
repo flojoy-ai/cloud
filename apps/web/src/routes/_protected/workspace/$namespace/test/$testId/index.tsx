@@ -45,8 +45,8 @@ const calculateStats = (distribution: number[]) => {
 const Stat = ({ name, value }: { name: string; value: React.ReactNode }) => {
   return (
     <div className="flex items-center justify-between">
-      <div className="text-muted-foreground text-sm">{name}</div>
-      <div className="font-semibold">{value}</div>
+      <div className="text-muted-foreground text-xs">{name}</div>
+      <div className="font-semibold text-sm">{value}</div>
     </div>
   );
 };
@@ -156,9 +156,9 @@ function TestPage() {
       <div className="max-w-4xl mx-auto">
         <div className="py-3" />
         <div className="flex h-96">
-          <Card className="flex-1 p-6 pb-20 rounded-xl">
+          <Card className="flex-1 p-6 pb-16 rounded-xl">
             <CardTitle>{test.name}</CardTitle>
-            <div className="py-2" />
+            <div className="py-3" />
             {!distribution ? (
               <div className="text-lg font-medium p-6 text-muted-foreground h-full flex items-center justify-center">
                 Overview is not yet supported for this data type (
@@ -212,6 +212,10 @@ function TestPage() {
                       grid: {
                         display: false,
                       },
+                      title: {
+                        display: true,
+                        text: "Date",
+                      },
                     },
                     y: {
                       ticks: {
@@ -219,6 +223,10 @@ function TestPage() {
                       },
                       grid: {
                         display: false,
+                      },
+                      title: {
+                        display: true,
+                        text: "Measured Value",
                       },
                     },
                   },
@@ -228,15 +236,19 @@ function TestPage() {
           </Card>
           <div className="px-2" />
           <Card className="w-56 p-6">
-            <div className="w-full h-1/2 flex justify-center">
+            <h2 className="text-muted-foreground font-semibold">Pass/Fail</h2>
+            <div className="py-1" />
+            <div className="w-full h-36 flex justify-center">
               <StatusDoughnut
                 passed={passCount}
                 failed={failCount}
                 aborted={0}
-                innerText="Results"
+                innerText="results"
               />
             </div>
-            <div className="py-3" />
+            <div className="py-1" />
+            <h2 className="text-muted-foreground font-semibold">Values</h2>
+            <div className="py-1" />
             <div className="flex flex-col gap-y-1">
               <Stat name="Mean" value={stats?.mean.toFixed(4) ?? "N/A"} />
               <Stat name="Median" value={stats?.median.toFixed(4) ?? "N/A"} />
@@ -253,7 +265,7 @@ function TestPage() {
         </div>
         <div className="py-3" />
         <Card className="p-6">
-          <CardTitle>Failures</CardTitle>
+          <CardTitle>Failures by Serial Number</CardTitle>
           <div className="py-2" />
           <ParetoChart labels={serialNumbers} values={counts} />
         </Card>
