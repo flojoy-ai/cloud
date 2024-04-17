@@ -29,6 +29,7 @@ import CreatePartVariation, {
   CreatePartVariationDefaultValues,
 } from "@/components/unit/create-part-variation";
 import { PartVariationTreeVisualization } from "@/components/visualization/tree-visualization";
+import { useWorkspaceUser } from "@/hooks/use-workspace-user";
 import { client } from "@/lib/client";
 import { getPartQueryOpts } from "@/lib/queries/part";
 import {
@@ -188,6 +189,8 @@ function PartPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
+  const { workspaceUserPerm } = useWorkspaceUser();
+
   const { data: partVariations } = useSuspenseQuery(
     getPartPartVariationsQueryOpts({ partId, context: { workspace } }),
   );
@@ -297,17 +300,21 @@ function PartPage() {
       </PageHeader>
       <div className="py-4" />
       <Separator />
-      <div className="py-2" />
-      <CreatePartVariation
-        workspaceId={workspace.id}
-        partVariations={allPartVariations}
-        part={part}
-        open={createOpen}
-        setOpen={setCreateOpen}
-        openDialog={openCreateDialog}
-        defaultValues={defaultValues}
-        setDefaultValues={setDefaultValues}
-      />
+      {workspaceUserPerm.canWrite() && (
+        <>
+          <div className="py-2" />
+          <CreatePartVariation
+            workspaceId={workspace.id}
+            partVariations={allPartVariations}
+            part={part}
+            open={createOpen}
+            setOpen={setCreateOpen}
+            openDialog={openCreateDialog}
+            defaultValues={defaultValues}
+            setDefaultValues={setDefaultValues}
+          />
+        </>
+      )}
       <div className="py-2" />
       <h1 className="text-xl font-bold">Variations</h1>
       <div className="py-2" />

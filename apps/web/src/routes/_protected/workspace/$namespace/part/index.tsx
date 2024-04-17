@@ -27,6 +27,7 @@ import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$nam
 import { Part } from "@cloud/shared";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowRight } from "lucide-react";
+import { useWorkspaceUser } from "@/hooks/use-workspace-user";
 
 export const Route = createFileRoute("/_protected/workspace/$namespace/part/")({
   component: UnitInventory,
@@ -87,6 +88,8 @@ function UnitInventory() {
     getProductsQueryOpts({ context }),
   );
 
+  const { workspaceUserPerm } = useWorkspaceUser();
+
   return (
     <div className="container max-w-screen-2xl">
       <div className="py-2"></div>
@@ -119,8 +122,12 @@ function UnitInventory() {
         <div className="py-2" />
 
         <h1 className="text-xl font-bold">Parts</h1>
-        <div className="py-1" />
-        <CreatePart workspaceId={workspace.id} products={products} />
+        {workspaceUserPerm.canWrite() && (
+          <>
+            <div className="py-1" />
+            <CreatePart workspaceId={workspace.id} products={products} />
+          </>
+        )}
         <div className="py-4" />
 
         {parts.length === 0 ? (

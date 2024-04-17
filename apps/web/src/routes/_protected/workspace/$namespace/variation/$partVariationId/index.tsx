@@ -17,6 +17,7 @@ import { DataTable } from "@/components/ui/data-table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import CreateUnit from "@/components/unit/create-unit";
 import { PartVariationTreeVisualization } from "@/components/visualization/tree-visualization";
+import { useWorkspaceUser } from "@/hooks/use-workspace-user";
 import { getPartQueryOpts } from "@/lib/queries/part";
 import { getPartVariationUnitQueryOpts } from "@/lib/queries/unit";
 import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
@@ -97,6 +98,8 @@ function PartVariationPage() {
     }),
   );
 
+  const { workspaceUserPerm } = useWorkspaceUser();
+
   const { data: part } = useSuspenseQuery(
     getPartQueryOpts({
       partId: partVariation.partId,
@@ -153,13 +156,17 @@ function PartVariationPage() {
         </PageHeaderDescription>
       </PageHeader>
       <div className="py-4" />
-      <CreateUnit workspace={workspace} partVariationId={partVariation.id}>
-        <div className="flex items-center gap-1">
-          <Plus size={20} />
-          <div>Create</div>
-        </div>
-      </CreateUnit>
-      <div className="py-2" />
+      {workspaceUserPerm.canWrite() && (
+        <>
+          <CreateUnit workspace={workspace} partVariationId={partVariation.id}>
+            <div className="flex items-center gap-1">
+              <Plus size={20} />
+              <div>Create</div>
+            </div>
+          </CreateUnit>
+          <div className="py-2" />
+        </>
+      )}
       <h1 className="text-xl font-bold">Instances</h1>
       <div className="py-2" />
       <div className="flex gap-x-8">
