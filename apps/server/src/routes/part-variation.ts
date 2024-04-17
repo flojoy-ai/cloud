@@ -11,9 +11,6 @@ import { withUnitParent } from "../db/unit";
 import { checkWorkspacePerm } from "../lib/perm/workspace";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
 import { fromTransaction } from "../lib/db-utils";
-import { jsonObjectFrom } from "kysely/helpers/postgres";
-import { PartVariationType } from "@cloud/shared/src/schemas/public/PartVariationType";
-import { PartVariationMarket } from "@cloud/shared/src/schemas/public/PartVariationMarket";
 
 export const PartVariationRoute = new Elysia({
   prefix: "/partVariation",
@@ -22,30 +19,14 @@ export const PartVariationRoute = new Elysia({
   .use(WorkspaceMiddleware)
   .get("/", async ({ workspace }) => {
     const partVariations = await db
-      .selectFrom("part_variation as pv")
-      .selectAll("pv")
-      .where("pv.workspaceId", "=", workspace.id)
-      .leftJoin("unit", "pv.id", "unit.partVariationId")
+      .selectFrom("part_variation")
+      .selectAll("part_variation")
+      .where("part_variation.workspaceId", "=", workspace.id)
+      .leftJoin("unit", "part_variation.id", "unit.partVariationId")
       .select(({ fn }) => fn.count<number>("unit.id").as("unitCount"))
-      .select((eb) => [
-        jsonObjectFrom(
-          eb
-            .selectFrom("part_variation_type as pvt")
-            .selectAll("pvt")
-            .whereRef("pvt.id", "=", "pv.typeId"),
-        ).as("type"),
-      ])
-      .$narrowType<{ type: PartVariationType }>()
-      .select((eb) => [
-        jsonObjectFrom(
-          eb
-            .selectFrom("part_variation_market as pvm")
-            .selectAll("pvm")
-            .whereRef("pvm.id", "=", "pv.marketId"),
-        ).as("market"),
-      ])
-      .$narrowType<{ market: PartVariationMarket }>()
-      .groupBy("pv.id")
+      .select((eb) => [withPartVariationType(eb)])
+      .select((eb) => [withPartVariationMarket(eb)])
+      .groupBy("part_variation.id")
       .execute();
 
     return partVariations;
