@@ -41,6 +41,7 @@ import {
   getWorkspacesQueryKey,
 } from "@/lib/queries/workspace";
 import { Perm } from "@cloud/shared";
+import { env } from "@/env";
 
 type Props = {
   workspace: Workspace;
@@ -181,7 +182,7 @@ const WorkspaceGeneral = ({ workspace, perm }: Props) => {
                     <FormControl>
                       <div className="flex gap-1.5">
                         <div className="flex h-10 w-min rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground opacity-50 ring-offset-background  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-                          cloud.flojoy.ai/workspace/
+                          {env.VITE_SERVER_URL}/
                         </div>
                         <Input
                           disabled={!perm.canAdmin()}
