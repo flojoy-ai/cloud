@@ -181,7 +181,7 @@ const WorkspaceGeneral = ({ workspace, perm }: Props) => {
                     <FormControl>
                       <div className="flex gap-1.5">
                         <div className="flex h-10 w-min rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground opacity-50 ring-offset-background  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-                          fijoy.app/workspace/
+                          cloud.flojoy.ai/workspace/
                         </div>
                         <Input
                           disabled={!perm.canAdmin()}
