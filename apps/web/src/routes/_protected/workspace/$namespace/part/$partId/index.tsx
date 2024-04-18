@@ -182,6 +182,10 @@ const partVariationComponentColumns: ColumnDef<
     },
   },
   {
+    accessorKey: "description",
+    header: "Description",
+  },
+  {
     accessorKey: "count",
     header: "Count",
     cell: ({ row }) => {
