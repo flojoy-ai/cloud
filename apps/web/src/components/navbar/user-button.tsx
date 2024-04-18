@@ -64,29 +64,29 @@ function UserButton({ user, workspaceUser }: Props) {
         {/*   Profile */}
         {/* </DropdownMenuItem> */}
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="cursor-pointer">
+        <DropdownMenuItem className="cursor-pointer" asChild>
           <a href={"https://rest.flojoy.ai"} target="_blank">
             API Docs
+            <DropdownMenuShortcut>
+              <BookText className="h-4 w-4" />
+            </DropdownMenuShortcut>
           </a>
-          <DropdownMenuShortcut>
-            <BookText className="h-4 w-4" />
-          </DropdownMenuShortcut>
         </DropdownMenuItem>
-        <DropdownMenuItem className="cursor-pointer">
+        <DropdownMenuItem className="cursor-pointer" asChild>
           <a href={siteConfig.links.discord} target="_blank" rel="noreferrer">
             Support
+            <DropdownMenuShortcut>
+              <Icons.discord className="h-4 w-4" />
+            </DropdownMenuShortcut>
           </a>
-          <DropdownMenuShortcut>
-            <Icons.discord className="h-4 w-4" />
-          </DropdownMenuShortcut>
         </DropdownMenuItem>
-        <DropdownMenuItem className="cursor-pointer">
+        <DropdownMenuItem className="cursor-pointer" asChild>
           <a href={siteConfig.links.github} target="_blank" rel="noreferrer">
             GitHub
+            <DropdownMenuShortcut>
+              <Icons.github className="h-4 w-4" />
+            </DropdownMenuShortcut>
           </a>
-          <DropdownMenuShortcut>
-            <Icons.github className="h-4 w-4" />
-          </DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem className="cursor-pointer" onSelect={handleLogout}>
