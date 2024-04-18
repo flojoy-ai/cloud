@@ -142,6 +142,16 @@ export async function createSession(
     );
   }
 
+  // create the association if it doesn't exist already
+  await db
+    .insertInto("project_unit")
+    .values({
+      projectId: station.projectId,
+      unitId: unit.id,
+    })
+    .onConflict((oc) => oc.doNothing())
+    .execute();
+
   const totalTime = _.sumBy(measurements, (m) => m.durationMs);
 
   const toInsert = {
