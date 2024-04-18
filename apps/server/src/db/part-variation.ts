@@ -6,9 +6,9 @@ import {
   PartVariationTreeRoot,
 } from "@cloud/shared";
 import { ExpressionBuilder, Kysely } from "kysely";
-import { Result, err, ok } from "neverthrow";
+import { Result, err, ok, safeTry } from "neverthrow";
 import { markUpdatedAt } from "../db/query";
-import { generateDatabaseId } from "../lib/db-utils";
+import { generateDatabaseId, tryQuery } from "../lib/db-utils";
 import { db } from "./kysely";
 import { getPart } from "./part";
 import {
@@ -107,58 +107,58 @@ export async function createPartVariation(
   }
   const { type: typeName, market: marketName, ...data } = newPartVariation;
 
-  let typeId: string | undefined = undefined;
-  let marketId: string | undefined = undefined;
+  return safeTry(async function* () {
+    let typeId: string | undefined = undefined;
+    let marketId: string | undefined = undefined;
 
-  if (typeName) {
-    const type = await getOrCreateType(db, typeName, input.workspaceId);
-    if (type.isOk()) {
-      typeId = type.value.id;
-    } else {
-      return err(type.error);
+    if (typeName) {
+      const type = yield* (
+        await getOrCreateType(db, typeName, input.workspaceId)
+      ).safeUnwrap();
+      typeId = type.id;
     }
-  }
-  if (marketName) {
-    const market = await getOrCreateMarket(db, marketName, input.workspaceId);
-    if (market.isOk()) {
-      marketId = market.value.id;
-    } else {
-      return err(market.error);
+    if (marketName) {
+      const market = yield* (
+        await getOrCreateMarket(db, marketName, input.workspaceId)
+      ).safeUnwrap();
+      marketId = market.id;
     }
-  }
 
-  const partVariation = await db
-    .insertInto("part_variation")
-    .values({
-      id: generateDatabaseId("part_variation"),
-      ...data,
-      typeId,
-      marketId,
-    })
-    .returningAll()
-    .executeTakeFirst();
-
-  if (partVariation === undefined) {
-    return err(new InternalServerError("Failed to create part variation"));
-  }
-
-  if (components.length > 0) {
-    await db
-      .insertInto("part_variation_relation")
-      .values(
-        components.map((c) => ({
-          parentPartVariationId: partVariation.id,
-          childPartVariationId: c.partVariationId,
-          workspaceId: input.workspaceId,
-          count: c.count,
-        })),
+    const partVariation = yield* (
+      await tryQuery(
+        db
+          .insertInto("part_variation")
+          .values({
+            id: generateDatabaseId("part_variation"),
+            ...data,
+            typeId,
+            marketId,
+          })
+          .returningAll()
+          .executeTakeFirstOrThrow(
+            () => new InternalServerError("Failed to create part variation"),
+          ),
       )
-      .execute();
-  }
+    ).safeUnwrap();
 
-  await markUpdatedAt(db, "workspace", input.workspaceId);
+    if (components.length > 0) {
+      await db
+        .insertInto("part_variation_relation")
+        .values(
+          components.map((c) => ({
+            parentPartVariationId: partVariation.id,
+            childPartVariationId: c.partVariationId,
+            workspaceId: input.workspaceId,
+            count: c.count,
+          })),
+        )
+        .execute();
+    }
 
-  return ok(partVariation);
+    await markUpdatedAt(db, "workspace", input.workspaceId);
+
+    return ok(partVariation);
+  });
 }
 
 export async function getPartVariation(partVariationId: string) {
@@ -183,6 +183,7 @@ type PartVariationEdge = {
   partVariationId: string;
   parentPartVariationId: string;
   count: number;
+  description: string | null;
 };
 
 export async function getPartVariationTree(
@@ -201,7 +202,8 @@ export async function getPartVariationTree(
           "parentPartVariationId",
           "count",
           "childPartVariationId as partVariationId",
-          "part_variation.partNumber as partNumber",
+          "part_variation.partNumber",
+          "part_variation.description",
         ])
         .where("parentPartVariationId", "=", partVariation.id)
         .unionAll((eb) =>
@@ -221,7 +223,8 @@ export async function getPartVariationTree(
               "mr.parentPartVariationId",
               "mr.count",
               "mr.childPartVariationId as partVariationId",
-              "part_variation.partNumber as partNumber",
+              "part_variation.partNumber",
+              "part_variation.description",
             ]),
         ),
     )
@@ -247,9 +250,14 @@ function buildPartVariationTree(
       cur = {
         id: edge.partVariationId,
         partNumber: edge.partNumber,
+        description: edge.description,
         components: [],
       };
       nodes.set(edge.partVariationId, cur);
+    }
+
+    if (parent.components.map((c) => c.partVariation).includes(cur)) {
+      continue;
     }
 
     parent.components.push({ count: edge.count, partVariation: cur });

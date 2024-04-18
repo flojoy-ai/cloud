@@ -27,6 +27,9 @@ export type PartVariationTreeRoot = PartVariation & {
   components: { count: number; partVariation: PartVariationTreeNode }[];
 };
 
-export type PartVariationTreeNode = Pick<PartVariation, "partNumber" | "id"> & {
+export type PartVariationTreeNode = Pick<
+  PartVariation,
+  "partNumber" | "id" | "description"
+> & {
   components: { count: number; partVariation: PartVariationTreeNode }[];
 };
