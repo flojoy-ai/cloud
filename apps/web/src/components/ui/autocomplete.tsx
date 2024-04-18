@@ -37,7 +37,7 @@ export const Autocomplete = forwardRef<HTMLInputElement, Props>(
               setSelected(false);
             }}
           />
-          <CommandList className="max-h-[160px] absolute top-[45px] bg-background w-full shadow-md rounded-b-lg">
+          <CommandList className="max-h-[160px] absolute top-[45px] bg-background w-full shadow-md rounded-b-lg z-50">
             {selected && options.length > 0 && (
               <CommandGroup>
                 {options.map((opt) => (
