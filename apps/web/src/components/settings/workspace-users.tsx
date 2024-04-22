@@ -33,7 +33,10 @@ import { DataTable } from "../ui/data-table";
 import { useForm } from "react-hook-form";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { getWorkspaceUsersQueryKey } from "@/lib/queries/workspace";
+import {
+  getUserInvitesQueryKey,
+  getWorkspaceUsersQueryKey,
+} from "@/lib/queries/workspace";
 import { toast } from "sonner";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
@@ -53,13 +56,15 @@ import { Trash2 } from "lucide-react";
 import { client } from "@/lib/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useWorkspaceUser } from "@/hooks/use-workspace-user";
+import { UserInvite } from "@cloud/shared/src/schemas/public/UserInvite";
 
 type Props = {
   workspace: Workspace;
   workspaceUsers: WorkspaceUserWithUser[];
+  userInvites: UserInvite[];
 };
 
-const columns: ColumnDef<WorkspaceUserWithUser>[] = [
+const workspaceUserColumns: ColumnDef<WorkspaceUserWithUser>[] = [
   {
     accessorKey: "user.email",
     header: "Email",
@@ -71,6 +76,21 @@ const columns: ColumnDef<WorkspaceUserWithUser>[] = [
   {
     id: "actions",
     cell: DeleteWorkspaceUser,
+  },
+];
+
+const userInviteColumns: ColumnDef<UserInvite>[] = [
+  {
+    accessorKey: "email",
+    header: "Email",
+  },
+  {
+    accessorKey: "role",
+    header: "Role",
+  },
+  {
+    id: "actions",
+    cell: DeleteUserInvite,
   },
 ];
 
@@ -130,7 +150,58 @@ function DeleteWorkspaceUser({ row }: { row: Row<WorkspaceUserWithUser> }) {
   );
 }
 
-const WorkspaceUsers = ({ workspace, workspaceUsers }: Props) => {
+function DeleteUserInvite({ row }: { row: Row<UserInvite> }) {
+  const queryClient = useQueryClient();
+  const deleteUserMutation = useMutation({
+    mutationFn: async (email: string) => {
+      await client.workspace.user.invite.delete(
+        { email },
+        { headers: { "flojoy-workspace-id": row.original.workspaceId } },
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: getUserInvitesQueryKey(row.original.workspaceId),
+      });
+      toast.success(`Invitation to (${row.original.email}) has been canceled`);
+    },
+  });
+
+  const { workspaceUserPerm } = useWorkspaceUser();
+  if (!workspaceUserPerm.canAdmin()) {
+    // no reason to delete urself
+    return null;
+  }
+
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button size="icon" variant="ghost">
+          <Trash2 className="h-5 w-5" />
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete your
+            account and remove your data from our servers.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => deleteUserMutation.mutateAsync(row.original.email)}
+          >
+            Continue
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
+const WorkspaceUsers = ({ workspace, workspaceUsers, userInvites }: Props) => {
   const queryClient = useQueryClient();
 
   const workspaceUserInviteForm = useForm<WorkspaceUserInvite>({
@@ -244,7 +315,15 @@ const WorkspaceUsers = ({ workspace, workspaceUsers }: Props) => {
         </CardContent>
         <CardFooter className="space-x-4 px-6 py-4 ">
           <div className="w-full">
-            <DataTable columns={columns} data={workspaceUsers} />
+            <DataTable columns={workspaceUserColumns} data={workspaceUsers} />
+            {userInvites.length > 0 && (
+              <>
+                <div className="py-2"></div>
+                <CardTitle className="text-xl">Pending Invites</CardTitle>
+                <div className="py-2"></div>
+                <DataTable columns={userInviteColumns} data={userInvites} />
+              </>
+            )}
           </div>
         </CardFooter>
       </Card>

@@ -159,6 +159,61 @@ export const WorkspaceRoute = new Elysia({
     app
       .use(WorkspaceMiddleware)
       .get(
+        "/invite",
+        async ({ workspaceUser, authMethod }) => {
+          if (authMethod === "secret") {
+            return error("I'm a teapot");
+          }
+
+          const workspaceInvites = await db
+            .selectFrom("user_invite as ui")
+            .selectAll("ui")
+            .where("ui.workspaceId", "=", workspaceUser.workspaceId)
+            .execute();
+
+          return workspaceInvites;
+        },
+        {
+          async beforeHandle({ workspaceUser }) {
+            const perm = await checkWorkspacePerm({
+              workspaceUser,
+            });
+
+            return perm.match(
+              (perm) => (perm.canAdmin() ? undefined : error("Forbidden")),
+              (err) => error(403, err),
+            );
+          },
+        },
+      )
+      .delete(
+        "/invite",
+        async ({ workspaceUser, authMethod, body: { email } }) => {
+          if (authMethod === "secret") {
+            return error("I'm a teapot");
+          }
+
+          await db
+            .deleteFrom("user_invite")
+            .where("workspaceId", "=", workspaceUser.workspaceId)
+            .where("email", "=", email)
+            .execute();
+        },
+        {
+          body: t.Object({ email: t.String() }),
+          async beforeHandle({ workspaceUser }) {
+            const perm = await checkWorkspacePerm({
+              workspaceUser,
+            });
+
+            return perm.match(
+              (perm) => (perm.canAdmin() ? undefined : error("Forbidden")),
+              (err) => error(403, err),
+            );
+          },
+        },
+      )
+      .get(
         "/",
         async ({ workspaceUser, authMethod }) => {
           if (authMethod === "secret") {
