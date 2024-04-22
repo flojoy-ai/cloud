@@ -10,6 +10,7 @@ export const env = createEnv({
     WEB_URI: z.string().default("localhost:5173"),
     JWT_SECRET: z.string(),
     PORT: z.string().default("3000"),
+    DATABASE: z.enum(["postgres", "mysql"]).default("postgres"),
     DATABASE_URL: z
       .string()
       .url()

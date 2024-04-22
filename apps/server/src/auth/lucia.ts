@@ -3,15 +3,9 @@ import { MicrosoftEntraId } from "arctic";
 
 import { env } from "../env";
 import { Google } from "arctic";
-import { NodePostgresAdapter } from "@lucia-auth/adapter-postgresql";
-import { pool } from "../db/kysely";
+import { luciaAdapter } from "../db/kysely";
 
-const adapter = new NodePostgresAdapter(pool, {
-  user: "user",
-  session: "user_session",
-});
-
-export const lucia = new Lucia(adapter, {
+export const lucia = new Lucia(luciaAdapter, {
   sessionCookie: {
     // NOTE: keep this at false since we are also using this value for
     // workspace personal secret
