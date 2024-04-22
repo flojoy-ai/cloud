@@ -15,14 +15,17 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useState } from "react";
+import { CommandList } from "cmdk";
 
 type Props<T> = {
   options: T[];
-  value: T | undefined;
-  setValue: (test: T | undefined) => void;
+  value: string | undefined;
+  setValue: (test: string | undefined) => void;
   displaySelector: (val: T) => string;
   valueSelector: (val: T) => string;
+  descriptionSelector?: (val: T) => string;
   placeholder?: string;
+  searchText?: string;
 };
 
 export function Combobox<T>({
@@ -31,9 +34,14 @@ export function Combobox<T>({
   setValue,
   displaySelector,
   valueSelector,
+  descriptionSelector,
+  searchText,
   placeholder,
 }: Props<T>) {
   const [open, setOpen] = useState(false);
+
+  const curValue = options.find((opt) => valueSelector(opt) === value);
+  const label = curValue ? displaySelector(curValue) : placeholder;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -42,45 +50,56 @@ export function Combobox<T>({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="justify-between text-left"
+          className="w-[200px] justify-between"
         >
-          <div className="block w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
-            {value ? displaySelector(value) : "Select..."}
-          </div>
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          {label}
+          <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent
+        className="w-[200px] p-0"
+        avoidCollisions={false}
+        side="top"
+      >
         <Command>
-          <CommandInput placeholder={placeholder} />
-          <CommandEmpty>Nothing found.</CommandEmpty>
-          <CommandGroup>
-            {options.map((opt) => (
-              <CommandItem
-                key={valueSelector(opt)}
-                value={valueSelector(opt)}
-                onSelect={(val) => {
-                  setValue(
-                    value !== undefined && val === valueSelector(value)
-                      ? undefined
-                      : options.find((opt) => valueSelector(opt) === val),
-                  );
-                  setOpen(false);
-                }}
-              >
-                <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    value !== undefined &&
-                      valueSelector(value) === valueSelector(opt)
-                      ? "opacity-100"
-                      : "opacity-0",
+          <CommandList>
+            <CommandEmpty>Nothing found.</CommandEmpty>
+            <CommandGroup>
+              {options.map((opt) => (
+                <CommandItem
+                  key={valueSelector(opt)}
+                  value={valueSelector(opt)}
+                  onSelect={(val) => {
+                    setValue(val);
+                    setOpen(false);
+                  }}
+                  className="cursor-pointer"
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      value === valueSelector(opt)
+                        ? "opacity-100"
+                        : "opacity-0",
+                    )}
+                  />
+                  {descriptionSelector ? (
+                    <div>
+                      <div className="text-sm font-medium">
+                        {displaySelector(opt)}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {descriptionSelector(opt)}
+                      </div>
+                    </div>
+                  ) : (
+                    displaySelector(opt)
                   )}
-                />
-                {displaySelector(opt)}
-              </CommandItem>
-            ))}
-          </CommandGroup>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+          <CommandInput placeholder={searchText} />
         </Command>
       </PopoverContent>
     </Popover>

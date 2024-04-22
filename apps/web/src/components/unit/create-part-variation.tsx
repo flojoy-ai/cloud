@@ -44,6 +44,7 @@ import { Checkbox } from "../ui/checkbox";
 import { Autocomplete } from "../ui/autocomplete";
 import { PartVariationType } from "@cloud/shared/src/schemas/public/PartVariationType";
 import { PartVariationMarket } from "@cloud/shared/src/schemas/public/PartVariationMarket";
+import { Combobox } from "../ui/combobox";
 
 const partVariationFormSchema = t.Composite([
   insertPartVariation,
@@ -209,7 +210,7 @@ const CreatePartVariation = ({
           Create
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md max-h-screen overflow-auto">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-auto">
         <DialogHeader>
           <DialogTitle>Register a new part variation</DialogTitle>
           <DialogDescription>
@@ -347,24 +348,22 @@ const CreatePartVariation = ({
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <Select
+                            <Combobox
+                              options={partVariations}
                               value={field.value}
-                              onValueChange={field.onChange}
-                            >
-                              <SelectTrigger className="w-[180px]">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {partVariations.map((partVariation) => (
-                                  <SelectItem
-                                    value={partVariation.id}
-                                    key={partVariation.id}
-                                  >
-                                    {partVariation.partNumber}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                              setValue={(val) =>
+                                form.setValue(
+                                  `components.${index}.partVariationId` as const,
+                                  val ?? "",
+                                )
+                              }
+                              displaySelector={(val) => val.partNumber}
+                              valueSelector={(val) => val.id}
+                              descriptionSelector={(val) =>
+                                val.description ?? ""
+                              }
+                              searchText="Search part variation..."
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
