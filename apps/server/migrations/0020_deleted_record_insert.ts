@@ -1,5 +1,7 @@
 import { type Kysely, sql } from "kysely";
 
+// NOTE: Joey: https://brandur.org/fragments/deleted-record-insert
+
 const tables = [
   "email_verification",
   "measurement",
