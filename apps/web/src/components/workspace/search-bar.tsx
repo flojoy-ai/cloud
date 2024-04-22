@@ -55,11 +55,11 @@ const typeIcons = {
 };
 
 const nameLookup = {
-  partVariation: "Part Variation",
-  unit: "Unit",
   project: "Test Project",
   product: "Product",
   part: "Part",
+  partVariation: "Part Variation",
+  unit: "Unit",
 };
 
 type SearchResultProps = {
