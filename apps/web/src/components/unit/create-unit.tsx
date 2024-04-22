@@ -27,25 +27,18 @@ import {
 } from "@/components/ui/dialog";
 
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { client } from "@/lib/client";
-import {
-  getUnitsQueryKey,
-  getUnitsQueryOpts,
-  getPartVariationUnitQueryKey,
-} from "@/lib/queries/unit";
 import {
   getPartVariationQueryOpts,
   getPartVariationsQueryOpts,
 } from "@/lib/queries/part-variation";
+import {
+  getPartVariationUnitQueryKey,
+  getUnitsQueryKey,
+  getUnitsQueryOpts,
+} from "@/lib/queries/unit";
 import { handleError } from "@/lib/utils";
-import { Workspace, PartVariationTreeRoot, insertUnit } from "@cloud/shared";
+import { PartVariationTreeRoot, Workspace, insertUnit } from "@cloud/shared";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
 import { Static, Type as t } from "@sinclair/typebox";
 import {

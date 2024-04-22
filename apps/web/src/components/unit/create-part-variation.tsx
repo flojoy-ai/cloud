@@ -19,13 +19,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { client } from "@/lib/client";
 import {
   getPartPartVariationsQueryKey,
@@ -33,6 +26,8 @@ import {
 } from "@/lib/queries/part-variation";
 import { handleError } from "@/lib/utils";
 import { Part, PartVariation, insertPartVariation } from "@cloud/shared";
+import { PartVariationMarket } from "@cloud/shared/src/schemas/public/PartVariationMarket";
+import { PartVariationType } from "@cloud/shared/src/schemas/public/PartVariationType";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
 import { Static, Type as t } from "@sinclair/typebox";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -40,10 +35,8 @@ import { Cpu, Plus, Trash2 } from "lucide-react";
 import { useCallback, useEffect } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { Checkbox } from "../ui/checkbox";
 import { Autocomplete } from "../ui/autocomplete";
-import { PartVariationType } from "@cloud/shared/src/schemas/public/PartVariationType";
-import { PartVariationMarket } from "@cloud/shared/src/schemas/public/PartVariationMarket";
+import { Checkbox } from "../ui/checkbox";
 import { Combobox } from "../ui/combobox";
 
 const partVariationFormSchema = t.Composite([
