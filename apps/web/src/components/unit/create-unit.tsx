@@ -54,6 +54,7 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { Icons } from "../icons";
+import { Combobox } from "../ui/combobox";
 
 const formSchema = t.Composite([
   t.Omit(insertUnit, ["components"]),
@@ -106,7 +107,7 @@ const CreateUnit = ({
     },
   });
 
-  const { data: unit } = useSuspenseQuery(
+  const { data: units } = useSuspenseQuery(
     getUnitsQueryOpts({ onlyAvailable: true, context: { workspace } }),
   );
   const { data: partVariations } = useSuspenseQuery(
@@ -138,7 +139,7 @@ const CreateUnit = ({
     setDevicePartVariations(devicePartVariations);
   }, [partVariationId, form, partVariationTree]);
 
-  if (!unit) {
+  if (!units) {
     return (
       <Button variant="default" size="sm" disabled={true}>
         {children}
@@ -252,25 +253,21 @@ const CreateUnit = ({
                             render={({ field }) => (
                               <FormItem className="flex items-center gap-2">
                                 <FormControl>
-                                  <Select
+                                  <Combobox
+                                    options={units.filter(
+                                      (hw) => hw.partVariationId === part,
+                                    )}
                                     value={field.value}
-                                    onValueChange={field.onChange}
-                                  >
-                                    <SelectTrigger className="w-[180px]">
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      {unit
-                                        .filter(
-                                          (hw) => hw.partVariationId === part,
-                                        )
-                                        .map((hw) => (
-                                          <SelectItem value={hw.id} key={hw.id}>
-                                            {hw.serialNumber}
-                                          </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                  </Select>
+                                    setValue={(val) =>
+                                      form.setValue(
+                                        `components.${index}.unitId` as const,
+                                        val ?? "",
+                                      )
+                                    }
+                                    displaySelector={(val) => val.serialNumber}
+                                    valueSelector={(val) => val.id}
+                                    searchText="Search unit..."
+                                  />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>

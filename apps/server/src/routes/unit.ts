@@ -31,7 +31,7 @@ export const UnitRoute = new Elysia({ prefix: "/unit", name: "UnitRoute" })
         .where("unit.workspaceId", "=", workspace.id)
         .select((eb) => withUnitPartVariation(eb))
         .$narrowType<{ partVariation: PartVariation }>()
-        .orderBy("createdAt");
+        .orderBy("unit.serialNumber", "asc");
 
       if (onlyAvailable) {
         query = query.where(notInUse);

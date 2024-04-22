@@ -27,6 +27,7 @@ export const PartVariationRoute = new Elysia({
       .select((eb) => [withPartVariationType(eb)])
       .select((eb) => [withPartVariationMarket(eb)])
       .groupBy("part_variation.id")
+      .orderBy("part_variation.partNumber", "asc")
       .execute();
 
     return partVariations;
