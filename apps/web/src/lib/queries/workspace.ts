@@ -71,7 +71,7 @@ export function getWorkspaceUsersQueryOpts({
 }
 
 export function getWorkspaceInvitesQueryKey() {
-  return ["invites"];
+  return ["workspace", "invite", "index"];
 }
 
 export function getWorkspaceInvitesQueryOpts() {
@@ -83,5 +83,31 @@ export function getWorkspaceInvitesQueryOpts() {
       return workspaces;
     },
     queryKey: getWorkspaceInvitesQueryKey(),
+  });
+}
+
+type getUserInvitesProps = {
+  context: {
+    workspace: Workspace;
+  };
+};
+
+export function getUserInvitesQueryKey(workspaceId: string) {
+  return ["workspace", "user", "invite", workspaceId];
+}
+
+export function getUserInvitesQueryOpts({ context }: getUserInvitesProps) {
+  return queryOptions({
+    queryFn: async () => {
+      const { data: workspaces, error } =
+        await client.workspace.user.invite.get({
+          headers: {
+            "flojoy-workspace-id": context.workspace.id,
+          },
+        });
+      if (error) throw error.value;
+      return workspaces;
+    },
+    queryKey: getUserInvitesQueryKey(context.workspace.id),
   });
 }

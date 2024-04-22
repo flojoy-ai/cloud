@@ -5,7 +5,10 @@ import WorkspaceUsers from "@/components/settings/workspace-users";
 import WorkspaceSecret from "@/components/settings/workspace-secret";
 import { getSecretQueryOpts } from "@/lib/queries/secret";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { getWorkspaceUsersQueryOpts } from "@/lib/queries/workspace";
+import {
+  getUserInvitesQueryOpts,
+  getWorkspaceUsersQueryOpts,
+} from "@/lib/queries/workspace";
 import { Perm, workspaceRoleToPerm } from "@cloud/shared";
 import { useWorkspaceUser } from "@/hooks/use-workspace-user";
 
@@ -17,6 +20,7 @@ export const Route = createFileRoute(
   },
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(getSecretQueryOpts({ context }));
+    context.queryClient.ensureQueryData(getUserInvitesQueryOpts({ context }));
   },
   component: Page,
 });
@@ -26,6 +30,9 @@ function Page() {
   const { workspace } = context;
 
   const { data: secret } = useSuspenseQuery(getSecretQueryOpts({ context }));
+  const { data: userInvites } = useSuspenseQuery(
+    getUserInvitesQueryOpts({ context }),
+  );
   const { data: workspaceUsers } = useSuspenseQuery(
     getWorkspaceUsersQueryOpts({ context }),
   );
@@ -42,7 +49,11 @@ function Page() {
         <WorkspaceGeneral workspace={workspace} perm={perm} />
       )}
       {tab === "users" && (
-        <WorkspaceUsers workspace={workspace} workspaceUsers={workspaceUsers} />
+        <WorkspaceUsers
+          workspace={workspace}
+          workspaceUsers={workspaceUsers}
+          userInvites={userInvites}
+        />
       )}
       {tab === "secret" && (
         <WorkspaceSecret workspace={workspace} secret={secret} />
