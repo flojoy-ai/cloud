@@ -52,3 +52,52 @@ Then you can access the VM by running:
 ```bash
 ssh -i ~/.ssh/flojoy_cloud adminuser@<public_ip_address>
 ```
+
+## 5. Clone the repository
+
+Once you have logged into the VM, you can clone the repository by running:
+
+```bash
+git clone https://github.com/flojoy-ai/cloud.git
+```
+
+## 6. Install Nixpacks
+
+We are using Nixpacks to build the Docker images for deployment.
+
+Before that, we need to make sure Docker and Nixpacks are installed.
+
+The Terraform script has already installed Docker for you. You can verify
+the installation by running:
+
+```bash
+docker --version
+```
+
+(Note: it may take a couple minutes before Docker is actually installed)
+
+You can install Nixpacks by running:
+
+```bash
+curl -sSL https://nixpacks.com/install.sh | bash
+```
+
+[Install Nixpacks](https://nixpacks.com/docs/install)
+
+## 7. Build the Docker images
+
+Let's first make sure Docker is running:
+
+```bash
+sudo systemctl start docker
+
+```
+
+To build `web` and `server`, run these 2 commands respectively on the root of the
+repository:
+
+```bash
+cd cloud
+nixpacks build . --config apps/web/nixpacks.toml --name flojoy-cloud-web
+nixpacks build . --config apps/server/nixpacks.toml --name flojoy-cloud-server
+```
