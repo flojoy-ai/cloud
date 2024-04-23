@@ -1,5 +1,11 @@
 # Deployment
 
+**Note: we are not actually using Terraform, this is just a placeholder for now.**
+
+**The latest Docker images are hosted at [Flojoy's Docker Hub](https://hub.docker.com/repositories/flojoyai)**
+
+---
+
 The following deployment guide is made for deploying the infrastructures to Azure.
 
 ## 1. Setup Terraform and Azure CLI
