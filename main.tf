@@ -128,3 +128,32 @@ resource "azurerm_linux_virtual_machine" "flojoy-cloud-vm" {
     environment = "production"
   }
 }
+
+resource "azurerm_postgresql_server" "flojoy-cloud-postgres-server" {
+  name                         = "flojoy-cloud-postgres-server"
+  resource_group_name          = azurerm_resource_group.flojoy-cloud-rg.name
+  location                     = azurerm_resource_group.flojoy-cloud-rg.location
+  sku_name                     = "B_Gen5_2"
+  storage_mb                   = 5120
+  version                      = 11
+  administrator_login          = "postgresadmin"
+  administrator_login_password = "P@ssw0rd1234"
+  ssl_enforcement_enabled      = true
+
+  tags = {
+    environment = "production"
+  }
+}
+
+resource "azurerm_postgresql_database" "flojoy-cloud-postgres-db" {
+  name                = "flojoy-cloud-postgres-db"
+  resource_group_name = azurerm_resource_group.flojoy-cloud-rg.name
+  server_name         = azurerm_postgresql_server.flojoy-cloud-postgres-server.name
+  charset             = "UTF8"
+  collation           = "English_United States.1252"
+
+  # prevent the possibility of accidental data loss
+  lifecycle {
+    prevent_destroy = true
+  }
+}
