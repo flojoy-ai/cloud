@@ -113,7 +113,7 @@ export function Combobox<T>({
         side={side}
       >
         <Command>
-          {side === "bottom" && avoidCollisions ? (
+          {side === "top" && avoidCollisions ? (
             <>
               {items}
               {input}
