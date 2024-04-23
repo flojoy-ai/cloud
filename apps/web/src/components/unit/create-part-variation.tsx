@@ -356,6 +356,8 @@ const CreatePartVariation = ({
                                 val.description ?? ""
                               }
                               searchText="Search part variation..."
+                              avoidCollisions={true}
+                              side="top"
                             />
                           </FormControl>
                           <FormMessage />

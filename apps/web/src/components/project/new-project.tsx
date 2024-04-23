@@ -48,6 +48,7 @@ import { useMutation } from "@tanstack/react-query";
 import { client } from "@/lib/client";
 import { useWorkspaceUser } from "@/hooks/use-workspace-user";
 import { Info } from "lucide-react";
+import { Combobox } from "../ui/combobox";
 
 type Props = {
   workspace: Workspace;
@@ -172,28 +173,19 @@ export default function NewProjectButton({ workspace, partVariations }: Props) {
                     <FormLabel>Part Variation</FormLabel>
                     <FormControl>
                       {partVariations.length > 0 ? (
-                        <Select
-                          value={field.value}
-                          onValueChange={field.onChange}
-                        >
-                          <SelectTrigger className="w-[200px]">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {partVariations.map((partVariation) => (
-                              <SelectItem
-                                value={partVariation.id}
-                                key={partVariation.id}
-                              >
-                                {partVariation.partNumber}
-                                {/* TODO: display partVariation type */}
-                                {/* <Badge className="ml-2" variant="outline"> */}
-                                {/*   {partVariation.type} */}
-                                {/* </Badge> */}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <div>
+                          <Combobox
+                            options={partVariations}
+                            value={field.value}
+                            setValue={(val) =>
+                              form.setValue("partVariationId", val ?? "")
+                            }
+                            displaySelector={(p) => p.partNumber}
+                            valueSelector={(p) => p.id}
+                            descriptionSelector={(p) => p.description ?? ""}
+                            searchText="Search part variation..."
+                          />
+                        </div>
                       ) : (
                         <div className="text-sm">
                           No part variations found, go{" "}

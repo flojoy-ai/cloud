@@ -43,6 +43,8 @@ import {
   SwapUnitComponent,
   swapUnitComponent,
 } from "@cloud/shared";
+import { Combobox } from "../ui/combobox";
+import { handleError } from "@/lib/utils";
 
 type FormSchema = SwapUnitComponent;
 
@@ -87,7 +89,7 @@ const SwapUnit = ({ workspace, unit }: Props) => {
     toast.promise(swapUnit.mutateAsync(values), {
       loading: "Creating unit revision...",
       success: "Revision created.",
-      error: (err) => `${err}`,
+      error: handleError,
     });
   }
 
@@ -133,18 +135,18 @@ const SwapUnit = ({ workspace, unit }: Props) => {
                 <FormItem>
                   <FormLabel>Old Component</FormLabel>
                   <FormControl>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {unit.components.map((child) => (
-                          <SelectItem value={child.id} key={child.id}>
-                            {child.serialNumber}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div>
+                      <Combobox
+                        options={unit.components}
+                        value={field.value}
+                        setValue={(val) =>
+                          form.setValue("oldUnitComponentId", val ?? "")
+                        }
+                        displaySelector={(val) => val.serialNumber}
+                        valueSelector={(val) => val.id}
+                        searchText="Search unit..."
+                      />
+                    </div>
                   </FormControl>
                   <FormDescription>
                     Which component do you want to take out?
@@ -161,22 +163,19 @@ const SwapUnit = ({ workspace, unit }: Props) => {
                 <FormItem>
                   <FormLabel>New Component</FormLabel>
                   <FormControl>
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      disabled={selectedPartVariation === undefined}
-                    >
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {(swappable ?? []).map((h) => (
-                          <SelectItem value={h.id} key={h.id}>
-                            {h.serialNumber}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div>
+                      <Combobox
+                        options={swappable ?? []}
+                        value={field.value}
+                        setValue={(val) =>
+                          form.setValue("newUnitComponentId", val ?? "")
+                        }
+                        displaySelector={(val) => val.serialNumber}
+                        valueSelector={(val) => val.id}
+                        searchText="Search unit..."
+                        disabled={selectedPartVariation === undefined}
+                      />
+                    </div>
                   </FormControl>
                   <FormDescription>
                     Which component do you want to put in its place?
