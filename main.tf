@@ -80,3 +80,19 @@ resource "azurerm_public_ip" "flojoy_cloud_public_ip" {
   }
 }
 
+resource "azurerm_network_interface" "flojoy_cloud_nic" {
+  name                = "flojoy_cloud_nic"
+  location            = azurerm_resource_group.flojoy_cloud_rg.location
+  resource_group_name = azurerm_resource_group.flojoy_cloud_rg.name
+
+  ip_configuration {
+    name                          = "flojoy_cloud_nic_ip_configuration"
+    subnet_id                     = azurerm_subnet.flojoy_cloud_subnet.id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.flojoy_cloud_public_ip.id
+  }
+
+  tags = {
+    environment = "production"
+  }
+}
