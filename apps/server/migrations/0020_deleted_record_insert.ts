@@ -69,5 +69,6 @@ export async function down(db: Kysely<unknown>): Promise<void> {
       db,
     );
   }
+  await db.schema.dropTable("deleted_record").execute();
   await sql`DROP FUNCTION deleted_record_insert`.execute(db);
 }
