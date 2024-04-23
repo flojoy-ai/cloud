@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - "main"
-      - "joey/azure" # TODO: remove this
 
 jobs:
   build-web:
@@ -20,14 +19,12 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          # TODO: Do not use my personal account
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - run: curl -sSL https://nixpacks.com/install.sh | sudo bash
       - run: nixpacks build . --config apps/web/nixpacks.toml --name flojoy-cloud-web
 
-      # TODO: Do not use my personal account
       - run: docker tag flojoy-cloud-web flojoyai/cloud-web
       - run: docker push flojoyai/cloud-web
 
@@ -44,13 +41,11 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          # TODO: Do not use my personal account
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - run: curl -sSL https://nixpacks.com/install.sh | sudo bash
       - run: nixpacks build . --config apps/server/nixpacks.toml --name flojoy-cloud-server
 
-      # TODO: Do not use my personal account
       - run: docker tag flojoy-cloud-server flojoyai/cloud-server
       - run: docker push flojoyai/cloud-server
