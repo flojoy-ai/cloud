@@ -32,3 +32,11 @@ resource "azurerm_virtual_network" "flojoy_cloud_vnet" {
     environment = "production"
   }
 }
+
+resource "azurerm_subnet" "flojoy_cloud_subnet" {
+  name                 = "flojoy_cloud_subnet"
+  resource_group_name  = azurerm_resource_group.flojoy_cloud_rg.name
+  virtual_network_name = azurerm_virtual_network.flojoy_cloud_vnet.name
+  address_prefixes     = ["10.123.1.0/24"]
+}
+
