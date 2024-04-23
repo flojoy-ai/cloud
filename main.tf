@@ -64,3 +64,8 @@ resource "azurerm_network_security_rule" "flojoy_cloud_nsr" {
   network_security_group_name = azurerm_network_security_group.flojoy_cloud_nsg.name
 }
 
+resource "azurerm_subnet_network_security_group_association" "flojoy_cloud_subnet_nsg_association" {
+  subnet_id                 = azurerm_subnet.flojoy_cloud_subnet.id
+  network_security_group_id = azurerm_network_security_group.flojoy_cloud_nsg.id
+}
+
