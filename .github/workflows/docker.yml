@@ -28,8 +28,8 @@ jobs:
       - run: nixpacks build . --config apps/web/nixpacks.toml --name flojoy-cloud-web
 
       # TODO: Do not use my personal account
-      - run: docker tag flojoy-cloud-web itsjoeoui/flojoy-cloud-web
-      - run: docker push itsjoeoui/flojoy-cloud-web
+      - run: docker tag flojoy-cloud-web flojoyai/cloud-web
+      - run: docker push flojoyai/cloud-web
 
   build-server:
     runs-on: ubuntu-latest
@@ -52,5 +52,5 @@ jobs:
       - run: nixpacks build . --config apps/server/nixpacks.toml --name flojoy-cloud-server
 
       # TODO: Do not use my personal account
-      - run: docker tag flojoy-cloud-server itsjoeoui/flojoy-cloud-server
-      - run: docker push itsjoeoui/flojoy-cloud-server
+      - run: docker tag flojoy-cloud-server flojoyai/cloud-server
+      - run: docker push flojoyai/cloud-server
