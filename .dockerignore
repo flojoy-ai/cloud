@@ -1,0 +1,5 @@
+.turbo
+.vercel
+node_modules
+out
+.git
