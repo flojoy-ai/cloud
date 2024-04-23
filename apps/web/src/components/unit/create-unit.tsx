@@ -123,6 +123,7 @@ const CreateUnit = ({
     const devicePartVariations =
       getComponentPartVariationIds(partVariationTree);
 
+    form.setValue("partVariationId", partVariationId);
     form.setValue(
       "components",
       devicePartVariations.map(() => ({
