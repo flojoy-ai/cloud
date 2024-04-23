@@ -1,14 +1,16 @@
 import {
   DB,
   InsertPartVariation,
+  Part,
   PartVariation,
   PartVariationTreeNode,
   PartVariationTreeRoot,
+  UpdatePartVariation,
 } from "@cloud/shared";
 import { ExpressionBuilder, Kysely } from "kysely";
 import { Result, err, ok, safeTry } from "neverthrow";
 import { markUpdatedAt } from "../db/query";
-import { generateDatabaseId, tryQuery } from "../lib/db-utils";
+import { fromTransaction, generateDatabaseId, tryQuery } from "../lib/db-utils";
 import { db } from "./kysely";
 import { getPart } from "./part";
 import {
@@ -19,6 +21,8 @@ import {
 } from "../lib/error";
 import { PartVariationType } from "@cloud/shared/src/schemas/public/PartVariationType";
 import { jsonObjectFrom } from "kysely/helpers/postgres";
+import { withUnitParent } from "./unit";
+import _ from "lodash";
 
 async function getOrCreateType(
   db: Kysely<DB>,
@@ -87,27 +91,34 @@ async function getOrCreateMarket(
   return ok(insertResult);
 }
 
-export async function createPartVariation(
-  db: Kysely<DB>,
-  input: InsertPartVariation,
-): Promise<Result<PartVariation, RouteError>> {
-  const { components, ...newPartVariation } = input;
-
-  const part = await getPart(db, input.partId);
-  if (!part) {
-    return err(new NotFoundError("Part not found"));
-  }
+function validatePartNumber(part: Part, partNumber: string) {
   const requiredPrefix = part.name + "-";
-  if (!newPartVariation.partNumber.startsWith(requiredPrefix)) {
+  if (!partNumber.startsWith(requiredPrefix)) {
     return err(
       new BadRequestError(
         `Part number must start with "${requiredPrefix}" for part ${part.name}`,
       ),
     );
   }
-  const { type: typeName, market: marketName, ...data } = newPartVariation;
+  return ok(partNumber);
+}
+
+export async function createPartVariation(
+  db: Kysely<DB>,
+  input: InsertPartVariation,
+): Promise<Result<PartVariation, RouteError>> {
+  const { components, type: typeName, market: marketName, ...data } = input;
+
+  const part = await getPart(db, input.partId);
+  if (!part) {
+    return err(new NotFoundError("Part not found"));
+  }
 
   return safeTry(async function* () {
+    const partNumber = yield* validatePartNumber(
+      part,
+      input.partNumber,
+    ).safeUnwrap();
     let typeId: string | undefined = undefined;
     let marketId: string | undefined = undefined;
 
@@ -131,6 +142,7 @@ export async function createPartVariation(
           .values({
             id: generateDatabaseId("part_variation"),
             ...data,
+            partNumber,
             typeId,
             marketId,
           })
@@ -178,6 +190,15 @@ export async function getPartVariationComponents(partVariationId: string) {
     .execute();
 }
 
+export async function getPartVariationUnits(partVariationId: string) {
+  return await db
+    .selectFrom("unit")
+    .selectAll("unit")
+    .where("unit.partVariationId", "=", partVariationId)
+    .select((eb) => withUnitParent(eb))
+    .execute();
+}
+
 type PartVariationEdge = {
   partNumber: string;
   partVariationId: string;
@@ -186,10 +207,11 @@ type PartVariationEdge = {
   description: string | null;
 };
 
-export async function getPartVariationTree(
+async function getPartVariationTreeEdges(
+  db: Kysely<DB>,
   partVariation: PartVariation,
-): Promise<PartVariationTreeRoot> {
-  const edges = await db
+) {
+  return await db
     .withRecursive("part_variation_tree", (qb) =>
       qb
         .selectFrom("part_variation_relation as mr")
@@ -231,7 +253,13 @@ export async function getPartVariationTree(
     .selectFrom("part_variation_tree")
     .selectAll()
     .execute();
+}
 
+export async function getPartVariationTree(
+  db: Kysely<DB>,
+  partVariation: PartVariation,
+): Promise<PartVariationTreeRoot> {
+  const edges = await getPartVariationTreeEdges(db, partVariation);
   return buildPartVariationTree(partVariation, edges);
 }
 
@@ -264,6 +292,152 @@ function buildPartVariationTree(
   }
 
   return root;
+}
+
+async function getPartVariationImmediateChildren(
+  db: Kysely<DB>,
+  partVariationId: string,
+) {
+  return await db
+    .selectFrom("part_variation_relation as mr")
+    .innerJoin("part_variation", "mr.childPartVariationId", "part_variation.id")
+    .select([
+      "parentPartVariationId",
+      "count",
+      "childPartVariationId as partVariationId",
+      "part_variation.partNumber",
+      "part_variation.description",
+    ])
+    .where("parentPartVariationId", "=", partVariationId)
+    .execute();
+}
+
+async function haveComponentsChanged(
+  db: Kysely<DB>,
+  partVariationId: string,
+  components: { partVariationId: string; count: number }[],
+) {
+  const curComponents = await getPartVariationImmediateChildren(
+    db,
+    partVariationId,
+  );
+  const makeObject = (cs: typeof components) => {
+    return Object.fromEntries(cs.map((c) => [c.partVariationId, c.count]));
+  };
+
+  const before = makeObject(curComponents);
+  const after = makeObject(components);
+
+  return _.isEqual(before, after);
+}
+
+export async function updatePartVariation(
+  db: Kysely<DB>,
+  partVariationId: string,
+  workspaceId: string,
+  update: UpdatePartVariation,
+) {
+  const { components, type: typeName, market: marketName, ...data } = update;
+
+  const partVariation = await getPartVariation(partVariationId);
+  if (partVariation === undefined)
+    return err(new NotFoundError("Part variation not found"));
+
+  const part = await getPart(db, partVariation.partId);
+  if (part === undefined) return err(new NotFoundError("Part not found"));
+
+  const existingUnits = await getPartVariationUnits(partVariationId);
+  const componentsChanged = await haveComponentsChanged(
+    db,
+    partVariationId,
+    components,
+  );
+
+  // Don't allow users to change part structure if there are existing units
+  if (componentsChanged && existingUnits.length > 0) {
+    return err(
+      new BadRequestError(
+        "Cannot change part variation components because there are existing units",
+      ),
+    );
+  }
+
+  return fromTransaction(async (tx) => {
+    return safeTry(async function* () {
+      const partNumber = yield* validatePartNumber(
+        part,
+        data.partNumber,
+      ).safeUnwrap();
+      let typeId: string | null = null;
+      let marketId: string | null = null;
+
+      if (typeName) {
+        const type = yield* (
+          await getOrCreateType(tx, typeName, workspaceId)
+        ).safeUnwrap();
+        typeId = type.id;
+      }
+      if (marketName) {
+        const market = yield* (
+          await getOrCreateMarket(tx, marketName, workspaceId)
+        ).safeUnwrap();
+        marketId = market.id;
+      }
+
+      const partVariation = yield* (
+        await tryQuery(
+          tx
+            .updateTable("part_variation")
+            .set({
+              ...data,
+              partNumber,
+              typeId,
+              marketId,
+            })
+            .where("id", "=", partVariationId)
+            .returningAll()
+            .executeTakeFirstOrThrow(
+              () => new InternalServerError("Failed to create part variation"),
+            ),
+        )
+      ).safeUnwrap();
+
+      if (!componentsChanged) {
+        return ok(undefined);
+      }
+
+      // Rebuild this level of the component tree
+      await tx
+        .deleteFrom("part_variation_relation")
+        .where("parentPartVariationId", "=", partVariationId)
+        .execute();
+
+      if (components.length > 0) {
+        await tx
+          .insertInto("part_variation_relation")
+          .values(
+            components.map((c) => ({
+              parentPartVariationId: partVariation.id,
+              childPartVariationId: c.partVariationId,
+              workspaceId,
+              count: c.count,
+            })),
+          )
+          .execute();
+
+        // It's actually easy to detect cycles because we know that
+        // the graph must be connected.
+        // It will be a valid tree if it has exactly n-1 edges.
+        // Any extra edge will form a cycle.
+        // So we can just count the number of vertices and check the edge count.
+        // const vertices = new Set<string>();
+        // const edges = await getPartVariationTreeEdges(tx, partVariation);
+        // for (const [
+      }
+
+      return ok(undefined);
+    });
+  });
 }
 
 export function withPartVariationType(

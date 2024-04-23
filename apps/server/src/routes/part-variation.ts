@@ -3,11 +3,12 @@ import Elysia, { t } from "elysia";
 import { db } from "../db/kysely";
 import {
   createPartVariation,
+  getPartVariation,
   getPartVariationTree,
+  getPartVariationUnits,
   withPartVariationMarket,
   withPartVariationType,
 } from "../db/part-variation";
-import { withUnitParent } from "../db/unit";
 import { checkWorkspacePerm } from "../lib/perm/workspace";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
 import { fromTransaction } from "../lib/db-utils";
@@ -86,7 +87,7 @@ export const PartVariationRoute = new Elysia({
             return error(404, "PartVariation not found");
           }
 
-          return await getPartVariationTree(partVariation);
+          return await getPartVariationTree(db, partVariation);
         },
         {
           params: t.Object({ partVariationId: t.String() }),
@@ -102,11 +103,14 @@ export const PartVariationRoute = new Elysia({
       )
       .patch(
         "/",
-        async ({ workspace, params: { partVariationId }, error }) => {
-          return 0;
+        async ({ params: { partVariationId }, error }) => {
+          const partVariation = await getPartVariation(partVariationId);
+          if (partVariation === undefined)
+            return error(404, "Part variation not found");
         },
         {
-          params: t.Object({}),
+          params: t.Object({ partVariationId: t.String() }),
+          body: t.Object({}),
 
           async beforeHandle({ workspaceUser, error }) {
             const perm = await checkWorkspacePerm({ workspaceUser });
@@ -119,16 +123,8 @@ export const PartVariationRoute = new Elysia({
       )
       .get(
         "/unit",
-        async ({ workspace, params: { partVariationId } }) => {
-          const partVariations = await db
-            .selectFrom("unit")
-            .selectAll("unit")
-            .where("unit.workspaceId", "=", workspace.id)
-            .where("unit.partVariationId", "=", partVariationId)
-            .select((eb) => withUnitParent(eb))
-            .execute();
-
-          return partVariations;
+        async ({ params: { partVariationId } }) => {
+          return await getPartVariationUnits(partVariationId);
         },
         {
           params: t.Object({ partVariationId: t.String() }),
