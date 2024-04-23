@@ -69,3 +69,14 @@ resource "azurerm_subnet_network_security_group_association" "flojoy_cloud_subne
   network_security_group_id = azurerm_network_security_group.flojoy_cloud_nsg.id
 }
 
+resource "azurerm_public_ip" "flojoy_cloud_public_ip" {
+  name                = "flojoy_cloud_public_ip"
+  location            = azurerm_resource_group.flojoy_cloud_rg.location
+  resource_group_name = azurerm_resource_group.flojoy_cloud_rg.name
+  allocation_method   = "Dynamic"
+
+  tags = {
+    environment = "production"
+  }
+}
+
