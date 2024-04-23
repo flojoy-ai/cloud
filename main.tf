@@ -40,3 +40,13 @@ resource "azurerm_subnet" "flojoy_cloud_subnet" {
   address_prefixes     = ["10.123.1.0/24"]
 }
 
+resource "azurerm_network_security_group" "flojoy_cloud_nsg" {
+  name                = "flojoy_cloud_nsg"
+  resource_group_name = azurerm_resource_group.flojoy_cloud_rg.name
+  location            = azurerm_resource_group.flojoy_cloud_rg.location
+
+  tags = {
+    environment = "production"
+  }
+}
+
