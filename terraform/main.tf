@@ -15,7 +15,7 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "flojoy-cloud-rg" {
-  name     = "flojou-cloud-rg"
+  name     = "flojoy-cloud-rg"
   location = "canadacentral"
   tags = {
     environment = "production"
