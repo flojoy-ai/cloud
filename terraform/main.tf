@@ -154,6 +154,6 @@ resource "azurerm_postgresql_database" "flojoy-cloud-postgres-db" {
 
   # prevent the possibility of accidental data loss
   lifecycle {
-    prevent_destroy = true
+    # prevent_destroy = true
   }
 }
