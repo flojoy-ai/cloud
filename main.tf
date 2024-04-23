@@ -50,3 +50,17 @@ resource "azurerm_network_security_group" "flojoy_cloud_nsg" {
   }
 }
 
+resource "azurerm_network_security_rule" "flojoy_cloud_nsr" {
+  name                        = "flojoy_cloud_nsr"
+  priority                    = 100
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "*"
+  source_address_prefix       = "*"
+  destination_address_prefix  = "*"
+  resource_group_name         = azurerm_resource_group.flojoy_cloud_rg.name
+  network_security_group_name = azurerm_network_security_group.flojoy_cloud_nsg.name
+}
+
