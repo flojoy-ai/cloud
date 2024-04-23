@@ -1,6 +1,6 @@
-import { toast } from "sonner";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { toast } from "sonner";
 
 import {
   Form,
@@ -24,27 +24,20 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Edit } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-import { typeboxResolver } from "@hookform/resolvers/typebox";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { client } from "@/lib/client";
 import { getUnitQueryKey, getUnitsQueryOpts } from "@/lib/queries/unit";
+import { handleError } from "@/lib/utils";
 import {
-  Workspace,
-  UnitTreeRoot,
   SwapUnitComponent,
+  UnitTreeRoot,
+  Workspace,
   swapUnitComponent,
 } from "@cloud/shared";
+import { typeboxResolver } from "@hookform/resolvers/typebox";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Edit } from "lucide-react";
 import { Combobox } from "../ui/combobox";
-import { handleError } from "@/lib/utils";
 
 type FormSchema = SwapUnitComponent;
 

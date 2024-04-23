@@ -1,4 +1,4 @@
-import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
@@ -6,7 +6,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 import {
   Form,
@@ -32,21 +32,14 @@ import {
 } from "@/components/ui/dialog";
 
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
 import { handleError } from "@/lib/utils";
 
-import { Workspace, CreateProjectSchema, PartVariation } from "@cloud/shared";
-import { typeboxResolver } from "@hookform/resolvers/typebox";
-import { Link, useRouter } from "@tanstack/react-router";
-import { useMutation } from "@tanstack/react-query";
-import { client } from "@/lib/client";
 import { useWorkspaceUser } from "@/hooks/use-workspace-user";
+import { client } from "@/lib/client";
+import { CreateProjectSchema, PartVariation, Workspace } from "@cloud/shared";
+import { typeboxResolver } from "@hookform/resolvers/typebox";
+import { useMutation } from "@tanstack/react-query";
+import { Link, useRouter } from "@tanstack/react-router";
 import { Info } from "lucide-react";
 import { Combobox } from "../ui/combobox";
 
