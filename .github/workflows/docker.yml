@@ -20,12 +20,16 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
+          # TODO: Do not use my personal account
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - run: ls
       - run: curl -sSL https://nixpacks.com/install.sh | sudo bash
       - run: nixpacks build . --config apps/web/nixpacks.toml --name flojoy-cloud-web
+
+      # TODO: Do not use my personal account
+      - run: docker tag flojoy-cloud-web itsjoeoui/flojoy-cloud-web
+      - run: docker push itsjoeoui/flojoy-cloud-web
 
   build-server:
     runs-on: ubuntu-latest
@@ -40,9 +44,13 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
+          # TODO: Do not use my personal account
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - run: ls
       - run: curl -sSL https://nixpacks.com/install.sh | sudo bash
       - run: nixpacks build . --config apps/server/nixpacks.toml --name flojoy-cloud-server
+
+      # TODO: Do not use my personal account
+      - run: docker tag flojoy-cloud-web itsjoeoui/flojoy-cloud-server
+      - run: docker push itsjoeoui/flojoy-cloud-server
