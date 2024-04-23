@@ -20,6 +20,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - run: ls
       - run: curl -sSL https://nixpacks.com/install.sh | sudo bash
       - run: nixpacks build . --config apps/web/nixpacks.toml --name flojoy-cloud-web
 
