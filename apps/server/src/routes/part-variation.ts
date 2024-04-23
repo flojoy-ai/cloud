@@ -100,6 +100,23 @@ export const PartVariationRoute = new Elysia({
           },
         },
       )
+      .patch(
+        "/",
+        async ({ workspace, params: { partVariationId }, error }) => {
+          return 0;
+        },
+        {
+          params: t.Object({}),
+
+          async beforeHandle({ workspaceUser, error }) {
+            const perm = await checkWorkspacePerm({ workspaceUser });
+            return perm.match(
+              (perm) => (perm.canRead() ? undefined : error("Forbidden")),
+              (err) => error(403, err),
+            );
+          },
+        },
+      )
       .get(
         "/unit",
         async ({ workspace, params: { partVariationId } }) => {
