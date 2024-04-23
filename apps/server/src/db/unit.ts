@@ -1,4 +1,4 @@
-import { generateDatabaseId } from "../lib/db-utils";
+import { fromTransaction, generateDatabaseId, tryQuery } from "../lib/db-utils";
 import {
   BadRequestError,
   DuplicateError,
@@ -20,16 +20,17 @@ import { ExpressionBuilder, Kysely } from "kysely";
 import { jsonObjectFrom } from "kysely/helpers/postgres";
 import _ from "lodash";
 import { User } from "lucia";
-import { fromPromise } from "neverthrow";
+import { Result, err, fromPromise, ok, safeTry } from "neverthrow";
 import { db } from "./kysely";
 import { getPartVariation, getPartVariationComponents } from "./part-variation";
 import { markUpdatedAt } from "./query";
 
-export async function getUnit(id: string) {
+export async function getUnit(unitId: string, workspaceId: string) {
   return await db
     .selectFrom("unit")
     .selectAll()
-    .where("unit.id", "=", id)
+    .where("unit.id", "=", unitId)
+    .where("workspaceId", "=", workspaceId)
     .executeTakeFirst();
 }
 
@@ -165,78 +166,89 @@ export async function doUnitComponentSwap(
   unit: Unit,
   user: WorkspaceUser,
   input: SwapUnitComponent,
-) {
+): Promise<Result<void, RouteError>> {
   const unitComponents = await getUnitComponentsWithPartVariation(unit.id);
 
-  return fromPromise(
-    db.transaction().execute(async (tx) => {
-      const oldUnitComponent = await tx
-        .selectFrom("unit")
-        .selectAll()
-        .where("unit.id", "=", input.oldUnitComponentId)
-        .where("unit.workspaceId", "=", user.workspaceId)
-        .executeTakeFirstOrThrow(
-          () => new NotFoundError("Old component not found"),
-        );
+  return fromTransaction(async (tx) => {
+    return safeTry(async function* () {
+      const oldUnitComponent = await getUnit(
+        input.oldUnitComponentId,
+        user.workspaceId,
+      );
+      if (oldUnitComponent === undefined)
+        return err(new NotFoundError("Old component not found"));
 
-      const newUnitComponent = await tx
-        .selectFrom("unit")
-        .selectAll()
-        .where("unit.id", "=", input.newUnitComponentId)
-        .where("unit.workspaceId", "=", user.workspaceId)
-        .executeTakeFirstOrThrow(
-          () => new NotFoundError("New component not found"),
-        );
+      const newUnitComponent = await getUnit(
+        input.newUnitComponentId,
+        user.workspaceId,
+      );
+      if (newUnitComponent === undefined)
+        return err(new NotFoundError("New component not found"));
 
       if (
         oldUnitComponent.partVariationId !== newUnitComponent.partVariationId
       ) {
-        throw new BadRequestError("PartVariation mismatch");
+        return err(new BadRequestError("PartVariation mismatch"));
       }
 
       if (
         !unitComponents.some((hc) => hc.unitId === input.oldUnitComponentId)
       ) {
-        throw new BadRequestError("Old component is not a part of the unit");
+        return err(
+          new BadRequestError("Old component is not a part of the unit"),
+        );
       }
 
-      await tx
-        .deleteFrom("unit_relation as hr")
-        .where("hr.parentUnitId", "=", unit.id)
-        .where("hr.childUnitId", "=", input.oldUnitComponentId)
-        .execute();
+      yield* (
+        await tryQuery(
+          tx
+            .deleteFrom("unit_relation as hr")
+            .where("hr.parentUnitId", "=", unit.id)
+            .where("hr.childUnitId", "=", input.oldUnitComponentId)
+            .execute(),
+        )
+      ).safeUnwrap();
 
-      await tx
-        .insertInto("unit_relation")
-        .values({
-          parentUnitId: unit.id,
-          childUnitId: input.newUnitComponentId,
-          workspaceId: unit.workspaceId,
-        })
-        .execute();
+      yield* (
+        await tryQuery(
+          tx
+            .insertInto("unit_relation")
+            .values({
+              parentUnitId: unit.id,
+              childUnitId: input.newUnitComponentId,
+              workspaceId: unit.workspaceId,
+            })
+            .execute(),
+        )
+      ).safeUnwrap();
 
-      await tx
-        .insertInto("unit_revision")
-        .values([
-          {
-            revisionType: "remove",
-            userId: user.userId,
-            unitId: unit.id,
-            componentId: input.oldUnitComponentId,
-            reason: input.reason ?? "Component swap",
-          },
-          {
-            revisionType: "add",
-            userId: user.userId,
-            unitId: unit.id,
-            componentId: input.newUnitComponentId,
-            reason: input.reason ?? "Component swap",
-          },
-        ])
-        .execute();
-    }),
-    (e) => e as RouteError,
-  );
+      yield* (
+        await tryQuery(
+          tx
+            .insertInto("unit_revision")
+            .values([
+              {
+                revisionType: "remove",
+                userId: user.userId,
+                unitId: unit.id,
+                componentId: input.oldUnitComponentId,
+                reason: input.reason ?? "Component swap",
+              },
+              {
+                revisionType: "add",
+                userId: user.userId,
+                unitId: unit.id,
+                componentId: input.newUnitComponentId,
+                reason: input.reason ?? "Component swap",
+              },
+            ])
+            .execute(),
+        )
+      ).safeUnwrap();
+
+      return ok(undefined);
+    });
+  });
 }
 
 export const notInUse = ({
