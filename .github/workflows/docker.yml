@@ -52,5 +52,5 @@ jobs:
       - run: nixpacks build . --config apps/server/nixpacks.toml --name flojoy-cloud-server
 
       # TODO: Do not use my personal account
-      - run: docker tag flojoy-cloud-web itsjoeoui/flojoy-cloud-server
+      - run: docker tag flojoy-cloud-server itsjoeoui/flojoy-cloud-server
       - run: docker push itsjoeoui/flojoy-cloud-server
