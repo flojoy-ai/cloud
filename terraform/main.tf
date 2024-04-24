@@ -158,8 +158,8 @@ resource "azurerm_postgresql_database" "flojoy-cloud-postgres-db" {
   }
 }
 
-resource "azurerm_container_group" "flojoy-cloud-web-container-group" {
-  name                = "flojoy-cloud-web-container-group"
+resource "azurerm_container_group" "flojoy-cloud-container-group" {
+  name                = "flojoy-cloud-container-group"
   location            = azurerm_resource_group.flojoy-cloud-rg.location
   resource_group_name = azurerm_resource_group.flojoy-cloud-rg.name
   ip_address_type     = "Public"
@@ -176,16 +176,12 @@ resource "azurerm_container_group" "flojoy-cloud-web-container-group" {
       port     = 5173
       protocol = "TCP"
     }
-  }
-}
 
-resource "azurerm_container_group" "flojoy-cloud-server-container-group" {
-  name                = "flojoy-cloud-server-container-group"
-  location            = azurerm_resource_group.flojoy-cloud-rg.location
-  resource_group_name = azurerm_resource_group.flojoy-cloud-rg.name
-  ip_address_type     = "Public"
-  os_type             = "Linux"
-  restart_policy      = "Always"
+    environment_variables = {
+      PORT            = 5173
+      VITE_SERVER_URL = "http://localhost:3000"
+    }
+  }
 
   container {
     name   = "flojoy-cloud-server-container"
@@ -199,3 +195,4 @@ resource "azurerm_container_group" "flojoy-cloud-server-container-group" {
     }
   }
 }
+
