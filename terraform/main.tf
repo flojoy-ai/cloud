@@ -169,8 +169,8 @@ resource "azurerm_container_group" "flojoy-cloud-web-container-group" {
   container {
     name   = "flojoy-cloud-web-container"
     image  = "flojoyai/cloud-web:latest"
-    cpu    = 8
-    memory = 8
+    cpu    = 1
+    memory = 2
 
     ports {
       port     = 5173
@@ -190,8 +190,8 @@ resource "azurerm_container_group" "flojoy-cloud-server-container-group" {
   container {
     name   = "flojoy-cloud-server-container"
     image  = "flojoyai/cloud-server:latest"
-    cpu    = 8
-    memory = 8
+    cpu    = 1
+    memory = 2
 
     ports {
       port     = 3000
