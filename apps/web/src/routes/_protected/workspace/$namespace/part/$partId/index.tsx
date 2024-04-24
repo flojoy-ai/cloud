@@ -28,6 +28,9 @@ import { Separator } from "@/components/ui/separator";
 import CreatePartVariation, {
   CreatePartVariationDefaultValues,
 } from "@/components/unit/create-part-variation";
+import EditPartVariation, {
+  EditPartVariationDefaultValues,
+} from "@/components/unit/edit-part-variation";
 import { PartVariationTreeVisualization } from "@/components/visualization/tree-visualization";
 import { useWorkspaceUser } from "@/hooks/use-workspace-user";
 import { client } from "@/lib/client";
@@ -52,7 +55,7 @@ import {
 } from "@tanstack/react-query";
 import { Link, createFileRoute, useRouter } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowRight, MoreHorizontal, Plus } from "lucide-react";
+import { ArrowRight, MoreHorizontal, Pencil, Plus } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -81,13 +84,14 @@ export const Route = createFileRoute(
 
 const partVariationColumns: (
   openCreateDialog: (variant: PartVariation) => Promise<void>,
+  openEditDialog: (variant: PartVariation) => Promise<void>,
 ) => ColumnDef<
   PartVariation & {
     unitCount: number;
     market?: PartVariationMarket | null;
     type?: PartVariationType | null;
   }
->[] = (openCreateDialog: (variant: PartVariation) => Promise<void>) => [
+>[] = (openCreateDialog, openEditDialog) => [
   {
     accessorKey: "name",
     header: "Part Number",
@@ -156,6 +160,16 @@ const partVariationColumns: (
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
+                openEditDialog(partVariant);
+              }}
+            >
+              <div className="flex gap-x-2">
+                <Pencil size={20} className="stroke-muted-foreground" />
+                <div>Edit</div>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
                 openCreateDialog(partVariant);
               }}
             >
@@ -213,6 +227,7 @@ function PartPage() {
   const { partId } = Route.useParams();
 
   const [createOpen, setCreateOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
 
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -257,8 +272,15 @@ function PartPage() {
     enabled: selectedPartVariationId !== undefined,
   });
 
-  const [defaultValues, setDefaultValues] = useState<
+  const [createDefaultValues, setCreateDefaultValues] = useState<
     CreatePartVariationDefaultValues | undefined
+  >();
+
+  const [editingPartVariationId, setEditingPartVariationId] = useState<
+    string | undefined
+  >();
+  const [editDefaultValues, setEditDefaultValues] = useState<
+    EditPartVariationDefaultValues | undefined
   >();
 
   const openCreateDialog = useCallback(
@@ -270,8 +292,10 @@ function PartPage() {
             context: { workspace },
           }),
         );
-        setDefaultValues({
+        setCreateDefaultValues({
           partNumber: removePrefix(tree.partNumber, part.name + "-"),
+          type: tree.type?.name,
+          market: tree.market?.name,
           hasComponents: tree.components.length > 0,
           components: tree.components.map((c) => ({
             count: c.count,
@@ -280,7 +304,7 @@ function PartPage() {
           description: tree.description ?? undefined,
         });
       } else {
-        setDefaultValues(undefined);
+        setCreateDefaultValues(undefined);
       }
 
       setCreateOpen(true);
@@ -288,9 +312,35 @@ function PartPage() {
     [queryClient, workspace, part.name],
   );
 
+  const openEditDialog = useCallback(
+    async (variant: PartVariation) => {
+      const tree = await queryClient.ensureQueryData(
+        getPartVariationQueryOpts({
+          partVariationId: variant.id,
+          context: { workspace },
+        }),
+      );
+      setEditingPartVariationId(variant.id);
+      setEditDefaultValues({
+        partNumber: removePrefix(tree.partNumber, part.name + "-"),
+        type: tree.type?.name,
+        market: tree.market?.name,
+        hasComponents: tree.components.length > 0,
+        components: tree.components.map((c) => ({
+          count: c.count,
+          partVariationId: c.partVariation.id,
+        })),
+        description: tree.description ?? undefined,
+      });
+
+      setEditOpen(true);
+    },
+    [queryClient, workspace, part.name],
+  );
+
   const columns = useMemo(
-    () => partVariationColumns(openCreateDialog),
-    [openCreateDialog],
+    () => partVariationColumns(openCreateDialog, openEditDialog),
+    [openCreateDialog, openEditDialog],
   );
 
   return (
@@ -345,13 +395,31 @@ function PartPage() {
             open={createOpen}
             setOpen={setCreateOpen}
             openDialog={openCreateDialog}
-            defaultValues={defaultValues}
-            setDefaultValues={setDefaultValues}
+            defaultValues={createDefaultValues}
+            setDefaultValues={setCreateDefaultValues}
             partVariationTypes={partVariationTypes}
             partVariationMarkets={partVariationMarkets}
           />
         </>
       )}
+      {workspaceUserPerm.canWrite() &&
+        editDefaultValues &&
+        editingPartVariationId && (
+          <>
+            <div className="py-2" />
+            <EditPartVariation
+              workspaceId={workspace.id}
+              partVariationId={editingPartVariationId}
+              partVariations={allPartVariations}
+              part={part}
+              open={editOpen}
+              setOpen={setEditOpen}
+              defaultValues={editDefaultValues}
+              partVariationTypes={partVariationTypes}
+              partVariationMarkets={partVariationMarkets}
+            />
+          </>
+        )}
       <div className="py-2" />
       <h1 className="text-xl font-bold">Part Variations</h1>
       <div className="py-2" />

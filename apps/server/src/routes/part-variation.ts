@@ -74,14 +74,10 @@ export const PartVariationRoute = new Elysia({
       .get(
         "/",
         async ({ workspace, params: { partVariationId }, error }) => {
-          const partVariation = await db
-            .selectFrom("part_variation")
-            .selectAll("part_variation")
-            .where("part_variation.id", "=", partVariationId)
-            .where("part_variation.workspaceId", "=", workspace.id)
-            .select((eb) => [withPartVariationType(eb)])
-            .select((eb) => [withPartVariationMarket(eb)])
-            .executeTakeFirst();
+          const partVariation = await getPartVariation(
+            workspace.id,
+            partVariationId,
+          );
 
           if (partVariation === undefined) {
             return error(404, "PartVariation not found");
@@ -103,8 +99,11 @@ export const PartVariationRoute = new Elysia({
       )
       .patch(
         "/",
-        async ({ params: { partVariationId }, error }) => {
-          const partVariation = await getPartVariation(partVariationId);
+        async ({ workspace, params: { partVariationId }, error }) => {
+          const partVariation = await getPartVariation(
+            workspace.id,
+            partVariationId,
+          );
           if (partVariation === undefined)
             return error(404, "Part variation not found");
         },

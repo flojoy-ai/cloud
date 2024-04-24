@@ -1,7 +1,13 @@
 import { t, Static } from "elysia";
 
-import { PartVariation } from "../schemas/public/PartVariation";
-export type { PartVariation };
+import { PartVariation as SchemaPartVariation } from "../schemas/public/PartVariation";
+import { PartVariationMarket } from "../schemas/public/PartVariationMarket";
+import { PartVariationType } from "../schemas/public/PartVariationType";
+
+export type PartVariation = SchemaPartVariation & {
+  type?: PartVariationType | null;
+  market?: PartVariationMarket | null;
+};
 
 export const partVariationComponent = t.Object({
   partVariationId: t.String(),

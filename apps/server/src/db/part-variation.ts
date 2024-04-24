@@ -7,7 +7,7 @@ import {
   PartVariationTreeRoot,
   UpdatePartVariation,
 } from "@cloud/shared";
-import { ExpressionBuilder, Kysely } from "kysely";
+import { ExpressionBuilder, Kysely, sql } from "kysely";
 import { Result, err, ok, safeTry } from "neverthrow";
 import { markUpdatedAt } from "../db/query";
 import { fromTransaction, generateDatabaseId, tryQuery } from "../lib/db-utils";
@@ -173,12 +173,17 @@ export async function createPartVariation(
   });
 }
 
-export async function getPartVariation(partVariationId: string) {
+export async function getPartVariation(
+  workspaceId: string,
+  partVariationId: string,
+) {
   return await db
     .selectFrom("part_variation")
-    .selectAll()
+    .selectAll("part_variation")
     .where("part_variation.id", "=", partVariationId)
-
+    .where("part_variation.workspaceId", "=", workspaceId)
+    .select((eb) => [withPartVariationType(eb)])
+    .select((eb) => [withPartVariationMarket(eb)])
     .executeTakeFirst();
 }
 
@@ -205,6 +210,7 @@ type PartVariationEdge = {
   parentPartVariationId: string;
   count: number;
   description: string | null;
+  depth: number;
 };
 
 async function getPartVariationTreeEdges(
@@ -226,6 +232,7 @@ async function getPartVariationTreeEdges(
           "childPartVariationId as partVariationId",
           "part_variation.partNumber",
           "part_variation.description",
+          sql<number>`1`.as("depth"),
         ])
         .where("parentPartVariationId", "=", partVariation.id)
         .unionAll((eb) =>
@@ -247,11 +254,13 @@ async function getPartVariationTreeEdges(
               "mr.childPartVariationId as partVariationId",
               "part_variation.partNumber",
               "part_variation.description",
+              sql<number>`depth + 1`.as("depth"),
             ]),
         ),
     )
     .selectFrom("part_variation_tree")
     .selectAll()
+    .distinctOn(["parentPartVariationId", "partVariationId"])
     .execute();
 }
 
@@ -260,7 +269,10 @@ export async function getPartVariationTree(
   partVariation: PartVariation,
 ): Promise<PartVariationTreeRoot> {
   const edges = await getPartVariationTreeEdges(db, partVariation);
-  return buildPartVariationTree(partVariation, edges);
+  return buildPartVariationTree(
+    partVariation,
+    _.sortBy(edges, (e) => e.depth),
+  );
 }
 
 function buildPartVariationTree(
@@ -268,7 +280,10 @@ function buildPartVariationTree(
   edges: PartVariationEdge[],
 ) {
   const nodes = new Map<string, PartVariationTreeNode>();
-  const root: PartVariationTreeRoot = { ...rootPartVariation, components: [] };
+  const root: PartVariationTreeRoot = {
+    ...rootPartVariation,
+    components: [],
+  };
 
   for (const edge of edges) {
     const parent = nodes.get(edge.parentPartVariationId) ?? root;
@@ -331,6 +346,34 @@ async function haveComponentsChanged(
   return _.isEqual(before, after);
 }
 
+// Returns an error with the node of the cycle if one is detected, otherwise ok
+function detectCycle(graph: PartVariationTreeRoot) {
+  const dfs = (
+    node: PartVariationTreeNode,
+    pathVertices: Set<string>,
+  ): Result<void, { id: string; partNumber: string }> => {
+    if (pathVertices.has(node.id)) {
+      return err({ id: node.id, partNumber: node.partNumber });
+    }
+    if (node.components.length === 0) {
+      return ok(undefined);
+    }
+
+    pathVertices.add(node.id);
+    for (const c of node.components) {
+      const res = dfs(c.partVariation, pathVertices);
+      if (res.isErr()) {
+        return res;
+      }
+    }
+    pathVertices.delete(node.id);
+
+    return ok(undefined);
+  };
+
+  return dfs(graph, new Set());
+}
+
 export async function updatePartVariation(
   db: Kysely<DB>,
   partVariationId: string,
@@ -339,7 +382,7 @@ export async function updatePartVariation(
 ) {
   const { components, type: typeName, market: marketName, ...data } = update;
 
-  const partVariation = await getPartVariation(partVariationId);
+  const partVariation = await getPartVariation(workspaceId, partVariationId);
   if (partVariation === undefined)
     return err(new NotFoundError("Part variation not found"));
 
@@ -384,7 +427,7 @@ export async function updatePartVariation(
         marketId = market.id;
       }
 
-      const partVariation = yield* (
+      yield* (
         await tryQuery(
           tx
             .updateTable("part_variation")
@@ -395,12 +438,19 @@ export async function updatePartVariation(
               marketId,
             })
             .where("id", "=", partVariationId)
-            .returningAll()
             .executeTakeFirstOrThrow(
               () => new InternalServerError("Failed to create part variation"),
             ),
         )
       ).safeUnwrap();
+
+      const updatedPartVariation = await getPartVariation(
+        workspaceId,
+        partVariationId,
+      );
+      if (updatedPartVariation === undefined) {
+        return err(new InternalServerError("Failed to update part variation"));
+      }
 
       if (!componentsChanged) {
         return ok(undefined);
@@ -417,7 +467,7 @@ export async function updatePartVariation(
           .insertInto("part_variation_relation")
           .values(
             components.map((c) => ({
-              parentPartVariationId: partVariation.id,
+              parentPartVariationId: updatedPartVariation.id,
               childPartVariationId: c.partVariationId,
               workspaceId,
               count: c.count,
@@ -425,14 +475,15 @@ export async function updatePartVariation(
           )
           .execute();
 
-        // It's actually easy to detect cycles because we know that
-        // the graph must be connected.
-        // It will be a valid tree if it has exactly n-1 edges.
-        // Any extra edge will form a cycle.
-        // So we can just count the number of vertices and check the edge count.
-        // const vertices = new Set<string>();
-        // const edges = await getPartVariationTreeEdges(tx, partVariation);
-        // for (const [
+        const graph = await getPartVariationTree(tx, updatedPartVariation);
+        const cycleRes = detectCycle(graph);
+        if (cycleRes.isErr()) {
+          return err(
+            new BadRequestError(
+              `Cycle detected in component graph at: ${cycleRes.error.partNumber}, not allowed`,
+            ),
+          );
+        }
       }
 
       return ok(undefined);
