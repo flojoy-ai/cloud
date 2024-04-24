@@ -84,16 +84,17 @@ export const Route = createFileRoute(
   },
 });
 
-const partVariationColumns: (
-  openCreateDialog: (variant: PartVariation) => Promise<void>,
-  openEditDialog: (variant: PartVariation) => Promise<void>,
-) => ColumnDef<
+const partVariationColumns: (props: {
+  openCreateDialog: (variant: PartVariation) => Promise<void>;
+  openEditDialog: (variant: PartVariation) => Promise<void>;
+  canWrite: boolean;
+}) => ColumnDef<
   PartVariation & {
     unitCount: number;
     market?: PartVariationMarket | null;
     type?: PartVariationType | null;
   }
->[] = (openCreateDialog, openEditDialog) => [
+>[] = ({ openCreateDialog, openEditDialog, canWrite }) => [
   {
     accessorKey: "name",
     header: "Part Number",
@@ -156,6 +157,7 @@ const partVariationColumns: (
                   success: "Copied ID to clipboard.",
                 })
               }
+              disabled={!canWrite}
             >
               Copy ID
             </DropdownMenuItem>
@@ -174,6 +176,7 @@ const partVariationColumns: (
               onClick={() => {
                 openCreateDialog(partVariant);
               }}
+              disabled={!canWrite}
             >
               <div className="flex gap-x-2">
                 <Plus size={20} className="stroke-muted-foreground" />
@@ -326,8 +329,13 @@ function PartPage() {
   );
 
   const columns = useMemo(
-    () => partVariationColumns(openCreateDialog, openEditDialog),
-    [openCreateDialog, openEditDialog],
+    () =>
+      partVariationColumns({
+        openCreateDialog,
+        openEditDialog,
+        canWrite: workspaceUserPerm.canWrite(),
+      }),
+    [openCreateDialog, openEditDialog, workspaceUserPerm],
   );
 
   return (
