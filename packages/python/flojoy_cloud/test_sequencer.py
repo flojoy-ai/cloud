@@ -21,6 +21,7 @@ class ExpectedMeasurement(BaseModel):
 
 __all__ = [
     "export",
+    "is_in_range",
     "_get_most_recent_data",
     "_set_output_loc",
 ]
