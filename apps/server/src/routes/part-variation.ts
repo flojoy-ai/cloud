@@ -117,7 +117,7 @@ export const PartVariationRoute = new Elysia({
 
           if (res.isErr()) return error(res.error.code, res.error);
 
-          return res.value;
+          return {};
         },
         {
           params: t.Object({ partVariationId: t.String() }),

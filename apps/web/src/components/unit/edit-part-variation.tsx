@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { client } from "@/lib/client";
 import {
   getPartPartVariationsQueryKey,
+  getPartVariationQueryKey,
   getPartVariationsQueryKey,
 } from "@/lib/queries/part-variation";
 import { handleError } from "@/lib/utils";
@@ -87,6 +88,9 @@ const EditPartVariation = ({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getPartVariationsQueryKey() });
       queryClient.invalidateQueries({
+        queryKey: getPartVariationQueryKey(partVariationId),
+      });
+      queryClient.invalidateQueries({
         queryKey: getPartPartVariationsQueryKey(part.id),
       });
 
@@ -99,24 +103,20 @@ const EditPartVariation = ({
     defaultValues,
   });
 
-  useEffect(() => {
-    if (open) {
-      form.reset(defaultValues);
-    }
-  }, [open, defaultValues, form]);
-
   const { fields, insert, remove } = useFieldArray({
     control: form.control,
     name: "components",
     keyName: "partVariationId",
   });
 
-  const handleRemove = (i: number) => {
-    if (fields.length === 1) {
-      return;
+  useEffect(() => {
+    if (open) {
+      form.reset(defaultValues);
+    } else {
+      // This is required because react hook form is stupid
+      form.reset({ ...defaultValues, components: [] });
     }
-    remove(i);
-  };
+  }, [open, defaultValues, form]);
 
   const partNamePrefix = part.name + "-";
 
@@ -131,8 +131,8 @@ const EditPartVariation = ({
           components: [],
         }),
         {
-          loading: "Creating your part variation...",
-          success: "Part variation created.",
+          loading: "Updating your part variation...",
+          success: "Part variation updated.",
           error: handleError,
         },
       );
@@ -348,7 +348,7 @@ const EditPartVariation = ({
                     />
                     <Button
                       type="button"
-                      onClick={() => handleRemove(index)}
+                      onClick={() => remove(index)}
                       size="icon"
                       variant="ghost"
                     >
