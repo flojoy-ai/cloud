@@ -157,7 +157,6 @@ const partVariationColumns: (props: {
                   success: "Copied ID to clipboard.",
                 })
               }
-              disabled={!canWrite}
             >
               Copy ID
             </DropdownMenuItem>
@@ -166,6 +165,7 @@ const partVariationColumns: (props: {
               onClick={() => {
                 openEditDialog(partVariant);
               }}
+              disabled={!canWrite}
             >
               <div className="flex gap-x-2">
                 <Pencil size={20} className="stroke-muted-foreground" />
@@ -328,14 +328,16 @@ function PartPage() {
     [queryClient, workspace],
   );
 
+  const canWrite = workspaceUserPerm.canWrite();
+
   const columns = useMemo(
     () =>
       partVariationColumns({
         openCreateDialog,
         openEditDialog,
-        canWrite: workspaceUserPerm.canWrite(),
+        canWrite,
       }),
-    [openCreateDialog, openEditDialog, workspaceUserPerm],
+    [openCreateDialog, openEditDialog, canWrite],
   );
 
   return (
