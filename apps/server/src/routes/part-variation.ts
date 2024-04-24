@@ -1,4 +1,4 @@
-import { insertPartVariation } from "@cloud/shared";
+import { insertPartVariation, partVariationUpdate } from "@cloud/shared";
 import Elysia, { t } from "elysia";
 import { db } from "../db/kysely";
 import {
@@ -6,6 +6,7 @@ import {
   getPartVariation,
   getPartVariationTree,
   getPartVariationUnits,
+  updatePartVariation,
   withPartVariationMarket,
   withPartVariationType,
 } from "../db/part-variation";
@@ -99,17 +100,28 @@ export const PartVariationRoute = new Elysia({
       )
       .patch(
         "/",
-        async ({ workspace, params: { partVariationId }, error }) => {
+        async ({ workspace, body, params: { partVariationId }, error }) => {
           const partVariation = await getPartVariation(
             workspace.id,
             partVariationId,
           );
           if (partVariation === undefined)
             return error(404, "Part variation not found");
+
+          const res = await updatePartVariation(
+            db,
+            partVariationId,
+            workspace.id,
+            body,
+          );
+
+          if (res.isErr()) return error(res.error.code, res.error);
+
+          return res.value;
         },
         {
           params: t.Object({ partVariationId: t.String() }),
-          body: t.Object({}),
+          body: partVariationUpdate,
 
           async beforeHandle({ workspaceUser, error }) {
             const perm = await checkWorkspacePerm({ workspaceUser });

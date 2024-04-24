@@ -5,7 +5,7 @@ import {
   PartVariation,
   PartVariationTreeNode,
   PartVariationTreeRoot,
-  UpdatePartVariation,
+  PartVariationUpdate,
 } from "@cloud/shared";
 import { ExpressionBuilder, Kysely, sql } from "kysely";
 import { Result, err, ok, safeTry } from "neverthrow";
@@ -378,7 +378,7 @@ export async function updatePartVariation(
   db: Kysely<DB>,
   partVariationId: string,
   workspaceId: string,
-  update: UpdatePartVariation,
+  update: PartVariationUpdate,
 ) {
   const { components, type: typeName, market: marketName, ...data } = update;
 
@@ -427,21 +427,19 @@ export async function updatePartVariation(
         marketId = market.id;
       }
 
-      yield* (
-        await tryQuery(
-          tx
-            .updateTable("part_variation")
-            .set({
-              ...data,
-              partNumber,
-              typeId,
-              marketId,
-            })
-            .where("id", "=", partVariationId)
-            .executeTakeFirstOrThrow(
-              () => new InternalServerError("Failed to create part variation"),
-            ),
-        )
+      yield* tryQuery(
+        tx
+          .updateTable("part_variation")
+          .set({
+            ...data,
+            partNumber,
+            typeId,
+            marketId,
+          })
+          .where("id", "=", partVariationId)
+          .executeTakeFirstOrThrow(
+            () => new InternalServerError("Failed to create part variation"),
+          ),
       ).safeUnwrap();
 
       const updatedPartVariation = await getPartVariation(
@@ -457,33 +455,37 @@ export async function updatePartVariation(
       }
 
       // Rebuild this level of the component tree
-      await tx
-        .deleteFrom("part_variation_relation")
-        .where("parentPartVariationId", "=", partVariationId)
-        .execute();
+      yield* tryQuery(
+        tx
+          .deleteFrom("part_variation_relation")
+          .where("parentPartVariationId", "=", partVariationId)
+          .execute(),
+      ).safeUnwrap();
 
       if (components.length > 0) {
-        await tx
-          .insertInto("part_variation_relation")
-          .values(
-            components.map((c) => ({
-              parentPartVariationId: updatedPartVariation.id,
-              childPartVariationId: c.partVariationId,
-              workspaceId,
-              count: c.count,
-            })),
-          )
-          .execute();
+        yield* tryQuery(
+          tx
+            .insertInto("part_variation_relation")
+            .values(
+              components.map((c) => ({
+                parentPartVariationId: updatedPartVariation.id,
+                childPartVariationId: c.partVariationId,
+                workspaceId,
+                count: c.count,
+              })),
+            )
+            .execute(),
+        ).safeUnwrap();
 
         const graph = await getPartVariationTree(tx, updatedPartVariation);
-        const cycleRes = detectCycle(graph);
-        if (cycleRes.isErr()) {
-          return err(
-            new BadRequestError(
-              `Cycle detected in component graph at: ${cycleRes.error.partNumber}, not allowed`,
-            ),
-          );
-        }
+        yield* detectCycle(graph)
+          .mapErr(
+            (e) =>
+              new BadRequestError(
+                `Cycle detected in component graph at: ${e.partNumber}, not allowed`,
+              ),
+          )
+          .safeUnwrap();
       }
 
       return ok(undefined);

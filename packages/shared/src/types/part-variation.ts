@@ -29,7 +29,7 @@ export const insertPartVariation = t.Object({
 
 export type InsertPartVariation = Static<typeof insertPartVariation>;
 
-export const updatePartVariation = t.Object({
+export const partVariationUpdate = t.Object({
   type: t.Optional(t.String()),
   market: t.Optional(t.String()),
   partNumber: t.String({ minLength: 1 }),
@@ -39,7 +39,7 @@ export const updatePartVariation = t.Object({
   }),
 });
 
-export type UpdatePartVariation = Static<typeof updatePartVariation>;
+export type PartVariationUpdate = Static<typeof partVariationUpdate>;
 
 export type PartVariationTreeRoot = PartVariation & {
   components: { count: number; partVariation: PartVariationTreeNode }[];

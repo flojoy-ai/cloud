@@ -24,7 +24,7 @@ import {
   getPartVariationsQueryKey,
 } from "@/lib/queries/part-variation";
 import { handleError } from "@/lib/utils";
-import { Part, PartVariation, updatePartVariation } from "@cloud/shared";
+import { Part, PartVariation, partVariationUpdate } from "@cloud/shared";
 import { PartVariationMarket } from "@cloud/shared/src/schemas/public/PartVariationMarket";
 import { PartVariationType } from "@cloud/shared/src/schemas/public/PartVariationType";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
@@ -39,7 +39,7 @@ import { Combobox } from "../ui/combobox";
 import { useEffect } from "react";
 
 const partVariationFormSchema = t.Composite([
-  updatePartVariation,
+  partVariationUpdate,
   t.Object({ hasComponents: t.Boolean() }),
 ]);
 
@@ -76,7 +76,7 @@ const EditPartVariation = ({
   const queryClient = useQueryClient();
 
   const editPartVariation = useMutation({
-    mutationFn: async (values: Static<typeof updatePartVariation>) => {
+    mutationFn: async (values: Static<typeof partVariationUpdate>) => {
       const { error } = await client
         .partVariation({ partVariationId })
         .index.patch(values, {
