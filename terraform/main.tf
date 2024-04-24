@@ -157,3 +157,45 @@ resource "azurerm_postgresql_database" "flojoy-cloud-postgres-db" {
     # prevent_destroy = true
   }
 }
+
+resource "azurerm_container_group" "flojoy-cloud-web-container-group" {
+  name                = "flojoy-cloud-web-container-group"
+  location            = azurerm_resource_group.flojoy-cloud-rg.location
+  resource_group_name = azurerm_resource_group.flojoy-cloud-rg.name
+  ip_address_type     = "Public"
+  os_type             = "Linux"
+  restart_policy      = "Always"
+
+  container {
+    name   = "flojoy-cloud-web-container"
+    image  = "flojoyai/cloud-web:latest"
+    cpu    = 8
+    memory = 8
+
+    ports {
+      port     = 5173
+      protocol = "TCP"
+    }
+  }
+}
+
+resource "azurerm_container_group" "flojoy-cloud-server-container-group" {
+  name                = "flojoy-cloud-server-container-group"
+  location            = azurerm_resource_group.flojoy-cloud-rg.location
+  resource_group_name = azurerm_resource_group.flojoy-cloud-rg.name
+  ip_address_type     = "Public"
+  os_type             = "Linux"
+  restart_policy      = "Always"
+
+  container {
+    name   = "flojoy-cloud-server-container"
+    image  = "flojoyai/cloud-server:latest"
+    cpu    = 8
+    memory = 8
+
+    ports {
+      port     = 3000
+      protocol = "TCP"
+    }
+  }
+}
