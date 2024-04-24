@@ -25,7 +25,11 @@ import {
   getPartVariationsQueryKey,
 } from "@/lib/queries/part-variation";
 import { handleError } from "@/lib/utils";
-import { Part, PartVariation, partVariationUpdate } from "@cloud/shared";
+import {
+  PartVariation,
+  PartVariationTreeRoot,
+  partVariationUpdate,
+} from "@cloud/shared";
 import { PartVariationMarket } from "@cloud/shared/src/schemas/public/PartVariationMarket";
 import { PartVariationType } from "@cloud/shared/src/schemas/public/PartVariationType";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
@@ -46,31 +50,35 @@ const partVariationFormSchema = t.Composite([
 
 type FormSchema = Static<typeof partVariationFormSchema>;
 
-export type EditPartVariationDefaultValues = Omit<
-  FormSchema,
-  "workspaceId" | "partId"
->;
-
 type Props = {
   workspaceId: string;
-  partVariationId: string;
   partVariations: PartVariation[];
-  part: Part;
-  defaultValues: EditPartVariationDefaultValues;
+  existing: PartVariationTreeRoot;
   open: boolean;
   setOpen: (open: boolean) => void;
   partVariationTypes: PartVariationType[];
   partVariationMarkets: PartVariationMarket[];
 };
 
+const getDefaultValues = (pv: PartVariationTreeRoot) => {
+  return {
+    type: pv.type?.name,
+    market: pv.market?.name,
+    hasComponents: pv.components.length > 0,
+    components: pv.components.map((c) => ({
+      count: c.count,
+      partVariationId: c.partVariation.id,
+    })),
+    description: pv.description ?? undefined,
+  };
+};
+
 const EditPartVariation = ({
   workspaceId,
-  partVariationId,
+  existing,
   partVariations,
   open,
   setOpen,
-  part,
-  defaultValues,
   partVariationTypes,
   partVariationMarkets,
 }: Props) => {
@@ -79,7 +87,7 @@ const EditPartVariation = ({
   const editPartVariation = useMutation({
     mutationFn: async (values: Static<typeof partVariationUpdate>) => {
       const { error } = await client
-        .partVariation({ partVariationId })
+        .partVariation({ partVariationId: existing.id })
         .index.patch(values, {
           headers: { "flojoy-workspace-id": workspaceId },
         });
@@ -88,10 +96,10 @@ const EditPartVariation = ({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getPartVariationsQueryKey() });
       queryClient.invalidateQueries({
-        queryKey: getPartVariationQueryKey(partVariationId),
+        queryKey: getPartVariationQueryKey(existing.id),
       });
       queryClient.invalidateQueries({
-        queryKey: getPartPartVariationsQueryKey(part.id),
+        queryKey: getPartPartVariationsQueryKey(existing.partId),
       });
 
       setOpen(false);
@@ -100,7 +108,7 @@ const EditPartVariation = ({
 
   const form = useForm<FormSchema>({
     resolver: typeboxResolver(partVariationFormSchema),
-    defaultValues,
+    defaultValues: getDefaultValues(existing),
   });
 
   const { fields, insert, remove } = useFieldArray({
@@ -111,18 +119,15 @@ const EditPartVariation = ({
 
   useEffect(() => {
     if (open) {
-      form.reset(defaultValues);
+      form.reset(getDefaultValues(existing));
     } else {
       // This is required because react hook form is stupid
-      form.reset({ ...defaultValues, components: [] });
+      form.reset({ ...getDefaultValues(existing), components: [] });
     }
-  }, [open, defaultValues, form]);
-
-  const partNamePrefix = part.name + "-";
+  }, [open, form, existing]);
 
   function onSubmit(values: FormSchema) {
     const { hasComponents, ...rest } = values;
-    rest.partNumber = partNamePrefix + rest.partNumber;
 
     if (!hasComponents) {
       toast.promise(
@@ -158,11 +163,15 @@ const EditPartVariation = ({
     }
   }
 
+  const allowedPartVariations = partVariations.filter(
+    (pv) => pv.id !== existing.id,
+  );
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-auto">
         <DialogHeader>
-          <DialogTitle>Edit part variation</DialogTitle>
+          <DialogTitle>Editing {existing.partNumber}</DialogTitle>
           <DialogDescription>
             Make changes to this part variation. Note: you can only modify
             components of part variations with no existing units.
@@ -176,28 +185,6 @@ const EditPartVariation = ({
             })}
             className="space-y-4"
           >
-            <FormField
-              control={form.control}
-              name="partNumber"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Part Number</FormLabel>
-                  <FormControl>
-                    <div className="flex gap-x-1.5">
-                      <div className="h-10 w-fit whitespace-nowrap rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground opacity-50 ring-offset-background  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-not-allowed">
-                        {partNamePrefix}
-                      </div>
-                      <Input placeholder="M1234" {...field} data-1p-ignore />
-                    </div>
-                  </FormControl>
-                  <FormDescription>
-                    An identifier for this part variation. This will always be
-                    prefixed with the part's name.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <FormField
               control={form.control}
               name="description"
@@ -300,7 +287,7 @@ const EditPartVariation = ({
                         <FormItem>
                           <FormControl>
                             <Combobox
-                              options={partVariations}
+                              options={allowedPartVariations}
                               value={field.value}
                               setValue={(val) =>
                                 form.setValue(

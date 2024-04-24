@@ -7,22 +7,22 @@ import {
   PartVariationTreeRoot,
   PartVariationUpdate,
 } from "@cloud/shared";
-import { ExpressionBuilder, Kysely, sql } from "kysely";
+import { PartVariationType } from "@cloud/shared/src/schemas/public/PartVariationType";
+import { ExpressionBuilder, Kysely } from "kysely";
+import { jsonObjectFrom } from "kysely/helpers/postgres";
+import _ from "lodash";
 import { Result, err, ok, safeTry } from "neverthrow";
 import { markUpdatedAt } from "../db/query";
 import { fromTransaction, generateDatabaseId, tryQuery } from "../lib/db-utils";
-import { db } from "./kysely";
-import { getPart } from "./part";
 import {
+  BadRequestError,
   InternalServerError,
   NotFoundError,
-  BadRequestError,
   RouteError,
 } from "../lib/error";
-import { PartVariationType } from "@cloud/shared/src/schemas/public/PartVariationType";
-import { jsonObjectFrom } from "kysely/helpers/postgres";
+import { db } from "./kysely";
+import { getPart } from "./part";
 import { withUnitParent } from "./unit";
-import _ from "lodash";
 
 async function getOrCreateType(
   db: Kysely<DB>,
@@ -408,10 +408,6 @@ export async function updatePartVariation(
 
   return fromTransaction(async (tx) => {
     return safeTry(async function* () {
-      const partNumber = yield* validatePartNumber(
-        part,
-        data.partNumber,
-      ).safeUnwrap();
       let typeId: string | null = null;
       let marketId: string | null = null;
 
@@ -433,7 +429,6 @@ export async function updatePartVariation(
           .updateTable("part_variation")
           .set({
             ...data,
-            partNumber,
             typeId,
             marketId,
           })

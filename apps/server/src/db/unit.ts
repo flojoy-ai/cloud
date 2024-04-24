@@ -44,7 +44,10 @@ export async function createUnit(
     db.transaction().execute(async (tx) => {
       const { components, projectId, ...newUnit } = unit;
 
-      const partVariation = await getPartVariation(unit.partVariationId);
+      const partVariation = await getPartVariation(
+        workspaceId,
+        unit.partVariationId,
+      );
       if (!partVariation) {
         throw new NotFoundError("PartVariation not found");
       }

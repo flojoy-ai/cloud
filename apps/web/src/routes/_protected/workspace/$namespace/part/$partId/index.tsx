@@ -28,9 +28,7 @@ import { Separator } from "@/components/ui/separator";
 import CreatePartVariation, {
   CreatePartVariationDefaultValues,
 } from "@/components/unit/create-part-variation";
-import EditPartVariation, {
-  EditPartVariationDefaultValues,
-} from "@/components/unit/edit-part-variation";
+import EditPartVariation from "@/components/unit/edit-part-variation";
 import { PartVariationTreeVisualization } from "@/components/visualization/tree-visualization";
 import { useWorkspaceUser } from "@/hooks/use-workspace-user";
 import { client } from "@/lib/client";
@@ -45,7 +43,11 @@ import {
 } from "@/lib/queries/part-variation";
 import { removePrefix } from "@/lib/string";
 import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
-import { PartVariation, PartVariationTreeNode } from "@cloud/shared";
+import {
+  PartVariation,
+  PartVariationTreeNode,
+  PartVariationTreeRoot,
+} from "@cloud/shared";
 import { PartVariationMarket } from "@cloud/shared/src/schemas/public/PartVariationMarket";
 import { PartVariationType } from "@cloud/shared/src/schemas/public/PartVariationType";
 import {
@@ -276,11 +278,8 @@ function PartPage() {
     CreatePartVariationDefaultValues | undefined
   >();
 
-  const [editingPartVariationId, setEditingPartVariationId] = useState<
-    string | undefined
-  >();
-  const [editDefaultValues, setEditDefaultValues] = useState<
-    EditPartVariationDefaultValues | undefined
+  const [editingPartVariation, setEditingPartVariation] = useState<
+    PartVariationTreeRoot | undefined
   >();
 
   const openCreateDialog = useCallback(
@@ -320,22 +319,10 @@ function PartPage() {
           context: { workspace },
         }),
       );
-      setEditingPartVariationId(variant.id);
-      setEditDefaultValues({
-        partNumber: removePrefix(tree.partNumber, part.name + "-"),
-        type: tree.type?.name,
-        market: tree.market?.name,
-        hasComponents: tree.components.length > 0,
-        components: tree.components.map((c) => ({
-          count: c.count,
-          partVariationId: c.partVariation.id,
-        })),
-        description: tree.description ?? undefined,
-      });
-
+      setEditingPartVariation(tree);
       setEditOpen(true);
     },
-    [queryClient, workspace, part.name],
+    [queryClient, workspace],
   );
 
   const columns = useMemo(
@@ -402,24 +389,20 @@ function PartPage() {
           />
         </>
       )}
-      {workspaceUserPerm.canWrite() &&
-        editDefaultValues &&
-        editingPartVariationId && (
-          <>
-            <div className="py-2" />
-            <EditPartVariation
-              workspaceId={workspace.id}
-              partVariationId={editingPartVariationId}
-              partVariations={allPartVariations}
-              part={part}
-              open={editOpen}
-              setOpen={setEditOpen}
-              defaultValues={editDefaultValues}
-              partVariationTypes={partVariationTypes}
-              partVariationMarkets={partVariationMarkets}
-            />
-          </>
-        )}
+      {workspaceUserPerm.canWrite() && editingPartVariation && (
+        <>
+          <div className="py-2" />
+          <EditPartVariation
+            workspaceId={workspace.id}
+            existing={editingPartVariation}
+            partVariations={allPartVariations}
+            open={editOpen}
+            setOpen={setEditOpen}
+            partVariationTypes={partVariationTypes}
+            partVariationMarkets={partVariationMarkets}
+          />
+        </>
+      )}
       <div className="py-2" />
       <h1 className="text-xl font-bold">Part Variations</h1>
       <div className="py-2" />

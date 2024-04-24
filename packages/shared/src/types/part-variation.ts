@@ -32,7 +32,6 @@ export type InsertPartVariation = Static<typeof insertPartVariation>;
 export const partVariationUpdate = t.Object({
   type: t.Optional(t.String()),
   market: t.Optional(t.String()),
-  partNumber: t.String({ minLength: 1 }),
   description: t.Optional(t.String()),
   components: t.Array(t.Omit(partVariationComponent, ["partNumber"]), {
     default: [],
