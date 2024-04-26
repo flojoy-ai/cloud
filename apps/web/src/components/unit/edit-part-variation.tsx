@@ -50,16 +50,6 @@ const partVariationFormSchema = t.Composite([
 
 type FormSchema = Static<typeof partVariationFormSchema>;
 
-type Props = {
-  workspaceId: string;
-  partVariations: PartVariation[];
-  existing: PartVariationTreeRoot;
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  partVariationTypes: PartVariationType[];
-  partVariationMarkets: PartVariationMarket[];
-};
-
 const getDefaultValues = (pv: PartVariationTreeRoot) => {
   return {
     type: pv.type?.name,
@@ -73,9 +63,21 @@ const getDefaultValues = (pv: PartVariationTreeRoot) => {
   };
 };
 
+type Props = {
+  workspaceId: string;
+  partVariations: PartVariation[];
+  existing: PartVariationTreeRoot;
+  hasExistingUnits: boolean;
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  partVariationTypes: PartVariationType[];
+  partVariationMarkets: PartVariationMarket[];
+};
+
 const EditPartVariation = ({
   workspaceId,
   existing,
+  hasExistingUnits,
   partVariations,
   open,
   setOpen,
@@ -247,118 +249,131 @@ const EditPartVariation = ({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="hasComponents"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex items-center gap-x-2">
-                    <FormLabel>Has components?</FormLabel>
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={(state) =>
-                          form.setValue(
-                            "hasComponents",
-                            Boolean(state.valueOf()),
-                          )
-                        }
-                      />
-                    </FormControl>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {form.watch("hasComponents") && (
-              <div className="space-y-2">
-                <FormLabel className="">Components</FormLabel>
-                <FormDescription>
-                  You can pick the components that make up this assembly from
-                  existing parts. This will help you build the
-                  &apos;blueprint&apos; of the system.
-                </FormDescription>
-                {fields.map((field, index) => (
-                  <div className="flex gap-2 " key={field.partVariationId}>
-                    <FormField
-                      control={form.control}
-                      name={`components.${index}.partVariationId` as const}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Combobox
-                              options={allowedPartVariations}
-                              value={field.value}
-                              setValue={(val) =>
-                                form.setValue(
-                                  `components.${index}.partVariationId` as const,
-                                  val ?? "",
-                                )
-                              }
-                              displaySelector={(val) => val.partNumber}
-                              valueSelector={(val) => val.id}
-                              descriptionSelector={(val) =>
-                                val.description ?? ""
-                              }
-                              searchText="Search part variation..."
-                              avoidCollisions={true}
-                              side="top"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      key={field.partVariationId}
-                      name={`components.${index}.count` as const}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              type="number"
-                              min={1}
-                              className="w-20"
-                              {...form.register(
-                                `components.${index}.count` as const,
-                                {
-                                  valueAsNumber: true,
-                                },
-                              )}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+            {hasExistingUnits ? (
+              <FormDescription>
+                You cannot modify components of a part variation that has
+                existing units. Please create a new one instead if you would
+                like do so.
+              </FormDescription>
+            ) : (
+              <>
+                <FormField
+                  control={form.control}
+                  name="hasComponents"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center gap-x-2">
+                        <FormLabel>Has components?</FormLabel>
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={(state) =>
+                              form.setValue(
+                                "hasComponents",
+                                Boolean(state.valueOf()),
+                              )
+                            }
+                          />
+                        </FormControl>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {form.watch("hasComponents") && (
+                  <div className="space-y-2">
+                    <FormLabel className="">Components</FormLabel>
+                    <FormDescription>
+                      You can pick the components that make up this assembly
+                      from existing parts. This will help you build the
+                      &apos;blueprint&apos; of the system.
+                    </FormDescription>
+                    {fields.map((field, index) => (
+                      <div className="flex gap-2 " key={field.partVariationId}>
+                        <FormField
+                          control={form.control}
+                          name={`components.${index}.partVariationId` as const}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Combobox
+                                  options={allowedPartVariations}
+                                  value={field.value}
+                                  setValue={(val) =>
+                                    form.setValue(
+                                      `components.${index}.partVariationId` as const,
+                                      val ?? "",
+                                    )
+                                  }
+                                  displaySelector={(val) => val.partNumber}
+                                  valueSelector={(val) => val.id}
+                                  descriptionSelector={(val) =>
+                                    val.description ?? ""
+                                  }
+                                  searchText="Search part variation..."
+                                  avoidCollisions={true}
+                                  side="top"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          key={field.partVariationId}
+                          name={`components.${index}.count` as const}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  type="number"
+                                  min={1}
+                                  className="w-20"
+                                  {...form.register(
+                                    `components.${index}.count` as const,
+                                    {
+                                      valueAsNumber: true,
+                                    },
+                                  )}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <Button
+                          type="button"
+                          onClick={() => remove(index)}
+                          size="icon"
+                          variant="ghost"
+                        >
+                          <Trash2
+                            size={20}
+                            className="stroke-muted-foreground"
+                          />
+                        </Button>
+                      </div>
+                    ))}
                     <Button
                       type="button"
-                      onClick={() => remove(index)}
-                      size="icon"
-                      variant="ghost"
+                      onClick={() =>
+                        insert(fields.length, { partVariationId: "", count: 1 })
+                      }
+                      variant="secondary"
+                      size="sm"
                     >
-                      <Trash2 size={20} className="stroke-muted-foreground" />
+                      <Plus size={16} className="mr-2" /> Add Component
                     </Button>
+                    <FormDescription>
+                      When you try to initialize an unit based on this part
+                      variation, then you first need to make sure all its
+                      components exist.
+                    </FormDescription>
                   </div>
-                ))}
-                <Button
-                  type="button"
-                  onClick={() =>
-                    insert(fields.length, { partVariationId: "", count: 1 })
-                  }
-                  variant="secondary"
-                  size="sm"
-                >
-                  <Plus size={16} className="mr-2" /> Add Component
-                </Button>
-                <FormDescription>
-                  When you try to initialize an unit based on this part
-                  variation, then you first need to make sure all its components
-                  exist.
-                </FormDescription>
-              </div>
+                )}
+              </>
             )}
             <DialogFooter>
               <DialogClose asChild>

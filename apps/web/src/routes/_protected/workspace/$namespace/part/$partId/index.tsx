@@ -41,6 +41,7 @@ import {
   getPartVariationTypesQueryOpts,
   getPartVariationsQueryOpts,
 } from "@/lib/queries/part-variation";
+import { getPartVariationUnitQueryOpts } from "@/lib/queries/unit";
 import { removePrefix } from "@/lib/string";
 import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
 import {
@@ -284,6 +285,10 @@ function PartPage() {
   const [editingPartVariation, setEditingPartVariation] = useState<
     PartVariationTreeRoot | undefined
   >();
+  const [
+    editingPartVariationHasExistingUnits,
+    setEditingPartVariationHasExistingUnits,
+  ] = useState<boolean>(false);
 
   const openCreateDialog = useCallback(
     async (variant?: PartVariation) => {
@@ -322,7 +327,14 @@ function PartPage() {
           context: { workspace },
         }),
       );
+      const existingUnits = await queryClient.ensureQueryData(
+        getPartVariationUnitQueryOpts({
+          partVariationId: variant.id,
+          context: { workspace },
+        }),
+      );
       setEditingPartVariation(tree);
+      setEditingPartVariationHasExistingUnits(existingUnits.length > 0);
       setEditOpen(true);
     },
     [queryClient, workspace],
@@ -405,6 +417,7 @@ function PartPage() {
           <EditPartVariation
             workspaceId={workspace.id}
             existing={editingPartVariation}
+            hasExistingUnits={editingPartVariationHasExistingUnits}
             partVariations={allPartVariations}
             open={editOpen}
             setOpen={setEditOpen}
