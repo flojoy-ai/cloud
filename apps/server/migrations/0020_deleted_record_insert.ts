@@ -30,13 +30,23 @@ const tables = [
 ];
 
 export async function up(db: Kysely<unknown>): Promise<void> {
+  await db.schema
+    .createTable("deleted_record")
+    .addColumn("id", "serial", (col) => col.primaryKey())
+    .addColumn("data", "jsonb")
+    .addColumn("deleted_at", "timestamptz", (col) =>
+      col.defaultTo(sql`now()`).notNull(),
+    )
+    .addColumn("table_name", "text")
+    .execute();
+
   await sql`
 CREATE FUNCTION deleted_record_insert() RETURNS trigger
     LANGUAGE plpgsql
 AS $$
     BEGIN
-        EXECUTE 'INSERT INTO deleted_record (data, object_id, table_name) VALUES ($1, $2, $3)'
-        USING to_jsonb(OLD.*), OLD.id, TG_TABLE_NAME;
+        EXECUTE 'INSERT INTO deleted_record (data, table_name) VALUES ($1, $2)'
+        USING to_jsonb(OLD.*), TG_TABLE_NAME;
 
         RETURN OLD;
     END;
@@ -57,5 +67,6 @@ export async function down(db: Kysely<unknown>): Promise<void> {
       db,
     );
   }
+  await db.schema.dropTable("deleted_record").execute();
   await sql`DROP FUNCTION deleted_record_insert`.execute(db);
 }
