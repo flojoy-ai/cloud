@@ -114,6 +114,11 @@ export async function createPartVariation(
     return err(new NotFoundError("Part not found"));
   }
 
+  const ids = components.map((c) => c.partVariationId);
+  if (ids.length !== _.uniq(ids).length) {
+    return err(new BadRequestError("Duplicate component ids"));
+  }
+
   return safeTry(async function* () {
     const partNumber = yield* validatePartNumber(
       part,
@@ -389,6 +394,11 @@ export async function updatePartVariation(
 
   const part = await getPart(db, partVariation.partId);
   if (part === undefined) return err(new NotFoundError("Part not found"));
+
+  const ids = components.map((c) => c.partVariationId);
+  if (ids.length !== _.uniq(ids).length) {
+    return err(new BadRequestError("Duplicate component ids"));
+  }
 
   const existingUnits = await getPartVariationUnits(partVariationId);
   const componentsChanged = await haveComponentsChanged(
