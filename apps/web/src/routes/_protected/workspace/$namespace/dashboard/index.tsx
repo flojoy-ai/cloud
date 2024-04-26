@@ -93,13 +93,17 @@ function DashboardPage() {
   );
 
   const [partsFailureX, partsFailureY] = makeTimeSeriesData({
-    data: globalMetrics.partVariationFailureDistribution.sort((a, b) =>  b.count - a.count),
+    data: globalMetrics.partVariationFailureDistribution.sort(
+      (a, b) => b.count - a.count,
+    ),
     x: (p) => p.partNumber,
     y: (p) => p.count,
   });
 
   const [productsFailureX, productsFailureY] = makeTimeSeriesData({
-    data: globalMetrics.productFailureDistribution.sort((a, b) =>  b.count - a.count),
+    data: globalMetrics.productFailureDistribution.sort(
+      (a, b) => b.count - a.count,
+    ),
     x: (p) => p.name,
     y: (p) => p.count,
   });
