@@ -16,22 +16,23 @@ const generateTemperature = () => {
   // Generate a time series with Overheat (150C) at 0.1% chance
   const nbPoint = 10;
   const temperatures = [];
-  const tmp = Math.round(Math.random() * 100)
+  const tmp = Math.round(Math.random() * 100);
   for (let i = 0; i < nbPoint; i++) {
-    const temp = Math.random() < 0.01 ? 150 : tmp + Math.round(Math.random() * 10);
+    const temp =
+      Math.random() < 0.01 ? 150 : tmp + Math.round(Math.random() * 10);
     temperatures.push(temp);
   }
   return temperatures;
 };
 
 const generateVoltage = (mean: number, std: number) => {
-  let u = 0, v = 0;
-  while (u === 0) u = Math.random();  // if outside interval ]0,1] start over
+  let u = 0,
+    v = 0;
+  while (u === 0) u = Math.random(); // if outside interval ]0,1] start over
   while (v === 0) v = Math.random();
   const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
   return z * std + mean;
-}
-
+};
 
 const ONE_DAY = 24 * 60 * 60 * 1000;
 const ONE_SEC = 1000;
@@ -42,7 +43,7 @@ export async function populateExample(
 ) {
   const workspaceId = workspaceUser.workspaceId;
 
-  return safeTry(async function*() {
+  return safeTry(async function* () {
     const product = yield* (
       await createProduct(db, {
         name: "ROBOT-ARM-PLATFORM",
@@ -379,7 +380,6 @@ export async function populateExample(
       })
     ).safeUnwrap();
 
-
     const booleanTest = yield* (
       await createTest(db, {
         name: "Did Power On",
@@ -418,11 +418,11 @@ export async function populateExample(
       .returningAll()
       .execute();
 
-
     for (let i = 0; i < powerBoards.length; i++) {
       const unit = powerBoards[i]!;
-      let didPowerOn = Math.random() < 0.90;
-      const sessionStartDate = new Date().getTime() - Math.round(i / 10) * ONE_DAY;
+      let didPowerOn = Math.random() < 0.9;
+      const sessionStartDate =
+        new Date().getTime() - Math.round(i / 10) * ONE_DAY;
       if (didPowerOn) {
         let j = 0;
         while (!didPowerOn && j < 2) {
@@ -446,7 +446,7 @@ export async function populateExample(
               createdAt: new Date(sessionStartDate),
             })
           ).safeUnwrap();
-          didPowerOn = Math.random() < 0.20;
+          didPowerOn = Math.random() < 0.2;
           j += 1;
         }
         if (!didPowerOn) {
@@ -508,7 +508,7 @@ export async function populateExample(
             createdAt: new Date(sessionStartDate),
           })
         ).safeUnwrap();
-      } while (!powerPass && !temperaturePass && j < 3)
+      } while (!powerPass && !temperaturePass && j < 3);
     }
 
     // ~~~ Sample Tests for Dashboard demo ~~~
@@ -564,8 +564,9 @@ export async function populateExample(
 
       for (let j = 0; j < unitsCreated.length; j++) {
         const unit = unitsCreated[j];
-        let success = Math.random() < 0.90 - 0.2 * i;
-        const sessionStartDate = new Date().getTime() - Math.round(j / 10) * ONE_DAY;
+        const success = Math.random() < 0.9 - 0.2 * i;
+        const sessionStartDate =
+          new Date().getTime() - Math.round(j / 10) * ONE_DAY;
         yield* (
           await createSession(db, workspaceId, workspaceUser.userId, {
             serialNumber: unit.serialNumber,
