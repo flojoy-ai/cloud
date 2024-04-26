@@ -2,7 +2,7 @@ import _ from "lodash";
 
 import { DB, WorkspaceUser } from "@cloud/shared";
 import { Kysely } from "kysely";
-import { err, ok, safeTry } from "neverthrow";
+import { ok, safeTry } from "neverthrow";
 import { generateDatabaseId } from "../lib/db-utils";
 import { createPart } from "./part";
 import { createPartVariation } from "./part-variation";
@@ -309,7 +309,7 @@ export async function populateExample(
       })
     ).safeUnwrap();
 
-    const arm_pl1000_001 = yield* (
+    yield* (
       await createPartVariation(db, {
         partNumber: "ARM-PL1000-001",
         description: "Medical Grade Arm Platform",
@@ -327,7 +327,7 @@ export async function populateExample(
       })
     ).safeUnwrap();
 
-    const arm_pl1000_002 = yield* (
+    yield* (
       await createPartVariation(db, {
         partNumber: "ARM-PL1000-002",
         description: "Arm Platform",
@@ -344,24 +344,6 @@ export async function populateExample(
         ],
       })
     ).safeUnwrap();
-
-    // const functionTestingMedicalArm = yield* (
-    //   await createProject(db, {
-    //     name: "Functional Testing - Med. ARM-PL1000",
-    //     partVariationId: arm_pl1000_001.id,
-    //     workspaceId,
-    //     numCycles: 1,
-    //   })
-    // ).safeUnwrap();
-    // await db
-    //   .insertInto("project_user")
-    //   .values({
-    //     projectId: functionTestingMedicalArm.id,
-    //     userId: workspaceUser.userId,
-    //     role: "developer",
-    //     workspaceId: workspaceUser.workspaceId,
-    //   })
-    //   .executeTakeFirstOrThrow();
 
     // ~~~ Sample Tests for Power Board ~~~
 
