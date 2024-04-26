@@ -37,7 +37,7 @@ import {
 import { typeboxResolver } from "@hookform/resolvers/typebox";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Edit } from "lucide-react";
-import { Combobox } from "../ui/combobox";
+import { Combobox } from "@/components/ui/combobox";
 
 type FormSchema = SwapUnitComponent;
 
