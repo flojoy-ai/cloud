@@ -18,7 +18,7 @@ const generateTemperature = () => {
   const temperatures = [];
   const tmp = Math.round(Math.random() * 100)
   for (let i = 0; i < nbPoint; i++) {
-    const temp = Math.random() < 0.02 ? 150 : tmp + Math.round(Math.random() * 10);
+    const temp = Math.random() < 0.01 ? 150 : tmp + Math.round(Math.random() * 10);
     temperatures.push(temp);
   }
   return temperatures;
@@ -421,35 +421,47 @@ export async function populateExample(
 
     for (let i = 0; i < powerBoards.length; i++) {
       const unit = powerBoards[i]!;
-      const didPowerOn = Math.random() < 0.96;
+      let didPowerOn = Math.random() < 0.90;
       const sessionStartDate = new Date().getTime() - Math.round(i / 10) * ONE_DAY;
       if (didPowerOn) {
-        yield* (
-          await createSession(db, workspaceId, workspaceUser.userId, {
-            serialNumber: unit.serialNumber,
-            stationId: Math.random() < 0.66 ? station1.id : station2.id,
-            notes: "This is a test session",
-            integrity: true,
-            aborted: false,
-            measurements: [
-              {
-                name: "Did Power On",
-                durationMs: Math.round(Math.random() * ONE_SEC * 12),
-                testId: booleanTest.id,
-                createdAt: new Date(sessionStartDate),
-                data: { type: "boolean" as const, value: didPowerOn },
-                pass: didPowerOn,
-              },
-            ],
-            createdAt: new Date(sessionStartDate),
-          })
-        ).safeUnwrap();
-      } else {
+        let j = 0;
+        while (!didPowerOn && j < 2) {
+          yield* (
+            await createSession(db, workspaceId, workspaceUser.userId, {
+              serialNumber: unit.serialNumber,
+              stationId: Math.random() < 0.66 ? station1.id : station2.id,
+              notes: "This is a test session",
+              integrity: true,
+              aborted: false,
+              measurements: [
+                {
+                  name: "Did Power On",
+                  durationMs: Math.round(Math.random() * ONE_SEC * 12),
+                  testId: booleanTest.id,
+                  createdAt: new Date(sessionStartDate),
+                  data: { type: "boolean" as const, value: didPowerOn },
+                  pass: didPowerOn,
+                },
+              ],
+              createdAt: new Date(sessionStartDate),
+            })
+          ).safeUnwrap();
+          didPowerOn = Math.random() < 0.20;
+          j += 1;
+        }
+        if (!didPowerOn) {
+          continue;
+        }
+      }
+      let j = 0;
+      let powerPass, temperaturePass;
+      do {
+        j += 1;
         const powerOnTime = Math.round(Math.random() * ONE_SEC * 2);
-        const powerData = generateVoltage(5, 1);
-        const powerPass = powerData > 4.2 && powerData < 5.8;
+        const powerData = generateVoltage(5, 0.5);
+        powerPass = powerData > 4.2 && powerData < 5.8;
         const temperatureData = generateTemperature();
-        const temperaturePass = temperatureData.filter((t) => t > 105).length === 0;
+        temperaturePass = temperatureData.filter((t) => t > 105).length === 0;
         yield* (
           await createSession(db, workspaceId, workspaceUser.userId, {
             serialNumber: unit.serialNumber,
@@ -491,6 +503,84 @@ export async function populateExample(
                   },
                 },
                 pass: temperaturePass,
+              },
+            ],
+            createdAt: new Date(sessionStartDate),
+          })
+        ).safeUnwrap();
+      } while (!powerPass && !temperaturePass && j < 3)
+    }
+
+    // ~~~ Sample Tests for Dashboard demo ~~~
+    const partVars = [pcb_ctr065_001, pcb_ctr065_002, pcb_pwr065_002];
+
+    for (let i = 0; i < partVars.length; i++) {
+      const partVar = partVars[i];
+      const project = yield* (
+        await createProject(db, {
+          name: `Functional Testing - ${partVar.partNumber}`,
+          partVariationId: partVar.id,
+          workspaceId,
+          numCycles: 1,
+        })
+      ).safeUnwrap();
+      await db
+        .insertInto("project_user")
+        .values({
+          projectId: project.id,
+          userId: workspaceUser.userId,
+          role: "developer",
+          workspaceId: workspaceUser.workspaceId,
+        })
+        .executeTakeFirstOrThrow();
+
+      const station = yield* (
+        await createStation(db, {
+          name: "Station 01",
+          projectId: project.id,
+        })
+      ).safeUnwrap();
+
+      const functionalbooleanTest = yield* (
+        await createTest(db, {
+          name: "Functional Test Example",
+          projectId: project.id,
+          measurementType: "boolean",
+        })
+      ).safeUnwrap();
+
+      const PartVarUnits = _.times(198, (i) => ({
+        id: generateDatabaseId("unit"),
+        serialNumber: `${partVar.partNumber}-S${i + 1}`,
+        partVariationId: partVar.id,
+        workspaceId,
+      }));
+
+      const unitsCreated = await db
+        .insertInto("unit")
+        .values([...PartVarUnits])
+        .returningAll()
+        .execute();
+
+      for (let j = 0; j < unitsCreated.length; j++) {
+        const unit = unitsCreated[j];
+        let success = Math.random() < 0.90 - 0.2 * i;
+        const sessionStartDate = new Date().getTime() - Math.round(j / 10) * ONE_DAY;
+        yield* (
+          await createSession(db, workspaceId, workspaceUser.userId, {
+            serialNumber: unit.serialNumber,
+            stationId: station.id,
+            notes: `This is a test session for ${unit.serialNumber}`,
+            integrity: true,
+            aborted: false,
+            measurements: [
+              {
+                name: "Functional Test Example",
+                durationMs: Math.round(Math.random() * ONE_SEC * 12),
+                testId: functionalbooleanTest.id,
+                createdAt: new Date(sessionStartDate),
+                data: { type: "boolean" as const, value: success },
+                pass: success,
               },
             ],
             createdAt: new Date(sessionStartDate),
