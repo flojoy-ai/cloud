@@ -25,11 +25,11 @@ const generateTemperature = () => {
 };
 
 const generateVoltage = (mean: number, std: number) => {
-    let u = 0, v = 0;
-    while (u === 0) u = Math.random();  // if outside interval ]0,1] start over
-    while (v === 0) v = Math.random();
-    const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
-    return z * std + mean;
+  let u = 0, v = 0;
+  while (u === 0) u = Math.random();  // if outside interval ]0,1] start over
+  while (v === 0) v = Math.random();
+  const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+  return z * std + mean;
 }
 
 
@@ -440,7 +440,7 @@ export async function populateExample(
     for (let i = 0; i < powerBoards.length; i++) {
       const unit = powerBoards[i]!;
       const didPowerOn = Math.random() < 0.96;
-      const sessionStartDate = new Date().getTime() - Math.round(i/10) * ONE_DAY;
+      const sessionStartDate = new Date().getTime() - Math.round(i / 10) * ONE_DAY;
       if (didPowerOn) {
         yield* (
           await createSession(db, workspaceId, workspaceUser.userId, {
