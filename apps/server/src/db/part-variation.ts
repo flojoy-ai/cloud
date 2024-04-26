@@ -215,7 +215,6 @@ type PartVariationEdge = {
   parentPartVariationId: string;
   count: number;
   description: string | null;
-  // depth: number;
 };
 
 async function getPartVariationTreeEdges(
@@ -237,7 +236,6 @@ async function getPartVariationTreeEdges(
           "childPartVariationId as partVariationId",
           "part_variation.partNumber",
           "part_variation.description",
-          // sql<number>`1`.as("depth"),
         ])
         .where("parentPartVariationId", "=", partVariation.id)
         .union((eb) =>
@@ -259,13 +257,11 @@ async function getPartVariationTreeEdges(
               "mr.childPartVariationId as partVariationId",
               "part_variation.partNumber",
               "part_variation.description",
-              // sql<number>`depth + 1`.as("depth"),
             ]),
         ),
     )
     .selectFrom("part_variation_tree")
     .selectAll()
-    // .distinctOn(["parentPartVariationId", "partVariationId"])
     .execute();
 }
 
@@ -274,11 +270,7 @@ export async function getPartVariationTree(
   partVariation: PartVariation,
 ): Promise<PartVariationTreeRoot> {
   const edges = await getPartVariationTreeEdges(db, partVariation);
-  return buildPartVariationTree(
-    partVariation,
-    // _.sortBy(edges, (e) => e.depth),
-    edges,
-  );
+  return buildPartVariationTree(partVariation, edges);
 }
 
 function buildPartVariationTree(
