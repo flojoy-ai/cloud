@@ -12,18 +12,29 @@ import { createSession } from "./session";
 import { createStation } from "./station";
 import { createTest } from "./test";
 
-const generateRandomNumbers = () => {
-  const randomNumbers = [];
-
-  for (let i = 0; i < 10; i++) {
-    const randomNumber = Math.random();
-    randomNumbers.push(randomNumber);
+const generateTemperature = () => {
+  // Generate a time series with Overheat (150C) at 0.1% chance
+  const nbPoint = 10;
+  const temperatures = [];
+  const tmp = Math.round(Math.random() * 100)
+  for (let i = 0; i < nbPoint; i++) {
+    const temp = Math.random() < 0.02 ? 150 : tmp + Math.round(Math.random() * 10);
+    temperatures.push(temp);
   }
-
-  return randomNumbers;
+  return temperatures;
 };
 
+const generateVoltage = (mean: number, std: number) => {
+    let u = 0, v = 0;
+    while (u === 0) u = Math.random();  // if outside interval ]0,1] start over
+    while (v === 0) v = Math.random();
+    const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+    return z * std + mean;
+}
+
+
 const ONE_DAY = 24 * 60 * 60 * 1000;
+const ONE_SEC = 1000;
 
 export async function populateExample(
   db: Kysely<DB>,
@@ -31,142 +42,366 @@ export async function populateExample(
 ) {
   const workspaceId = workspaceUser.workspaceId;
 
-  return safeTry(async function* () {
+  return safeTry(async function*() {
     const product = yield* (
       await createProduct(db, {
-        name: "Raspberry Pi 5",
+        name: "ROBOT-ARM-PLATFORM",
         workspaceId,
-        description: "Raspberry Pi 5",
+        description: "Robot arm",
       })
     ).safeUnwrap();
 
-    const piPart = yield* (
+    const pcb_ctr065 = yield* (
       await createPart(db, {
-        name: "PI-5",
+        name: "PCB-CTR065",
         workspaceId,
         productName: product.name,
-        description: "The Raspberry Pi 5",
+        description: "Controlloer Board",
       })
     ).safeUnwrap();
 
-    const cpuPart = yield* (
-      await createPart(db, {
-        name: "CPU",
-        workspaceId,
-        productName: product.name,
-        description: "CPU",
-      })
-    ).safeUnwrap();
-
-    const ramPart = yield* (
-      await createPart(db, {
-        name: "RAM",
-        workspaceId,
-        productName: product.name,
-        description: "RAM module",
-      })
-    ).safeUnwrap();
-
-    const diskPart = yield* (
-      await createPart(db, {
-        name: "Disk",
-        workspaceId,
-        productName: product.name,
-        description: "Disk space",
-      })
-    ).safeUnwrap();
-
-    const ram8GB = yield* (
+    const pcb_ctr065_001 = yield* (
       await createPartVariation(db, {
-        partNumber: "RAM-8GB",
-        description: "8GB RAM",
+        partNumber: "PCB-CTR065-001",
+        description: "Medical Grade Control Board",
+        market: "Medical",
+        type: "PCB",
         workspaceId,
-        partId: ramPart.id,
+        partId: pcb_ctr065.id,
         components: [],
       })
     ).safeUnwrap();
 
-    const ram4GB = yield* (
+    const pcb_ctr065_002 = yield* (
       await createPartVariation(db, {
-        partNumber: "RAM-4GB",
-        description: "4GB RAM",
+        partNumber: "PCB-CTR065-002",
+        description: "Control Board",
+        market: "Industrial",
+        type: "PCB",
         workspaceId,
-        partId: ramPart.id,
+        partId: pcb_ctr065.id,
         components: [],
       })
     ).safeUnwrap();
 
-    const cpu1234 = yield* (
-      await createPartVariation(db, {
-        partNumber: "CPU-1234",
-        description: "CPU 1234",
+    const pcb_pwr065 = yield* (
+      await createPart(db, {
+        name: "PCB-PWR065",
         workspaceId,
-        partId: cpuPart.id,
+        productName: product.name,
+        description: "Power Board",
+      })
+    ).safeUnwrap();
+
+    const pcb_pwr065_001 = yield* (
+      await createPartVariation(db, {
+        partNumber: "PCB-PWR065-001",
+        description: "Medical Grade Power Board",
+        market: "Medical",
+        type: "PCB",
+        workspaceId,
+        partId: pcb_pwr065.id,
         components: [],
       })
     ).safeUnwrap();
 
-    const diskABCD = yield* (
+    const pcb_pwr065_002 = yield* (
       await createPartVariation(db, {
-        partNumber: "Disk-ABCD",
-        description: "Disk ABCD",
+        partNumber: "PCB-PWR065-002",
+        description: "Power Board",
+        market: "Industrial",
+        type: "PCB",
         workspaceId,
-        partId: diskPart.id,
+        partId: pcb_pwr065.id,
         components: [],
       })
     ).safeUnwrap();
 
-    const pi58GB = yield* (
-      await createPartVariation(db, {
-        partNumber: "PI-5-8GB",
-        description: "Pi 5 with 8GB RAM",
+    const act_065000 = yield* (
+      await createPart(db, {
+        name: "ACT-065000",
         workspaceId,
-        partId: piPart.id,
+        productName: product.name,
+        description: "Actuator 65mm",
+      })
+    ).safeUnwrap();
+
+    const act_065000_001 = yield* (
+      await createPartVariation(db, {
+        partNumber: "ACT-065000-001",
+        description: "Medical Grade Actuator 65mm",
+        market: "Medical",
+        type: "ACTUATOR",
+        workspaceId,
+        partId: act_065000.id,
         components: [
-          { partVariationId: ram8GB.id, count: 1 },
-          { partVariationId: cpu1234.id, count: 1 },
-          { partVariationId: diskABCD.id, count: 1 },
+          { partVariationId: pcb_pwr065_001.id, count: 1 },
+          { partVariationId: pcb_ctr065_001.id, count: 1 },
         ],
       })
     ).safeUnwrap();
 
-    yield* (
+    const act_065000_002 = yield* (
       await createPartVariation(db, {
-        partNumber: "PI-5-4GB",
-        description: "Pi 5 with 4GB RAM",
+        partNumber: "ACT-065000-002",
+        description: "Actuator 65mm",
+        market: "Industrial",
+        type: "ACTUATOR",
         workspaceId,
-        partId: piPart.id,
+        partId: act_065000.id,
         components: [
-          { partVariationId: ram4GB.id, count: 1 },
-          { partVariationId: cpu1234.id, count: 1 },
-          { partVariationId: diskABCD.id, count: 1 },
+          { partVariationId: pcb_pwr065_002.id, count: 1 },
+          { partVariationId: pcb_ctr065_002.id, count: 1 },
         ],
       })
     ).safeUnwrap();
 
-    const pi5Project = yield* (
+    const act_110000 = yield* (
+      await createPart(db, {
+        name: "ACT-110000",
+        workspaceId,
+        productName: product.name,
+        description: "Actuator 110mm",
+      })
+    ).safeUnwrap();
+
+    const act_110000_001 = yield* (
+      await createPartVariation(db, {
+        partNumber: "ACT-110000-001",
+        description: "Medical Grade Actuator 110mm",
+        market: "Medical",
+        type: "ACTUATOR",
+        workspaceId,
+        partId: act_110000.id,
+        components: [
+          { partVariationId: pcb_pwr065_001.id, count: 1 },
+          { partVariationId: pcb_ctr065_001.id, count: 1 },
+        ],
+      })
+    ).safeUnwrap();
+
+    const act_110000_002 = yield* (
+      await createPartVariation(db, {
+        partNumber: "ACT-110000-002",
+        description: "Actuator 110mm",
+        market: "Industrial",
+        type: "ACTUATOR",
+        workspaceId,
+        partId: act_110000.id,
+        components: [
+          { partVariationId: pcb_pwr065_002.id, count: 1 },
+          { partVariationId: pcb_ctr065_002.id, count: 1 },
+        ],
+      })
+    ).safeUnwrap();
+
+    const act_092000 = yield* (
+      await createPart(db, {
+        name: "ACT-092000",
+        workspaceId,
+        productName: product.name,
+        description: "Actuator 92mm",
+      })
+    ).safeUnwrap();
+
+    const act_092000_001 = yield* (
+      await createPartVariation(db, {
+        partNumber: "ACT-092000-001",
+        description: "Medical Grade Actuator 92mm",
+        market: "Medical",
+        type: "ACTUATOR",
+        workspaceId,
+        partId: act_092000.id,
+        components: [
+          { partVariationId: pcb_pwr065_001.id, count: 1 },
+          { partVariationId: pcb_ctr065_001.id, count: 1 },
+        ],
+      })
+    ).safeUnwrap();
+
+    const act_092000_002 = yield* (
+      await createPartVariation(db, {
+        partNumber: "ACT-092000-002",
+        description: "Actuator 92mm",
+        market: "Industrial",
+        type: "ACTUATOR",
+        workspaceId,
+        partId: act_092000.id,
+        components: [
+          { partVariationId: pcb_pwr065_002.id, count: 1 },
+          { partVariationId: pcb_ctr065_002.id, count: 1 },
+        ],
+      })
+    ).safeUnwrap();
+
+    const bs_lp1000 = yield* (
+      await createPart(db, {
+        name: "BS-LP1000",
+        workspaceId,
+        productName: product.name,
+        description: "Robot Platform Base",
+      })
+    ).safeUnwrap();
+
+    const bs_lp1000_001 = yield* (
+      await createPartVariation(db, {
+        partNumber: "BS-LP1000-001",
+        description: "Medical Grade Base Platform",
+        market: "Medical",
+        type: "Base",
+        workspaceId,
+        partId: bs_lp1000.id,
+        components: [],
+      })
+    ).safeUnwrap();
+
+    const bs_lp1000_002 = yield* (
+      await createPartVariation(db, {
+        partNumber: "BS-LP1000-002",
+        description: "Base Platform",
+        market: "Industrial",
+        type: "Base",
+        workspaceId,
+        partId: bs_lp1000.id,
+        components: [],
+      })
+    ).safeUnwrap();
+
+    const wst_lp2000 = yield* (
+      await createPart(db, {
+        name: "WST-LP2000",
+        workspaceId,
+        productName: product.name,
+        description: "Robot Wrist",
+      })
+    ).safeUnwrap();
+
+    const wst_lp2000_001 = yield* (
+      await createPartVariation(db, {
+        partNumber: "WST-LP2000-001",
+        description: "Medical Grade Wrist Platform",
+        market: "Medical",
+        type: "Wrist",
+        workspaceId,
+        partId: wst_lp2000.id,
+        components: [],
+      })
+    ).safeUnwrap();
+
+    const wst_lp2000_002 = yield* (
+      await createPartVariation(db, {
+        partNumber: "WST-LP2000-002",
+        description: "Wrist Platform",
+        market: "Industrial",
+        type: "Wrist",
+        workspaceId,
+        partId: wst_lp2000.id,
+        components: [],
+      })
+    ).safeUnwrap();
+
+    const arm_pl1000 = yield* (
+      await createPart(db, {
+        name: "ARM-PL1000",
+        workspaceId,
+        productName: product.name,
+        description: "Arm Platform",
+      })
+    ).safeUnwrap();
+
+    const arm_pl1000_001 = yield* (
+      await createPartVariation(db, {
+        partNumber: "ARM-PL1000-001",
+        description: "Medical Grade Arm Platform",
+        market: "Medical",
+        type: "ARM",
+        workspaceId,
+        partId: arm_pl1000.id,
+        components: [
+          { partVariationId: bs_lp1000_001.id, count: 1 },
+          { partVariationId: wst_lp2000_001.id, count: 1 },
+          { partVariationId: act_065000_001.id, count: 1 },
+          { partVariationId: act_092000_001.id, count: 1 },
+          { partVariationId: act_110000_001.id, count: 1 },
+        ],
+      })
+    ).safeUnwrap();
+
+    const arm_pl1000_002 = yield* (
+      await createPartVariation(db, {
+        partNumber: "ARM-PL1000-002",
+        description: "Arm Platform",
+        market: "Industrial",
+        type: "ARM",
+        workspaceId,
+        partId: arm_pl1000.id,
+        components: [
+          { partVariationId: bs_lp1000_002.id, count: 1 },
+          { partVariationId: wst_lp2000_002.id, count: 1 },
+          { partVariationId: act_065000_002.id, count: 1 },
+          { partVariationId: act_092000_002.id, count: 1 },
+          { partVariationId: act_110000_002.id, count: 1 },
+        ],
+      })
+    ).safeUnwrap();
+
+    // const functionTestingMedicalArm = yield* (
+    //   await createProject(db, {
+    //     name: "Functional Testing - Med. ARM-PL1000",
+    //     partVariationId: arm_pl1000_001.id,
+    //     workspaceId,
+    //     numCycles: 1,
+    //   })
+    // ).safeUnwrap();
+    // await db
+    //   .insertInto("project_user")
+    //   .values({
+    //     projectId: functionTestingMedicalArm.id,
+    //     userId: workspaceUser.userId,
+    //     role: "developer",
+    //     workspaceId: workspaceUser.workspaceId,
+    //   })
+    //   .executeTakeFirstOrThrow();
+
+    // ~~~ Sample Tests for Power Board ~~~
+
+    const powerTestingPowerBoard = yield* (
       await createProject(db, {
-        name: "Pi-5 Test Profile",
-        partVariationId: pi58GB.id,
+        name: "Power Testing - PCB-CTR065-001",
+        partVariationId: pcb_pwr065_001.id,
         workspaceId,
         numCycles: 1,
       })
     ).safeUnwrap();
-
     await db
       .insertInto("project_user")
       .values({
-        projectId: pi5Project.id,
+        projectId: powerTestingPowerBoard.id,
         userId: workspaceUser.userId,
         role: "developer",
         workspaceId: workspaceUser.workspaceId,
       })
       .executeTakeFirstOrThrow();
 
+    const station1 = yield* (
+      await createStation(db, {
+        name: "Station A-01",
+        projectId: powerTestingPowerBoard.id,
+      })
+    ).safeUnwrap();
+
+    const station2 = yield* (
+      await createStation(db, {
+        name: "Station B-02",
+        projectId: powerTestingPowerBoard.id,
+      })
+    ).safeUnwrap();
+
+
     const booleanTest = yield* (
       await createTest(db, {
-        name: "Did Light Up",
-        projectId: pi5Project.id,
+        name: "Did Power On",
+        projectId: powerTestingPowerBoard.id,
         measurementType: "boolean",
       })
     ).safeUnwrap();
@@ -174,7 +409,7 @@ export async function populateExample(
     const scalarTest = yield* (
       await createTest(db, {
         name: "Voltage Test",
-        projectId: pi5Project.id,
+        projectId: powerTestingPowerBoard.id,
         measurementType: "scalar",
         unit: "V",
       })
@@ -182,168 +417,104 @@ export async function populateExample(
 
     const dataframeTest = yield* (
       await createTest(db, {
-        name: "Expected vs Measured",
-        projectId: pi5Project.id,
+        name: "Temperature Test",
+        projectId: powerTestingPowerBoard.id,
         measurementType: "dataframe",
       })
     ).safeUnwrap();
 
-    const ram8GBUnits = _.times(9, (i) => ({
+    const powerBoardUnits = _.times(961, (i) => ({
       id: generateDatabaseId("unit"),
-      serialNumber: `RAM-8GB-00${i + 1}`,
-      partVariationId: ram8GB.id,
+      serialNumber: `${pcb_pwr065_001.partNumber}-S${i + 1}`,
+      partVariationId: pcb_pwr065_001.id,
       workspaceId,
     }));
 
-    const cpuUnits = _.times(9, (i) => ({
-      id: generateDatabaseId("unit"),
-      serialNumber: `CPU-1234-00${i + 1}`,
-      partVariationId: cpu1234.id,
-      workspaceId,
-    }));
-
-    const diskUnits = _.times(9, (i) => ({
-      id: generateDatabaseId("unit"),
-      serialNumber: `DISK-ABCD-00${i + 1}`,
-      partVariationId: diskABCD.id,
-      workspaceId,
-    }));
-
-    const rams = await db
+    const powerBoards = await db
       .insertInto("unit")
-      .values([...ram8GBUnits])
+      .values([...powerBoardUnits])
       .returningAll()
       .execute();
 
-    const cpus = await db
-      .insertInto("unit")
-      .values([...cpuUnits])
-      .returningAll()
-      .execute();
 
-    const disks = await db
-      .insertInto("unit")
-      .values([...diskUnits])
-      .returningAll()
-      .execute();
-
-    if (!rams || !cpus || !disks) {
-      return err("Failed to create unit devices");
-    }
-
-    const piUnits = _.times(9, (i) => ({
-      id: generateDatabaseId("unit"),
-      serialNumber: `RSP-PI-8GB-00${i + 1}`,
-      partVariationId: pi58GB.id,
-      workspaceId,
-    }));
-
-    const pis = await db
-      .insertInto("unit")
-      .values([...piUnits])
-      .returningAll()
-      .execute();
-
-    await db
-      .insertInto("unit_relation")
-      .values(
-        pis.map((pi, i) => ({
-          parentUnitId: pi.id,
-          childUnitId: cpus[i].id,
-          workspaceId,
-        })),
-      )
-      .execute();
-
-    await db
-      .insertInto("unit_relation")
-      .values(
-        pis.map((pi, i) => ({
-          parentUnitId: pi.id,
-          childUnitId: rams[i].id,
-          workspaceId,
-        })),
-      )
-      .execute();
-
-    await db
-      .insertInto("unit_relation")
-      .values(
-        pis.map((pi, i) => ({
-          parentUnitId: pi.id,
-          childUnitId: disks[i].id,
-          workspaceId,
-        })),
-      )
-      .execute();
-
-    await db
-      .insertInto("project_unit")
-      .values(
-        pis.map((hw) => ({
-          unitId: hw.id,
-          projectId: pi5Project.id,
-        })),
-      )
-      .execute();
-
-    const station = yield* (
-      await createStation(db, {
-        name: "Station 1",
-        projectId: pi5Project.id,
-      })
-    ).safeUnwrap();
-
-    for (let i = 0; i < pis.length; i++) {
-      const unit = pis[i]!;
-      const val = Math.random() < 0.8;
-
-      yield* (
-        await createSession(db, workspaceId, workspaceUser.userId, {
-          serialNumber: unit.serialNumber,
-          stationId: station.id,
-          notes: "This is a test session",
-          integrity: true,
-          aborted: false,
-          measurements: [
-            {
-              name: "Voltage Test",
-              testId: scalarTest.id,
-              createdAt: new Date(new Date().getTime() - i * ONE_DAY),
-              durationMs: 1000,
-              data: {
-                type: "scalar" as const,
-                value: Math.round((5 + Math.random()) * 100) / 100,
-                unit: "V",
+    for (let i = 0; i < powerBoards.length; i++) {
+      const unit = powerBoards[i]!;
+      const didPowerOn = Math.random() < 0.96;
+      const sessionStartDate = new Date().getTime() - Math.round(i/10) * ONE_DAY;
+      if (didPowerOn) {
+        yield* (
+          await createSession(db, workspaceId, workspaceUser.userId, {
+            serialNumber: unit.serialNumber,
+            stationId: Math.random() < 0.66 ? station1.id : station2.id,
+            notes: "This is a test session",
+            integrity: true,
+            aborted: false,
+            measurements: [
+              {
+                name: "Did Power On",
+                durationMs: Math.round(Math.random() * ONE_SEC * 12),
+                testId: booleanTest.id,
+                createdAt: new Date(sessionStartDate),
+                data: { type: "boolean" as const, value: didPowerOn },
+                pass: didPowerOn,
               },
-              pass: val,
-            },
-            {
-              name: "Did Light Up",
-              durationMs: 1000,
-              testId: booleanTest.id,
-              createdAt: new Date(new Date().getTime() - i * i * 5 * ONE_DAY),
-              data: { type: "boolean" as const, value: val },
-              pass: val,
-            },
-            {
-              name: "Expected vs Measured",
-              testId: dataframeTest.id,
-              createdAt: new Date(new Date().getTime() - i * i * 5 * ONE_DAY),
-              durationMs: 1566,
-              data: {
-                type: "dataframe" as const,
-                value: {
-                  x: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-                  y: generateRandomNumbers(),
+            ],
+            createdAt: new Date(sessionStartDate),
+          })
+        ).safeUnwrap();
+      } else {
+        const powerOnTime = Math.round(Math.random() * ONE_SEC * 2);
+        const powerData = generateVoltage(5, 1);
+        const powerPass = powerData > 4.2 && powerData < 5.8;
+        const temperatureData = generateTemperature();
+        const temperaturePass = temperatureData.filter((t) => t > 105).length === 0;
+        yield* (
+          await createSession(db, workspaceId, workspaceUser.userId, {
+            serialNumber: unit.serialNumber,
+            stationId: Math.random() < 0.72 ? station1.id : station2.id,
+            notes: "This is an Example",
+            integrity: true,
+            aborted: false,
+            measurements: [
+              {
+                name: "Did Power On",
+                durationMs: powerOnTime,
+                testId: booleanTest.id,
+                createdAt: new Date(sessionStartDate),
+                data: { type: "boolean" as const, value: didPowerOn },
+                pass: didPowerOn,
+              },
+              {
+                name: "Voltage Test",
+                testId: scalarTest.id,
+                createdAt: new Date(sessionStartDate + powerOnTime),
+                durationMs: 1000,
+                data: {
+                  type: "scalar" as const,
+                  value: powerData,
+                  unit: "V",
                 },
+                pass: powerPass,
               },
-              pass: Math.random() < 0.7 ? true : false,
-            },
-          ],
-          createdAt: new Date(new Date().getTime() - i * i * 5 * ONE_DAY),
-        })
-      ).safeUnwrap();
+              {
+                name: "Temperature Test",
+                testId: dataframeTest.id,
+                createdAt: new Date(sessionStartDate + powerOnTime + 1),
+                durationMs: 10000,
+                data: {
+                  type: "dataframe" as const,
+                  value: {
+                    x: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                    y: temperatureData,
+                  },
+                },
+                pass: temperaturePass,
+              },
+            ],
+            createdAt: new Date(sessionStartDate),
+          })
+        ).safeUnwrap();
+      }
     }
 
     return ok(undefined);
