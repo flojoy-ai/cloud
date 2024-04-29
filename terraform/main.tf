@@ -5,6 +5,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 3.0.2"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~>3.0"
+    }
   }
 
   required_version = ">= 1.1.0"
@@ -16,10 +20,19 @@ provider "azurerm" {
 
 resource "azurerm_resource_group" "flojoy-cloud-rg" {
   name     = "flojoy-cloud-rg"
-  location = "canadacentral"
+  location = var.location
   tags = {
-    environment = "production"
+    environment = var.environment
   }
+}
+
+# Generate random value for the storage account name
+resource "random_string" "storage_account_name" {
+  length  = 8
+  lower   = true
+  numeric = false
+  special = false
+  upper   = false
 }
 
 resource "azurerm_virtual_network" "flojoy-cloud-vnet" {
@@ -29,7 +42,7 @@ resource "azurerm_virtual_network" "flojoy-cloud-vnet" {
   address_space       = ["10.123.0.0/16"]
 
   tags = {
-    environment = "production"
+    environment = var.environment
   }
 }
 
@@ -46,7 +59,7 @@ resource "azurerm_network_security_group" "flojoy-cloud-nsg" {
   location            = azurerm_resource_group.flojoy-cloud-rg.location
 
   tags = {
-    environment = "production"
+    environment = var.environment
   }
 }
 
@@ -76,7 +89,7 @@ resource "azurerm_public_ip" "flojoy-cloud-public-ip" {
   allocation_method   = "Dynamic"
 
   tags = {
-    environment = "production"
+    environment = var.environment
   }
 }
 
@@ -93,10 +106,24 @@ resource "azurerm_network_interface" "flojoy-cloud-nic" {
   }
 
   tags = {
-    environment = "production"
+    environment = var.environment
   }
 }
 
+resource "azurerm_storage_account" "caddy-storage-account" {
+  name                      = random_string.storage_account_name.result
+  resource_group_name       = azurerm_resource_group.flojoy-cloud-rg.name
+  location                  = azurerm_resource_group.flojoy-cloud-rg.location
+  account_tier              = "Standard"
+  account_replication_type  = "LRS"
+  enable_https_traffic_only = true
+}
+
+resource "azurerm_storage_share" "caddy-storage-share" {
+  name                 = "caddy-storage-share"
+  storage_account_name = azurerm_storage_account.caddy-storage-account.name
+  quota                = 1
+}
 
 resource "azurerm_postgresql_flexible_server" "flojoy-cloud-postgres-server" {
   name                   = "flojoy-cloud-postgres-server"
@@ -110,7 +137,7 @@ resource "azurerm_postgresql_flexible_server" "flojoy-cloud-postgres-server" {
   zone                   = "1"
 
   tags = {
-    environment = "production"
+    environment = var.environment
   }
 
 }
@@ -127,29 +154,41 @@ resource "azurerm_postgresql_flexible_server_database" "flojoy-cloud-postgres-db
   }
 }
 
-resource "azurerm_container_group" "flojoy-cloud-container-group" {
-  name                = "flojoy-cloud-container-group"
+resource "azurerm_container_group" "flojoy-cloud-server-container-group" {
+  name                = "flojoy-cloud-server-container-group"
   location            = azurerm_resource_group.flojoy-cloud-rg.location
   resource_group_name = azurerm_resource_group.flojoy-cloud-rg.name
-  ip_address_type     = "Public"
-  os_type             = "Linux"
-  restart_policy      = "Always"
+
+  ip_address_type = "Public"
+  os_type         = "Linux"
+  restart_policy  = "Always"
+  dns_name_label  = var.server-dns-name-label
 
   container {
-    name   = "flojoy-cloud-web-container"
-    image  = "flojoyai/cloud-web:latest"
-    cpu    = 1
-    memory = 2
+    name   = "caddy-container"
+    image  = "caddy"
+    memory = "0.5"
+    cpu    = "0.5"
 
     ports {
-      port     = 5173
+      port     = 80
       protocol = "TCP"
     }
 
-    environment_variables = {
-      PORT            = 5173
-      VITE_SERVER_URL = "http://${azurerm_public_ip.flojoy-cloud-public-ip.ip_address}:3000"
+    ports {
+      port     = 443
+      protocol = "TCP"
     }
+
+    volume {
+      name                 = "caddy-container-volume"
+      mount_path           = "/data"
+      storage_account_name = azurerm_storage_account.caddy-storage-account.name
+      storage_account_key  = azurerm_storage_account.caddy-storage-account.primary_access_key
+      share_name           = azurerm_storage_share.caddy-storage-share.name
+    }
+
+    commands = ["caddy", "reverse-proxy", "--from", "${var.server-dns-name-label}.${var.location}.azurecontainer.io", "--to", "localhost:3000"]
   }
 
   container {
@@ -164,14 +203,71 @@ resource "azurerm_container_group" "flojoy-cloud-container-group" {
     }
 
     environment_variables = {
-      NODE_ENV            = "production"
-      DATABASE_URL        = "postgres://admin:password@${azurerm_postgresql_flexible_server.flojoy-cloud-postgres-server.fqdn}/flojoy_cloud"
-      WEB_URI             = "http://${azurerm_public_ip.flojoy-cloud-public-ip.ip_address}:5173"
-      JWT_SECRET          = "secret"
-      ENTRA_TENANT_ID     = ""
-      ENTRA_CLIENT_ID     = ""
-      ENTRA_CLIENT_SECRET = ""
-      ENTRA_REDIRECT_URI  = ""
+      NODE_ENV     = "production"
+      DATABASE_URL = var.database-url
+      WEB_URI      = "${var.web-dns-name-label}.${var.location}.azurecontainer.io"
+      JWT_SECRET   = var.jwt-secret
+
+      ENTRA_TENANT_ID     = var.entra-tenant-id
+      ENTRA_CLIENT_ID     = var.entra-client-id
+      ENTRA_CLIENT_SECRET = var.entra-client-secret
+      ENTRA_REDIRECT_URI  = "https://${var.server-dns-name-label}.${var.location}.azurecontainer.io/auth/entra/callback"
+    }
+  }
+}
+
+
+resource "azurerm_container_group" "flojoy-cloud-web-container-group" {
+  name                = "flojoy-cloud-web-container-group"
+  location            = azurerm_resource_group.flojoy-cloud-rg.location
+  resource_group_name = azurerm_resource_group.flojoy-cloud-rg.name
+
+  ip_address_type = "Public"
+  os_type         = "Linux"
+  restart_policy  = "Always"
+  dns_name_label  = var.web-dns-name-label
+
+  container {
+    name   = "caddy-container"
+    image  = "caddy"
+    memory = "0.5"
+    cpu    = "0.5"
+
+    ports {
+      port     = 80
+      protocol = "TCP"
+    }
+
+    ports {
+      port     = 443
+      protocol = "TCP"
+    }
+
+    volume {
+      name                 = "caddy-container-volume"
+      mount_path           = "/data"
+      storage_account_name = azurerm_storage_account.caddy-storage-account.name
+      storage_account_key  = azurerm_storage_account.caddy-storage-account.primary_access_key
+      share_name           = azurerm_storage_share.caddy-storage-share.name
+    }
+
+    commands = ["caddy", "reverse-proxy", "--from", "${var.web-dns-name-label}.${var.location}.azurecontainer.io", "--to", "localhost:5173"]
+  }
+
+  container {
+    name   = "flojoy-cloud-web-container"
+    image  = "flojoyai/cloud-web:latest"
+    cpu    = 1
+    memory = 2
+
+    ports {
+      port     = 5173
+      protocol = "TCP"
+    }
+
+    environment_variables = {
+      PORT            = 5173
+      VITE_SERVER_URL = "https://${var.server-dns-name-label}.${var.location}.azurecontainer.io"
     }
   }
 }
