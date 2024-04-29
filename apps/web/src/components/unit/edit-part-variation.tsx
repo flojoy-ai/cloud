@@ -381,7 +381,7 @@ const EditPartVariation = ({
                   Close
                 </Button>
               </DialogClose>
-              <Button type="submit">Create</Button>
+              <Button type="submit">Update</Button>
             </DialogFooter>
           </form>
         </Form>
