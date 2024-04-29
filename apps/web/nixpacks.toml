@@ -7,7 +7,11 @@
 cmds = ['bun install']
 
 [phases.build]
-cmds = ['cd apps/web && bun run build']
+cmd = ''
+# cmds = ['cd apps/web && bun run build']
+# NOTE: skip build here because the build also bundles all the `VITE_` env vars
+# but those are specific to the deployment environment, so we want to skip that
+# and let the deployment environment handle it
 
 [start]
-cmd = 'cd apps/web && bun start'
+cmd = 'cd apps/web && bun run build && bun start'
