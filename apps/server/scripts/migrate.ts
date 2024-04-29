@@ -9,7 +9,9 @@ import { type DB } from "@cloud/shared";
 
 async function migrate() {
   const pool = new pg.Pool({
-    connectionString: env.DATABASE_URL,
+    connectionString:
+      env.DATABASE_URL +
+      (process.env.NODE_ENV === "production" ? "?sslmode=require" : ""),
   });
 
   const db = new Kysely<DB>({

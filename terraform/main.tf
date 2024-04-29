@@ -141,6 +141,12 @@ resource "azurerm_postgresql_flexible_server" "flojoy-cloud-postgres-server" {
   }
 }
 
+resource "azurerm_postgresql_flexible_server_configuration" "flojoy-cloud-postgres-server-config" {
+  name      = "azure.extensions"
+  server_id = azurerm_postgresql_flexible_server.flojoy-cloud-postgres-server.id
+  value     = "PG_TRGM"
+}
+
 resource "azurerm_postgresql_flexible_server_database" "flojoy-cloud-postgres-db" {
   name      = "flojoy-cloud-postgres-db"
   server_id = azurerm_postgresql_flexible_server.flojoy-cloud-postgres-server.id
@@ -214,7 +220,6 @@ resource "azurerm_container_group" "flojoy-cloud-server-container-group" {
     }
   }
 }
-
 
 resource "azurerm_container_group" "flojoy-cloud-web-container-group" {
   name                = "flojoy-cloud-web-container-group"

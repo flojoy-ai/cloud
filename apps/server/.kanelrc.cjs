@@ -12,7 +12,7 @@ const outputPath = "../../packages/shared/src/schemas";
 module.exports = {
   connection:
     process.env.DATABASE_URL +
-    (process.env.NODE_ENV === "development" ? "" : "?sslmode=require"),
+    (process.env.NODE_ENV === "production" ? "?sslmode=require" : ""),
 
   preDeleteOutputFolder: true,
   outputPath,
