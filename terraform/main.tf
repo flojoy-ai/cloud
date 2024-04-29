@@ -139,7 +139,6 @@ resource "azurerm_postgresql_flexible_server" "flojoy-cloud-postgres-server" {
   tags = {
     environment = var.environment
   }
-
 }
 
 resource "azurerm_postgresql_flexible_server_database" "flojoy-cloud-postgres-db" {
@@ -204,7 +203,7 @@ resource "azurerm_container_group" "flojoy-cloud-server-container-group" {
 
     environment_variables = {
       NODE_ENV     = "production"
-      DATABASE_URL = var.database-url
+      DATABASE_URL = "postgresql://${azurerm_postgresql_flexible_server.flojoy-cloud-postgres-server.administrator_login}:${azurerm_postgresql_flexible_server.flojoy-cloud-postgres-server.administrator_password}@${azurerm_postgresql_flexible_server.flojoy-cloud-postgres-server.name}.postgres.database.azure.com:5432/${azurerm_postgresql_flexible_server_database.flojoy-cloud-postgres-db.name}"
       WEB_URI      = "${var.web-dns-name-label}.${var.location}.azurecontainer.io"
       JWT_SECRET   = var.jwt-secret
 

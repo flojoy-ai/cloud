@@ -33,7 +33,6 @@ variable "entra-tenant-id" {
   sensitive = true
 }
 
-
 variable "database-url" {
   type      = string
   sensitive = true
@@ -43,5 +42,3 @@ variable "jwt-secret" {
   type      = string
   sensitive = true
 }
-
-
