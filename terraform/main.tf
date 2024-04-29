@@ -148,7 +148,7 @@ resource "azurerm_container_group" "flojoy-cloud-container-group" {
 
     environment_variables = {
       PORT            = 5173
-      VITE_SERVER_URL = "http://localhost:3000"
+      VITE_SERVER_URL = "http://${azurerm_public_ip.flojoy-cloud-public-ip.ip_address}:3000"
     }
   }
 
@@ -166,8 +166,8 @@ resource "azurerm_container_group" "flojoy-cloud-container-group" {
     environment_variables = {
       NODE_ENV            = "production"
       DATABASE_URL        = "postgres://admin:password@${azurerm_postgresql_flexible_server.flojoy-cloud-postgres-server.fqdn}/flojoy_cloud"
-      WEB_URI             = "http://localhost:5173"
-      JWT_SECRET          = ""
+      WEB_URI             = "http://${azurerm_public_ip.flojoy-cloud-public-ip.ip_address}:5173"
+      JWT_SECRET          = "secret"
       ENTRA_TENANT_ID     = ""
       ENTRA_CLIENT_ID     = ""
       ENTRA_CLIENT_SECRET = ""
