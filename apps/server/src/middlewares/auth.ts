@@ -39,7 +39,7 @@ export const AuthMiddleware = new Elysia()
       }
 
       // use headers instead of Cookie API to prevent type coercion
-      const cookieHeader = context.request.headers.get("Cookie") ?? "";
+      const cookieHeader = context.request.headers.get("cookie") ?? "";
       const sessionId = lucia.readSessionCookie(cookieHeader);
       if (!sessionId) {
         return {
