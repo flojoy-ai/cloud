@@ -423,7 +423,7 @@ export async function populateExample(
       let didPowerOn = Math.random() < 0.9;
       const sessionStartDate =
         new Date().getTime() - Math.round(i / 10) * ONE_DAY;
-      if (didPowerOn) {
+      if (!didPowerOn) {
         let j = 0;
         while (!didPowerOn && j < 2) {
           yield* (
@@ -549,7 +549,7 @@ export async function populateExample(
         })
       ).safeUnwrap();
 
-      const PartVarUnits = _.times(198, (i) => ({
+      const partVarUnits = _.times(198, (i) => ({
         id: generateDatabaseId("unit"),
         serialNumber: `${partVar.partNumber}-S${i + 1}`,
         partVariationId: partVar.id,
@@ -558,7 +558,7 @@ export async function populateExample(
 
       const unitsCreated = await db
         .insertInto("unit")
-        .values([...PartVarUnits])
+        .values([...partVarUnits])
         .returningAll()
         .execute();
 
