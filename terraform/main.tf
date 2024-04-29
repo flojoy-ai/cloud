@@ -130,8 +130,8 @@ resource "azurerm_postgresql_flexible_server" "flojoy-cloud-postgres-server" {
   resource_group_name    = azurerm_resource_group.flojoy-cloud-rg.name
   location               = azurerm_resource_group.flojoy-cloud-rg.location
   version                = 12
-  administrator_login    = "postgresadmin"
-  administrator_password = "P@ssw0rd1234"
+  administrator_login    = "user"
+  administrator_password = "password"
   storage_mb             = 32768
   sku_name               = "GP_Standard_D4s_v3"
   zone                   = "1"
