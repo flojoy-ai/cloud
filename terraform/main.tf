@@ -126,7 +126,7 @@ resource "azurerm_storage_share" "caddy-storage-share" {
 }
 
 resource "azurerm_postgresql_flexible_server" "flojoy-cloud-postgres-server" {
-  name                   = "flojoy-cloud-postgres-server"
+  name                   = "flojoy-cloud-postgres-flexible-server"
   resource_group_name    = azurerm_resource_group.flojoy-cloud-rg.name
   location               = azurerm_resource_group.flojoy-cloud-rg.location
   version                = 12
@@ -148,7 +148,7 @@ resource "azurerm_postgresql_flexible_server_configuration" "flojoy-cloud-postgr
 }
 
 resource "azurerm_postgresql_flexible_server_database" "flojoy-cloud-postgres-db" {
-  name      = "flojoy-cloud-postgres-db"
+  name      = "flojoy-cloud-postgres-flexible-db"
   server_id = azurerm_postgresql_flexible_server.flojoy-cloud-postgres-server.id
   charset   = "utf8"
   collation = "en_US.utf8"

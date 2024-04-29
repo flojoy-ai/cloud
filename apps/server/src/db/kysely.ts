@@ -5,7 +5,8 @@ import { Pool, types } from "pg";
 import { DB } from "@cloud/shared";
 
 export const pool = new Pool({
-  connectionString: env.DATABASE_URL,
+  connectionString:
+    env.DATABASE_URL + env.NODE_ENV === "production" ? "?sslmode=require" : "",
 });
 
 // NOTE: Return bigint as number instead of string
