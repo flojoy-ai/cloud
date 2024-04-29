@@ -141,6 +141,15 @@ resource "azurerm_postgresql_flexible_server" "flojoy-cloud-postgres-server" {
   }
 }
 
+resource "azurerm_postgresql_flexible_server_firewall_rule" "flojoy-cloud-postgres-flexible-server-fw-rule" {
+  name      = "flojoy-cloud-postgres-flexible-server-fw-rule"
+  server_id = azurerm_postgresql_flexible_server.flojoy-cloud-postgres-server.id
+
+  # allow-access-from-azure-services
+  start_ip_address = "0.0.0.0"
+  end_ip_address   = "0.0.0.0"
+}
+
 resource "azurerm_postgresql_flexible_server_configuration" "flojoy-cloud-postgres-server-config" {
   name      = "azure.extensions"
   server_id = azurerm_postgresql_flexible_server.flojoy-cloud-postgres-server.id
