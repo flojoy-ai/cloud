@@ -478,7 +478,7 @@ export async function updatePartVariation(
           .mapErr(
             (e) =>
               new BadRequestError(
-                `Cycle detected in component graph at: ${e.partNumber}, not allowed`,
+                `Cyclic reference detected in component hierarchy at: ${e.partNumber}, not allowed`,
               ),
           )
           .safeUnwrap();
