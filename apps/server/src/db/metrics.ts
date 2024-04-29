@@ -628,23 +628,9 @@ export async function testYieldOverTime(
   start: Date | undefined,
   end: Date | undefined,
 ) {
-  const [
-    passCount,
-    sessionCount
-  ] = await Promise.all([
-    sessionCountWithStatusOverTime(
-      projectId,
-      bin,
-      true,
-      start,
-      end,
-    ),
-    countProjectSessionsOverTime(
-      projectId,
-      bin,
-      start,
-      end,
-    )
+  const [passCount, sessionCount] = await Promise.all([
+    sessionCountWithStatusOverTime(projectId, bin, true, start, end),
+    countProjectSessionsOverTime(projectId, bin, start, end),
   ]);
 
   let i = 0;
@@ -674,7 +660,7 @@ export async function getProjectMetrics(projectId: string) {
     meanSessionTimeRes,
     totalFailedTestTimeRes,
     firstPassYieldRes,
-    testYieldRes
+    testYieldRes,
   ] = await Promise.all([
     projectCount("session", projectId),
     projectCount("project_unit", projectId),
@@ -686,10 +672,23 @@ export async function getProjectMetrics(projectId: string) {
     averageSessionTime(projectId),
     totalFailedTestTime(projectId),
     firstPassYield(projectId),
-    testYield(projectId)
+    testYield(projectId),
   ]);
 
-  console.log("Project metrics", { projectId, testSessionCountRes, unitCountRes, meanSessionsPerUnitRes, sessionPassedCountRes, sessionFailedCountRes, sessionAbortedCountRes, meanCycleTimeRes, meanSessionTimeRes, totalFailedTestTimeRes, firstPassYieldRes, testYieldRes });
+  console.log("Project metrics", {
+    projectId,
+    testSessionCountRes,
+    unitCountRes,
+    meanSessionsPerUnitRes,
+    sessionPassedCountRes,
+    sessionFailedCountRes,
+    sessionAbortedCountRes,
+    meanCycleTimeRes,
+    meanSessionTimeRes,
+    totalFailedTestTimeRes,
+    firstPassYieldRes,
+    testYieldRes,
+  });
 
   return {
     testSessionCount: testSessionCountRes,
@@ -702,7 +701,7 @@ export async function getProjectMetrics(projectId: string) {
     meanSessionTime: meanSessionTimeRes,
     totalFailedTestTime: totalFailedTestTimeRes,
     firstPassYield: firstPassYieldRes,
-    testYield: testYieldRes
+    testYield: testYieldRes,
   };
 }
 
@@ -725,52 +724,15 @@ export async function getProjectMetricsOverTime(
     firstPassYield,
     testYield,
   ] = await Promise.all([
-    countProjectSessionsOverTime(
-      projectId,
-      bin,
-      start,
-      end,
-    ),
+    countProjectSessionsOverTime(projectId, bin, start, end),
     await countProjectUnitsOverTime(projectId, bin, start, end),
-    projectMeanTestSessionsOverTime(
-      projectId,
-      bin,
-      start,
-      end,
-    ),
-    sessionCountWithStatusOverTime(
-      projectId,
-      bin,
-      true,
-      start,
-      end,
-    ),
-    sessionCountWithStatusOverTime(
-      projectId,
-      bin,
-      false,
-      start,
-      end,
-    ),
-    abortedSessionCountOverTime(
-      projectId,
-      bin,
-      start,
-      end,
-    ),
+    projectMeanTestSessionsOverTime(projectId, bin, start, end),
+    sessionCountWithStatusOverTime(projectId, bin, true, start, end),
+    sessionCountWithStatusOverTime(projectId, bin, false, start, end),
+    abortedSessionCountOverTime(projectId, bin, start, end),
     meanCycleTimeOverTime(projectId, bin, start, end),
-    averageSessionTimeOverTime(
-      projectId,
-      bin,
-      start,
-      end,
-    ),
-    totalFailedTestTimeOverTime(
-      projectId,
-      bin,
-      start,
-      end,
-    ),
+    averageSessionTimeOverTime(projectId, bin, start, end),
+    totalFailedTestTimeOverTime(projectId, bin, start, end),
     firstPassYieldOverTime(projectId, bin, start, end),
     testYieldOverTime(projectId, bin, start, end),
   ]);
