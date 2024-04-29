@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - "main"
+      - "joey/azure" # TODO: remove this
 
 jobs:
   build-web:

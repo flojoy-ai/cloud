@@ -97,60 +97,29 @@ resource "azurerm_network_interface" "flojoy-cloud-nic" {
   }
 }
 
-resource "azurerm_linux_virtual_machine" "flojoy-cloud-vm" {
-  name                = "flojoy-cloud-vm"
-  resource_group_name = azurerm_resource_group.flojoy-cloud-rg.name
-  location            = azurerm_resource_group.flojoy-cloud-rg.location
-  size                = "Standard_DS1_v2"
-  admin_username      = "adminuser"
-  network_interface_ids = [
-    azurerm_network_interface.flojoy-cloud-nic.id
-  ]
 
-  os_disk {
-    caching              = "ReadWrite"
-    storage_account_type = "Standard_LRS"
-  }
-
-  source_image_reference {
-    publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-jammy"
-    sku       = "22_04-lts"
-    version   = "latest"
-  }
-
-  admin_ssh_key {
-    username   = "adminuser"
-    public_key = file("~/.ssh/flojoy_cloud.pub")
-  }
+resource "azurerm_postgresql_flexible_server" "flojoy-cloud-postgres-server" {
+  name                   = "flojoy-cloud-postgres-server"
+  resource_group_name    = azurerm_resource_group.flojoy-cloud-rg.name
+  location               = azurerm_resource_group.flojoy-cloud-rg.location
+  version                = 12
+  administrator_login    = "postgresadmin"
+  administrator_password = "P@ssw0rd1234"
+  storage_mb             = 32768
+  sku_name               = "GP_Standard_D4s_v3"
+  zone                   = "1"
 
   tags = {
     environment = "production"
   }
+
 }
 
-resource "azurerm_postgresql_server" "flojoy-cloud-postgres-server" {
-  name                         = "flojoy-cloud-postgres-server"
-  resource_group_name          = azurerm_resource_group.flojoy-cloud-rg.name
-  location                     = azurerm_resource_group.flojoy-cloud-rg.location
-  sku_name                     = "B_Gen5_2"
-  storage_mb                   = 5120
-  version                      = 11
-  administrator_login          = "postgresadmin"
-  administrator_login_password = "P@ssw0rd1234"
-  ssl_enforcement_enabled      = true
-
-  tags = {
-    environment = "production"
-  }
-}
-
-resource "azurerm_postgresql_database" "flojoy-cloud-postgres-db" {
-  name                = "flojoy-cloud-postgres-db"
-  resource_group_name = azurerm_resource_group.flojoy-cloud-rg.name
-  server_name         = azurerm_postgresql_server.flojoy-cloud-postgres-server.name
-  charset             = "UTF8"
-  collation           = "English_United States.1252"
+resource "azurerm_postgresql_flexible_server_database" "flojoy-cloud-postgres-db" {
+  name      = "flojoy-cloud-postgres-db"
+  server_id = azurerm_postgresql_flexible_server.flojoy-cloud-postgres-server.id
+  charset   = "utf8"
+  collation = "en_US.utf8"
 
   # prevent the possibility of accidental data loss
   lifecycle {
@@ -192,6 +161,17 @@ resource "azurerm_container_group" "flojoy-cloud-container-group" {
     ports {
       port     = 3000
       protocol = "TCP"
+    }
+
+    environment_variables = {
+      NODE_ENV            = "production"
+      DATABASE_URL        = "postgres://admin:password@${azurerm_postgresql_flexible_server.flojoy-cloud-postgres-server.fqdn}/flojoy_cloud"
+      WEB_URI             = "http://localhost:5173"
+      JWT_SECRET          = ""
+      ENTRA_TENANT_ID     = ""
+      ENTRA_CLIENT_ID     = ""
+      ENTRA_CLIENT_SECRET = ""
+      ENTRA_REDIRECT_URI  = ""
     }
   }
 }
