@@ -43,14 +43,14 @@ jwt-secret = "secret"
 ## 3. Plan and Apply
 
 ```bash
-terraform plan
+terraform plan -var-file=secret.tfvars
 ```
 
 This will show you all the resources that will be created.
 If you are happy with the plan, you can apply it by running:
 
 ```bash
-terraform apply -auto-approve
+terraform apply -auto-approve -var-file=secret.tfvars
 ```
 
 This process will take a few minutes to complete.
