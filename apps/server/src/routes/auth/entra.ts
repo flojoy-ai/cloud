@@ -117,7 +117,7 @@ export const AuthEntraRoute = new Elysia({
           await tx
             .insertInto("oauth_account")
             .values({
-              providerId: "entra_id",
+              providerId: "entra",
               providerUserId: user.sub,
               userId,
             })
