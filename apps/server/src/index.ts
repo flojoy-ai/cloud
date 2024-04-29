@@ -44,9 +44,8 @@ const app = new Elysia()
         "use-superjson",
         "superjson-meta",
         "flojoy-workspace-personal-secret",
-        "cookie",
       ],
-      exposedHeaders: ["superjson-meta", "cookie"],
+      exposedHeaders: ["superjson-meta"],
     }),
   )
   .use(swagger())
