@@ -110,7 +110,7 @@ export const AuthEntraRoute = new Elysia({
             .values({
               id: userId,
               email: user.email,
-              emailVerified: user.email_verified,
+              emailVerified: true, // NOTE: Entra doesn't provide email_verified it seems like
             })
             .execute();
 
@@ -163,6 +163,5 @@ export const AuthEntraRoute = new Elysia({
 interface EntraUser {
   sub: string;
   email: string;
-  email_verified: boolean;
   picture: string;
 }
