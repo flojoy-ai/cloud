@@ -41,7 +41,7 @@ import { typeboxResolver } from "@hookform/resolvers/typebox";
 import { useMutation } from "@tanstack/react-query";
 import { Link, useRouter } from "@tanstack/react-router";
 import { Info } from "lucide-react";
-import { Combobox } from "../ui/combobox";
+import { Combobox } from "@/components/ui/combobox";
 
 type Props = {
   workspace: Workspace;
