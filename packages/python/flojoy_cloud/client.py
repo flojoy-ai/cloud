@@ -1,13 +1,37 @@
-# import datetime
-# import json
-# import os
-# from typing import Any, Callable, List, Optional, ParamSpec, TypeVar, overload
-#
-# import httpx
-# import numpy as np
-# import pandas as pd
-# from pydantic import BaseModel, TypeAdapter
-#
+import datetime
+import json
+import os
+from typing import Any, Callable, Literal, Optional, ParamSpec, TypeVar, overload
+
+import httpx
+import numpy as np
+import pandas as pd
+from pydantic import BaseModel, TypeAdapter
+
+from flojoy_cloud.dtypes import (
+    CountDataPoint,
+    Part,
+    PartVariation,
+    PartVariationComponent,
+    PartVariationType,
+    PartWithCounts,
+    Product,
+    SessionMeasurement,
+    Test,
+    TestProfile,
+    TestProfileMetrics,
+    TestProfileMetricsOverTime,
+    TestSession,
+    TestSessionWithMeasurements,
+    TestStation,
+    Unit,
+    UnitRevision,
+    UnitTreeRoot,
+    Workspace,
+    WorkspaceMetrics,
+)
+
+
 # from flojoy_cloud.dtypes import (
 #     Hardware,
 #     HardwareRevision,
@@ -25,412 +49,413 @@
 # from flojoy_cloud.measurement import MeasurementData, MeasurementType, make_payload
 #
 #
-# class CloudEncoder(json.JSONEncoder):
-#     def default(self, o):
-#         if isinstance(o, datetime.datetime) or isinstance(o, pd.Timestamp):
-#             return o.isoformat()
-#         elif isinstance(o, np.datetime64):
-#             timestamp = o.astype("datetime64[s]").astype(int)
-#             dt = datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
-#             return dt.isoformat()
-#         elif isinstance(o, np.integer):
-#             return int(o)
-#         elif isinstance(o, np.floating):
-#             return float(o)
-#         elif isinstance(o, np.ndarray):
-#             return o.tolist()
-#         return json.JSONEncoder.default(self, o)
-#
-#
-# class FlojoyCloudException(Exception):
-#     pass
-#
-#
-# T = TypeVar("T", bound=BaseModel)
-# U = TypeVar("U")
-# P = ParamSpec("P")
-#
-#
-# @overload
-# def query(
-#     model: None,
-# ) -> Callable[[Callable[P, httpx.Response]], Callable[P, None]]: ...
-#
-#
-# @overload
-# def query(
-#     model: type[T],
-# ) -> Callable[[Callable[P, httpx.Response]], Callable[P, T]]: ...
-#
-#
-# @overload
-# def query(
-#     model: TypeAdapter[U],
-# ) -> Callable[[Callable[P, httpx.Response]], Callable[P, U]]: ...
-#
-#
-# def query(
-#     model: type[T] | TypeAdapter[U] | None,
-# ) -> Callable[[Callable[P, httpx.Response]], Callable[P, T | U | None]]:
-#     def decorator(func: Callable[P, httpx.Response]):
-#         def wrapper(*args: P.args, **kwargs: P.kwargs):
-#             res = func(*args, **kwargs)
-#
-#             if res.status_code >= 400:
-#                 error_json = json.loads(res.text)
-#                 raise FlojoyCloudException(
-#                     f"An exception occurred when making a request\n "
-#                     f"{error_json['code']}: {error_json['message']}"
-#                 )
-#             if model is None:
-#                 return None
-#
-#             match model:
-#                 case TypeAdapter():
-#                     return model.validate_json(res.text)
-#                 case _:
-#                     return model.model_validate_json(res.text)
-#
-#         return wrapper
-#
-#     return decorator
-#
-#
-# def _make_params(params: dict[str, Any]):
-#     return {k: v for k, v in params.items() if v is not None}
-#
-#
-# class FlojoyCloud:
-#     client: httpx.Client
-#
-#     def __init__(
-#         self,
-#         workspace_secret: Optional[str] = None,
-#         api_url="https://cloud.flojoy.ai/api/v1",
-#     ):
-#         if workspace_secret is None:
-#             env = os.environ.get("FLOJOY_CLOUD_WORKSPACE_SECRET")
-#             if env is None:
-#                 raise EnvironmentError(
-#                     "Flojoy Cloud workspace secret not set, and no 'FLOJOY_CLOUD_WORKSPACE_SECRET' environment variable was found."
-#                 )
-#             workspace_secret = env
-#         self.base_url = api_url
-#         self.client = httpx.Client(
-#             base_url=api_url,
-#             headers={
-#                 "Authorization": f"Bearer {workspace_secret}",
-#             },
-#             timeout=10,
-#         )
-#
-#     """Model Endpoints"""
-#
-#     @query(model=Model)
-#     def create_model(
-#         self, name: str, workspace_id: str, components: list[ModelComponent] = []
-#     ):
-#         return self.client.post(
-#             "/models",
-#             json={
-#                 "name": name,
-#                 "workspaceId": workspace_id,
-#                 "components": [c.model_dump() for c in components],
-#             },
-#         )
-#
-#     @query(model=TypeAdapter(list[Model]))
-#     def get_all_models(self, workspace_id: str):
-#         return self.client.get("/models", params={"workspaceId": workspace_id})
-#
-#     @query(model=ModelTree)
-#     def get_model(self, model_id: str):
-#         return self.client.get(f"/models/{model_id}")
-#
-#     @query(model=None)
-#     def delete_model(self, model_id: str):
-#         return self.client.delete(f"/models/{model_id}")
-#
-#     """Project Routes"""
-#
-#     @query(model=Project)
-#     def create_project(self, name: str, model_id: str, workspace_id: str):
-#         return self.client.post(
-#             "/projects",
-#             json={"name": name, "modelId": model_id, "workspaceId": workspace_id},
-#         )
-#
-#     @query(model=ProjectWithModel)
-#     def get_project(self, project_id: str):
-#         return self.client.get(f"/projects/{project_id}")
-#
-#     @query(model=TypeAdapter(list[Project]))
-#     def get_all_projects(self, workspace_id: Optional[str]):
-#         return self.client.get(
-#             "/projects",
-#             params={"workspaceId": workspace_id} if workspace_id is not None else None,
-#         )
-#
-#     @query(model=None)
-#     def add_hardware_to_project(self, hardware_id: str, project_id: str):
-#         return self.client.put(
-#             f"/projects/{project_id}/hardware/{hardware_id}",
-#         )
-#
-#     @query(model=None)
-#     def remove_hardware_from_project(self, hardware_id: str, project_id: str):
-#         return self.client.delete(
-#             f"/projects/{project_id}/hardware/{hardware_id}",
-#         )
-#
-#     @query(model=None)
-#     def set_project_hardware(self, hardware_ids: list[str], project_id: str):
-#         return self.client.put(
-#             f"/projects/{project_id}/hardware", json={"hardwareIds": hardware_ids}
-#         )
-#
-#     @query(model=None)
-#     def update_project(self, name: str, project_id: str):
-#         return self.client.patch(f"/projects/{project_id}", json={"name": name})
-#
-#     @query(model=None)
-#     def delete_project(self, project_id: str):
-#         return self.client.delete(f"/projects/{project_id}")
-#
-#     """Hardware Endpoints"""
-#
-#     @query(model=Hardware)
-#     def create_hardware(
-#         self,
-#         workspace_id: str,
-#         name: str,
-#         model_id: str,
-#         components: list[str] = [],
-#         project_id: Optional[str] = None,
-#     ):
-#         body = _make_params(
-#             {
-#                 "workspaceId": workspace_id,
-#                 "modelId": model_id,
-#                 "name": name,
-#                 "components": components,
-#                 "projectId": project_id,
-#             }
-#         )
-#
-#         return self.client.post("/hardware", json=body)
-#
-#     @query(model=HardwareTree)
-#     def get_hardware(self, hardware_id: str):
-#         return self.client.get(f"/hardware/{hardware_id}")
-#
-#     @query(model=TypeAdapter(list[Hardware]))
-#     def get_all_hardware(
-#         self,
-#         workspace_id: str,
-#         model_id: Optional[str] = None,
-#         project_id: Optional[str] = None,
-#         only_available: Optional[bool] = None,
-#     ):
-#         params = _make_params(
-#             {
-#                 "workspaceId": workspace_id,
-#                 "modelId": model_id,
-#                 "projectId": project_id,
-#                 "onlyAvailable": only_available,
-#             }
-#         )
-#
-#         return self.client.get("/hardware", params=params)
-#
-#     @query(model=None)
-#     def delete_hardware(self, hardware_id: str):
-#         return self.client.delete(f"/hardware/{hardware_id}")
-#
-#     @query(model=TypeAdapter(list[HardwareRevision]))
-#     def get_revisions(self, hardware_id: str):
-#         return self.client.get(f"/hardware/{hardware_id}/revisions")
-#
-#     @query(model=None)
-#     def swap_hardware_component(
-#         self,
-#         hardware_id: str,
-#         old_component_id: str,
-#         new_component_id: str,
-#         reason: Optional[str] = None,
-#     ):
-#         body = _make_params(
-#             {
-#                 "hardwareId": hardware_id,
-#                 "oldHardwareComponentId": old_component_id,
-#                 "newHardwareComponentId": new_component_id,
-#                 "reason": reason,
-#             }
-#         )
-#
-#         return self.client.patch(f"/hardware/{hardware_id}", json=body)
-#
-#     """Test Endpoints"""
-#
-#     @query(model=Test)
-#     def create_test(
-#         self, name: str, project_id: str, measurement_type: MeasurementType
-#     ):
-#         return self.client.post(
-#             "/tests",
-#             json={
-#                 "name": name,
-#                 "projectId": project_id,
-#                 "measurementType": measurement_type,
-#             },
-#         )
-#
-#     @query(model=Test)
-#     def get_test(self, test_id: str):
-#         return self.client.get(f"/tests/{test_id}")
-#
-#     @query(model=TypeAdapter(list[Test]))
-#     def get_all_tests_by_project_id(self, project_id: str):
-#         return self.client.get(
-#             "/tests",
-#             params={"projectId": project_id},
-#         )
-#
-#     @query(model=None)
-#     def update_test(
-#         self,
-#         name: str,
-#         test_id: str,
-#     ):
-#         return self.client.patch(f"/tests/{test_id}", json={"name": name})
-#
-#     @query(model=None)
-#     def delete_test(self, test_id: str):
-#         return self.client.delete(f"/tests/{test_id}")
-#
-#     """Measurement Endpoints"""
-#
-#     @query(model=MeasurementCreateResult)
-#     def upload(
-#         self,
-#         data: MeasurementData,
-#         test_id: str,
-#         hardware_id: str,
-#         name: str | None = None,
-#         passed: bool | None = None,
-#         created_at: datetime.datetime | None = None,
-#         tags: list[str] = [],
-#     ):
-#         body = _make_params(
-#             {
-#                 "testId": test_id,
-#                 "hardwareId": hardware_id,
-#                 "data": make_payload(data),
-#                 "name": name,
-#                 "tagNames": tags,
-#                 "pass": passed,
-#             }
-#         )
-#         if created_at is not None:
-#             body["createdAt"] = created_at.isoformat()
-#
-#         return self.client.post(
-#             "/measurements",
-#             content=json.dumps(body, cls=CloudEncoder),
-#             headers={
-#                 "Content-Type": "application/json",
-#             },
-#         )
-#
-#     @query(model=TypeAdapter(list[Measurement]))
-#     def get_all_measurements_by_test_id(
-#         self,
-#         test_id: str,
-#         start_date: datetime.datetime | None = None,
-#         end_date: datetime.datetime | None = None,
-#     ):
-#         query_params = {}
-#         if start_date is not None:
-#             query_params["startDate"] = start_date.isoformat()
-#         if end_date is not None:
-#             query_params["endDate"] = end_date.isoformat()
-#
-#         return self.client.get(
-#             f"/measurements/test/{test_id}",
-#             params=query_params,
-#         )
-#
-#     @query(model=TypeAdapter(list[Measurement]))
-#     def get_all_measurements_by_hardware_id(
-#         self,
-#         hardware_id: str,
-#         start_date: datetime.datetime | None = None,
-#         end_date: datetime.datetime | None = None,
-#         latest: bool | None = None,
-#     ):
-#         query_params = {}
-#         if start_date is not None:
-#             query_params["startDate"] = start_date.isoformat()
-#         if end_date is not None:
-#             query_params["endDate"] = end_date.isoformat()
-#         if latest is not None:
-#             query_params["latest"] = latest
-#
-#         return self.client.get(
-#             f"/measurements/hardware/{hardware_id}",
-#             params=query_params,
-#         )
-#
-#     @query(model=Measurement)
-#     def get_measurement(self, measurement_id: str):
-#         return self.client.get(f"/measurements/{measurement_id}")
-#
-#     @query(model=None)
-#     def delete_measurement(self, measurement_id: str):
-#         return self.client.delete(f"/measurements/{measurement_id}")
-#
-#     @query(model=None)
-#     def get_hardware_id(self, part_number: str, serial_number: str):
-#         return "TODO"
-#
-#     @query(model=MeasurementCreateResult)
-#     def upload_session(
-#         self,
-#         serial_number: str,
-#         station_id: str,
-#         integrity: bool,
-#         aborted: bool,
-#         notes: Optional[str],
-#         commit_hash: Optional[str],
-#         measurements: List[SessionMeasurement],
-#     ):
-#         m_list = []
-#         for m in measurements:
-#             # Find id of each part
-#             m_list.append(
-#                 {
-#                     "data": make_payload(m.data),
-#                     "name": m.name,
-#                     "pass": m.passed,
-#                     "createdAt": m.created_at.isoformat() if m.created_at else None,
-#                 }
-#             )
-#         body = _make_params(
-#             {
-#                 "serialNumber": serial_number,
-#                 "stationId": station_id,
-#                 "integrity": integrity,
-#                 "aborted": aborted,
-#                 "notes": notes,
-#                 "commitHash": commit_hash,
-#                 "measurements": m_list,
-#             }
-#         )
-#
-#         return self.client.post(
-#             "/session/measurements",
-#             content=json.dumps(body, cls=CloudEncoder),
-#             headers={
-#                 "Content-Type": "application/json",
-#             },
-#         )
+class CloudEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, datetime.datetime) or isinstance(o, pd.Timestamp):
+            return o.isoformat()
+        elif isinstance(o, np.datetime64):
+            timestamp = o.astype("datetime64[s]").astype(int)
+            dt = datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
+            return dt.isoformat()
+        elif isinstance(o, np.integer):
+            return int(o)
+        elif isinstance(o, np.floating):
+            return float(o)
+        elif isinstance(o, np.ndarray):
+            return o.tolist()
+        return json.JSONEncoder.default(self, o)
+
+
+TimePeriod = Literal["day", "week", "month", "year"]
+
+
+class FlojoyCloudException(Exception):
+    pass
+
+
+T = TypeVar("T", bound=BaseModel)
+U = TypeVar("U")
+P = ParamSpec("P")
+
+
+@overload
+def query(
+    model: None,
+) -> Callable[[Callable[P, httpx.Response]], Callable[P, None]]: ...
+
+
+@overload
+def query(
+    model: type[T],
+) -> Callable[[Callable[P, httpx.Response]], Callable[P, T]]: ...
+
+
+@overload
+def query(
+    model: TypeAdapter[U],
+) -> Callable[[Callable[P, httpx.Response]], Callable[P, U]]: ...
+
+
+def query(
+    model: type[T] | TypeAdapter[U] | None,
+) -> Callable[[Callable[P, httpx.Response]], Callable[P, T | U | None]]:
+    def decorator(func: Callable[P, httpx.Response]):
+        def wrapper(*args: P.args, **kwargs: P.kwargs):
+            res = func(*args, **kwargs)
+
+            if res.status_code >= 400:
+                error_json = json.loads(res.text)
+                raise FlojoyCloudException(
+                    f"An exception occurred when making a request\n "
+                    f"{error_json['code']}: {error_json['message']}"
+                )
+            if model is None:
+                return None
+
+            match model:
+                case TypeAdapter():
+                    return model.validate_json(res.text)
+                case _:
+                    return model.model_validate_json(res.text)
+
+        return wrapper
+
+    return decorator
+
+
+def _make_params(params: dict[str, Any]):
+    return {k: v for k, v in params.items() if v is not None}
+
+
+class FlojoyCloud:
+    client: httpx.Client
+
+    def __init__(
+        self,
+        *,
+        workspace_secret: str | None = None,
+        api_url: str = "https://cloud.flojoy.ai/api",
+    ):
+        if workspace_secret is None:
+            env = os.environ.get("FLOJOY_CLOUD_WORKSPACE_SECRET")
+            if env is None:
+                raise EnvironmentError(
+                    "Flojoy Cloud workspace secret not set, and no 'FLOJOY_CLOUD_WORKSPACE_SECRET' environment variable was found."
+                )
+            workspace_secret = env
+        self.base_url = api_url
+        self.client = httpx.Client(
+            base_url=api_url,
+            headers={
+                "flojoy-workspace-personal-secret": workspace_secret,
+            },
+            timeout=10,
+        )
+
+    @query(model=TypeAdapter(list[Workspace]))
+    def get_workspaces(self):
+        return self.client.get("/workspace/user")
+
+    """Products routes"""
+
+    @query(model=TypeAdapter(list[Product]))
+    def get_products(self):
+        return self.client.get("/products")
+
+    """Part routes"""
+
+    @query(model=TypeAdapter(list[PartWithCounts]))
+    def get_parts(self):
+        return self.client.get("/part")
+
+    # @query(model=Part)
+    # def create_part(self, name: str, description: str | None, product_id: str):
+    #     return self.client.post(
+    #         "/parts",
+    #         json=_make_params(
+    #             {"name": name, "description": description, "product_id": product_id}
+    #         ),
+    #     )
+
+    @query(model=PartWithCounts)
+    def get_part(self, part_id: str):
+        return self.client.get(f"/part/{part_id}")
+
+    @query(model=TypeAdapter(list[PartVariation]))
+    def get_part_part_variations(self, part_id: str):
+        return self.client.get(f"/part/{part_id}/partVariation")
+
+    """Part Variation routes"""
+
+    @query(model=TypeAdapter(list[PartVariation]))
+    def get_part_variations(self):
+        return self.client.get("/partVariation")
+
+    # @query(model=TypeAdapter(list[PartVariation]))
+    # def create_part_variation(
+    #     self,
+    #     part_number: str,
+    #     part_id: str,
+    #     type: str,
+    #     market: str,
+    #     description: str | None,
+    #     components: list[PartVariationComponent],
+    # ):
+    #     return self.client.post(
+    #         "/partVariation",
+    #         json=_make_params(
+    #             {
+    #                 "partNumber": part_number,
+    #                 "partId": part_id,
+    #                 "type": type,
+    #                 "market": market,
+    #                 "description": description,
+    #                 "components": components,
+    #             }
+    #         ),
+    #     )
+
+    @query(model=TypeAdapter(list[PartVariationType]))
+    def get_part_variation_types(self):
+        return self.client.get("/partVariation/type")
+
+    @query(model=TypeAdapter(list[PartVariationType]))
+    def get_part_variation_markets(self):
+        return self.client.get("/partVariation/market")
+
+    @query(model=PartVariation)
+    def get_part_variation(self, part_variation_id: str):
+        return self.client.get(f"/partVariation/{part_variation_id}")
+
+    @query(model=TypeAdapter(list[Unit]))
+    def get_part_variation_units(self, part_variation_id: str):
+        return self.client.get(f"/partVariation/{part_variation_id}/unit")
+
+    """Unit routes"""
+
+    @query(model=TypeAdapter(list[Unit]))
+    def get_units(self, only_available: bool = False):
+        return self.client.get(
+            "/unit", params=_make_params({"onlyAvailable": only_available})
+        )
+
+    # @query(model=Unit)
+    # def create_unit(
+    #     self,
+    #     serial_number: str,
+    #     part_variation_id: str,
+    #     components: list[str] | None = None,
+    # ):
+    #     if not components:
+    #         components = []
+    #
+    #     return self.client.post(
+    #         "/unit",
+    #         json=_make_params(
+    #             {
+    #                 "serialNumber": serial_number,
+    #                 "partVariationId": part_variation_id,
+    #                 "components": components,
+    #             }
+    #         ),
+    #     )
+
+    @query(model=UnitTreeRoot)
+    def get_unit(self, unit_id: str):
+        return self.client.get(f"/unit/{unit_id}")
+
+    # @query(model=None)
+    # def swap_unit_component(
+    #     self,
+    #     unit_id: str,
+    #     old_unit_component_id: str,
+    #     new_unit_components_id: str,
+    #     reason: str | None,
+    # ):
+    #     return self.client.patch(
+    #         f"/unit/{unit_id}",
+    #         json=_make_params(
+    #             {
+    #                 "oldUnitComponentId": old_unit_component_id,
+    #                 "newUnitComponentId": new_unit_components_id,
+    #                 "reason": reason,
+    #             }
+    #         ),
+    #     )
+
+    @query(model=TypeAdapter(list[UnitRevision]))
+    def get_unit_revisions(self, unit_id: str):
+        return self.client.get(f"/unit/{unit_id}/revisions")
+
+    """Project (Test Profile) routes"""
+
+    @query(model=TypeAdapter(list[TestProfile]))
+    def get_test_profiles(self):
+        return self.client.get("/project")
+
+    # @query(model=TestProfile)
+    # def create_test_profile(
+    #     self,
+    #     name: str,
+    #     part_variation_id: str,
+    #     num_cycles: int,
+    #     repo_url: str | None = None,
+    # ):
+    #     return self.client.post(
+    #         "/project",
+    #         json=_make_params(
+    #             {
+    #                 "name": name,
+    #                 "partVariationId": part_variation_id,
+    #                 "numCycles": num_cycles,
+    #                 "repoUrl": repo_url,
+    #             }
+    #         ),
+    #     )
+
+    @query(model=TestProfile)
+    def get_test_profile(self, test_profile_id: str):
+        return self.client.get(f"/project/{test_profile_id}")
+
+    """Test Station routes"""
+
+    @query(model=TypeAdapter(list[TestStation]))
+    def get_test_stations(self, test_profile_id: str):
+        return self.client.get("/station")
+
+    @query(model=TypeAdapter(list[TestStation]))
+    def get_test_station(self, test_station_id: str):
+        return self.client.get(f"/station/{test_station_id}")
+
+    """Test Session routes"""
+
+    @query(model=TypeAdapter(list[TestSession]))
+    def get_unit_test_sessions(self, unit_id: str):
+        return self.client.get(f"/session/unit/{unit_id}")
+
+    @query(model=TypeAdapter(list[TestSession]))
+    def get_test_profile_test_sessions(self, test_profile_id: str):
+        return self.client.get(f"/session/project/{test_profile_id}")
+
+    @query(model=TypeAdapter(list[TestSession]))
+    def get_test_station_test_sessions(self, test_station_id: str):
+        return self.client.get(f"/session/station/{test_station_id}")
+
+    @query(model=TestSessionWithMeasurements)
+    def get_test_session(self, test_session_id: str):
+        return self.client.get(f"/session/{test_session_id}")
+
+    @query(model=TestSession)
+    def upload_test_session(
+        self,
+        *,
+        serial_number: str,
+        station_id: str,
+        measurements: list[SessionMeasurement],
+        integrity: bool,
+        aborted: bool,
+        notes: str | None = None,
+        commit_hash: str | None = None,
+        created_at: datetime.datetime | None = None,
+    ):
+        return self.client.post(
+            "/session",
+            json=_make_params(
+                {
+                    "serialNumber": serial_number,
+                    "stationId": station_id,
+                    "measurements": measurements,
+                    "integrity": integrity,
+                    "aborted": aborted,
+                    "notes": notes,
+                    "commitHash": commit_hash,
+                    "createdAt": created_at,
+                }
+            ),
+        )
+        # return self.client.get(f"/session/{test_session_id}")
+
+    # @query(model=TypeAdapter(list[TestStation]))
+    # def create_test_station(self, test_profile_id: str, name: str):
+    #     return self.client.post("/station", json=_make_params({
+    #         "project_id": test_profile_id,
+    #         "name": name,
+    #     }))
+
+    """Test routes"""
+
+    @query(model=TypeAdapter(list[Test]))
+    def get_tests(self):
+        return self.client.get("/test")
+
+    @query(model=TypeAdapter(list[Test]))
+    def get_test_measurements(self):
+        return self.client.get("/test/measurements")
+
+    """Metrics routes"""
+
+    @query(model=WorkspaceMetrics)
+    def get_workspace_metrics(
+        self,
+        past: TimePeriod | None = None,
+        start: datetime.datetime | None = None,
+        end: datetime.datetime | None = None,
+    ):
+        return self.client.get(
+            "/metrics/workspace",
+            params=_make_params({"past": past, "from": start, "to": end}),
+        )
+
+    @query(model=TypeAdapter(list[CountDataPoint]))
+    def get_workspace_sessions_over_time(
+        self,
+        past: TimePeriod | None = None,
+        bin: TimePeriod = "day",
+        start: datetime.datetime | None = None,
+        end: datetime.datetime | None = None,
+    ):
+        return self.client.get(
+            "/metrics/workspace/series/session",
+            params=_make_params({"past": past, "bin": bin, "from": start, "to": end}),
+        )
+
+    @query(model=TypeAdapter(list[CountDataPoint]))
+    def get_workspace_users_over_time(
+        self,
+        past: TimePeriod | None = None,
+        bin: TimePeriod = "day",
+        start: datetime.datetime | None = None,
+        end: datetime.datetime | None = None,
+    ):
+        return self.client.get(
+            "/metrics/workspace/series/user",
+            params=_make_params({"past": past, "bin": bin, "from": start, "to": end}),
+        )
+
+    @query(model=TestProfileMetrics)
+    def get_test_profile_metrics(
+        self,
+        test_profile_id: str,
+        past: TimePeriod | None = None,
+        bin: TimePeriod = "day",
+        start: datetime.datetime | None = None,
+        end: datetime.datetime | None = None,
+    ):
+        return self.client.get(
+            f"/metrics/project/{test_profile_id}",
+            params=_make_params({"past": past, "bin": bin, "from": start, "to": end}),
+        )
+
+    @query(model=TestProfileMetricsOverTime)
+    def get_test_profile_metrics_over_time(
+        self,
+        test_profile_id: str,
+        past: TimePeriod | None = None,
+        bin: TimePeriod = "day",
+        start: datetime.datetime | None = None,
+        end: datetime.datetime | None = None,
+    ):
+        return self.client.get(
+            f"/metrics/project/{test_profile_id}/series",
+            params=_make_params({"past": past, "bin": bin, "from": start, "to": end}),
+        )
