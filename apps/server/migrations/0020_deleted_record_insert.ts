@@ -22,6 +22,7 @@ const tables = [
   "tag",
   "test",
   "unit",
+  "unit_relation",
   "unit_revision",
   "user",
   "user_invite",
