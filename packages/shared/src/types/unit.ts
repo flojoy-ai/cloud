@@ -13,6 +13,7 @@ export type UnitWithParent = Unit & {
 };
 
 export const insertUnit = t.Object({
+  workspaceId: t.String(),
   projectId: t.Optional(t.String()),
   partVariationId: t.String(),
   serialNumber: t.String({ minLength: 1 }),
