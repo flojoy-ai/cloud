@@ -13,23 +13,45 @@ import {
 export const PartRoute = new Elysia({ prefix: "/part", name: "PartRoute" })
   .use(WorkspaceMiddleware)
   .get("/", async ({ workspaceUser }) => {
-    const families = await db
+    const parts = await db
       .selectFrom("part")
       .selectAll("part")
       .where("part.workspaceId", "=", workspaceUser.workspaceId)
       .leftJoin("part_variation", "part_variation.partId", "part.id")
       .leftJoin("unit", "part_variation.id", "unit.partVariationId")
       .select(({ fn }) =>
-        fn
-          .count<number>("part_variation.id")
-          .distinct()
-          .as("partVariationCount"),
+        fn.count<number>("part_variation.id").as("partVariationCount"),
       )
       .select(({ fn }) => fn.count<number>("unit.id").as("unitCount"))
       .groupBy("part.id")
       .execute();
-    return families;
+    return parts;
   })
+  .post(
+    "/",
+    async ({ body, error, workspace, authMethod }) => {
+      if (authMethod === "secret") {
+        return error("I'm a teapot");
+      }
+
+      const res = await createPart(db, { ...body, workspaceId: workspace.id });
+      if (res.isErr()) {
+        return error(500, res.error);
+      }
+      return res.value;
+    },
+    {
+      body: t.Omit(insertPart, ["workspaceId"]),
+      async beforeHandle({ workspaceUser }) {
+        const perm = await checkWorkspacePerm({ workspaceUser });
+
+        return perm.match(
+          (perm) => (perm.canWrite() ? undefined : error("Forbidden")),
+          (err) => error(403, err),
+        );
+      },
+    },
+  )
   .group("/:partId", (app) =>
     app
       .get(
@@ -41,10 +63,17 @@ export const PartRoute = new Elysia({ prefix: "/part", name: "PartRoute" })
             .where("part.workspaceId", "=", workspace.id)
             .where("part.id", "=", partId)
             .innerJoin("product", "product.id", "part.productId")
+            .leftJoin("part_variation", "part_variation.partId", "part.id")
+            .leftJoin("unit", "part_variation.id", "unit.partVariationId")
+            .select(({ fn }) =>
+              fn.count<number>("part_variation.id").as("partVariationCount"),
+            )
+            .select(({ fn }) => fn.count<number>("unit.id").as("unitCount"))
             .select("product.name as productName")
-
             .executeTakeFirst();
+
           if (part === undefined) return error(404, "Part not found");
+
           return part;
         },
         {
@@ -63,7 +92,7 @@ export const PartRoute = new Elysia({ prefix: "/part", name: "PartRoute" })
         },
       )
       .get(
-        "/partVariations",
+        "/partVariation",
         async ({ workspace, params: { partId } }) => {
           const partVariations = await db
             .selectFrom("part_variation")
@@ -93,25 +122,4 @@ export const PartRoute = new Elysia({ prefix: "/part", name: "PartRoute" })
           },
         },
       ),
-  )
-  .post(
-    "/",
-    async ({ body, error }) => {
-      const res = await createPart(db, body);
-      if (res.isErr()) {
-        return error(500, res.error);
-      }
-      return res.value;
-    },
-    {
-      body: insertPart,
-      async beforeHandle({ workspaceUser }) {
-        const perm = await checkWorkspacePerm({ workspaceUser });
-
-        return perm.match(
-          (perm) => (perm.canWrite() ? undefined : error("Forbidden")),
-          (err) => error(403, err),
-        );
-      },
-    },
   );

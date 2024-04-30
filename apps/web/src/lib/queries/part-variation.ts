@@ -127,7 +127,7 @@ export function getPartPartVariationsQueryOpts({
     queryFn: async () => {
       const partVariationsQuery = await client
         .part({ partId })
-        .partVariations.get({
+        .partVariation.get({
           headers: { "flojoy-workspace-id": context.workspace.id },
         });
       if (partVariationsQuery.error) throw partVariationsQuery.error;

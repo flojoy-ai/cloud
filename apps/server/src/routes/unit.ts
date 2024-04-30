@@ -56,15 +56,22 @@ export const UnitRoute = new Elysia({ prefix: "/unit", name: "UnitRoute" })
   )
   .post(
     "/",
-    async ({ body, error, workspace, user }) => {
-      const res = await createUnit(db, workspace.id, user, body);
+    async ({ body, error, workspace, user, authMethod }) => {
+      if (authMethod === "secret") {
+        return error("I'm a teapot");
+      }
+
+      const res = await createUnit(db, user, {
+        ...body,
+        workspaceId: workspace.id,
+      });
       if (res.isErr()) {
         return error(res.error.code, res.error.message);
       }
       return res.value;
     },
     {
-      body: insertUnit,
+      body: t.Omit(insertUnit, ["workspaceId"]),
       async beforeHandle({ workspaceUser, error }) {
         const perm = await checkWorkspacePerm({ workspaceUser });
 
@@ -107,7 +114,17 @@ export const UnitRoute = new Elysia({ prefix: "/unit", name: "UnitRoute" })
       )
       .patch(
         "/",
-        async ({ workspaceUser, body, error, params: { unitId } }) => {
+        async ({
+          authMethod,
+          workspaceUser,
+          body,
+          error,
+          params: { unitId },
+        }) => {
+          if (authMethod === "secret") {
+            return error("I'm a teapot");
+          }
+
           const unit = await getUnit(unitId);
           if (!unit) return error("Not Found");
 

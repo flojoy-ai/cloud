@@ -33,12 +33,7 @@ export async function getUnit(id: string) {
     .executeTakeFirst();
 }
 
-export async function createUnit(
-  db: Kysely<DB>,
-  workspaceId: string,
-  user: User,
-  unit: InsertUnit,
-) {
+export async function createUnit(db: Kysely<DB>, user: User, unit: InsertUnit) {
   return fromPromise(
     db.transaction().execute(async (tx) => {
       const { components, projectId, ...newUnit } = unit;
@@ -52,7 +47,6 @@ export async function createUnit(
         .insertInto("unit")
         .values({
           id: generateDatabaseId("unit"),
-          workspaceId,
           ...newUnit,
         })
         .returningAll()
@@ -110,7 +104,7 @@ export async function createUnit(
           .values(
             components.map((c) => ({
               parentUnitId: created.id,
-              workspaceId,
+              workspaceId: newUnit.workspaceId,
               childUnitId: c,
             })),
           )
@@ -140,7 +134,7 @@ export async function createUnit(
           .execute();
       }
 
-      await markUpdatedAt(tx, "workspace", workspaceId);
+      await markUpdatedAt(tx, "workspace", newUnit.workspaceId);
 
       return created;
     }),

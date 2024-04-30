@@ -44,9 +44,9 @@ export const ProjectRoute = new Elysia({
   })
   .post(
     "/",
-    async ({ body, workspaceUser }) => {
-      if (body.workspaceId !== workspaceUser.workspaceId) {
-        return error(400, "There is a mismatch in workspaceId");
+    async ({ authMethod, body, workspaceUser }) => {
+      if (authMethod === "secret") {
+        return error("I'm a teapot");
       }
 
       const partVariation = await db
@@ -92,7 +92,7 @@ export const ProjectRoute = new Elysia({
       return result.value;
     },
     {
-      body: CreateProjectSchema,
+      body: t.Omit(CreateProjectSchema, ["workspaceId"]),
 
       async beforeHandle({ workspaceUser, error }) {
         const perm = await checkWorkspacePerm({ workspaceUser });
@@ -137,10 +137,12 @@ export const ProjectRoute = new Elysia({
           if (authMethod === "secret") {
             return error("I'm a teapot");
           }
+
           const res = await updateProject(db, projectId, body);
           if (res.isErr()) {
             return error(res.error.code, res.error);
           }
+
           return res.value;
         },
         {
@@ -170,7 +172,7 @@ export const ProjectRoute = new Elysia({
             .where("project.id", "=", projectId)
             .returningAll()
             .executeTakeFirstOrThrow(
-              () => new InternalServerError("Failed to update test profile"),
+              () => new InternalServerError("Failed to delete test profile"),
             );
 
           return project;

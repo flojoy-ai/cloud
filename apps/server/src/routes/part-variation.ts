@@ -48,16 +48,23 @@ export const PartVariationRoute = new Elysia({
   })
   .post(
     "/",
-    async ({ body, error }) => {
+    async ({ body, error, workspace, authMethod }) => {
+      if (authMethod === "secret") {
+        return error("I'm a teapot");
+      }
+
       const res = await fromTransaction(async (tx) => {
-        return await createPartVariation(tx, body);
+        return await createPartVariation(tx, {
+          ...body,
+          workspaceId: workspace.id,
+        });
       });
       if (res.isErr()) return error(res.error.code, res.error);
 
       return res.value;
     },
     {
-      body: insertPartVariation,
+      body: t.Omit(insertPartVariation, ["workspaceId"]),
       async beforeHandle({ workspaceUser, error }) {
         const perm = await checkWorkspacePerm({ workspaceUser });
 
@@ -80,6 +87,8 @@ export const PartVariationRoute = new Elysia({
             .where("part_variation.workspaceId", "=", workspace.id)
             .select((eb) => [withPartVariationType(eb)])
             .select((eb) => [withPartVariationMarket(eb)])
+            .leftJoin("unit", "part_variation.id", "unit.partVariationId")
+            .select(({ fn }) => fn.count<number>("unit.id").as("unitCount"))
             .executeTakeFirst();
 
           if (partVariation === undefined) {

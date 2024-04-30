@@ -1,7 +1,7 @@
 import { generateDatabaseId, tryQuery } from "../lib/db-utils";
 import type { DB } from "@cloud/shared";
 import { InsertPart } from "@cloud/shared";
-import { Kysely } from "kysely";
+import { ExpressionBuilder, Kysely } from "kysely";
 import { err, ok, safeTry } from "neverthrow";
 import { createProduct } from "./product";
 

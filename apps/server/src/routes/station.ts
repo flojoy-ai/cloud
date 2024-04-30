@@ -76,7 +76,11 @@ export const StationRoute = new Elysia({
   )
   .post(
     "/",
-    async ({ body }) => {
+    async ({ body, authMethod }) => {
+      if (authMethod === "secret") {
+        return error("I'm a teapot");
+      }
+
       const station = await createStation(db, {
         ...body,
       });
