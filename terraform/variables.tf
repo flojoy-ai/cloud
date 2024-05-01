@@ -8,16 +8,6 @@ variable "environment" {
   default = "production"
 }
 
-variable "web-dns-name-label" {
-  type    = string
-  default = "flojoy-cloud-web"
-}
-
-variable "server-dns-name-label" {
-  type    = string
-  default = "flojoy-cloud-server"
-}
-
 variable "entra-client-id" {
   type      = string
   sensitive = true
@@ -36,4 +26,14 @@ variable "entra-tenant-id" {
 variable "jwt-secret" {
   type      = string
   sensitive = true
+}
+
+variable "web-uri" {
+  type    = string
+  default = "azure-flojoy-cloud-web.flojoy.ai"
+}
+
+variable "server-uri" {
+  type    = string
+  default = "azure-flojoy-cloud-server.flojoy.ai"
 }
