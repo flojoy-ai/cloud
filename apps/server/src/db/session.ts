@@ -73,7 +73,9 @@ export async function getSessionsByProject(
         .on("pu.userId", "=", workspaceUser.userId),
     )
     .select((eb) => withStatus(eb))
-    .where("projectId", "=", projectId)
+    .innerJoin("user", "user.id", "session.userId")
+    .select("user.email as userEmail")
+    .where("session.projectId", "=", projectId)
     .execute();
 }
 
@@ -118,6 +120,8 @@ export async function getSession(db: Kysely<DB>, sessionId: string) {
     .selectAll("session")
     .select((eb) => withSessionMeasurements(eb))
     .select((eb) => withStatus(eb))
+    .innerJoin("user", "user.id", "session.userId")
+    .select("user.email as userEmail")
     .where("session.id", "=", sessionId)
     .executeTakeFirst();
 }

@@ -89,6 +89,7 @@ export const PartVariationRoute = new Elysia({
             .select((eb) => [withPartVariationMarket(eb)])
             .leftJoin("unit", "part_variation.id", "unit.partVariationId")
             .select(({ fn }) => fn.count<number>("unit.id").as("unitCount"))
+            .groupBy("part_variation.id")
             .executeTakeFirst();
 
           if (partVariation === undefined) {

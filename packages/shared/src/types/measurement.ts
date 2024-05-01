@@ -82,7 +82,6 @@ export const insertMeasurement = t.Object({
 export type InsertMeasurement = Static<typeof insertMeasurement>;
 
 export const sessionMeasurement = t.Object({
-  testId: t.String(),
   sequenceName: t.Optional(t.String()),
   cycleNumber: t.Optional(t.Integer()),
   name: t.String({ default: "Untitled measurement" }),

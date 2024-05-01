@@ -52,7 +52,7 @@ from flojoy_cloud.dtypes import (
 class CloudEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, datetime.datetime) or isinstance(o, pd.Timestamp):
-            return o.isoformat()
+            return o.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         elif isinstance(o, np.datetime64):
             timestamp = o.astype("datetime64[s]").astype(int)
             dt = datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
@@ -106,8 +106,7 @@ def query(
             if res.status_code >= 400:
                 error_json = json.loads(res.text)
                 raise FlojoyCloudException(
-                    f"An exception occurred when making a request\n "
-                    f"{error_json['code']}: {error_json['message']}"
+                    f"An exception occurred when making a request:\n " f"{error_json}"
                 )
             if model is None:
                 return None
@@ -123,7 +122,7 @@ def query(
     return decorator
 
 
-def _make_params(params: dict[str, Any]):
+def _filter_none_keys(params: dict[str, Any]):
     return {k: v for k, v in params.items() if v is not None}
 
 
@@ -134,7 +133,7 @@ class FlojoyCloud:
         self,
         *,
         workspace_secret: str | None = None,
-        api_url: str = "https://cloud.flojoy.ai/api",
+        api_url: str = "https://cloud.flojoy.ai",
     ):
         if workspace_secret is None:
             env = os.environ.get("FLOJOY_CLOUD_WORKSPACE_SECRET")
@@ -154,13 +153,13 @@ class FlojoyCloud:
 
     @query(model=TypeAdapter(list[Workspace]))
     def get_workspaces(self):
-        return self.client.get("/workspace/user")
+        return self.client.get("/workspace")
 
     """Products routes"""
 
     @query(model=TypeAdapter(list[Product]))
     def get_products(self):
-        return self.client.get("/products")
+        return self.client.get("/product")
 
     """Part routes"""
 
@@ -236,7 +235,7 @@ class FlojoyCloud:
     @query(model=TypeAdapter(list[Unit]))
     def get_units(self, only_available: bool = False):
         return self.client.get(
-            "/unit", params=_make_params({"onlyAvailable": only_available})
+            "/unit", params=_filter_none_keys({"onlyAvailable": only_available})
         )
 
     # @query(model=Unit)
@@ -321,9 +320,11 @@ class FlojoyCloud:
 
     @query(model=TypeAdapter(list[TestStation]))
     def get_test_stations(self, test_profile_id: str):
-        return self.client.get("/station")
+        return self.client.get(
+            "/station", params=_filter_none_keys({"projectId": test_profile_id})
+        )
 
-    @query(model=TypeAdapter(list[TestStation]))
+    @query(model=TestStation)
     def get_test_station(self, test_station_id: str):
         return self.client.get(f"/station/{test_station_id}")
 
@@ -345,7 +346,7 @@ class FlojoyCloud:
     def get_test_session(self, test_session_id: str):
         return self.client.get(f"/session/{test_session_id}")
 
-    @query(model=TestSession)
+    @query(model=None)
     def upload_test_session(
         self,
         *,
@@ -358,20 +359,28 @@ class FlojoyCloud:
         commit_hash: str | None = None,
         created_at: datetime.datetime | None = None,
     ):
+        serialized = [
+            _filter_none_keys(m.model_dump(by_alias=True)) for m in measurements
+        ]
+
         return self.client.post(
             "/session",
-            json=_make_params(
-                {
-                    "serialNumber": serial_number,
-                    "stationId": station_id,
-                    "measurements": measurements,
-                    "integrity": integrity,
-                    "aborted": aborted,
-                    "notes": notes,
-                    "commitHash": commit_hash,
-                    "createdAt": created_at,
-                }
+            content=json.dumps(
+                _filter_none_keys(
+                    {
+                        "serialNumber": serial_number,
+                        "stationId": station_id,
+                        "measurements": serialized,
+                        "integrity": integrity,
+                        "aborted": aborted,
+                        "notes": notes,
+                        "commitHash": commit_hash,
+                        "createdAt": created_at,
+                    }
+                ),
+                cls=CloudEncoder,
             ),
+            headers={"Content-Type": "application/json"},
         )
         # return self.client.get(f"/session/{test_session_id}")
 
@@ -403,7 +412,7 @@ class FlojoyCloud:
     ):
         return self.client.get(
             "/metrics/workspace",
-            params=_make_params({"past": past, "from": start, "to": end}),
+            params=_filter_none_keys({"past": past, "from": start, "to": end}),
         )
 
     @query(model=TypeAdapter(list[CountDataPoint]))
@@ -416,7 +425,9 @@ class FlojoyCloud:
     ):
         return self.client.get(
             "/metrics/workspace/series/session",
-            params=_make_params({"past": past, "bin": bin, "from": start, "to": end}),
+            params=_filter_none_keys(
+                {"past": past, "bin": bin, "from": start, "to": end}
+            ),
         )
 
     @query(model=TypeAdapter(list[CountDataPoint]))
@@ -429,7 +440,9 @@ class FlojoyCloud:
     ):
         return self.client.get(
             "/metrics/workspace/series/user",
-            params=_make_params({"past": past, "bin": bin, "from": start, "to": end}),
+            params=_filter_none_keys(
+                {"past": past, "bin": bin, "from": start, "to": end}
+            ),
         )
 
     @query(model=TestProfileMetrics)
@@ -443,7 +456,9 @@ class FlojoyCloud:
     ):
         return self.client.get(
             f"/metrics/project/{test_profile_id}",
-            params=_make_params({"past": past, "bin": bin, "from": start, "to": end}),
+            params=_filter_none_keys(
+                {"past": past, "bin": bin, "from": start, "to": end}
+            ),
         )
 
     @query(model=TestProfileMetricsOverTime)
@@ -457,5 +472,7 @@ class FlojoyCloud:
     ):
         return self.client.get(
             f"/metrics/project/{test_profile_id}/series",
-            params=_make_params({"past": past, "bin": bin, "from": start, "to": end}),
+            params=_filter_none_keys(
+                {"past": past, "bin": bin, "from": start, "to": end}
+            ),
         )

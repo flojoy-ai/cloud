@@ -1,5 +1,5 @@
 from typing import Any, Literal
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ConfigDict, field_serializer, field_validator
 
 import pandas as pd
 
@@ -8,18 +8,29 @@ MeasurementType = Literal["boolean", "dataframe", "scalar"]
 
 
 class ScalarData(BaseModel):
-    type: Literal["scalar"]
+    type: Literal["scalar"] = "scalar"
     value: int | float
+    unit: str | None = None
 
 
 class BooleanData(BaseModel):
-    type: Literal["boolean"]
+    type: Literal["boolean"] = "boolean"
     value: bool
 
 
 class DataframeData(BaseModel):
-    type: Literal["dataframe"]
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    type: Literal["dataframe"] = "dataframe"
     value: pd.DataFrame
+
+    @field_serializer("value")
+    def serialize_df(self, value: pd.DataFrame, _info):
+        out = {}
+        # Have to do this weird hack because df.todict('list') behaves strangely
+        for col_name, series in value.items():
+            out[col_name] = series.tolist()
+
+        return out
 
     @field_validator("value")
     @classmethod
@@ -30,18 +41,10 @@ class DataframeData(BaseModel):
 def make_payload(data: MeasurementData, unit: str | None = None):
     match data:
         case bool():
-            return {"type": "boolean", "value": data}
+            return BooleanData(value=data)
         case pd.DataFrame():
-            value = {}
-            # Have to do this weird hack because df.todict('list') behaves strangely
-            for col_name, series in data.items():
-                value[col_name] = series.tolist()
-
-            return {"type": "dataframe", "value": value}
+            return DataframeData(value=data)
         case int() | float():
-            meas = {"type": "scalar", "value": data}
-            if unit is not None:
-                meas["unit"] = unit
-            return meas
+            return ScalarData(value=data, unit=unit)
         case _:
             raise TypeError(f"Unsupported data type: {type(data)}")

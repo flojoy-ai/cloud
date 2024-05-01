@@ -26,7 +26,6 @@ class Product(CloudModel):
 
 class Workspace(CloudModel):
     name: str
-    description: str | None
     namespace: str
     plan_type: Literal["hobby", "pro", "enterprise"]
 
@@ -49,12 +48,14 @@ class PartWithCounts(Part):
     unit_count: int
 
 
-class PartVariationType(CloudModel):
+class PartVariationType(CamelModel):
+    id: str
     workspace_id: str
     name: str
 
 
-class PartVariationMarket(CloudModel):
+class PartVariationMarket(CamelModel):
+    id: str
     workspace_id: str
     name: str
 
@@ -70,10 +71,10 @@ class PartVariation(CloudModel):
     description: str | None
     part_id: str
     workspace_id: str
-    type_id: str
-    market_id: str
-    type: PartVariationType
-    market: PartVariationMarket
+    type_id: str | None
+    market_id: str | None
+    type: PartVariationType | None
+    market: PartVariationMarket | None
     unit_count: int
 
 
@@ -85,7 +86,7 @@ class Unit(CloudModel):
 
 
 class UnitTreeRoot(Unit):
-    parent: Unit
+    parent: Unit | None
     components: list[UnitTreeNode]
 
 
@@ -147,42 +148,44 @@ class Test(CloudModel):
 
 
 class Measurement(CloudModel):
-    projectId: str
-    id: str
-    createdAt: datetime.datetime
-    unitId: str
+    project_id: str
+    unit_id: str
     name: str
     data: BooleanData | ScalarData | DataframeData = Field(..., discriminator="type")
-    _pass: bool | None = Field(alias="pass")
-    testId: str
-    sessionId: str | None
-    sequenceName: str | None
-    cycleNumber: int | None
-    storageProvider: Literal["s3", "postgres"]
-    durationMs: int
-    isDeleted: bool | None
+    passed: bool | None = Field(alias="pass")
+    test_id: str
+    session_id: str | None
+    sequence_name: str | None
+    cycle_number: int | None
+    storage_provider: Literal["s3", "postgres"]
+    duration_ms: int
+    is_deleted: bool | None
 
 
-class SessionMeasurement(CloudModel):
-    name: str | None = None
+class SessionMeasurement(BaseModel):
+    model_config = ConfigDict(
+        alias_generator=to_camel, protected_namespaces=(), populate_by_name=True
+    )
+    name: str = ""
+    data: BooleanData | ScalarData | DataframeData = Field(..., discriminator="type")
     sequence_name: str | None = None
     cycle_number: int | None = None
-    _pass: bool | None = Field(default=None, alias="pass")
+    passed: bool | None = Field(default=None, serialization_alias="pass")
     duration_ms: int
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
 
 
-class PartVariationFailurePoint(BaseModel):
+class PartVariationFailurePoint(CamelModel):
     part_number: str
     count: int
 
 
-class ProductFailurePoint(BaseModel):
+class ProductFailurePoint(CamelModel):
     name: str
     count: int
 
 
-class WorkspaceMetrics(BaseModel):
+class WorkspaceMetrics(CamelModel):
     test_session_count: int
     measurement_count: int
     part_variation_count: int
@@ -192,12 +195,12 @@ class WorkspaceMetrics(BaseModel):
     product_failure_distribution: list[ProductFailurePoint]
 
 
-class CountDataPoint(BaseModel):
+class CountDataPoint(CamelModel):
     bin: datetime.datetime
     count: int
 
 
-class TestProfileMetrics(BaseModel):
+class TestProfileMetrics(CamelModel):
     test_session_count: int
     unit_count: int
     mean_sessions_per_unit: float
@@ -211,17 +214,17 @@ class TestProfileMetrics(BaseModel):
     test_yield: float
 
 
-class IntDataPoint(BaseModel):
+class IntDataPoint(CamelModel):
     bin: datetime.datetime
     val: int
 
 
-class FloatDataPoint(BaseModel):
+class FloatDataPoint(CamelModel):
     bin: datetime.datetime
     val: float
 
 
-class TestProfileMetricsOverTime(BaseModel):
+class TestProfileMetricsOverTime(CamelModel):
     test_session_count: list[IntDataPoint]
     unit_count: list[IntDataPoint]
     mean_sessions_per_unit: list[FloatDataPoint]

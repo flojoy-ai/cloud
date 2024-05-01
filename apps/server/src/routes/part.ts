@@ -70,6 +70,7 @@ export const PartRoute = new Elysia({ prefix: "/part", name: "PartRoute" })
             )
             .select(({ fn }) => fn.count<number>("unit.id").as("unitCount"))
             .select("product.name as productName")
+            .groupBy(["part.id", "product.name"])
             .executeTakeFirst();
 
           if (part === undefined) return error(404, "Part not found");

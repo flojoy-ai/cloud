@@ -38,7 +38,11 @@ const WorkspaceSecret = ({ workspace, secret }: Props) => {
   });
 
   function handleGenerate() {
-    generateSecret.mutate();
+    toast.promise(generateSecret.mutateAsync(), {
+      loading: "Generating...",
+      success: "Secret regenerated",
+      error: "Failed to regenerate secret",
+    });
   }
 
   useEffect(() => {

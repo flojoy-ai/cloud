@@ -5,6 +5,8 @@ import { verifyRequestOrigin } from "lucia";
 
 import type { User, Session } from "lucia";
 import { getUrlFromUri } from "../lib/url";
+import { Workspace } from "@cloud/shared";
+import { db } from "../db/kysely";
 
 type AuthMethod = "web" | "secret";
 
@@ -16,6 +18,7 @@ export const AuthMiddleware = new Elysia()
       user: User | null;
       session: Session | null;
       authMethod: AuthMethod | null;
+      workspace: Workspace | null;
     }> => {
       // CSRF check
       if (context.request.method !== "GET") {
@@ -34,6 +37,7 @@ export const AuthMiddleware = new Elysia()
             user: null,
             session: null,
             authMethod: null,
+            workspace: null,
           };
         }
       }
@@ -46,6 +50,7 @@ export const AuthMiddleware = new Elysia()
           user: null,
           session: null,
           authMethod: null,
+          workspace: null,
         };
       }
 
@@ -68,6 +73,7 @@ export const AuthMiddleware = new Elysia()
         user,
         session,
         authMethod: "web",
+        workspace: null,
       };
     },
   )
@@ -79,12 +85,14 @@ export const AuthMiddleware = new Elysia()
       user: User | null;
       session: Session | null;
       authMethod: AuthMethod | null;
+      workspace: Workspace | null;
     }> => {
       if (context.user && context.session && context.authMethod) {
         return {
           user: context.user,
           session: context.session,
           authMethod: context.authMethod,
+          workspace: null,
         };
       }
 
@@ -99,22 +107,38 @@ export const AuthMiddleware = new Elysia()
           user: null,
           session: null,
           authMethod: null,
+          workspace: null,
         };
       }
 
       const { session, user } = await lucia.validateSession(sessionId);
+      let workspace: Workspace | undefined;
+
+      if (session) {
+        workspace = await db
+          .selectFrom("workspace as w")
+          .selectAll("w")
+          .innerJoin("user_session as us", "workspaceId", "w.id")
+          .where("us.id", "=", session.id)
+          .executeTakeFirst();
+      }
+
       return {
         user,
         session,
         authMethod: "secret",
+        workspace: workspace ?? null,
       };
     },
   )
   .propagate()
-  .derive(async ({ user, session, authMethod, error }) => {
+  .derive(async ({ user, session, authMethod, workspace, error }) => {
     if (!user || !session || !authMethod) {
       return error("Unauthorized");
     }
-    return { user, session, authMethod };
+    if (authMethod === "secret" && workspace === null) {
+      return error(500, "Failed to infer workspace from workspace secret");
+    }
+    return { user, session, authMethod, workspace };
   })
   .propagate();
