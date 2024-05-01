@@ -196,7 +196,7 @@ resource "azurerm_container_app" "flojoy-cloud-web-container-app" {
       name   = "flojoy-cloud-web-container"
       image  = "flojoyai/cloud-web:latest"
       cpu    = "2.0"
-      memory = "4.0Gi"
+      memory = "4Gi"
 
       env {
         name  = "PORT"
@@ -230,7 +230,7 @@ resource "azurerm_container_app" "flojoy-cloud-server-container-app" {
       name   = "flojoy-cloud-server-container"
       image  = "flojoyai/cloud-server:latest"
       cpu    = "2.0"
-      memory = "4.0Gi"
+      memory = "4Gi"
 
       env {
         name  = "NODE_ENV"
