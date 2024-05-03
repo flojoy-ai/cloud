@@ -34,7 +34,7 @@ export const env = createEnv({
     ENTRA_REDIRECT_URI: z
       .string()
       .url()
-      .default("http://localhost:3000/auth/entra-id/callback"),
+      .default("http://localhost:3000/auth/entra/callback"),
   },
 
   /**

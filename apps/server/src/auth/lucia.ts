@@ -1,8 +1,7 @@
 import { Lucia } from "lucia";
-import { MicrosoftEntraId } from "arctic";
+import { MicrosoftEntraId, Google } from "arctic";
 
 import { env } from "../env";
-import { Google } from "arctic";
 import { NodePostgresAdapter } from "@lucia-auth/adapter-postgresql";
 import { pool } from "../db/kysely";
 
