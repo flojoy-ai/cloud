@@ -26,7 +26,6 @@ const tables = [
   "unit_revision",
   "user",
   "user_invite",
-  // "user_session",
   "workspace",
   "workspace_user",
 ];
