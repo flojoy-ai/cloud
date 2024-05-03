@@ -1,7 +1,13 @@
 import { t, Static } from "elysia";
 
-import { PartVariation } from "../schemas/public/PartVariation";
-export type { PartVariation };
+import { PartVariation as SchemaPartVariation } from "../schemas/public/PartVariation";
+import { PartVariationMarket } from "../schemas/public/PartVariationMarket";
+import { PartVariationType } from "../schemas/public/PartVariationType";
+
+export type PartVariation = SchemaPartVariation & {
+  type?: PartVariationType | null;
+  market?: PartVariationMarket | null;
+};
 
 export const partVariationComponent = t.Object({
   partVariationId: t.String(),
@@ -22,6 +28,17 @@ export const insertPartVariation = t.Object({
 });
 
 export type InsertPartVariation = Static<typeof insertPartVariation>;
+
+export const partVariationUpdate = t.Object({
+  type: t.Optional(t.String()),
+  market: t.Optional(t.String()),
+  description: t.Optional(t.String()),
+  components: t.Array(t.Omit(partVariationComponent, ["partNumber"]), {
+    default: [],
+  }),
+});
+
+export type PartVariationUpdate = Static<typeof partVariationUpdate>;
 
 export type PartVariationTreeRoot = PartVariation & {
   components: { count: number; partVariation: PartVariationTreeNode }[];

@@ -261,6 +261,8 @@ const CreateUnit = ({
                                     displaySelector={(val) => val.serialNumber}
                                     valueSelector={(val) => val.id}
                                     searchText="Search unit..."
+                                    avoidCollisions={true}
+                                    side="top"
                                   />
                                 </FormControl>
                                 <FormMessage />

@@ -28,6 +28,7 @@ import { Separator } from "@/components/ui/separator";
 import CreatePartVariation, {
   CreatePartVariationDefaultValues,
 } from "@/components/unit/create-part-variation";
+import EditPartVariation from "@/components/unit/edit-part-variation";
 import { PartVariationTreeVisualization } from "@/components/visualization/tree-visualization";
 import { useWorkspaceUser } from "@/hooks/use-workspace-user";
 import { client } from "@/lib/client";
@@ -40,9 +41,14 @@ import {
   getPartVariationTypesQueryOpts,
   getPartVariationsQueryOpts,
 } from "@/lib/queries/part-variation";
+import { getPartVariationUnitQueryOpts } from "@/lib/queries/unit";
 import { removePrefix } from "@/lib/string";
 import { Route as WorkspaceIndexRoute } from "@/routes/_protected/workspace/$namespace";
-import { PartVariation, PartVariationTreeNode } from "@cloud/shared";
+import {
+  PartVariation,
+  PartVariationTreeNode,
+  PartVariationTreeRoot,
+} from "@cloud/shared";
 import { PartVariationMarket } from "@cloud/shared/src/schemas/public/PartVariationMarket";
 import { PartVariationType } from "@cloud/shared/src/schemas/public/PartVariationType";
 import {
@@ -52,7 +58,7 @@ import {
 } from "@tanstack/react-query";
 import { Link, createFileRoute, useRouter } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowRight, MoreHorizontal, Plus } from "lucide-react";
+import { ArrowRight, MoreHorizontal, Pencil, Plus } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -79,15 +85,17 @@ export const Route = createFileRoute(
   },
 });
 
-const partVariationColumns: (
-  openCreateDialog: (variant: PartVariation) => Promise<void>,
-) => ColumnDef<
+const partVariationColumns: (props: {
+  openCreateDialog: (variant: PartVariation) => Promise<void>;
+  openEditDialog: (variant: PartVariation) => Promise<void>;
+  canWrite: boolean;
+}) => ColumnDef<
   PartVariation & {
     unitCount: number;
     market?: PartVariationMarket | null;
     type?: PartVariationType | null;
   }
->[] = (openCreateDialog: (variant: PartVariation) => Promise<void>) => [
+>[] = ({ openCreateDialog, openEditDialog, canWrite }) => [
   {
     accessorKey: "name",
     header: "Part Number",
@@ -156,8 +164,20 @@ const partVariationColumns: (
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
+                openEditDialog(partVariant);
+              }}
+              disabled={!canWrite}
+            >
+              <div className="flex gap-x-2">
+                <Pencil size={20} className="stroke-muted-foreground" />
+                <div>Edit</div>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
                 openCreateDialog(partVariant);
               }}
+              disabled={!canWrite}
             >
               <div className="flex gap-x-2">
                 <Plus size={20} className="stroke-muted-foreground" />
@@ -213,6 +233,7 @@ function PartPage() {
   const { partId } = Route.useParams();
 
   const [createOpen, setCreateOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
 
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -257,9 +278,17 @@ function PartPage() {
     enabled: selectedPartVariationId !== undefined,
   });
 
-  const [defaultValues, setDefaultValues] = useState<
+  const [createDefaultValues, setCreateDefaultValues] = useState<
     CreatePartVariationDefaultValues | undefined
   >();
+
+  const [editingPartVariation, setEditingPartVariation] = useState<
+    PartVariationTreeRoot | undefined
+  >();
+  const [
+    editingPartVariationHasExistingUnits,
+    setEditingPartVariationHasExistingUnits,
+  ] = useState<boolean>(false);
 
   const openCreateDialog = useCallback(
     async (variant?: PartVariation) => {
@@ -270,8 +299,10 @@ function PartPage() {
             context: { workspace },
           }),
         );
-        setDefaultValues({
+        setCreateDefaultValues({
           partNumber: removePrefix(tree.partNumber, part.name + "-"),
+          type: tree.type?.name,
+          market: tree.market?.name,
           hasComponents: tree.components.length > 0,
           components: tree.components.map((c) => ({
             count: c.count,
@@ -280,7 +311,7 @@ function PartPage() {
           description: tree.description ?? undefined,
         });
       } else {
-        setDefaultValues(undefined);
+        setCreateDefaultValues(undefined);
       }
 
       setCreateOpen(true);
@@ -288,9 +319,37 @@ function PartPage() {
     [queryClient, workspace, part.name],
   );
 
+  const openEditDialog = useCallback(
+    async (variant: PartVariation) => {
+      const tree = await queryClient.ensureQueryData(
+        getPartVariationQueryOpts({
+          partVariationId: variant.id,
+          context: { workspace },
+        }),
+      );
+      const existingUnits = await queryClient.ensureQueryData(
+        getPartVariationUnitQueryOpts({
+          partVariationId: variant.id,
+          context: { workspace },
+        }),
+      );
+      setEditingPartVariation(tree);
+      setEditingPartVariationHasExistingUnits(existingUnits.length > 0);
+      setEditOpen(true);
+    },
+    [queryClient, workspace],
+  );
+
+  const canWrite = workspaceUserPerm.canWrite();
+
   const columns = useMemo(
-    () => partVariationColumns(openCreateDialog),
-    [openCreateDialog],
+    () =>
+      partVariationColumns({
+        openCreateDialog,
+        openEditDialog,
+        canWrite,
+      }),
+    [openCreateDialog, openEditDialog, canWrite],
   );
 
   return (
@@ -345,8 +404,23 @@ function PartPage() {
             open={createOpen}
             setOpen={setCreateOpen}
             openDialog={openCreateDialog}
-            defaultValues={defaultValues}
-            setDefaultValues={setDefaultValues}
+            defaultValues={createDefaultValues}
+            setDefaultValues={setCreateDefaultValues}
+            partVariationTypes={partVariationTypes}
+            partVariationMarkets={partVariationMarkets}
+          />
+        </>
+      )}
+      {workspaceUserPerm.canWrite() && editingPartVariation && (
+        <>
+          <div className="py-2" />
+          <EditPartVariation
+            workspaceId={workspace.id}
+            existing={editingPartVariation}
+            hasExistingUnits={editingPartVariationHasExistingUnits}
+            partVariations={allPartVariations}
+            open={editOpen}
+            setOpen={setEditOpen}
             partVariationTypes={partVariationTypes}
             partVariationMarkets={partVariationMarkets}
           />

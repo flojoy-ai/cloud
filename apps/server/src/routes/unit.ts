@@ -108,7 +108,7 @@ export const UnitRoute = new Elysia({ prefix: "/unit", name: "UnitRoute" })
       .patch(
         "/",
         async ({ workspaceUser, body, error, params: { unitId } }) => {
-          const unit = await getUnit(unitId);
+          const unit = await getUnit(unitId, workspaceUser.workspaceId);
           if (!unit) return error("Not Found");
 
           const res = await doUnitComponentSwap(unit, workspaceUser, body);
@@ -134,8 +134,8 @@ export const UnitRoute = new Elysia({ prefix: "/unit", name: "UnitRoute" })
       )
       .get(
         "/revisions",
-        async ({ params: { unitId } }) => {
-          const unit = await getUnit(unitId);
+        async ({ workspaceUser, params: { unitId } }) => {
+          const unit = await getUnit(unitId, workspaceUser.workspaceId);
           if (!unit) return error("Not Found");
           return await getUnitRevisions(unit.id);
         },

@@ -1,13 +1,15 @@
-import { insertPartVariation } from "@cloud/shared";
+import { insertPartVariation, partVariationUpdate } from "@cloud/shared";
 import Elysia, { t } from "elysia";
 import { db } from "../db/kysely";
 import {
   createPartVariation,
+  getPartVariation,
   getPartVariationTree,
+  getPartVariationUnits,
+  updatePartVariation,
   withPartVariationMarket,
   withPartVariationType,
 } from "../db/part-variation";
-import { withUnitParent } from "../db/unit";
 import { checkWorkspacePerm } from "../lib/perm/workspace";
 import { WorkspaceMiddleware } from "../middlewares/workspace";
 import { fromTransaction } from "../lib/db-utils";
@@ -73,20 +75,16 @@ export const PartVariationRoute = new Elysia({
       .get(
         "/",
         async ({ workspace, params: { partVariationId }, error }) => {
-          const partVariation = await db
-            .selectFrom("part_variation")
-            .selectAll("part_variation")
-            .where("part_variation.id", "=", partVariationId)
-            .where("part_variation.workspaceId", "=", workspace.id)
-            .select((eb) => [withPartVariationType(eb)])
-            .select((eb) => [withPartVariationMarket(eb)])
-            .executeTakeFirst();
+          const partVariation = await getPartVariation(
+            workspace.id,
+            partVariationId,
+          );
 
           if (partVariation === undefined) {
             return error(404, "PartVariation not found");
           }
 
-          return await getPartVariationTree(partVariation);
+          return await getPartVariationTree(db, partVariation);
         },
         {
           params: t.Object({ partVariationId: t.String() }),
@@ -100,18 +98,44 @@ export const PartVariationRoute = new Elysia({
           },
         },
       )
+      .patch(
+        "/",
+        async ({ workspace, body, params: { partVariationId }, error }) => {
+          const partVariation = await getPartVariation(
+            workspace.id,
+            partVariationId,
+          );
+          if (partVariation === undefined)
+            return error(404, "Part variation not found");
+
+          const res = await updatePartVariation(
+            db,
+            partVariationId,
+            workspace.id,
+            body,
+          );
+
+          if (res.isErr()) return error(res.error.code, res.error);
+
+          return {};
+        },
+        {
+          params: t.Object({ partVariationId: t.String() }),
+          body: partVariationUpdate,
+
+          async beforeHandle({ workspaceUser, error }) {
+            const perm = await checkWorkspacePerm({ workspaceUser });
+            return perm.match(
+              (perm) => (perm.canRead() ? undefined : error("Forbidden")),
+              (err) => error(403, err),
+            );
+          },
+        },
+      )
       .get(
         "/unit",
-        async ({ workspace, params: { partVariationId } }) => {
-          const partVariations = await db
-            .selectFrom("unit")
-            .selectAll("unit")
-            .where("unit.workspaceId", "=", workspace.id)
-            .where("unit.partVariationId", "=", partVariationId)
-            .select((eb) => withUnitParent(eb))
-            .execute();
-
-          return partVariations;
+        async ({ params: { partVariationId } }) => {
+          return await getPartVariationUnits(partVariationId);
         },
         {
           params: t.Object({ partVariationId: t.String() }),

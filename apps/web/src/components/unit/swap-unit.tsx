@@ -1,6 +1,6 @@
-import { toast } from "sonner";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { toast } from "sonner";
 
 import {
   Form,
@@ -24,25 +24,20 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Edit } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-import { typeboxResolver } from "@hookform/resolvers/typebox";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { client } from "@/lib/client";
 import { getUnitQueryKey, getUnitsQueryOpts } from "@/lib/queries/unit";
+import { handleError } from "@/lib/utils";
 import {
-  Workspace,
-  UnitTreeRoot,
   SwapUnitComponent,
+  UnitTreeRoot,
+  Workspace,
   swapUnitComponent,
 } from "@cloud/shared";
+import { typeboxResolver } from "@hookform/resolvers/typebox";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Edit } from "lucide-react";
+import { Combobox } from "@/components/ui/combobox";
 
 type FormSchema = SwapUnitComponent;
 
@@ -87,7 +82,7 @@ const SwapUnit = ({ workspace, unit }: Props) => {
     toast.promise(swapUnit.mutateAsync(values), {
       loading: "Creating unit revision...",
       success: "Revision created.",
-      error: (err) => `${err}`,
+      error: handleError,
     });
   }
 
@@ -133,18 +128,18 @@ const SwapUnit = ({ workspace, unit }: Props) => {
                 <FormItem>
                   <FormLabel>Old Component</FormLabel>
                   <FormControl>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {unit.components.map((child) => (
-                          <SelectItem value={child.id} key={child.id}>
-                            {child.serialNumber}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div>
+                      <Combobox
+                        options={unit.components}
+                        value={field.value}
+                        setValue={(val) =>
+                          form.setValue("oldUnitComponentId", val ?? "")
+                        }
+                        displaySelector={(val) => val.serialNumber}
+                        valueSelector={(val) => val.id}
+                        searchText="Search unit..."
+                      />
+                    </div>
                   </FormControl>
                   <FormDescription>
                     Which component do you want to take out?
@@ -161,22 +156,19 @@ const SwapUnit = ({ workspace, unit }: Props) => {
                 <FormItem>
                   <FormLabel>New Component</FormLabel>
                   <FormControl>
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      disabled={selectedPartVariation === undefined}
-                    >
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {(swappable ?? []).map((h) => (
-                          <SelectItem value={h.id} key={h.id}>
-                            {h.serialNumber}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div>
+                      <Combobox
+                        options={swappable ?? []}
+                        value={field.value}
+                        setValue={(val) =>
+                          form.setValue("newUnitComponentId", val ?? "")
+                        }
+                        displaySelector={(val) => val.serialNumber}
+                        valueSelector={(val) => val.id}
+                        searchText="Search unit..."
+                        disabled={selectedPartVariation === undefined}
+                      />
+                    </div>
                   </FormControl>
                   <FormDescription>
                     Which component do you want to put in its place?

@@ -334,7 +334,7 @@ const CreatePartVariation = ({
                   &apos;blueprint&apos; of the system.
                 </FormDescription>
                 {fields.map((field, index) => (
-                  <div className="flex gap-2 " key={field.partVariationId}>
+                  <div className="flex gap-2" key={field.partVariationId}>
                     <FormField
                       control={form.control}
                       name={`components.${index}.partVariationId` as const}
@@ -356,6 +356,8 @@ const CreatePartVariation = ({
                                 val.description ?? ""
                               }
                               searchText="Search part variation..."
+                              avoidCollisions={true}
+                              side="top"
                             />
                           </FormControl>
                           <FormMessage />
