@@ -20,4 +20,3 @@ Visualize test runs per station
 Register part numbers and define your product's part hierarchy
 
 ![image](https://github.com/flojoy-ai/cloud/assets/1865834/eac01599-b01c-4f81-95e9-994c054b9c43)
-
